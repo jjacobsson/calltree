@@ -1,5 +1,6 @@
 
  * Add instructions for building the code... It's the obvious things that get you in the end isent it?
+ * Setup Jamrules for calling bison & flex for the parser, and get the "pre-built" files out of the repository
  * Add some documentation
  * More tests would be good...
  * fix layout algorithm for xgml files
