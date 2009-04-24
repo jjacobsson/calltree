@@ -23,23 +23,16 @@ node : you_cant_type
 	: action : print : str = "You can't even type properly? What's wrong with you? I'm leaving!" ;
 
 node : what_are_you_talking_about
-	: action : print : str = "I ain't listening to that crap, try \"help\" if you dont know wtf you are doing." ; 
+	: action : print : str = "I ain't listening to that #/¤&, try \"help\" if you dont know wtf you are doing." ; 
 
 node : print_onion_str_response
-	: action : print : str = "Carefull fucker, I know where you live." ;
+	: action : print : str = "Carefull mother-#%/#%, I know where you live." ;
 
 node : print_exit_str_response
-	: action : print : str = "Yeah, get the fuck out of here!" ;
+	: action : print : str = "Yeah, get the /&¤# out of here!" ;
 
 node : print_hej_str_response
-	: action : print : str = "Shut the fuck up, idiot." ;
-
-#ifndef _BTREE_COMPILER_
-
-node : print_penis_str_response
-	: action : print : str = "Cock?" ;
-
-#endif
+	: action : print : str = "Shut the $(#/ up, idiot." ;
 
 node : print_help_str_response
 	: action : print : str = "lol!" ;
@@ -62,13 +55,6 @@ node : check_help_str
 node : check_lol_str
 	: action : strcmp : str = "lol!" ;
 
-#ifndef _BTREE_COMPILER_
-
-node : check_penis_str
-	: action : strcmp : str = "penis" ;
-
-#endif
-
 node : check_onion_seq				
 	: sequence : check_onion_str, print_onion_str_response ;
 
@@ -84,20 +70,8 @@ node : check_help_seq
 node : check_lol_seq
 	: sequence : check_lol_str, print_lol_str_response ;
 
-#ifndef _BTREE_COMPILER_
-
-node : check_penis_seq
-	: sequence : check_penis_str, print_penis_str_response ;
-
-node : process_input
-	: selector : check_exit_seq, check_lol_seq, check_help_seq, check_hej_seq , check_onion_seq, check_penis_seq, what_are_you_talking_about ;
-
-#else
-
 node : process_input
 	: selector : check_exit_seq, check_lol_seq, check_help_seq, check_hej_seq , check_onion_seq, what_are_you_talking_about ;
-
-#endif
 
 node : get_input
 	: action : getline ;
