@@ -1,0 +1,1152 @@
+Grammatik
+
+    0 $accept: nt_behaviour_tree $end
+
+    1 nt_behaviour_tree: nt_declaration_list T_END_OF_FILE
+
+    2 nt_declaration_list: nt_declaration_list nt_declaration
+    3                    | nt_declaration
+
+    4 nt_declaration: nt_action_dec
+    5               | nt_decorator_dec
+    6               | nt_node_dec
+    7               | nt_root_dec
+    8               | T_SEMICOLON
+
+    9 nt_action_dec: T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+   11 nt_function_id: T_INT32_VALUE
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON
+   15                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_SEMICOLON
+
+   16 nt_node_dec: T_NODE T_COLON nt_id T_COLON nt_node_grist
+
+   17 nt_root_dec: T_ROOT T_COLON nt_node_ref T_SEMICOLON
+
+   18 nt_node_grist: nt_selector_node_grist
+   19              | nt_dyn_selector_node_grist
+   20              | nt_sequence_node_grist
+   21              | nt_parallel_node_grist
+   22              | nt_decorator_node_grist
+   23              | nt_action_node_grist
+
+   24 nt_selector_node_grist: T_SELECTOR T_COLON nt_node_list T_SEMICOLON
+
+   25 nt_dyn_selector_node_grist: T_DSELECTOR T_COLON nt_node_list T_SEMICOLON
+
+   26 nt_sequence_node_grist: T_SEQUENCE T_COLON nt_node_list T_SEMICOLON
+
+   27 nt_parallel_node_grist: T_PARALLEL T_COLON nt_node_list T_SEMICOLON
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
+   29                        | T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
+
+   30 nt_action_node_grist: T_ACTION T_COLON nt_action_ref T_SEMICOLON
+   31                     | T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
+
+   32 nt_node_list: /* tom */
+   33             | nt_node_list T_COMMA nt_node_ref
+   34             | nt_node_ref
+
+   35 nt_node_ref: nt_id
+
+   36 nt_action_ref: nt_id
+
+   37 nt_decorator_ref: nt_id
+
+   38 nt_id: T_ID
+
+   39 nt_variable_dec_list: /* tom */
+   40                     | nt_variable_dec_list T_COMMA nt_variable_dec
+   41                     | nt_variable_dec
+
+   42 nt_variable_dec: T_STRING T_ID
+   43                | T_INT32 T_ID
+   44                | T_FLOAT T_ID
+   45                | T_BOOL T_ID
+
+   46 nt_variable_list: /* tom */
+   47                 | nt_variable_list T_COMMA nt_variable
+   48                 | nt_variable
+
+   49 nt_variable: T_ID T_ASSIGNMENT T_STRING_VALUE
+   50            | T_ID T_ASSIGNMENT T_INT32_VALUE
+   51            | T_ID T_ASSIGNMENT T_FLOAT_VALUE
+   52            | T_ID T_ASSIGNMENT T_BOOL_VALUE
+
+
+Terminaler, med regler där de förekommer
+
+$end (0) 0
+error (256)
+T_ROOT (258) 17
+T_NODE (259) 16
+T_ID (260) 38 42 43 44 45 49 50 51 52
+T_COLON (261) 9 10 12 13 14 15 16 17 24 25 26 27 28 29 30 31
+T_SEMICOLON (262) 8 12 13 14 15 17 24 25 26 27 28 29 30 31
+T_COMMA (263) 33 40 47
+T_ASSIGNMENT (264) 49 50 51 52
+T_SEQUENCE (265) 26
+T_SELECTOR (266) 24
+T_DSELECTOR (267) 25
+T_PARALLEL (268) 27
+T_ACTION (269) 9 30 31
+T_DECORATOR (270) 10 28 29
+T_INT32 (271) 43
+T_BOOL (272) 45
+T_FLOAT (273) 44
+T_STRING (274) 42
+T_INT32_VALUE (275) 11 12 14 50
+T_BOOL_VALUE (276) 10 12 13 14 15 52
+T_FLOAT_VALUE (277) 51
+T_STRING_VALUE (278) 49
+T_END_OF_FILE (279) 1
+
+
+Icketerminaler, med regler där de förekommer
+
+$accept (25)
+    till vänster: 0
+nt_behaviour_tree (26)
+    till vänster: 1, till höger: 0
+nt_declaration_list (27)
+    till vänster: 2 3, till höger: 1 2
+nt_declaration (28)
+    till vänster: 4 5 6 7 8, till höger: 2 3
+nt_action_dec (29)
+    till vänster: 9, till höger: 4
+nt_decorator_dec (30)
+    till vänster: 10, till höger: 5
+nt_function_id (31)
+    till vänster: 11, till höger: 9 10
+nt_function_grist (32)
+    till vänster: 12 13 14 15, till höger: 9 10
+nt_node_dec (33)
+    till vänster: 16, till höger: 6
+nt_root_dec (34)
+    till vänster: 17, till höger: 7
+nt_node_grist (35)
+    till vänster: 18 19 20 21 22 23, till höger: 16
+nt_selector_node_grist (36)
+    till vänster: 24, till höger: 18
+nt_dyn_selector_node_grist (37)
+    till vänster: 25, till höger: 19
+nt_sequence_node_grist (38)
+    till vänster: 26, till höger: 20
+nt_parallel_node_grist (39)
+    till vänster: 27, till höger: 21
+nt_decorator_node_grist (40)
+    till vänster: 28 29, till höger: 22
+nt_action_node_grist (41)
+    till vänster: 30 31, till höger: 23
+nt_node_list (42)
+    till vänster: 32 33 34, till höger: 24 25 26 27 33
+nt_node_ref (43)
+    till vänster: 35, till höger: 17 28 29 33 34
+nt_action_ref (44)
+    till vänster: 36, till höger: 30 31
+nt_decorator_ref (45)
+    till vänster: 37, till höger: 28 29
+nt_id (46)
+    till vänster: 38, till höger: 9 10 16 35 36 37
+nt_variable_dec_list (47)
+    till vänster: 39 40 41, till höger: 12 13 40
+nt_variable_dec (48)
+    till vänster: 42 43 44 45, till höger: 40 41
+nt_variable_list (49)
+    till vänster: 46 47 48, till höger: 29 31 47
+nt_variable (50)
+    till vänster: 49 50 51 52, till höger: 47 48
+
+
+tillstånd 0
+
+    0 $accept: . nt_behaviour_tree $end
+
+    T_ROOT       skifta, och gå till tillstånd 1
+    T_NODE       skifta, och gå till tillstånd 2
+    T_SEMICOLON  skifta, och gå till tillstånd 3
+    T_ACTION     skifta, och gå till tillstånd 4
+    T_DECORATOR  skifta, och gå till tillstånd 5
+
+    nt_behaviour_tree    gå till tillstånd 6
+    nt_declaration_list  gå till tillstånd 7
+    nt_declaration       gå till tillstånd 8
+    nt_action_dec        gå till tillstånd 9
+    nt_decorator_dec     gå till tillstånd 10
+    nt_node_dec          gå till tillstånd 11
+    nt_root_dec          gå till tillstånd 12
+
+
+tillstånd 1
+
+   17 nt_root_dec: T_ROOT . T_COLON nt_node_ref T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 13
+
+
+tillstånd 2
+
+   16 nt_node_dec: T_NODE . T_COLON nt_id T_COLON nt_node_grist
+
+    T_COLON  skifta, och gå till tillstånd 14
+
+
+tillstånd 3
+
+    8 nt_declaration: T_SEMICOLON .
+
+    $standard  reducera med regel 8 (nt_declaration)
+
+
+tillstånd 4
+
+    9 nt_action_dec: T_ACTION . T_COLON nt_id T_COLON nt_function_id nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 15
+
+
+tillstånd 5
+
+   10 nt_decorator_dec: T_DECORATOR . T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 16
+
+
+tillstånd 6
+
+    0 $accept: nt_behaviour_tree . $end
+
+    $end  skifta, och gå till tillstånd 17
+
+
+tillstånd 7
+
+    1 nt_behaviour_tree: nt_declaration_list . T_END_OF_FILE
+    2 nt_declaration_list: nt_declaration_list . nt_declaration
+
+    T_ROOT         skifta, och gå till tillstånd 1
+    T_NODE         skifta, och gå till tillstånd 2
+    T_SEMICOLON    skifta, och gå till tillstånd 3
+    T_ACTION       skifta, och gå till tillstånd 4
+    T_DECORATOR    skifta, och gå till tillstånd 5
+    T_END_OF_FILE  skifta, och gå till tillstånd 18
+
+    nt_declaration    gå till tillstånd 19
+    nt_action_dec     gå till tillstånd 9
+    nt_decorator_dec  gå till tillstånd 10
+    nt_node_dec       gå till tillstånd 11
+    nt_root_dec       gå till tillstånd 12
+
+
+tillstånd 8
+
+    3 nt_declaration_list: nt_declaration .
+
+    $standard  reducera med regel 3 (nt_declaration_list)
+
+
+tillstånd 9
+
+    4 nt_declaration: nt_action_dec .
+
+    $standard  reducera med regel 4 (nt_declaration)
+
+
+tillstånd 10
+
+    5 nt_declaration: nt_decorator_dec .
+
+    $standard  reducera med regel 5 (nt_declaration)
+
+
+tillstånd 11
+
+    6 nt_declaration: nt_node_dec .
+
+    $standard  reducera med regel 6 (nt_declaration)
+
+
+tillstånd 12
+
+    7 nt_declaration: nt_root_dec .
+
+    $standard  reducera med regel 7 (nt_declaration)
+
+
+tillstånd 13
+
+   17 nt_root_dec: T_ROOT T_COLON . nt_node_ref T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_node_ref  gå till tillstånd 21
+    nt_id        gå till tillstånd 22
+
+
+tillstånd 14
+
+   16 nt_node_dec: T_NODE T_COLON . nt_id T_COLON nt_node_grist
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_id  gå till tillstånd 23
+
+
+tillstånd 15
+
+    9 nt_action_dec: T_ACTION T_COLON . nt_id T_COLON nt_function_id nt_function_grist
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_id  gå till tillstånd 24
+
+
+tillstånd 16
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON . nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_id  gå till tillstånd 25
+
+
+tillstånd 17
+
+    0 $accept: nt_behaviour_tree $end .
+
+    $standard  acceptera
+
+
+tillstånd 18
+
+    1 nt_behaviour_tree: nt_declaration_list T_END_OF_FILE .
+
+    $standard  reducera med regel 1 (nt_behaviour_tree)
+
+
+tillstånd 19
+
+    2 nt_declaration_list: nt_declaration_list nt_declaration .
+
+    $standard  reducera med regel 2 (nt_declaration_list)
+
+
+tillstånd 20
+
+   38 nt_id: T_ID .
+
+    $standard  reducera med regel 38 (nt_id)
+
+
+tillstånd 21
+
+   17 nt_root_dec: T_ROOT T_COLON nt_node_ref . T_SEMICOLON
+
+    T_SEMICOLON  skifta, och gå till tillstånd 26
+
+
+tillstånd 22
+
+   35 nt_node_ref: nt_id .
+
+    $standard  reducera med regel 35 (nt_node_ref)
+
+
+tillstånd 23
+
+   16 nt_node_dec: T_NODE T_COLON nt_id . T_COLON nt_node_grist
+
+    T_COLON  skifta, och gå till tillstånd 27
+
+
+tillstånd 24
+
+    9 nt_action_dec: T_ACTION T_COLON nt_id . T_COLON nt_function_id nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 28
+
+
+tillstånd 25
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id . T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 29
+
+
+tillstånd 26
+
+   17 nt_root_dec: T_ROOT T_COLON nt_node_ref T_SEMICOLON .
+
+    $standard  reducera med regel 17 (nt_root_dec)
+
+
+tillstånd 27
+
+   16 nt_node_dec: T_NODE T_COLON nt_id T_COLON . nt_node_grist
+
+    T_SEQUENCE   skifta, och gå till tillstånd 30
+    T_SELECTOR   skifta, och gå till tillstånd 31
+    T_DSELECTOR  skifta, och gå till tillstånd 32
+    T_PARALLEL   skifta, och gå till tillstånd 33
+    T_ACTION     skifta, och gå till tillstånd 34
+    T_DECORATOR  skifta, och gå till tillstånd 35
+
+    nt_node_grist               gå till tillstånd 36
+    nt_selector_node_grist      gå till tillstånd 37
+    nt_dyn_selector_node_grist  gå till tillstånd 38
+    nt_sequence_node_grist      gå till tillstånd 39
+    nt_parallel_node_grist      gå till tillstånd 40
+    nt_decorator_node_grist     gå till tillstånd 41
+    nt_action_node_grist        gå till tillstånd 42
+
+
+tillstånd 28
+
+    9 nt_action_dec: T_ACTION T_COLON nt_id T_COLON . nt_function_id nt_function_grist
+
+    T_INT32_VALUE  skifta, och gå till tillstånd 43
+
+    nt_function_id  gå till tillstånd 44
+
+
+tillstånd 29
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON . nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_INT32_VALUE  skifta, och gå till tillstånd 43
+
+    nt_function_id  gå till tillstånd 45
+
+
+tillstånd 30
+
+   26 nt_sequence_node_grist: T_SEQUENCE . T_COLON nt_node_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 46
+
+
+tillstånd 31
+
+   24 nt_selector_node_grist: T_SELECTOR . T_COLON nt_node_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 47
+
+
+tillstånd 32
+
+   25 nt_dyn_selector_node_grist: T_DSELECTOR . T_COLON nt_node_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 48
+
+
+tillstånd 33
+
+   27 nt_parallel_node_grist: T_PARALLEL . T_COLON nt_node_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 49
+
+
+tillstånd 34
+
+   30 nt_action_node_grist: T_ACTION . T_COLON nt_action_ref T_SEMICOLON
+   31                     | T_ACTION . T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 50
+
+
+tillstånd 35
+
+   28 nt_decorator_node_grist: T_DECORATOR . T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
+   29                        | T_DECORATOR . T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 51
+
+
+tillstånd 36
+
+   16 nt_node_dec: T_NODE T_COLON nt_id T_COLON nt_node_grist .
+
+    $standard  reducera med regel 16 (nt_node_dec)
+
+
+tillstånd 37
+
+   18 nt_node_grist: nt_selector_node_grist .
+
+    $standard  reducera med regel 18 (nt_node_grist)
+
+
+tillstånd 38
+
+   19 nt_node_grist: nt_dyn_selector_node_grist .
+
+    $standard  reducera med regel 19 (nt_node_grist)
+
+
+tillstånd 39
+
+   20 nt_node_grist: nt_sequence_node_grist .
+
+    $standard  reducera med regel 20 (nt_node_grist)
+
+
+tillstånd 40
+
+   21 nt_node_grist: nt_parallel_node_grist .
+
+    $standard  reducera med regel 21 (nt_node_grist)
+
+
+tillstånd 41
+
+   22 nt_node_grist: nt_decorator_node_grist .
+
+    $standard  reducera med regel 22 (nt_node_grist)
+
+
+tillstånd 42
+
+   23 nt_node_grist: nt_action_node_grist .
+
+    $standard  reducera med regel 23 (nt_node_grist)
+
+
+tillstånd 43
+
+   11 nt_function_id: T_INT32_VALUE .
+
+    $standard  reducera med regel 11 (nt_function_id)
+
+
+tillstånd 44
+
+    9 nt_action_dec: T_ACTION T_COLON nt_id T_COLON nt_function_id . nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 52
+
+    nt_function_grist  gå till tillstånd 53
+
+
+tillstånd 45
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id . T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 54
+
+
+tillstånd 46
+
+   26 nt_sequence_node_grist: T_SEQUENCE T_COLON . nt_node_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    $standard  reducera med regel 32 (nt_node_list)
+
+    nt_node_list  gå till tillstånd 55
+    nt_node_ref   gå till tillstånd 56
+    nt_id         gå till tillstånd 22
+
+
+tillstånd 47
+
+   24 nt_selector_node_grist: T_SELECTOR T_COLON . nt_node_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    $standard  reducera med regel 32 (nt_node_list)
+
+    nt_node_list  gå till tillstånd 57
+    nt_node_ref   gå till tillstånd 56
+    nt_id         gå till tillstånd 22
+
+
+tillstånd 48
+
+   25 nt_dyn_selector_node_grist: T_DSELECTOR T_COLON . nt_node_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    $standard  reducera med regel 32 (nt_node_list)
+
+    nt_node_list  gå till tillstånd 58
+    nt_node_ref   gå till tillstånd 56
+    nt_id         gå till tillstånd 22
+
+
+tillstånd 49
+
+   27 nt_parallel_node_grist: T_PARALLEL T_COLON . nt_node_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    $standard  reducera med regel 32 (nt_node_list)
+
+    nt_node_list  gå till tillstånd 59
+    nt_node_ref   gå till tillstånd 56
+    nt_id         gå till tillstånd 22
+
+
+tillstånd 50
+
+   30 nt_action_node_grist: T_ACTION T_COLON . nt_action_ref T_SEMICOLON
+   31                     | T_ACTION T_COLON . nt_action_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_action_ref  gå till tillstånd 60
+    nt_id          gå till tillstånd 61
+
+
+tillstånd 51
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON . nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
+   29                        | T_DECORATOR T_COLON . nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_decorator_ref  gå till tillstånd 62
+    nt_id             gå till tillstånd 63
+
+
+tillstånd 52
+
+   12 nt_function_grist: T_COLON . T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON . T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON . T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON
+   15                  | T_COLON . T_BOOL_VALUE T_COLON T_BOOL_VALUE T_SEMICOLON
+
+    T_BOOL_VALUE  skifta, och gå till tillstånd 64
+
+
+tillstånd 53
+
+    9 nt_action_dec: T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist .
+
+    $standard  reducera med regel 9 (nt_action_dec)
+
+
+tillstånd 54
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON . T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_BOOL_VALUE  skifta, och gå till tillstånd 65
+
+
+tillstånd 55
+
+   26 nt_sequence_node_grist: T_SEQUENCE T_COLON nt_node_list . T_SEMICOLON
+   33 nt_node_list: nt_node_list . T_COMMA nt_node_ref
+
+    T_SEMICOLON  skifta, och gå till tillstånd 66
+    T_COMMA      skifta, och gå till tillstånd 67
+
+
+tillstånd 56
+
+   34 nt_node_list: nt_node_ref .
+
+    $standard  reducera med regel 34 (nt_node_list)
+
+
+tillstånd 57
+
+   24 nt_selector_node_grist: T_SELECTOR T_COLON nt_node_list . T_SEMICOLON
+   33 nt_node_list: nt_node_list . T_COMMA nt_node_ref
+
+    T_SEMICOLON  skifta, och gå till tillstånd 68
+    T_COMMA      skifta, och gå till tillstånd 67
+
+
+tillstånd 58
+
+   25 nt_dyn_selector_node_grist: T_DSELECTOR T_COLON nt_node_list . T_SEMICOLON
+   33 nt_node_list: nt_node_list . T_COMMA nt_node_ref
+
+    T_SEMICOLON  skifta, och gå till tillstånd 69
+    T_COMMA      skifta, och gå till tillstånd 67
+
+
+tillstånd 59
+
+   27 nt_parallel_node_grist: T_PARALLEL T_COLON nt_node_list . T_SEMICOLON
+   33 nt_node_list: nt_node_list . T_COMMA nt_node_ref
+
+    T_SEMICOLON  skifta, och gå till tillstånd 70
+    T_COMMA      skifta, och gå till tillstånd 67
+
+
+tillstånd 60
+
+   30 nt_action_node_grist: T_ACTION T_COLON nt_action_ref . T_SEMICOLON
+   31                     | T_ACTION T_COLON nt_action_ref . T_COLON nt_variable_list T_SEMICOLON
+
+    T_COLON      skifta, och gå till tillstånd 71
+    T_SEMICOLON  skifta, och gå till tillstånd 72
+
+
+tillstånd 61
+
+   36 nt_action_ref: nt_id .
+
+    $standard  reducera med regel 36 (nt_action_ref)
+
+
+tillstånd 62
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref . T_COLON nt_node_ref T_SEMICOLON
+   29                        | T_DECORATOR T_COLON nt_decorator_ref . T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 73
+
+
+tillstånd 63
+
+   37 nt_decorator_ref: nt_id .
+
+    $standard  reducera med regel 37 (nt_decorator_ref)
+
+
+tillstånd 64
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE . T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON T_BOOL_VALUE . T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE . T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON
+   15                  | T_COLON T_BOOL_VALUE . T_COLON T_BOOL_VALUE T_SEMICOLON
+
+    T_COLON  skifta, och gå till tillstånd 74
+
+
+tillstånd 65
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE . T_COLON T_BOOL_VALUE nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 75
+
+
+tillstånd 66
+
+   26 nt_sequence_node_grist: T_SEQUENCE T_COLON nt_node_list T_SEMICOLON .
+
+    $standard  reducera med regel 26 (nt_sequence_node_grist)
+
+
+tillstånd 67
+
+   33 nt_node_list: nt_node_list T_COMMA . nt_node_ref
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_node_ref  gå till tillstånd 76
+    nt_id        gå till tillstånd 22
+
+
+tillstånd 68
+
+   24 nt_selector_node_grist: T_SELECTOR T_COLON nt_node_list T_SEMICOLON .
+
+    $standard  reducera med regel 24 (nt_selector_node_grist)
+
+
+tillstånd 69
+
+   25 nt_dyn_selector_node_grist: T_DSELECTOR T_COLON nt_node_list T_SEMICOLON .
+
+    $standard  reducera med regel 25 (nt_dyn_selector_node_grist)
+
+
+tillstånd 70
+
+   27 nt_parallel_node_grist: T_PARALLEL T_COLON nt_node_list T_SEMICOLON .
+
+    $standard  reducera med regel 27 (nt_parallel_node_grist)
+
+
+tillstånd 71
+
+   31 nt_action_node_grist: T_ACTION T_COLON nt_action_ref T_COLON . nt_variable_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 77
+
+    $standard  reducera med regel 46 (nt_variable_list)
+
+    nt_variable_list  gå till tillstånd 78
+    nt_variable       gå till tillstånd 79
+
+
+tillstånd 72
+
+   30 nt_action_node_grist: T_ACTION T_COLON nt_action_ref T_SEMICOLON .
+
+    $standard  reducera med regel 30 (nt_action_node_grist)
+
+
+tillstånd 73
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON . nt_node_ref T_SEMICOLON
+   29                        | T_DECORATOR T_COLON nt_decorator_ref T_COLON . nt_node_ref T_COLON nt_variable_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 20
+
+    nt_node_ref  gå till tillstånd 80
+    nt_id        gå till tillstånd 22
+
+
+tillstånd 74
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON . T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON T_BOOL_VALUE T_COLON . T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE T_COLON . T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON
+   15                  | T_COLON T_BOOL_VALUE T_COLON . T_BOOL_VALUE T_SEMICOLON
+
+    T_BOOL_VALUE  skifta, och gå till tillstånd 81
+
+
+tillstånd 75
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON . T_BOOL_VALUE nt_function_grist
+
+    T_BOOL_VALUE  skifta, och gå till tillstånd 82
+
+
+tillstånd 76
+
+   33 nt_node_list: nt_node_list T_COMMA nt_node_ref .
+
+    $standard  reducera med regel 33 (nt_node_list)
+
+
+tillstånd 77
+
+   49 nt_variable: T_ID . T_ASSIGNMENT T_STRING_VALUE
+   50            | T_ID . T_ASSIGNMENT T_INT32_VALUE
+   51            | T_ID . T_ASSIGNMENT T_FLOAT_VALUE
+   52            | T_ID . T_ASSIGNMENT T_BOOL_VALUE
+
+    T_ASSIGNMENT  skifta, och gå till tillstånd 83
+
+
+tillstånd 78
+
+   31 nt_action_node_grist: T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list . T_SEMICOLON
+   47 nt_variable_list: nt_variable_list . T_COMMA nt_variable
+
+    T_SEMICOLON  skifta, och gå till tillstånd 84
+    T_COMMA      skifta, och gå till tillstånd 85
+
+
+tillstånd 79
+
+   48 nt_variable_list: nt_variable .
+
+    $standard  reducera med regel 48 (nt_variable_list)
+
+
+tillstånd 80
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref . T_SEMICOLON
+   29                        | T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref . T_COLON nt_variable_list T_SEMICOLON
+
+    T_COLON      skifta, och gå till tillstånd 86
+    T_SEMICOLON  skifta, och gå till tillstånd 87
+
+
+tillstånd 81
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE . T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE . T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE . T_COLON T_INT32_VALUE T_SEMICOLON
+   15                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE . T_SEMICOLON
+
+    T_COLON      skifta, och gå till tillstånd 88
+    T_SEMICOLON  skifta, och gå till tillstånd 89
+
+
+tillstånd 82
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE . nt_function_grist
+
+    T_COLON  skifta, och gå till tillstånd 52
+
+    nt_function_grist  gå till tillstånd 90
+
+
+tillstånd 83
+
+   49 nt_variable: T_ID T_ASSIGNMENT . T_STRING_VALUE
+   50            | T_ID T_ASSIGNMENT . T_INT32_VALUE
+   51            | T_ID T_ASSIGNMENT . T_FLOAT_VALUE
+   52            | T_ID T_ASSIGNMENT . T_BOOL_VALUE
+
+    T_INT32_VALUE   skifta, och gå till tillstånd 91
+    T_BOOL_VALUE    skifta, och gå till tillstånd 92
+    T_FLOAT_VALUE   skifta, och gå till tillstånd 93
+    T_STRING_VALUE  skifta, och gå till tillstånd 94
+
+
+tillstånd 84
+
+   31 nt_action_node_grist: T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON .
+
+    $standard  reducera med regel 31 (nt_action_node_grist)
+
+
+tillstånd 85
+
+   47 nt_variable_list: nt_variable_list T_COMMA . nt_variable
+
+    T_ID  skifta, och gå till tillstånd 77
+
+    nt_variable  gå till tillstånd 95
+
+
+tillstånd 86
+
+   29 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON . nt_variable_list T_SEMICOLON
+
+    T_ID  skifta, och gå till tillstånd 77
+
+    $standard  reducera med regel 46 (nt_variable_list)
+
+    nt_variable_list  gå till tillstånd 96
+    nt_variable       gå till tillstånd 79
+
+
+tillstånd 87
+
+   28 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON .
+
+    $standard  reducera med regel 28 (nt_decorator_node_grist)
+
+
+tillstånd 88
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON . T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+   13                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON . nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON . T_INT32_VALUE T_SEMICOLON
+
+    T_INT32        skifta, och gå till tillstånd 97
+    T_BOOL         skifta, och gå till tillstånd 98
+    T_FLOAT        skifta, och gå till tillstånd 99
+    T_STRING       skifta, och gå till tillstånd 100
+    T_INT32_VALUE  skifta, och gå till tillstånd 101
+
+    $standard  reducera med regel 39 (nt_variable_dec_list)
+
+    nt_variable_dec_list  gå till tillstånd 102
+    nt_variable_dec       gå till tillstånd 103
+
+
+tillstånd 89
+
+   15 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_SEMICOLON .
+
+    $standard  reducera med regel 15 (nt_function_grist)
+
+
+tillstånd 90
+
+   10 nt_decorator_dec: T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist .
+
+    $standard  reducera med regel 10 (nt_decorator_dec)
+
+
+tillstånd 91
+
+   50 nt_variable: T_ID T_ASSIGNMENT T_INT32_VALUE .
+
+    $standard  reducera med regel 50 (nt_variable)
+
+
+tillstånd 92
+
+   52 nt_variable: T_ID T_ASSIGNMENT T_BOOL_VALUE .
+
+    $standard  reducera med regel 52 (nt_variable)
+
+
+tillstånd 93
+
+   51 nt_variable: T_ID T_ASSIGNMENT T_FLOAT_VALUE .
+
+    $standard  reducera med regel 51 (nt_variable)
+
+
+tillstånd 94
+
+   49 nt_variable: T_ID T_ASSIGNMENT T_STRING_VALUE .
+
+    $standard  reducera med regel 49 (nt_variable)
+
+
+tillstånd 95
+
+   47 nt_variable_list: nt_variable_list T_COMMA nt_variable .
+
+    $standard  reducera med regel 47 (nt_variable_list)
+
+
+tillstånd 96
+
+   29 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list . T_SEMICOLON
+   47 nt_variable_list: nt_variable_list . T_COMMA nt_variable
+
+    T_SEMICOLON  skifta, och gå till tillstånd 104
+    T_COMMA      skifta, och gå till tillstånd 85
+
+
+tillstånd 97
+
+   43 nt_variable_dec: T_INT32 . T_ID
+
+    T_ID  skifta, och gå till tillstånd 105
+
+
+tillstånd 98
+
+   45 nt_variable_dec: T_BOOL . T_ID
+
+    T_ID  skifta, och gå till tillstånd 106
+
+
+tillstånd 99
+
+   44 nt_variable_dec: T_FLOAT . T_ID
+
+    T_ID  skifta, och gå till tillstånd 107
+
+
+tillstånd 100
+
+   42 nt_variable_dec: T_STRING . T_ID
+
+    T_ID  skifta, och gå till tillstånd 108
+
+
+tillstånd 101
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE . T_COLON nt_variable_dec_list T_SEMICOLON
+   14                  | T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE . T_SEMICOLON
+
+    T_COLON      skifta, och gå till tillstånd 109
+    T_SEMICOLON  skifta, och gå till tillstånd 110
+
+
+tillstånd 102
+
+   13 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list . T_SEMICOLON
+   40 nt_variable_dec_list: nt_variable_dec_list . T_COMMA nt_variable_dec
+
+    T_SEMICOLON  skifta, och gå till tillstånd 111
+    T_COMMA      skifta, och gå till tillstånd 112
+
+
+tillstånd 103
+
+   41 nt_variable_dec_list: nt_variable_dec .
+
+    $standard  reducera med regel 41 (nt_variable_dec_list)
+
+
+tillstånd 104
+
+   29 nt_decorator_node_grist: T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON .
+
+    $standard  reducera med regel 29 (nt_decorator_node_grist)
+
+
+tillstånd 105
+
+   43 nt_variable_dec: T_INT32 T_ID .
+
+    $standard  reducera med regel 43 (nt_variable_dec)
+
+
+tillstånd 106
+
+   45 nt_variable_dec: T_BOOL T_ID .
+
+    $standard  reducera med regel 45 (nt_variable_dec)
+
+
+tillstånd 107
+
+   44 nt_variable_dec: T_FLOAT T_ID .
+
+    $standard  reducera med regel 44 (nt_variable_dec)
+
+
+tillstånd 108
+
+   42 nt_variable_dec: T_STRING T_ID .
+
+    $standard  reducera med regel 42 (nt_variable_dec)
+
+
+tillstånd 109
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON . nt_variable_dec_list T_SEMICOLON
+
+    T_INT32   skifta, och gå till tillstånd 97
+    T_BOOL    skifta, och gå till tillstånd 98
+    T_FLOAT   skifta, och gå till tillstånd 99
+    T_STRING  skifta, och gå till tillstånd 100
+
+    $standard  reducera med regel 39 (nt_variable_dec_list)
+
+    nt_variable_dec_list  gå till tillstånd 113
+    nt_variable_dec       gå till tillstånd 103
+
+
+tillstånd 110
+
+   14 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON .
+
+    $standard  reducera med regel 14 (nt_function_grist)
+
+
+tillstånd 111
+
+   13 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON .
+
+    $standard  reducera med regel 13 (nt_function_grist)
+
+
+tillstånd 112
+
+   40 nt_variable_dec_list: nt_variable_dec_list T_COMMA . nt_variable_dec
+
+    T_INT32   skifta, och gå till tillstånd 97
+    T_BOOL    skifta, och gå till tillstånd 98
+    T_FLOAT   skifta, och gå till tillstånd 99
+    T_STRING  skifta, och gå till tillstånd 100
+
+    nt_variable_dec  gå till tillstånd 114
+
+
+tillstånd 113
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list . T_SEMICOLON
+   40 nt_variable_dec_list: nt_variable_dec_list . T_COMMA nt_variable_dec
+
+    T_SEMICOLON  skifta, och gå till tillstånd 115
+    T_COMMA      skifta, och gå till tillstånd 112
+
+
+tillstånd 114
+
+   40 nt_variable_dec_list: nt_variable_dec_list T_COMMA nt_variable_dec .
+
+    $standard  reducera med regel 40 (nt_variable_dec_list)
+
+
+tillstånd 115
+
+   12 nt_function_grist: T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON .
+
+    $standard  reducera med regel 12 (nt_function_grist)

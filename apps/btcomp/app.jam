@@ -1,0 +1,10 @@
+SetDependantOf $(_appname) : callback common other ;
+
+
+SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp *.c ] ;
+AddFilesToTag [ GLOB [ FDirName $(_apppath) source ] : *.cpp *.h ] ;
+AddFilesToTag [ RecursiveDirList $(_apppath) source btree : *.cpp *.h ] ;
+AddFilesToTag [ RecursiveDirList $(_apppath) source code : *.cpp *.h ] ;
+AddFilesToTag [ RecursiveDirList $(_apppath) source compiler : *.cpp *.h ] ;
+AddFilesToTag [ FDirName $(_apppath) source parser common.h ] ;
+AddFilesToTag [ FDirName $(_apppath) source parser common.cpp ] ;

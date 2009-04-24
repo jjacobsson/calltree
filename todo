@@ -1,0 +1,18 @@
+
+ * More tests would be good...
+ * fix layout algorithm for xgml files
+ * The "instructions.h" in callback really shouldent be there.
+ * Remove the separate instructions for construction/exceution/destruction in callback...
+ * Add some documentation
+ * Refactor the Behaviour Tree parser (and AST) into a library, leave code-generation stuff in btcomp
+ * Add support for c-style enums to the parser and AST.
+ * Break the pre-processor out into it's own parser, currently it's a &(%"#/"%¤"()#"& hack.
+ * Optimize
+ * Optimize
+ * Optimize
+ * Optimize
+ * Optimize
+ * Optimize
+ * Optimize
+ * Optimize
+ * And then? OPTIMIZE!

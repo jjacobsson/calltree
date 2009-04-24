@@ -1,0 +1,16 @@
+# Copyright (C) 2009, Joacim Jacobsson (j.jacobsson at gmail.com)
+# All rights reserved.
+#
+# See LICENSE file for details.
+#
+
+include config/Jamrules ;
+
+InvokeLibs 3rd ;
+InvokeLibs libs ;
+InvokeApps apps ;
+InvokeTags ;
+
+Depends apps : libs ;
+
+

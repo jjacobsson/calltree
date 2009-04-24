@@ -1,0 +1,153 @@
+#include "cbrun.h"
+
+node : start_goto_chest_1
+	: action : print : str = "...going to the chest to upgrade weapons. *shuffle* *shuffle*" ;
+
+node : start_goto_chest_2
+	: action : print : str = "...going to the chest to upgrade weapons even more. *shuffle* *shuffle*" ;
+
+node : done_with_chest_1
+	: action : print : str = "...and resumes the fight." ;
+
+node : done_with_chest_2
+	: action : print : str = "...and resumes the fight AGAIN." ;
+
+node : chest_delay_1
+	: action : count_to_zero : start = 150000 ;	
+
+node : chest_delay_2
+	: action : count_to_zero : start = 100000 ;	
+
+node : goto_chest_1
+	: sequence : start_goto_chest_1,chest_delay_1,done_with_chest_1 ;
+	
+node : goto_chest_2
+	: sequence : start_goto_chest_2,chest_delay_2,done_with_chest_2 ;
+	
+node : stomp_1
+	: action : act_succeed ;
+
+node : stomp_2
+	: action : act_succeed ;
+	
+node : wait_dialog_1
+	: action : count_to_zero : start = 1000 ;
+	
+node : wait_dialog_2
+	: action : count_to_zero : start = 1000 ;
+	
+node : speak_dialog_1
+	: action : print : str = "You landlubbers are tougher than i thought. I'll have to improvise!" ;
+
+node : speak_dialog_2
+	: action : print : str = "D'ah! Now you're making me angry!" ;
+	
+node : dialog_1
+	: sequence : speak_dialog_1, wait_dialog_1 ;
+
+node : dialog_2
+	: sequence : speak_dialog_2, wait_dialog_2 ;
+	
+node : cutscene_1
+	: sequence : stomp_1, dialog_1, goto_chest_1 ;
+	
+node : cutscene_2
+	: sequence : stomp_2, dialog_2, goto_chest_2 ;
+
+/* returns success as long as the global counter is above 66666 */	
+node : health_over_66
+	: action : check_gc_grtr : value = 66666;
+
+/* returns success as long as the global counter is above 33333 */
+node : health_over_33
+	: action : check_gc_grtr : value = 33333;
+	
+node : fight_1
+	: action : dec_gc ;
+	
+node : fight_2
+	: action : dec_gc ;
+
+node : fight_3
+	: action : dec_gc ;
+
+	
+/* change the check to report running on success and running, and report fail on fail */
+node : mod_health_66
+	: decorator : modify_return : health_over_66 : s = 2, r = 2, f = 0;
+	
+/* change the check to report running on success and running, and report fail on fail */
+node : mod_health_33
+	: decorator : modify_return : health_over_33 : s = 2, r = 2, f = 0;	
+	
+node : fight_phase_1
+	: parallel : mod_health_66, fight_1 ;
+	
+node : fight_phase_2
+	: parallel : mod_health_33, fight_2 ;
+
+node : fight_phase_3
+	: decorator : modify_return : fight_3 : s = 2, r = 2, f = 0;
+
+node : fight_cutscene_1
+	: selector : fight_phase_1, cutscene_1 ;
+	
+node : fight_cutscene_2
+	: selector : fight_phase_2, cutscene_2 ;
+	
+node : fight_sequence
+	: sequence : fight_cutscene_1, fight_cutscene_2, fight_phase_3 ;
+
+node : enemies_present_1
+	: action : count_to_zero : start = 1000 ;
+
+node : enemies_present_2
+	: action : count_to_zero : start = 1000000 ;
+
+node : health_above_zero
+	: action : check_gc_grtr : value = 0;
+	
+/* Always succeeds */
+node : fight_sequence_nocare
+	: decorator : modify_return : fight_sequence : s = 1, r = 1, f = 1 ;
+
+node : fight_to_the_death
+	: parallel : enemies_present_2, health_above_zero, fight_sequence_nocare ;
+	
+node : victory_dialog
+	: action : print : str = "Is that the best you can do? (all players died or ran off)\n" ;
+
+node : regenerate_health
+	: action : inc_gc ;
+
+node : goto_start_position 
+	: action : count_to_zero : start = 2000 ; 
+
+node : reset_encounter
+	: parallel : regenerate_health, goto_start_position ;
+
+node : exit_tree_won
+	: action : exit ;
+	
+node : await_victory
+	: sequence : fight_to_the_death, victory_dialog, reset_encounter, exit_tree_won ; 
+	
+node : noooo_I_cant_LOOOSE
+	: action : print : str = "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)\n" ; 
+	
+node : handle_defeat
+	: selector : await_victory, noooo_I_cant_LOOOSE ;
+	
+node : enemies_arrived_dialog 
+	: action : print : str = "We're under attack! A vast, ye swabs! Repel the invaders!" ;
+
+node : exit_tree_lost
+	: action : exit ;
+
+node : setup_health_counter
+	: action : set_gc : value = 100000 ;
+
+node : wait_for_enemies
+	: sequence : setup_health_counter, enemies_present_1, enemies_arrived_dialog, handle_defeat, exit_tree_lost ;
+	
+root : wait_for_enemies ;

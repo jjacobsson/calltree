@@ -1,0 +1,5 @@
+SetDependantOf $(_appname) : callback common other ;
+
+
+SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp *.c ] ;
+AddFilesToTag [ RecursiveDirList $(_apppath) source : *.cpp *.c *.h ] ;

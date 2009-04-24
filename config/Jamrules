@@ -1,0 +1,411 @@
+DEFINES_COMMON = LINUX __i386__ ;
+
+if $(NT)
+{
+	DEFINES_COMMON = WIN32 ;
+}
+
+BUILD_ROOT		= build ;
+BUILD_OBJ_DIR	= $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
+BUILD_LIB_DIR	= $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
+BUILD_BIN_DIR	= $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
+BUILD_TST_DIR	= $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
+
+PRELIB = lib ;
+
+CC		= g++ ;
+LINK	= g++ ;
+
+actions quietly MkDir1
+{
+	$(MKDIR) $(<)
+}
+
+actions piecemeal Compile
+{
+	$(CC) -O2 -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+}
+
+actions piecemeal Archive
+{
+	$(AR) $(<) $(>) >/dev/null 2>&1
+}
+
+actions quietly piecemeal RunUnitTest
+{
+    $(>)
+}
+
+actions quietly TagFile
+{
+    echo TagFile $(2)
+    etags -l c++ -I -a $(2) -o $(1)
+}
+
+actions ForceClean
+{
+    $(RM) $(1)
+}
+
+rule ForceClean
+{
+    Always $(2) ;
+    Depends $(1) : $(2) ;
+}
+
+# Strip common initial elements of variables v1 and v2, return the result
+rule StripCommon
+{
+	local _result = $(<) ;
+	if $(<[1]) = $(>[1])
+	{
+	    _result = [ StripCommon $(<[2-]) : $(>[2-]) ] ;
+	}
+	return $(_result) ;
+}
+
+rule FWords
+{
+    local string = $(1) ;
+    local whitespace = $(2) ;
+    whitespace = $(whitespace:J="") ;
+    whitespace ?= $(.whitespace) ;
+    local w = ;
+    while $(string)
+    {
+        string = [ MATCH "^[$(whitespace)]*([^$(whitespace)]*)(.*)" : $(string) ] ;
+        if $(string[1]) && $(string[1]) != ""
+        {
+            w += $(string[1]) ;
+        }
+        string = $(string[2]) ;
+    }
+    return $(w) ;
+}
+
+rule ListDir
+{
+	local _result = ;
+	local _dirlist = [ GLOB $(1) : * ] ;
+	local _subdir = ;
+	for _subdir in $(_dirlist)
+	{
+		local _d = ;
+		switch $(_subdir)
+		{
+			case *\\.	: _d = ;
+			case *\\..	: _d = ;
+			case *		: _result += $(_subdir) ;
+		}
+	}
+	return $(_result) ;
+}
+
+rule RecursiveDir
+{
+	local _results = [ GLOB $(1) : $(2) ] ;
+	local _subdirs = [ ListDir $(1) ] ;
+	local _subdir = ;
+	for _subdir in $(_subdirs)
+	{
+		_results += [ RecursiveDir $(_subdir) : $(2) ] ;
+	}
+
+	return $(_results) ;
+}
+
+rule RecursiveDirList 
+{
+	local _dir = [ FDirName $(1) ] ;
+	return [ RecursiveDir $(_dir) : $(2) ] ;
+}
+
+rule AddFilesToTag
+{
+    if $(TAG_FILES)
+    {
+        TAG_FILES += $(1) ;
+    }
+    else
+    {
+        TAG_FILES = $(1) ;
+    }
+}
+
+rule SetDependantOf
+{
+	if $($(1)_dependant_of) 
+	{
+		$(1)_dependant_of += $(2) ;
+	}
+	else
+	{
+		$(1)_dependant_of = $(2) ;
+	}
+}
+
+rule SetSearchPaths 
+{
+	local _dir = [ FDirName $(2) ] ;
+    local _headers = ;
+	if $($(1)_include_search_paths)
+	{
+		$(1)_include_search_paths += $(_dir) ;
+		_headers = [ RecursiveDir $(_dir) : *.h ] ;
+        if $(_tag_headers)
+        {
+            $(1)_include_headers += $(_headers) ;
+        }        
+	}
+	else
+	{
+		$(1)_include_search_paths = $(_dir) ;
+		_headers = [ RecursiveDir $(_dir) : *.h ] ;
+        if $(_tag_headers)
+        {
+            $(1)_include_headers = $(_headers) ;
+        }        
+	}
+}
+
+rule GetSearchPaths
+{
+	if $($(1)_include_search_paths)
+	{
+		return [ FIncludes $($(1)_include_search_paths) ] ;	
+	}
+	else
+	{
+		echo Attempting to use include path for library $(1), but they are not set. ;
+	}
+}
+
+rule SetLinkLibraries
+{
+	if $($(1)_library_files)
+	{
+		$(1)_library_files += $(2) ;
+	}
+	else
+	{
+		$(1)_library_files = $(2) ;
+	}
+}
+
+rule GetLinkLibraries 
+{
+	if $($(1)_library_files)
+	{
+		return $($(1)_library_files) ;	
+	}
+	else
+	{
+		echo Attempting to use library files for library $(1), but they are not set. ;
+	}
+}
+
+rule SetObjectFiles
+{
+	$(1)_object_files = ;
+	local _i = ;
+	for _i in $($(1)_source_files)
+	{
+		local _object		= $(BUILD_OBJ_DIR)$(_i:S=$(SUFOBJ)) ;
+		local _path			= $(_object:P) ;
+		$(1)_object_files	+= $(_object) ;
+		
+		Depends $(_object) : $(_path) ;
+        Depends $(_object) : $(_i) ;
+		Compile $(_object) : $(_i) ;
+		MkDir $(_path) ;
+	}
+	Clean clean : $($(1)_object_files) ;
+}
+
+rule SetSourceFiles
+{
+	if $($(1)_source_files)
+	{
+		$(1)_source_files += $(2) ;
+	}
+	else
+	{
+		$(1)_source_files = $(2) ;
+	}
+	SetObjectFiles $(1) ;
+}
+
+rule SetVariablesOnObjects
+{
+	local _objects = $($(1)_object_files) ;
+	local _i = ;
+	for _i in $($(1)_dependant_of)
+	{
+		if $($(_i)_include_search_paths)
+		{
+			CCHDRS on $(_objects) += [ GetSearchPaths $(_i) ] ;	
+		}	
+	}	
+	if $($(1)_include_search_paths)
+	{
+		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
+	}	
+	CCDEFS on $(_objects) += [ FDefines $(DEFINES_COMMON) ] ;
+    return $(_objects) ;
+}
+
+rule SetNeededLibraries
+{
+    local _i = ;
+    for _i in $($(1)_dependant_of)
+    {
+        local _library = [ GetLinkLibraries $(_i) ] ;
+        NEEDLIBS on $(2) += $(_library) ;
+        Depends $(2) : $(_library) ;
+    }
+}
+
+rule InvokeLibraryDeclarations
+{
+	local _pass       = Declarations ;
+	local _libname	  = $(1) ;
+    local _testname   = $(1)_t ;
+	local _libpath    = $(2) ;
+	local _libfile    = $(BUILD_LIB_DIR)$(PRELIB)$(_libname)$(SUFLIB) ;
+
+	include [ GLOB [ FDirName $(2) ] : lib.jam ] ;
+
+	SetLinkLibraries $(_libname) : $(_libfile) ;
+}
+
+rule InvokeLibraryDependencies
+{
+	local _pass     = Dependencies ;
+	local _libname  = $(1) ;
+    local _testname = $(1)_t ;
+	local _libpath  = $(2) ;
+
+    local _include_file = [ GLOB [ FDirName $(2) ] : lib.jam ] ;
+	include $(_include_file) ;
+
+	local _libfile     = [ GetLinkLibraries $(_libname) ] ;
+    local _testfile    = $(BUILD_TST_DIR)$(_testname)$(SUFEXE) ;
+    local _objects     = [ SetVariablesOnObjects $(_libname) ] ;
+    local _testobjects = [ SetVariablesOnObjects $(_testname) ] ;
+    local _testrun     = $(_testname)_run ;
+
+    # Actions
+	MkDir       $(_libfile:P) ;
+    MkDir       $(_testfile:P) ;
+	Archive     $(_libfile)      : $(_objects) ;
+    Link        $(_testfile)     : $(_testobjects) ;
+    RunUnitTest $(_testrun)      : $(_testfile) ;
+    Clean       clean            : $(_libfile) ;
+    Clean       clean            : $(_testfile) ;
+
+    SetNeededLibraries $(_testname) : $(_testfile) ;
+
+    # Setup dependency chains.
+    if $(_testobjects)
+    {
+        Depends $(_libfile)  : $(_libfile:P) ;
+        Depends $(_libfile)  : $(_objects) ;
+        Depends $(_testfile) : $(_testfile:P) ;
+        Depends $(_testfile) : $(_testobjects) ;
+        Depends $(_testrun)  : $(_testfile) ;
+        Depends $(_testname) : $(_testrun) ;
+        Depends $(_libname)  : $(_libfile) ;
+        Depends $(_libname)  : $(_testname) ;
+        Depends lib          : $(_libname) ;
+        Depends test         : $(_testrun) ;
+    }
+    else
+    {
+        Depends $(_libfile) : $(_libfile:P) ;
+	    Depends $(_libfile) : $(_objects) ;
+        Depends $(_libname) : $(_libfile) ;
+        Depends lib         : $(_libname) ;
+    }
+
+    NotFile $(_libname) $(_testname) $(_testrun) test ;
+}
+
+rule InvokeApplication
+{
+	local _appname			 = $(1) ;
+	local _apppath			 = $(2) ;
+	local _appfile			 = $(BUILD_BIN_DIR)$(_appname)$(SUFEXE) ;
+	
+	include [ GLOB [ FDirName $(2) ] : app.jam ] ;
+
+	local _objects = [ SetVariablesOnObjects $(_appname) ] ;
+
+    SetNeededLibraries $(_appname) : $(_appfile) ;    
+
+    # Actions
+	MkDir $(_appfile:P) ;
+	Link  $(_appfile) : $(_objects) ;
+
+    Depends $(_appfile) : $(_appfile:P) ;
+	Depends $(_appfile) : $(_objects) ;
+	Depends $(_appname) : $(_appfile) ;
+	Depends exe	        : $(_appname) ;
+	Clean   clean       : $(_appfile) ;
+	
+    NotFile $(_appname) ;
+}
+
+rule InvokeLibs
+{
+    NotFile $(1) ;
+	local _subdirs = [ ListDir $(1) ] ;
+	local _subdir = ;
+	local _confirmed = ;
+	local _libname = ;
+	for _subdir in $(_subdirs)
+	{
+		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
+		if $(_lib_file) 
+		{
+			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
+			_confirmed += $(_libname) ;
+			Depends $(1) : $(_libname) ;
+			InvokeLibraryDeclarations $(_libname) : $(_subdir) ;
+		}
+	}
+	_libname = ;	
+	for _libname in $(_confirmed)
+	{
+		InvokeLibraryDependencies $(_libname) : [ FDirName $(1) $(_libname) ] ;	
+	}
+}
+
+rule InvokeApps
+{
+    NotFile $(1) ;
+	local _subdirs = [ ListDir $(1) ] ;
+	local _subdir = ;
+	for _subdir in $(_subdirs)
+	{
+		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
+		if $(_app_file) 
+		{
+			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
+			Depends $(1) : $(_appname) ;
+			InvokeApplication $(_appname) : $(_subdir) ;
+		}
+	}
+}
+
+rule InvokeTags
+{
+    ForceClean TAGS : clean_TAGS ;
+    local _i = ;
+    for _i in $(TAG_FILES) 
+    {
+        Depends TAGS : $(_i) ;
+        TagFile TAGS : $(_i) ;
+    }
+    Clean clean : TAGS ;
+    NotFile clean_TAGS ;
+}
