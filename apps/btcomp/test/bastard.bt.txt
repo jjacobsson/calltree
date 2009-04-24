@@ -87,7 +87,7 @@ node : talk_and_check_exit
 
 
 node : print_greeting
-	: action : print : str = "What the fuck do you want?" ;
+	: action : print : str = "What the &/¤# do you want?" ;
 
 node : greeting
 	: sequence : print_greeting, force_fail_1 ;
