@@ -85,7 +85,6 @@ node : talk_to_user
 node : talk_and_check_exit
 	: dyn_selector : talk_to_user, check_exit_cond ;
 
-
 node : print_greeting
 	: action : print : str = "What the &/¤# do you want?" ;
 

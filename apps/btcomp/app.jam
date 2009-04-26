@@ -1,10 +1,27 @@
 SetDependantOf $(_appname) : callback common other ;
 
+local _source_files = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
 
-SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp *.c ] ;
-AddFilesToTag [ GLOB [ FDirName $(_apppath) source ] : *.cpp *.h ] ;
-AddFilesToTag [ RecursiveDirList $(_apppath) source btree : *.cpp *.h ] ;
-AddFilesToTag [ RecursiveDirList $(_apppath) source code : *.cpp *.h ] ;
-AddFilesToTag [ RecursiveDirList $(_apppath) source compiler : *.cpp *.h ] ;
-AddFilesToTag [ FDirName $(_apppath) source parser common.h ] ;
-AddFilesToTag [ FDirName $(_apppath) source parser common.cpp ] ;
+AddFilesToTag $(_source_files) ;
+AddFilesToTag [ RecursiveDirList $(_apppath) source : *.h ] ;
+
+local _parser_c = [ FDirName $(_apppath) source parser parser.c ] ;
+local _lexer_c  = [ FDirName $(_apppath) source parser lexer.c ] ;
+
+Bison $(_parser_c) : [ FDirName $(_apppath) source parser parser.y ] ;
+Flex $(_lexer_c)   : [ FDirName $(_apppath) source parser lexer.l ] ;
+
+local _parser_h = [ FDirName $(_apppath) source parser parser.h ] ;
+Depends $(_parser_h)     : $(_parser_c) ;
+Depends $(_lexer_c)      : $(_parser_h) ;
+Depends $(_source_files) : $(_parser_h) ;
+
+Clean clean : $(_parser_h) ;
+Clean clean : $(_parser_c) ;
+Clean clean : $(_lexer_c) ;
+Clean clean : [ FDirName $(_apppath) source parser parser.output ] ;
+
+SetSourceFiles $(_appname) : $(_source_files) ;
+SetSourceFiles $(_appname) : $(_parser_c) ;
+SetSourceFiles $(_appname) : $(_lexer_c) ;
+

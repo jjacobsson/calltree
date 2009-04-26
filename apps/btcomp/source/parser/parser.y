@@ -7,8 +7,6 @@
  *
  */
 
-%defines
-%output="parser.c"
 %verbose
 %pure-parser
 %parse-param { ParserContext* ctx }
