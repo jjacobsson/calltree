@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "btcomp", "apps\btcomp\btcomp.vcproj", "{0B184942-D04A-400C-A81F-EE729DAC118B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5A5EE521-BB93-4D61-BD50-15784E20C2DA} = {5A5EE521-BB93-4D61-BD50-15784E20C2DA}
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900} = {7F0948E5-5F42-4295-B529-F7BF8CE02900}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "other", "3rd\other\other.vcproj", "{5A5EE521-BB93-4D61-BD50-15784E20C2DA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "callback", "libs\callback\callback.vcproj", "{7F0948E5-5F42-4295-B529-F7BF8CE02900}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0B184942-D04A-400C-A81F-EE729DAC118B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0B184942-D04A-400C-A81F-EE729DAC118B}.Debug|Win32.Build.0 = Debug|Win32
+		{0B184942-D04A-400C-A81F-EE729DAC118B}.Release|Win32.ActiveCfg = Release|Win32
+		{0B184942-D04A-400C-A81F-EE729DAC118B}.Release|Win32.Build.0 = Release|Win32
+		{5A5EE521-BB93-4D61-BD50-15784E20C2DA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5A5EE521-BB93-4D61-BD50-15784E20C2DA}.Debug|Win32.Build.0 = Debug|Win32
+		{5A5EE521-BB93-4D61-BD50-15784E20C2DA}.Release|Win32.ActiveCfg = Release|Win32
+		{5A5EE521-BB93-4D61-BD50-15784E20C2DA}.Release|Win32.Build.0 = Release|Win32
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900}.Debug|Win32.Build.0 = Debug|Win32
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900}.Release|Win32.ActiveCfg = Release|Win32
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
