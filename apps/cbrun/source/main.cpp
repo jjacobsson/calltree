@@ -381,7 +381,7 @@ int main(int argc, char** argv)
 
             frame_end = get_cpu_counter();
 
-            ud.m_FrameTime = (float)((double)(frame_end - frame_start)) / (double)freq;
+            ud.m_FrameTime = (float)(((double)(frame_end - frame_start)) / (double)freq);
             uint64 in_vm_this_frame = (frame_end - frame_start) - (ud.m_FrameCounter);
 
             if( in_vm_this_frame > maxima )

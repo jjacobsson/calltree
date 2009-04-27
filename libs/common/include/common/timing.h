@@ -17,7 +17,7 @@ inline uint64 get_cpu_frequency()
     return (uint64)t.QuadPart;
 }
 
-inline uint64 get_cpu_counter();
+inline uint64 get_cpu_counter()
 {
     LARGE_INTEGER t;
     QueryPerformanceCounter(&t);
