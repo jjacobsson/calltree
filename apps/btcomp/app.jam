@@ -12,16 +12,20 @@ Bison $(_parser_c) : [ FDirName $(_apppath) source parser parser.y ] ;
 Flex $(_lexer_c)   : [ FDirName $(_apppath) source parser lexer.l ] ;
 
 local _parser_h = [ FDirName $(_apppath) source parser parser.h ] ;
-Depends $(_parser_h)     : $(_parser_c) ;
-Depends $(_lexer_c)      : $(_parser_h) ;
-Depends $(_source_files) : $(_parser_h) ;
+
+_source_files += $(_parser_c) ;
+_source_files += $(_lexer_c) ;
+
+Includes $(_source_files) : $(_parser_h) ;
+Depends $(_parser_h)      : $(_parser_c) ;
+
+
+SetSourceFiles $(_appname) : $(_source_files) ;
 
 Clean clean : $(_parser_h) ;
 Clean clean : $(_parser_c) ;
 Clean clean : $(_lexer_c) ;
 Clean clean : [ FDirName $(_apppath) source parser parser.output ] ;
 
-SetSourceFiles $(_appname) : $(_source_files) ;
-SetSourceFiles $(_appname) : $(_parser_c) ;
-SetSourceFiles $(_appname) : $(_lexer_c) ;
+
 
