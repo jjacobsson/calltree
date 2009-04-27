@@ -1,8 +1,14 @@
-DEFINES_COMMON = LINUX __i386__ ;
-
 if $(NT)
 {
 	DEFINES_COMMON = WIN32 ;
+    PRELIB = ;
+}
+else
+{
+    DEFINES_COMMON = LINUX ;
+    PRELIB = lib ;
+    CC     = g++ ;
+    LINK   = g++ ;
 }
 
 BUILD_ROOT		= build ;
@@ -11,10 +17,6 @@ BUILD_LIB_DIR	= $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
 BUILD_BIN_DIR	= $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
 BUILD_TST_DIR	= $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
 
-PRELIB = lib ;
-
-CC		= g++ ;
-LINK	= g++ ;
 
 actions quietly MkDir1
 {
