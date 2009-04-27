@@ -6,9 +6,9 @@ if $(NT)
 else
 {
     DEFINES_COMMON = LINUX ;
-    PRELIB = lib ;
-    CC     = g++ ;
-    LINK   = g++ ;
+    PRELIB  = lib ;
+    CC      = g++ ;
+    LINK    = g++ ;
 }
 
 BUILD_ROOT		= build ;
@@ -23,9 +23,19 @@ actions quietly MkDir1
 	$(MKDIR) $(<)
 }
 
-actions piecemeal Compile
+if $(NT) 
 {
-	$(CC) -O2 -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+    actions piecemeal Compile
+    {
+        $(CC) /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+    }
+}
+else
+{
+    actions piecemeal Compile
+    {
+        $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+    }
 }
 
 actions piecemeal Archive
