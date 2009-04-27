@@ -42,7 +42,10 @@ __RCSID("$NetBSD: getopt.c,v 1.27 2005/11/29 03:12:00 christos Exp $");
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #include <other/getopt.h>
 
