@@ -16,6 +16,8 @@
 #include "compiler/grist/action_node_grist.h"
 #include "compiler/grist/decorator_node_grist.h"
 
+const double XGMLPrinter::s_node_width = 120.0;
+
 XGMLPrinter::XGMLPrinter()
 {
 }
@@ -29,61 +31,129 @@ XGMLPrinter::~XGMLPrinter()
 
 void XGMLPrinter::Visit( Node* n )
 {
-    SNode* gn       = new SNode;
-    gn->m_Node      = n;
+    NodeInfo* gn = new NodeInfo;
+    gn->m_Node   = n;
 
-    gn->m_Pos.x     = gn->m_Pos.y       = 0.0;
-    gn->m_Depth     = gn->m_ChildCount  = gn->m_DepthIndex  = gn->m_ParentIndex = 0;
-    gn->m_Parent    = gn->m_PrevDepth   = gn->m_NextDepth   = 0x0;
-
+    gn->m_Pos.x  = gn->m_Pos.y      = 0.0;
+    gn->m_Depth  = gn->m_ChildCount = gn->m_DepthIndex = gn->m_ParentIndex = 0;
+    gn->m_Parent = gn->m_PrevDepth  = gn->m_NextDepth  = 0x0;
+    gn->m_FirstChild = gn->m_LastChild = 0x0;
 
     if( n->m_Parent )
     {
         int pgn = FindParentIndex( n->m_Parent );
-        SSpring s;
-        s.m_From        = pgn;
-        s.m_To          = m_Nodes.size();
+        Spring s;
+        s.m_From = pgn;
+        s.m_To   = m_Nodes.size();
         m_Springs.push_back( s );
 
-        gn->m_Parent        = m_Nodes[pgn];
-        gn->m_Depth         = gn->m_Parent->m_Depth + 1;
-        gn->m_Pos.y         = gn->m_Parent->m_Pos.y + 140.0;
-        gn->m_ParentIndex   = gn->m_Parent->m_ChildCount++;
+        gn->m_Parent      = m_Nodes[pgn];
+        gn->m_Depth       = gn->m_Parent->m_Depth + 1;
+        gn->m_Pos.y       = gn->m_Parent->m_Pos.y + 140.0;
+        gn->m_ParentIndex = gn->m_Parent->m_ChildCount++;
+        if( gn->m_Parent->m_FirstChild == 0x0 )
+            gn->m_Parent->m_FirstChild = gn;
+
+        gn->m_Parent->m_LastChild = gn;
     }
 
     while( gn->m_Depth >= (int)m_Depth.size() )
     {
-        SDepth depth;
-        depth.m_Last    = 0x0;
-        depth.m_Count   = 0;
+        Depth depth;
+        depth.m_Last  = 0x0;
+        depth.m_First = 0x0;
+        depth.m_Count = 0;
         m_Depth.push_back( depth );
     }
 
-    SDepth& depth   = m_Depth[ gn->m_Depth ];
+    Depth& depth = m_Depth[ gn->m_Depth ];
 
-    gn->m_DepthIndex    = depth.m_Count++;
-    gn->m_PrevDepth     = depth.m_Last;
-    depth.m_Last        = gn;
+    gn->m_DepthIndex = depth.m_Count++;
+
+    if( !depth.m_First )
+    {
+        gn->m_PrevDepth = 0x0;
+        gn->m_NextDepth = 0x0;
+        depth.m_First   = gn;
+        depth.m_Last    = gn;
+    }
+    else
+    {
+        gn->m_PrevDepth = depth.m_Last;
+        gn->m_NextDepth = 0x0;
+        depth.m_Last->m_NextDepth = gn;
+        depth.m_Last = gn;
+    }
 
     m_Nodes.push_back( gn );
 }
 
 void XGMLPrinter::Layout()
 {
-    /* combined width calculation */
-    /* slight edit, an attempt to force github to get with the program. */
-    const double node_width     = 120.0f;
-
     NodeList::iterator it, it_e( m_Nodes.end() );
     for( it = m_Nodes.begin(); it != it_e; ++it )
     {
-        SNode* n = (*it);
-        if( n->m_Parent )
-        {
-            const double width  = n->m_Parent->m_ChildCount * node_width;
-            const double start  = n->m_Parent->m_Pos.x + (node_width / 2.0) - (width / 2.0);
-            n->m_Pos.x = start + (node_width * n->m_ParentIndex);
-        }
+        if( (*it)->m_Parent == 0x0 )
+            DepthFirstPlace( (*it) );
+    }
+}
+
+void XGMLPrinter::DepthFirstPlace( NodeInfo* n )
+{
+
+    if( n->m_PrevDepth )
+        n->m_Pos.x = n->m_PrevDepth->m_Pos.x + s_node_width;
+    else
+        n->m_Pos.x = 0;
+
+    if( n->m_Parent )
+    {
+        double px = n->m_Parent->m_Pos.x - (((n->m_Parent->m_ChildCount - 1) * s_node_width) / 2.0);
+        px += n->m_ParentIndex * s_node_width;
+        if( n->m_Pos.x < px )
+            n->m_Pos.x = px;
+    }
+
+    NodeInfo* it = n->m_FirstChild;
+    while( it )
+    {
+        DepthFirstPlace( it );
+
+        if( it == n->m_LastChild )
+            it = 0x0;
+        else
+            it = it->m_NextDepth;
+    }
+
+    it = n->m_LastChild;
+    while( it )
+    {
+        NodeInfo* t = it;
+        if( it == n->m_FirstChild )
+            it = 0x0;
+        else
+            it = it->m_PrevDepth;
+
+        if( t == n->m_LastChild )
+            continue;
+
+        if( t->m_ChildCount > 0 )
+            continue;
+
+        if( !t->m_NextDepth )
+            continue;
+
+        t->m_Pos.x = t->m_NextDepth->m_Pos.x - s_node_width;
+
+    }
+
+    if( n->m_FirstChild )
+    {
+        double fx = n->m_FirstChild->m_Pos.x;
+        double lx = n->m_LastChild->m_Pos.x;
+        double cx = fx + ((lx - fx)/2.0);
+        if( n->m_Pos.x < cx )
+            n->m_Pos.x = cx;
     }
 }
 
@@ -129,7 +199,7 @@ void XGMLPrinter::Print( FILE* file ) const
         }
     }
     {
-        CSpringList::const_iterator it, it_e( m_Springs.end() );
+        SpringList::const_iterator it, it_e( m_Springs.end() );
         for( it = m_Springs.begin(); it != it_e; ++it )
         {
             fprintf( file, "<section name=\"edge\">\n" );
@@ -164,8 +234,7 @@ int XGMLPrinter::FindParentIndex( const Node* n ) const
     return -1;
 }
 
-
-void XGMLPrinter::PrintSequence( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintSequence( FILE* f, const NodeInfo* n ) const
 {
     fprintf( f, "<attribute key=\"label\" type=\"String\">Sequence</attribute>\n" );
     PrintCommonGraphics( f, n );
@@ -180,7 +249,7 @@ void XGMLPrinter::PrintSequence( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintSelector( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintSelector( FILE* f, const NodeInfo* n ) const
 {
     fprintf( f, "<attribute key=\"label\" type=\"String\">Selector</attribute>\n" );
     PrintCommonGraphics( f, n );
@@ -193,7 +262,7 @@ void XGMLPrinter::PrintSelector( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintParallel( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintParallel( FILE* f, const NodeInfo* n ) const
 {
     fprintf( f, "<attribute key=\"label\" type=\"String\">Parallel</attribute>\n" );
     PrintCommonGraphics( f, n );
@@ -207,7 +276,7 @@ void XGMLPrinter::PrintParallel( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintDynSelector( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintDynSelector( FILE* f, const NodeInfo* n ) const
 {
     fprintf( f, "<attribute key=\"label\" type=\"String\">Dyn Selector</attribute>\n" );
     PrintCommonGraphics( f, n );
@@ -220,7 +289,7 @@ void XGMLPrinter::PrintDynSelector( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintDecorator( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintDecorator( FILE* f, const NodeInfo* n ) const
 {
     DecoratorNodeGrist* dng = (DecoratorNodeGrist*)n->m_Node->m_Grist;
     const char* const text      = dng->GetDecorator()->m_Id->m_Text;
@@ -236,7 +305,7 @@ void XGMLPrinter::PrintDecorator( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintAction( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintAction( FILE* f, const NodeInfo* n ) const
 {
     ActionNodeGrist* ang    = (ActionNodeGrist*)n->m_Node->m_Grist;
     const char* const text  = ang->GetAction()->m_Id->m_Text;
@@ -251,7 +320,7 @@ void XGMLPrinter::PrintAction( FILE* f, const SNode* n ) const
     fprintf( f, "</section>\n" );
 }
 
-void XGMLPrinter::PrintCommonGraphics( FILE* f, const SNode* n ) const
+void XGMLPrinter::PrintCommonGraphics( FILE* f, const NodeInfo* n ) const
 {
     fprintf( f, "<section name=\"graphics\">\n" );
     fprintf( f, "<attribute key=\"x\" type=\"double\">%.2f</attribute>\n", n->m_Pos.x );
