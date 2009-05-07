@@ -44,7 +44,7 @@ private:
     void DepthFirstPlace( NodeInfo* n, ExtentsList& el );
     double MinimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void MoveExtents( ExtentsList& el, double dist );
-    void MergeExtents( ExtentsList& r, const ExtentsList& l, const ExtentsList& r );
+    void MergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void TransformToWorld( NodeInfo* n );
     
 
