@@ -90,34 +90,36 @@ void XGMLPrinter::Visit( Node* n )
 
 void XGMLPrinter::Layout()
 {
+    ExtentsList el;
     NodeList::iterator it, it_e( m_Nodes.end() );
     for( it = m_Nodes.begin(); it != it_e; ++it )
     {
         if( (*it)->m_Parent == 0x0 )
-            DepthFirstPlace( (*it) );
+        {
+            ExtentsList t;
+            DepthFirstPlace( (*it), t );
+            double slide = MinimumRootDistance( el, t );
+            (*it)->m_Pos.x = slide;
+            MoveExtents( t, slide );
+            MergeExtents( el, el, t );
+            TransformToWorld( (*it) );
+        }
     }
 }
 
-void XGMLPrinter::DepthFirstPlace( NodeInfo* n )
+void XGMLPrinter::DepthFirstPlace( NodeInfo* n, ExtentsList& pel )
 {
-
-    if( n->m_PrevDepth )
-        n->m_Pos.x = n->m_PrevDepth->m_Pos.x + s_node_width;
-    else
-        n->m_Pos.x = 0;
-
-    if( n->m_Parent )
-    {
-        double px = n->m_Parent->m_Pos.x - (((n->m_Parent->m_ChildCount - 1) * s_node_width) / 2.0);
-        px += n->m_ParentIndex * s_node_width;
-        if( n->m_Pos.x < px )
-            n->m_Pos.x = px;
-    }
-
+    ExtentsList el;
     NodeInfo* it = n->m_FirstChild;
     while( it )
     {
-        DepthFirstPlace( it );
+        ExtentsList t;
+        DepthFirstPlace( it, t );
+        double slide = MinimumRootDistance( el, t );
+        
+        it->m_Pos.x = slide;
+        MoveExtents( t, slide );
+        MergeExtents( el, el, t );
 
         if( it == n->m_LastChild )
             it = 0x0;
@@ -125,35 +127,107 @@ void XGMLPrinter::DepthFirstPlace( NodeInfo* n )
             it = it->m_NextDepth;
     }
 
-    it = n->m_LastChild;
-    while( it )
+    it = n->m_FirstChild;
+    if( it )
     {
-        NodeInfo* t = it;
-        if( it == n->m_FirstChild )
-            it = 0x0;
-        else
-            it = it->m_PrevDepth;
 
-        if( t == n->m_LastChild )
-            continue;
-
-        if( t->m_ChildCount > 0 )
-            continue;
-
-        if( !t->m_NextDepth )
-            continue;
-
-        t->m_Pos.x = t->m_NextDepth->m_Pos.x - s_node_width;
-
-    }
-
-    if( n->m_FirstChild )
-    {
         double fx = n->m_FirstChild->m_Pos.x;
         double lx = n->m_LastChild->m_Pos.x;
-        double cx = fx + ((lx - fx)/2.0);
-        if( n->m_Pos.x < cx )
-            n->m_Pos.x = cx;
+        double slide = (lx - fx) / 2.0;
+
+        while( it )
+        {
+            it->m_Pos.x -= slide;
+            if( it == n->m_LastChild )
+                it = 0x0;
+            else
+                it = it->m_NextDepth;
+        }
+
+        MoveExtents( el, -slide );
+    }
+
+    Extents e;
+    e.l = 0;
+    e.r = s_node_width;
+    pel.push_back( e );
+    if( !el.empty() )
+        pel.insert( pel.end(), el.begin(), el.end() );
+
+}
+
+double XGMLPrinter::MinimumRootDistance( const ExtentsList& lel, const ExtentsList& rel )
+{
+    double ret = 0.0;
+    size_t s = lel.size();
+    if( s > rel.size() )
+        s = rel.size();
+
+    for( size_t i = 0; i < s; ++i )
+    {
+        const Extents& l = lel[i];
+        const Extents& r = rel[i];
+        double d = l.r - r.l;
+
+        if( d > ret )
+            ret = d;
+    }
+
+    return ret;
+}
+
+void XGMLPrinter::MoveExtents( ExtentsList& el, double dist )
+{
+    size_t s = el.size();
+    for( size_t i = 0; i < s; ++i )
+    {
+        el[i].l += dist;
+        el[i].r += dist;
+        if( m_Debug )
+            printf( "i: %d w: %.2f\n", i, el[i].r - el[i].l );
+    }
+}
+
+void XGMLPrinter::MergeExtents( ExtentsList& r, const ExtentsList& lel, const ExtentsList& rel )
+{
+    size_t ls = lel.size();
+    size_t rs = rel.size();
+
+    if( ls < rs )
+        r.resize( rs );
+    else
+        r.resize( ls );
+
+    size_t s = r.size();
+
+    for( size_t i = 0; i < s; ++i )
+    {
+        if( i < ls && i < rs )
+        {
+            const Extents& le = lel[i];
+            const Extents& re = rel[i];
+            r[i].l = le.l;
+            r[i].r = re.r;
+        }
+        else if( i < ls )
+            r[i] = lel[i];
+        else if( i < rs )
+            r[i] = rel[i];
+    }
+}
+
+void XGMLPrinter::TransformToWorld( NodeInfo* n )
+{
+    if( n->m_Parent )
+        n->m_Pos.x += n->m_Parent->m_Pos.x;
+    NodeInfo* it = n->m_FirstChild;
+    while( it )
+    {
+        TransformToWorld( it );
+        if( it == n->m_LastChild )
+            it = 0x0;
+        else
+            it = it->m_NextDepth;
     }
 }
 
@@ -236,7 +310,7 @@ int XGMLPrinter::FindParentIndex( const Node* n ) const
 
 void XGMLPrinter::PrintSequence( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Sequence</attribute>\n" );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">ellipse</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#FFFF00</attribute>\n" );
@@ -245,47 +319,47 @@ void XGMLPrinter::PrintSequence( FILE* f, const NodeInfo* n ) const
     fprintf( f, "<attribute key=\"outlineStyle\" type=\"String\">dashed</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Sequence</attribute>\n" );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintSelector( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Selector</attribute>\n" );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">ellipse</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#00FF00</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Selector</attribute>\n" );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintParallel( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Parallel</attribute>\n" );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">roundrectangle</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#800080</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Parallel</attribute>\n" );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     fprintf( f, "<attribute key=\"color\" type=\"String\">#FFFFFF</attribute>\n" );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintDynSelector( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Dyn Selector</attribute>\n" );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">octagon</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#339966</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Dyn Selector</attribute>\n" );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
     fprintf( f, "</section>\n" );
 }
 
@@ -294,14 +368,14 @@ void XGMLPrinter::PrintDecorator( FILE* f, const NodeInfo* n ) const
     DecoratorNodeGrist* dng = (DecoratorNodeGrist*)n->m_Node->m_Grist;
     const char* const text      = dng->GetDecorator()->m_Id->m_Text;
 
-    fprintf( f, "<attribute key=\"label\" type=\"String\">%s</attribute>\n", text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">diamond</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#FF0000</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">%s</attribute>\n", text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
     fprintf( f, "</section>\n" );
 }
 
@@ -309,14 +383,14 @@ void XGMLPrinter::PrintAction( FILE* f, const NodeInfo* n ) const
 {
     ActionNodeGrist* ang    = (ActionNodeGrist*)n->m_Node->m_Grist;
     const char* const text  = ang->GetAction()->m_Id->m_Text;
-    fprintf( f, "<attribute key=\"label\" type=\"String\">%s</attribute>\n", text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">triangle</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#6666FF</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">%s</attribute>\n", text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
     fprintf( f, "</section>\n" );
 }
 

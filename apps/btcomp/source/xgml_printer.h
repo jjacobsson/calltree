@@ -33,7 +33,20 @@ private:
 
     struct NodeInfo;
 
-    void DepthFirstPlace( NodeInfo* n );
+    struct Extents
+    {
+        double l;
+        double r;
+    };
+
+    typedef std::vector<Extents> ExtentsList;
+
+    void DepthFirstPlace( NodeInfo* n, ExtentsList& el );
+    double MinimumRootDistance( const ExtentsList& l, const ExtentsList& r );
+    void MoveExtents( ExtentsList& el, double dist );
+    void MergeExtents( ExtentsList& r, const ExtentsList& l, const ExtentsList& r );
+    void TransformToWorld( NodeInfo* n );
+    
 
     int FindParentIndex( const Node* n ) const;
 
@@ -42,28 +55,26 @@ private:
         int m_From;
         int m_To;
     };
-
     struct Vector
     {
         double x;
         double y;
     };
 
-
     struct NodeInfo
     {
-        Vector    m_Pos;
-        Node*     m_Node;
-        NodeInfo* m_Parent;
-        NodeInfo* m_PrevDepth;
-        NodeInfo* m_NextDepth;
-        NodeInfo* m_FirstChild;
-        NodeInfo* m_LastChild;
-        int       m_Depth;
-        int       m_ChildCount;
-        int       m_DepthIndex;       /* index on this depth */
-        int       m_ParentIndex;      /* index under parent */
-        float     m_Width;
+        Vector      m_Pos;
+        Node*       m_Node;
+        NodeInfo*   m_Parent;
+        NodeInfo*   m_PrevDepth;
+        NodeInfo*   m_NextDepth;
+        NodeInfo*   m_FirstChild;
+        NodeInfo*   m_LastChild;
+        int         m_Depth;
+        int         m_ChildCount;
+        int         m_DepthIndex;  /* index on this depth */
+        int         m_ParentIndex; /* index under parent */
+        float       m_Width;
     };
 
     struct Depth
@@ -90,6 +101,7 @@ private:
     SpringList m_Springs;
     NodeList   m_Nodes;
     DepthList  m_Depth;
+    bool       m_Debug;
 };
 
 
