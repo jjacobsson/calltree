@@ -3,10 +3,21 @@ if $(_pass) = Declarations
 	SetSearchPaths $(_libname) : $(_libpath) src ;
     local _src_files = ;
     _src_files += [ GLOB [ FDirName $(_libpath) src ] : *.cpp ] ;
-    _src_files += [ RecursiveDirList $(_libpath) src Posix : *.cpp *.c ] ;
+    if $(NT) 
+    {
+    	_src_files += [ RecursiveDirList $(_libpath) src Win32 : *.cpp *.c ] ;
+    }
+    else
+    {
+    	_src_files += [ RecursiveDirList $(_libpath) src Posix : *.cpp *.c ] ;
+    }
     SetSourceFiles $(_libname) : $(_src_files) ;
-
     SetSourceFiles $(_testname) : [ RecursiveDirList $(_libpath) src tests : *.cpp *.c ] ;
+	if $(NT)
+	{
+		SetExtraCompileFlags $(_libname) : /EHa ;
+		SetExtraCompileFlags $(_testname) : /EHa ;
+	}
 }
 else if $(_pass) = Dependencies
 {

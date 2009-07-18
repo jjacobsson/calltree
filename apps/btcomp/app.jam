@@ -1,31 +1,13 @@
-SetDependantOf $(_appname) : callback common other ;
+SetDependantOf $(_appname) : callback common other btree ;
 
 local _source_files = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
 
 AddFilesToTag $(_source_files) ;
 AddFilesToTag [ RecursiveDirList $(_apppath) source : *.h ] ;
 
-local _parser_c = [ FDirName $(_apppath) source parser parser.c ] ;
-local _lexer_c  = [ FDirName $(_apppath) source parser lexer.c ] ;
-
-Bison $(_parser_c) : [ FDirName $(_apppath) source parser parser.y ] ;
-Flex $(_lexer_c)   : [ FDirName $(_apppath) source parser lexer.l ] ;
-
-local _parser_h = [ FDirName $(_apppath) source parser parser.h ] ;
-
-_source_files += $(_parser_c) ;
-_source_files += $(_lexer_c) ;
-
-Includes $(_source_files) : $(_parser_h) ;
-Depends $(_parser_h)      : $(_parser_c) ;
-
-
 SetSourceFiles $(_appname) : $(_source_files) ;
 
-Clean clean : $(_parser_h) ;
-Clean clean : $(_parser_c) ;
-Clean clean : $(_lexer_c) ;
-Clean clean : [ FDirName $(_apppath) source parser parser.output ] ;
+
 
 
 

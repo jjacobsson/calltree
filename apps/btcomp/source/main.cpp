@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <other/getopt.h>
 
-#include "btree/btree.h"
+#include <btree/btree.h>
 #include "xgml_printer.h"
 
 int main( int argc, char** argv )
@@ -83,7 +83,7 @@ int main( int argc, char** argv )
         int parseResults = bt.Parse( inputFileName );
         if( parseResults == 0 )
         {
-            bt.m_I.SetGenerateDebugInfo( debug );
+            bt.SetGenerateDebugInfo( debug );
             bt.Generate();
             if( asmFileName )
             {

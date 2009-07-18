@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="other"
 	ProjectGUID="{5A5EE521-BB93-4D61-BD50-15784E20C2DA}"
 	RootNamespace="other"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -49,7 +50,8 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4530;4996"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
