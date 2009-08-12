@@ -13,6 +13,8 @@ if $(NT)
     CCFLAGS	+= /W3 ;
     CCFLAGS += /TP ;
     CCFLAGS += /Z7 ;
+    CCFLAGS += /MDd ;
+    CCFLAGS += /Od ;
     CCFLAGS += /errorReport:prompt ;
     CCFLAGS += /wd4530 ;
     CCFLAGS += /EHa ;
@@ -34,7 +36,6 @@ BUILD_OBJ_DIR	= $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
 BUILD_LIB_DIR	= $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
 BUILD_BIN_DIR	= $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
 BUILD_TST_DIR	= $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
-
 
 actions quietly MkDir1
 {
@@ -59,11 +60,12 @@ else
     {
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
-
+	
 	actions piecemeal Archive
 	{
 		$(AR) $(<) $(>) >/dev/null 2>&1
 	}
+
 }
 
 actions quietly piecemeal RunUnitTest
@@ -225,7 +227,7 @@ rule SetSearchPaths
 }
 
 rule GetSearchPaths
-{
+{	
 	if $($(1)_include_search_paths)
 	{
 		return [ FIncludes $($(1)_include_search_paths) ] ;	
@@ -271,7 +273,7 @@ rule SetObjectFiles
 		$(1)_object_files	+= $(_object) ;
 		
 		Includes $(_i) : config$(SLASH)Jamrules ;
-		
+
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
 		Compile $(_object) : $(_i) ;
@@ -292,6 +294,18 @@ rule SetSourceFiles
 	}
 }
 
+rule SetExtraCompileFlags
+{
+	if $($(1)_extra_compile_flags)
+	{
+		$(1)_extra_compile_flags = $($(1)_extra_compile_flags) $(2) ;
+	}
+	else
+	{
+		$(1)_extra_compile_flags = $(2) ;
+	}
+}
+
 rule SetVariablesOnObjects
 {
 	local _objects = $($(1)_object_files) ;
@@ -308,9 +322,16 @@ rule SetVariablesOnObjects
 		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
 	}	
 	CCDEFS on $(_objects) += [ FDefines $(DEFINES_COMMON) ] ;
-
+	
+	if $($(1)_extra_compile_flags)
+	{
+		CCFLAGS on $(_objects) = $(CCFLAGS) ;
+		CCFLAGS on $(_objects) += $($(1)_extra_compile_flags) ;
+	}
+	
     return $(_objects) ;
 }
+
 
 rule SetNeededLibraries
 {
@@ -440,6 +461,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
+			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -463,6 +485,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
+			Includes config$(SLASH)Jamrules : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;

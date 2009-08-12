@@ -8,13 +8,13 @@
  */
 
 #include "xgml_printer.h"
-#include "compiler/node.h"
-#include "compiler/node_grist.h"
-#include "compiler/identifier.h"
-#include "compiler/action.h"
-#include "compiler/decorator.h"
-#include "compiler/grist/action_node_grist.h"
-#include "compiler/grist/decorator_node_grist.h"
+#include <btree/node.h>
+#include <btree/node_grist.h>
+#include <btree/identifier.h>
+#include <btree/action.h>
+#include <btree/decorator.h>
+#include <btree/action_node_grist.h>
+#include <btree/decorator_node_grist.h>
 
 const double XGMLPrinter::s_node_width = 120.0;
 

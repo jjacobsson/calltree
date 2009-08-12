@@ -1,0 +1,33 @@
+if $(_pass) = Declarations
+{
+	SetSearchPaths $(_libname) : $(_libpath) include ;
+    local _source_files = [ RecursiveDirList $(_libpath) source : *.cpp ] ;
+
+    local _parser_c = [ FDirName $(_libpath) source parser parser.c ] ;
+    local _lexer_c  = [ FDirName $(_libpath) source parser lexer.c ] ;
+
+    Bison $(_parser_c) : [ FDirName $(_libpath) source parser parser.y ] ;
+    Flex $(_lexer_c)   : [ FDirName $(_libpath) source parser lexer.l ] ;
+
+    local _parser_h = [ FDirName $(_libpath) source parser parser.h ] ;
+
+    _source_files += $(_parser_c) ;
+    _source_files += $(_lexer_c) ;
+
+    Includes $(_source_files) : $(_parser_h) ;
+    Depends $(_parser_h)      : $(_parser_c) ;
+
+    SetSourceFiles $(_libname) : $(_source_files) ;
+
+    AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
+    AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
+
+    Clean clean : $(_parser_h) ;
+    Clean clean : $(_parser_c) ;
+    Clean clean : $(_lexer_c) ;
+    Clean clean : [ FDirName $(_libpath) source parser parser.output ] ;
+}
+else if $(_pass) = Dependencies
+{
+	SetDependantOf $(_libname) : common callback other ;
+}

@@ -1,10 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "btcomp", "apps\btcomp\btcomp.vcproj", "{0B184942-D04A-400C-A81F-EE729DAC118B}"
 	ProjectSection(ProjectDependencies) = postProject
-		{7F0948E5-5F42-4295-B529-F7BF8CE02900} = {7F0948E5-5F42-4295-B529-F7BF8CE02900}
+		{31B18914-23D4-480F-BB0F-B0F7FCD4A59E} = {31B18914-23D4-480F-BB0F-B0F7FCD4A59E}
 		{5A5EE521-BB93-4D61-BD50-15784E20C2DA} = {5A5EE521-BB93-4D61-BD50-15784E20C2DA}
+		{7F0948E5-5F42-4295-B529-F7BF8CE02900} = {7F0948E5-5F42-4295-B529-F7BF8CE02900}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "other", "3rd\other\other.vcproj", "{5A5EE521-BB93-4D61-BD50-15784E20C2DA}"
@@ -16,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cbrun", "apps\cbrun\cbrun.v
 		{5A5EE521-BB93-4D61-BD50-15784E20C2DA} = {5A5EE521-BB93-4D61-BD50-15784E20C2DA}
 		{7F0948E5-5F42-4295-B529-F7BF8CE02900} = {7F0948E5-5F42-4295-B529-F7BF8CE02900}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "btree", "libs\btree\btree.vcproj", "{31B18914-23D4-480F-BB0F-B0F7FCD4A59E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +42,10 @@ Global
 		{5A0ABDAE-EAAA-428C-A1E3-CEA3B255475B}.Debug|Win32.Build.0 = Debug|Win32
 		{5A0ABDAE-EAAA-428C-A1E3-CEA3B255475B}.Release|Win32.ActiveCfg = Release|Win32
 		{5A0ABDAE-EAAA-428C-A1E3-CEA3B255475B}.Release|Win32.Build.0 = Release|Win32
+		{31B18914-23D4-480F-BB0F-B0F7FCD4A59E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{31B18914-23D4-480F-BB0F-B0F7FCD4A59E}.Debug|Win32.Build.0 = Debug|Win32
+		{31B18914-23D4-480F-BB0F-B0F7FCD4A59E}.Release|Win32.ActiveCfg = Release|Win32
+		{31B18914-23D4-480F-BB0F-B0F7FCD4A59E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

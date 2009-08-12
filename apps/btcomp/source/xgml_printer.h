@@ -10,7 +10,7 @@
 #ifndef XGML_PRINTER_H_
 #define XGML_PRINTER_H_
 
-#include "compiler/visitor.h"
+#include <btree/btree.h>
 
 #include <vector>
 #include <stdlib.h>
