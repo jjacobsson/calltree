@@ -123,6 +123,9 @@ private:
         return retVal;
     }
 
+    ObjectPoolInternal( const ObjectPoolInternal& o );
+    const ObjectPoolInternal& operator = ( const ObjectPoolInternal& o );
+
 
     SBlock*         m_FirstBlock;
     SObject*        m_FirstFree;
@@ -164,6 +167,11 @@ public:
     }
 
 private:
+
+    TObjectPool( const TObjectPool& o );
+    const TObjectPool& operator = ( const TObjectPool& o );
+
+
     ObjectPoolInternal m_Pool;
 };
 

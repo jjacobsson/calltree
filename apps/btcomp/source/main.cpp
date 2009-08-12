@@ -74,10 +74,6 @@ int main( int argc, char** argv )
 
     if( returnCode == 0 )
     {
-    }
-
-    if( returnCode == 0 )
-    {
         BehaviourTree bt;
         bt.Define( "_BTREE_COMPILER_" );
         int parseResults = bt.Parse( inputFileName );

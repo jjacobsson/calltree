@@ -1,7 +1,24 @@
 if $(NT)
 {
-	DEFINES_COMMON = WIN32 ;
-    PRELIB = ;
+	DEFINES_COMMON += WIN32 ;
+	DEFINES_COMMON += _CONSOLE ;
+	DEFINES_COMMON += _CRT_SECURE_NO_WARNINGS ;
+	DEFINES_COMMON += _UNICODE ;
+	DEFINES_COMMON += UNICODE ;
+	 
+    PRELIB	= "" ;
+    SLASH	= "\\" ;
+    
+    CCFLAGS += /c ;
+    CCFLAGS	+= /W3 ;
+    CCFLAGS += /TP ;
+    CCFLAGS += /Z7 ;
+    CCFLAGS += /errorReport:prompt ;
+    CCFLAGS += /wd4530 ;
+    CCFLAGS += /EHa ;
+    
+    LINKFLAGS += /DEBUG ;
+    LINKFLAGS += /INCREMENTAL:NO ;
 }
 else
 {
@@ -9,6 +26,7 @@ else
     PRELIB  = lib ;
     CC      = g++ ;
     LINK    = g++ ;
+    SLASH	= / ;
 }
 
 BUILD_ROOT		= build ;
@@ -25,10 +43,15 @@ actions quietly MkDir1
 
 if $(NT) 
 {
-    actions piecemeal Compile
+    actions piecemeal quietly Compile
     {
         $(CC) /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
+   
+    actions piecemeal Archive
+	{
+		$(AR) /NOLOGO /OUT:$(<) $(>)
+	}
 }
 else
 {
@@ -36,11 +59,11 @@ else
     {
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
-}
 
-actions piecemeal Archive
-{
-	$(AR) $(<) $(>) >/dev/null 2>&1
+	actions piecemeal Archive
+	{
+		$(AR) $(<) $(>) >/dev/null 2>&1
+	}
 }
 
 actions quietly piecemeal RunUnitTest
@@ -247,6 +270,8 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
+		Includes $(_i) : config$(SLASH)Jamrules ;
+		
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
 		Compile $(_object) : $(_i) ;
@@ -283,6 +308,7 @@ rule SetVariablesOnObjects
 		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
 	}	
 	CCDEFS on $(_objects) += [ FDefines $(DEFINES_COMMON) ] ;
+
     return $(_objects) ;
 }
 
@@ -353,7 +379,7 @@ rule InvokeLibraryDependencies
         Depends $(_libname)  : $(_testname) ;
         Depends lib          : $(_libname) ;
         Depends test         : $(_testrun) ;
-    }
+	}
     else
     {
         Depends $(_libfile) : $(_libfile:P) ;
@@ -361,6 +387,11 @@ rule InvokeLibraryDependencies
         Depends $(_libname) : $(_libfile) ;
         Depends lib         : $(_libname) ;
     }
+
+	if $(NT)
+	{
+		Clean clean : $(_testfile:S=.pdb) ;
+	}
 
     NotFile $(_libname) $(_testname) $(_testrun) test ;
 }
@@ -388,6 +419,11 @@ rule InvokeApplication
 	Depends $(_appname) : $(_appfile) ;
 	Depends exe	        : $(_appname) ;
 	Clean   clean       : $(_appfile) ;
+
+	if $(NT)
+	{
+		Clean clean : $(_appfile:S=.pdb) ;
+	}
 	
     NotFile $(_appname) ;
 }

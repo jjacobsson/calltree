@@ -26,7 +26,7 @@
     {                                                                       \
         ParserContext* ctx = yyget_extra(yyscanner);                        \
         if( ctx->m_PPCurrScope != 0 ) {                                     \
-            yyerror( ctx, yyscanner, "#if/#endif miss-math." );             \
+            yyerror( ctx, yyscanner, "#if/#endif miss-match." );            \
             yyterminate();                                                  \
         }                                                                   \
         else if( pop_parse_file( ctx ) )                                    \

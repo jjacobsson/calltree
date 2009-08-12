@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 2.2.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
 
@@ -92,7 +92,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 48 "apps/btcomp/source/parser/parser.y"
+#line 48 "apps\\btcomp\\source\\parser\\parser.y"
 {
     Node*          m_Node;
     Identifier*    m_Id;
@@ -107,8 +107,8 @@ typedef union YYSTYPE
     Variable*      m_Variable;
 	VariableList*  m_VariableList;
 }
-/* Line 1488 of yacc.c.  */
-#line 112 "apps/btcomp/source/parser/parser.h"
+/* Line 1529 of yacc.c.  */
+#line 112 "apps\\btcomp\\source\\parser\\parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
