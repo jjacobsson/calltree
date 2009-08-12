@@ -92,7 +92,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 48 "libs\\btree\\source\\parser\\parser.y"
+#line 47 "libs\\btree\\source\\parser\\btree_parser.y"
 {
     Node*          m_Node;
     Identifier*    m_Id;
@@ -108,7 +108,7 @@ typedef union YYSTYPE
 	VariableList*  m_VariableList;
 }
 /* Line 1529 of yacc.c.  */
-#line 112 "libs\\btree\\source\\parser\\parser.h"
+#line 112 "libs\\btree\\source\\parser\\btree_parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

@@ -12,7 +12,7 @@
 
 #include "../compiler/compiler.h"
 #include <btree/btree.h>
-#include "parser.h"
+#include "btree_parser.h"
 #include <string>
 
 #ifndef YY_TYPEDEF_YY_BUFFER_STATE

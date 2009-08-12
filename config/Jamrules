@@ -80,7 +80,7 @@ actions quietly TagFile
 
 actions Bison
 {
-    bison $(2) -d -o $(1)
+   	bison $(2) -d -o $(1)
 }
 
 actions Flex 

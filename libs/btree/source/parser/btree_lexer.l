@@ -7,7 +7,7 @@
  * 
  */
 
-%option outfile="lexer.c"
+%option outfile="btree_lexer.c"
 %option reentrant 
 %option bison-bridge
 %option nounistd

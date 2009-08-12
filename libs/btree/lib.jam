@@ -1,24 +1,21 @@
 if $(_pass) = Declarations
 {
+
 	SetSearchPaths $(_libname) : $(_libpath) include ;
     local _source_files = [ RecursiveDirList $(_libpath) source : *.cpp ] ;
 
-    local _parser_c = [ FDirName $(_libpath) source parser parser.c ] ;
-    local _lexer_c  = [ FDirName $(_libpath) source parser lexer.c ] ;
+    local _parser_y = [ FDirName $(_libpath) source parser btree_parser.y ] ;
+    local _lexer_l  = [ FDirName $(_libpath) source parser btree_lexer.l ] ;
 
-    Bison $(_parser_c) : [ FDirName $(_libpath) source parser parser.y ] ;
-    Flex $(_lexer_c)   : [ FDirName $(_libpath) source parser lexer.l ] ;
+    local _parser_c = $(_parser_y:S=.c) ;
+	local _parser_h = $(_parser_y:S=.h) ;
+    local _lexer_c  = $(_lexer_l:S=.c) ;
 
-    local _parser_h = [ FDirName $(_libpath) source parser parser.h ] ;
+    Bison $(_parser_c)	: $(_parser_y) ;
+    Flex $(_lexer_c)	: $(_lexer_l) ;
 
-	echo $(_parser_h) ;
-
-    _source_files += $(_parser_c) ;
-    _source_files += $(_lexer_c) ;
-
-    #Includes $(_source_files) : $(_parser_h) ;
-    #Depends $(_parser_h)      : $(_parser_c) ;
-
+    SetSourceFiles $(_libname) : $(_parser_c) ;
+    SetSourceFiles $(_libname) : $(_lexer_c) ;
     SetSourceFiles $(_libname) : $(_source_files) ;
 
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
@@ -27,7 +24,7 @@ if $(_pass) = Declarations
     Clean clean : $(_parser_h) ;
     Clean clean : $(_parser_c) ;
     Clean clean : $(_lexer_c) ;
-    Clean clean : [ FDirName $(_libpath) source parser parser.output ] ;
+    Clean clean : [ FDirName $(_libpath) source parser btree_parser.output ] ;
 }
 else if $(_pass) = Dependencies
 {

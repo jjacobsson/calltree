@@ -7,7 +7,6 @@
  *
  */
 
-%verbose
 %pure-parser
 %parse-param { ParserContext* ctx }
 %parse-param { void* scanner }
