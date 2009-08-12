@@ -17,7 +17,6 @@ if $(NT)
     CCFLAGS += /Od ;
     CCFLAGS += /errorReport:prompt ;
     CCFLAGS += /wd4530 ;
-    CCFLAGS += /EHa ;
     
     LINKFLAGS += /DEBUG ;
     LINKFLAGS += /INCREMENTAL:NO ;
@@ -108,7 +107,7 @@ rule Bison
 
 rule Flex
 {
-    Depends $(1) : $(2) ;
+	Depends $(1) : $(2) ;
 }
 
 # Strip common initial elements of variables v1 and v2, return the result
@@ -390,16 +389,16 @@ rule InvokeLibraryDependencies
     # Setup dependency chains.
     if $(_testobjects)
     {
-        Depends $(_libfile)  : $(_libfile:P) ;
-        Depends $(_libfile)  : $(_objects) ;
-        Depends $(_testfile) : $(_testfile:P) ;
-        Depends $(_testfile) : $(_testobjects) ;
-        Depends $(_testrun)  : $(_testfile) ;
-        Depends $(_testname) : $(_testrun) ;
-        Depends $(_libname)  : $(_libfile) ;
-        Depends $(_libname)  : $(_testname) ;
-        Depends lib          : $(_libname) ;
-        Depends test         : $(_testrun) ;
+        Depends $(_libfile)  	: $(_libfile:P) ;
+        Depends $(_libfile)		: $(_objects) ;
+        Depends $(_testfile)	: $(_testfile:P) ;
+        Depends $(_testfile) 	: $(_testobjects) ;
+        Depends $(_testrun)  	: $(_testfile) ;
+        Depends $(_testname)	: $(_testrun) ;
+        Depends $(_libname)		: $(_libfile) ;
+        Depends $(_libname)		: $(_testname) ;
+        Depends lib				: $(_libname) ;
+        Depends test			: $(_testrun) ;
 	}
     else
     {

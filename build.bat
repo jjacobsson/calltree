@@ -1,8 +1,7 @@
 @echo off
 
-y: 
-cd calltree
-cd
+
+cd "%~dp0"
 
 :VS90
 if "%VS90COMNTOOLS%" == "" GOTO VS80

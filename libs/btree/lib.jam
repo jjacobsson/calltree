@@ -11,11 +11,13 @@ if $(_pass) = Declarations
 
     local _parser_h = [ FDirName $(_libpath) source parser parser.h ] ;
 
+	echo $(_parser_h) ;
+
     _source_files += $(_parser_c) ;
     _source_files += $(_lexer_c) ;
 
-    Includes $(_source_files) : $(_parser_h) ;
-    Depends $(_parser_h)      : $(_parser_c) ;
+    #Includes $(_source_files) : $(_parser_h) ;
+    #Depends $(_parser_h)      : $(_parser_c) ;
 
     SetSourceFiles $(_libname) : $(_source_files) ;
 
