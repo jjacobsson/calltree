@@ -159,7 +159,7 @@ typedef union YYSTYPE
     float          m_Float;
     const char*    m_String;
     Variable*      m_Variable;
-	VariableList*  m_VariableList;
+	/*VariableList*  m_VariableList;*/
 }
 /* Line 193 of yacc.c.  */
 #line 166 "libs\\btree\\source\\parser\\btree_parser.c"
@@ -1250,25 +1250,15 @@ yydestruct (yymsg, yytype, yyvaluep, ctx, scanner)
 	{ ctx->m_Tree->FreeId( (yyvaluep->m_Id) ); };
 #line 1252 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 47: /* "nt_variable_dec_list" */
-#line 98 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ ctx->m_Tree->FreeVariableList( (yyvaluep->m_VariableList) ); };
-#line 1257 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
       case 48: /* "nt_variable_dec" */
 #line 96 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeVariable( (yyvaluep->m_Variable) ); };
-#line 1262 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
-      case 49: /* "nt_variable_list" */
-#line 99 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ ctx->m_Tree->FreeVariableList( (yyvaluep->m_VariableList) ); };
-#line 1267 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1257 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 50: /* "nt_variable" */
 #line 97 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeVariable( (yyvaluep->m_Variable) ); };
-#line 1272 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1262 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
 
       default:
@@ -1645,7 +1635,7 @@ yyreduce:
     /* bss-value and variable list grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
     (yyval.m_FuncGrist)->m_bssSize   = (yyvsp[(6) - (9)].m_Integer);
-    (yyval.m_FuncGrist)->m_Variables = (yyvsp[(8) - (9)].m_VariableList);
+    (yyval.m_FuncGrist)->m_Variables = (yyvsp[(8) - (9)].m_Variable);
     (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (9)].m_Integer) == 1;
     (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(2) - (9)].m_Integer) == 1;
 ;}
@@ -1656,7 +1646,7 @@ yyreduce:
     {
     /* only a variable declaration list grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
-    (yyval.m_FuncGrist)->m_Variables = (yyvsp[(6) - (7)].m_VariableList);
+    (yyval.m_FuncGrist)->m_Variables = (yyvsp[(6) - (7)].m_Variable);
     (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (7)].m_Integer) == 1;
     (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (7)].m_Integer) == 1;
 ;}
@@ -1804,9 +1794,9 @@ yyreduce:
   case 30:
 #line 346 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    if( !(yyvsp[(3) - (8)].m_Decorator)->m_Grist->ValiadateVariables( (yyvsp[(7) - (8)].m_VariableList) ) )
+    if( !(yyvsp[(3) - (8)].m_Decorator)->m_Grist->ValiadateVariables( (yyvsp[(7) - (8)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyvsp[(7) - (8)].m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyvsp[(7) - (8)].m_Variable) );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -1815,7 +1805,7 @@ yyreduce:
     DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>((yyval.m_NodeGrist));
     grist->SetDecorator( (yyvsp[(3) - (8)].m_Decorator) );
     grist->SetChild( (yyvsp[(5) - (8)].m_Node) );
-    grist->SetVariableList( (yyvsp[(7) - (8)].m_VariableList) );
+    grist->SetVariableList( (yyvsp[(7) - (8)].m_Variable) );
 ;}
     break;
 
@@ -1830,9 +1820,9 @@ yyreduce:
   case 32:
 #line 371 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    if( !(yyvsp[(3) - (6)].m_Action)->m_Grist->ValiadateVariables( (yyvsp[(5) - (6)].m_VariableList) ) )
+    if( !(yyvsp[(3) - (6)].m_Action)->m_Grist->ValiadateVariables( (yyvsp[(5) - (6)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyvsp[(5) - (6)].m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyvsp[(5) - (6)].m_Variable) );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -1840,7 +1830,7 @@ yyreduce:
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
     ActionNodeGrist* grist = static_cast<ActionNodeGrist*>((yyval.m_NodeGrist));
     grist->SetAction( (yyvsp[(3) - (6)].m_Action) );
-    grist->SetVariableList( (yyvsp[(5) - (6)].m_VariableList) );
+    grist->SetVariableList( (yyvsp[(5) - (6)].m_Variable) );
 ;}
     break;
 
@@ -1951,17 +1941,17 @@ yyreduce:
   case 40:
 #line 495 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = ctx->m_Tree->CreateVariableList();
+    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
 ;}
     break;
 
   case 41:
 #line 500 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = (yyvsp[(1) - (3)].m_VariableList);
-    if( !(yyval.m_VariableList)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
+    (yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
+    if( !(yyval.m_Variable)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyval.m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
         yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
         YYERROR;
     }
@@ -1972,10 +1962,10 @@ yyreduce:
   case 42:
 #line 512 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = ctx->m_Tree->CreateVariableList();
-    if( !(yyval.m_VariableList)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
+    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
+    if( !(yyval.m_Variable)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyval.m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
         yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
         YYERROR;
     }
@@ -2025,17 +2015,17 @@ yyreduce:
   case 47:
 #line 561 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = ctx->m_Tree->CreateVariableList();
+    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
 ;}
     break;
 
   case 48:
 #line 566 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = (yyvsp[(1) - (3)].m_VariableList);
-    if( !(yyval.m_VariableList)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
+    (yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
+    if( !(yyval.m_Variable)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyval.m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
         yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
         YYERROR;
     }
@@ -2045,10 +2035,10 @@ yyreduce:
   case 49:
 #line 577 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_VariableList) = ctx->m_Tree->CreateVariableList();
-    if( !(yyval.m_VariableList)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
+    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
+    if( !(yyval.m_Variable)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyval.m_VariableList) );
+        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
         yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
         YYERROR;
     }
@@ -2097,7 +2087,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2101 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 2091 "libs\\btree\\source\\parser\\btree_parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

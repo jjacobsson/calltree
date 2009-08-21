@@ -56,7 +56,7 @@
     float          m_Float;
     const char*    m_String;
     Variable*      m_Variable;
-	VariableList*  m_VariableList;
+	/*VariableList*  m_VariableList;*/
 }
 
 %type<m_Id>			  nt_id
@@ -75,8 +75,8 @@
 %type<m_Integer>	  nt_function_id
 %type<m_Variable>	  nt_variable_dec
 %type<m_Variable>	  nt_variable
-%type<m_VariableList> nt_variable_dec_list
-%type<m_VariableList> nt_variable_list
+%type<m_Variable>     nt_variable_dec_list
+%type<m_Variable>     nt_variable_list
 %type<m_FuncGrist>    nt_function_grist
 
 %destructor { ctx->m_Tree->FreeId( $$ ); }            nt_id
@@ -95,8 +95,8 @@
 %destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_action_node_grist
 %destructor { ctx->m_Tree->FreeVariable( $$ ); }	  nt_variable_dec
 %destructor { ctx->m_Tree->FreeVariable( $$ ); }      nt_variable
-%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_dec_list
-%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_list
+/*%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_dec_list*/
+/*%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_list*/
 %destructor { ctx->m_Tree->FreeFunctionGrist( $$ ); } nt_function_grist
 
 %%

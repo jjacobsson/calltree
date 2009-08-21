@@ -24,7 +24,7 @@ public:
     bool ValiadateVariables( VariableList* variables ) const;
 
     int            m_bssSize;
-    VariableList*  m_Variables;
+    Variable*      m_Variables;
     BehaviourTree* m_Tree;
     bool           m_Construct;
     bool           m_Destruct;

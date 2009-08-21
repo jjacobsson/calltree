@@ -105,7 +105,7 @@ typedef union YYSTYPE
     float          m_Float;
     const char*    m_String;
     Variable*      m_Variable;
-	VariableList*  m_VariableList;
+	/*VariableList*  m_VariableList;*/
 }
 /* Line 1529 of yacc.c.  */
 #line 112 "libs\\btree\\source\\parser\\btree_parser.h"
