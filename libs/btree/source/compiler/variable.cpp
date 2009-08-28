@@ -60,42 +60,21 @@ const char* Variable::ValueAsString() const
     return "";
 }
 
-VariableList::VariableList()
-    : m_Tree( 0x0 )
-    , m_Count( 0 )
-{}
-
-VariableList::~VariableList()
+void DeleteVariableList( Variable* v )
 {
-    if( m_Tree )
-    {
-        for( int i = 0; i < m_Count; ++i )
-            m_Tree->FreeVariable( m_Variables[i] );
-    }
+	while( v )
+	{
+		Variable* d = v;
+		v = v->m_Next;
+		delete d;
+	}
 }
 
-void VariableList::SetTree( BehaviourTree* bt )
+Variable* FindLastVariable( Variable* v )
 {
-    m_Tree = bt;
+	while( v && v->m_Next )
+		v = v->m_Next;
+	return v;
 }
 
-bool VariableList::Append( Variable* v )
-{
-    if( m_Count >= s_MaxVariableCount )
-        return false;
 
-    m_Variables[m_Count] = v;
-    ++m_Count;
-
-    return true;
-}
-
-int VariableList::Size()
-{
-    return m_Count;
-}
-
-bool VariableSortPred::operator() ( Variable* lhs, Variable* rhs ) const
-{
-    return lhs->m_Id->m_Hash < rhs->m_Id->m_Hash;
-}

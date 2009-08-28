@@ -118,8 +118,6 @@ public:
         , m_DynamicSelectorGristPool( 16 )
         , m_DecoratorGristPool( 16 )
         , m_ActionGristPool( 64 )
-        , m_VariablePool( 128 )
-        , m_VariableListPool( 32 )
         , m_FunctionGristPool( 32 )
         , m_ParseFilePool( 16 )
     {}
@@ -142,8 +140,6 @@ public:
     typedef TObjectPool< DynamicSelectorNodeGrist > DynamicSelectorGristPool;
     typedef TObjectPool< DecoratorNodeGrist >       DecoratorGristPool;
     typedef TObjectPool< ActionNodeGrist >          ActionGristPool;
-    typedef TObjectPool< Variable >                 VariablePool;
-    typedef TObjectPool< VariableList >             VariableListPool;
     typedef TObjectPool< FunctionGrist >            FunctionGristPool;
     typedef TObjectPool< ParseFile >                ParseFilePool;
 
@@ -163,8 +159,6 @@ public:
     DynamicSelectorGristPool m_DynamicSelectorGristPool;
     DecoratorGristPool       m_DecoratorGristPool;
     ActionGristPool          m_ActionGristPool;
-    VariablePool             m_VariablePool;
-    VariableListPool         m_VariableListPool;
     FunctionGristPool        m_FunctionGristPool;
     ParseFilePool            m_ParseFilePool;
 

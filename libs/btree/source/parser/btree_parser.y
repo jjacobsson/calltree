@@ -93,10 +93,10 @@
 %destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_parallel_node_grist
 %destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_decorator_node_grist
 %destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_action_node_grist
-%destructor { ctx->m_Tree->FreeVariable( $$ ); }	  nt_variable_dec
-%destructor { ctx->m_Tree->FreeVariable( $$ ); }      nt_variable
-/*%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_dec_list*/
-/*%destructor { ctx->m_Tree->FreeVariableList( $$ ); }  nt_variable_list*/
+%destructor { DeleteVariableList( $$ ); }			  nt_variable_dec
+%destructor { DeleteVariableList( $$ ); }			  nt_variable
+%destructor { DeleteVariableList( $$ ); }			  nt_variable_dec_list
+%destructor { DeleteVariableList( $$ ); }			  nt_variable_list
 %destructor { ctx->m_Tree->FreeFunctionGrist( $$ ); } nt_function_grist
 
 %%
@@ -346,7 +346,7 @@ T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_lis
 {
     if( !$3->m_Grist->ValiadateVariables( $7 ) )
     {
-        ctx->m_Tree->FreeVariableList( $7 );
+        DeleteVariableList( $7 );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -371,7 +371,7 @@ T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
 {
     if( !$3->m_Grist->ValiadateVariables( $5 ) )
     {
-        ctx->m_Tree->FreeVariableList( $5 );
+        DeleteVariableList( $5 );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -493,30 +493,26 @@ nt_variable_dec_list
 :
 /* empty */
 {
-    $$ = ctx->m_Tree->CreateVariableList();
+    $$ = 0x0;
 }
 |
 nt_variable_dec_list T_COMMA nt_variable_dec
 {
-    $$ = $1;
-    if( !$$->Append( $3 ) )
-    {
-        ctx->m_Tree->FreeVariableList( $$ );
-        yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
-        YYERROR;
-    }
-
+	if( $1 )
+	{
+		Variable* v = FindLastVariable( $1 );
+		v->m_Next = $3;
+		$$ = $1;
+	}	
+	else
+	{
+		$$ = $3;
+	}
 }
 |
 nt_variable_dec
 {
-    $$ = ctx->m_Tree->CreateVariableList();
-    if( !$$->Append( $1 ) )
-    {
-        ctx->m_Tree->FreeVariableList( $$ );
-        yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
-        YYERROR;
-    }
+	$$ = $1;
 }
 ;
 
@@ -524,34 +520,38 @@ nt_variable_dec
 :
 T_STRING T_ID
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_STRING;
     $$->m_Id            = $2;
     $$->m_Data.m_Int    = 0;
+    $$->m_Next			= 0x0;    
 }
 |
 T_INT32 T_ID
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_INTEGER;
     $$->m_Id            = $2;
     $$->m_Data.m_Int    = 0;
+    $$->m_Next			= 0x0;    
 }
 |
 T_FLOAT T_ID
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_FLOAT;
     $$->m_Id            = $2;
     $$->m_Data.m_Int    = 0;
+    $$->m_Next			= 0x0;    
 }
 |
 T_BOOL T_ID
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_BOOL;
     $$->m_Id            = $2;
     $$->m_Data.m_Int    = 0;
+    $$->m_Next			= 0x0;
 }
 ;
 
@@ -559,29 +559,26 @@ nt_variable_list
 :
 /* empty */
 {
-    $$ = ctx->m_Tree->CreateVariableList();
+    $$ = 0x0;
 }
 |
 nt_variable_list T_COMMA nt_variable
 {
-    $$ = $1;
-    if( !$$->Append( $3 ) )
-    {
-        ctx->m_Tree->FreeVariableList( $$ );
-        yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
-        YYERROR;
-    }
+	if( $1 )
+	{
+		Variable* v = FindLastVariable( $1 );
+		v->m_Next = $3;
+		$$ = $1;
+	}	
+	else
+	{
+		$$ = $3;
+	}
 }
 |
 nt_variable
 {
-    $$ = ctx->m_Tree->CreateVariableList();
-    if( !$$->Append( $1 ) )
-    {
-        ctx->m_Tree->FreeVariableList( $$ );
-        yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
-        YYERROR;
-    }
+	$$ = $1;
 }
 ;
 
@@ -589,34 +586,38 @@ nt_variable
 :
 T_ID T_ASSIGNMENT T_STRING_VALUE
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_STRING;
     $$->m_Id            = $1;
     $$->m_Data.m_String = $3;
+    $$->m_Next			= 0x0;
 }
 |
 T_ID T_ASSIGNMENT T_INT32_VALUE
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_INTEGER;
     $$->m_Id            = $1;
     $$->m_Data.m_Int    = $3;
+    $$->m_Next			= 0x0;    
 }
 |
 T_ID T_ASSIGNMENT T_FLOAT_VALUE
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_FLOAT;
     $$->m_Id            = $1;
     $$->m_Data.m_Float  = $3;
+    $$->m_Next			= 0x0;    
 }
 |
 T_ID T_ASSIGNMENT T_BOOL_VALUE
 {
-    $$                  = ctx->m_Tree->CreateVariable();
+    $$                  = new Variable;
     $$->m_Type          = Variable::E_VART_BOOL;
     $$->m_Id            = $1;
     $$->m_Data.m_Int    = $3;
+    $$->m_Next			= 0x0;    
 }
 ;
 

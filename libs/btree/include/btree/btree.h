@@ -20,8 +20,6 @@ class  Action;
 class  Decorator;
 class  NodeList;
 class  NodeGrist;
-struct Variable;
-class  VariableList;
 class  FunctionGrist;
 class  CReturnState;
 struct ParseFile;
@@ -84,12 +82,6 @@ public:
 
     FunctionGrist* CreateFunctionGrist();
     void FreeFunctionGrist( FunctionGrist* fg );
-
-    Variable* CreateVariable();
-    void FreeVariable( Variable* v );
-
-    VariableList* CreateVariableList();
-    void FreeVariableList( VariableList* vl );
 
     ParseFile* CreateParseFile();
     void FreeParseFile( ParseFile* pf );

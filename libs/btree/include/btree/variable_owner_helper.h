@@ -21,16 +21,16 @@ public:
     VariableOwner();
     ~VariableOwner();
 
-    void SetVariableList( VariableList* variables );
-    VariableList* GetVariableList();
+    void SetVariableList( Variable* variables );
+    Variable* GetVariableList();
 
 protected:
 
-    void StoreVariablesInDataSection( BehaviourTree* bt, VariableList* declaration );
+    void StoreVariablesInDataSection( BehaviourTree* bt, Variable* declaration );
     void GenerateVariableInstructions( BehaviourTree* bt );
     void SetupVariableRegistry( BehaviourTree* bt );
 
-    VariableList*      m_Variables;
+    Variable*			m_Variables;
     int                 m_bssStart;
     std::vector<int>    m_Data;
 };

@@ -22,17 +22,15 @@ FunctionGrist::FunctionGrist()
 
 FunctionGrist::~FunctionGrist()
 {
-    if( m_Tree )
-    {
-        m_Tree->FreeVariableList( m_Variables );
-    }
+	DeleteVariableList( m_Variables );
 }
 
-bool FunctionGrist::ValiadateVariables( VariableList* variables ) const
+bool FunctionGrist::ValiadateVariables( Variable* variables ) const
 {
-    if( !m_Variables )
+    if( (!m_Variables && variables) || (m_Variables && !variables) )
         return false;
 
+/*
     VariableSortPred pred;
     std::sort( variables->begin(), variables->end(), pred );
 
@@ -62,6 +60,6 @@ bool FunctionGrist::ValiadateVariables( VariableList* variables ) const
 
         return false;
     }
-
+*/
     return true;
 }

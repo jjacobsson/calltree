@@ -487,8 +487,8 @@ static const yytype_uint16 yyrline[] =
      135,   158,   185,   193,   203,   212,   221,   232,   259,   267,
      272,   277,   282,   287,   292,   300,   309,   318,   327,   337,
      345,   364,   370,   389,   393,   412,   435,   452,   469,   486,
-     495,   499,   511,   525,   533,   541,   549,   561,   565,   576,
-     590,   598,   606,   614
+     495,   499,   513,   521,   530,   539,   548,   561,   565,   579,
+     587,   596,   605,   614
 };
 #endif
 
@@ -1250,15 +1250,25 @@ yydestruct (yymsg, yytype, yyvaluep, ctx, scanner)
 	{ ctx->m_Tree->FreeId( (yyvaluep->m_Id) ); };
 #line 1252 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
+      case 47: /* "nt_variable_dec_list" */
+#line 98 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1257 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
       case 48: /* "nt_variable_dec" */
 #line 96 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ ctx->m_Tree->FreeVariable( (yyvaluep->m_Variable) ); };
-#line 1257 "libs\\btree\\source\\parser\\btree_parser.c"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1262 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
+      case 49: /* "nt_variable_list" */
+#line 99 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1267 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 50: /* "nt_variable" */
 #line 97 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ ctx->m_Tree->FreeVariable( (yyvaluep->m_Variable) ); };
-#line 1262 "libs\\btree\\source\\parser\\btree_parser.c"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1272 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
 
       default:
@@ -1796,7 +1806,7 @@ yyreduce:
     {
     if( !(yyvsp[(3) - (8)].m_Decorator)->m_Grist->ValiadateVariables( (yyvsp[(7) - (8)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyvsp[(7) - (8)].m_Variable) );
+        DeleteVariableList( (yyvsp[(7) - (8)].m_Variable) );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -1822,7 +1832,7 @@ yyreduce:
     {
     if( !(yyvsp[(3) - (6)].m_Action)->m_Grist->ValiadateVariables( (yyvsp[(5) - (6)].m_Variable) ) )
     {
-        ctx->m_Tree->FreeVariableList( (yyvsp[(5) - (6)].m_Variable) );
+        DeleteVariableList( (yyvsp[(5) - (6)].m_Variable) );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
@@ -1941,153 +1951,154 @@ yyreduce:
   case 40:
 #line 495 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
+    (yyval.m_Variable) = 0x0;
 ;}
     break;
 
   case 41:
 #line 500 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
-    if( !(yyval.m_Variable)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
-    {
-        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
-        yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
-        YYERROR;
-    }
-
+	if( (yyvsp[(1) - (3)].m_Variable) )
+	{
+		Variable* v = FindLastVariable( (yyvsp[(1) - (3)].m_Variable) );
+		v->m_Next = (yyvsp[(3) - (3)].m_Variable);
+		(yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
+	}	
+	else
+	{
+		(yyval.m_Variable) = (yyvsp[(3) - (3)].m_Variable);
+	}
 ;}
     break;
 
   case 42:
-#line 512 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 514 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
-    if( !(yyval.m_Variable)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
-    {
-        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
-        yyerror( ctx, scanner, "number of variable declarations exceeds allowed maximum." );
-        YYERROR;
-    }
+	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 43:
-#line 526 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 522 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_STRING;
     (yyval.m_Variable)->m_Id            = (yyvsp[(2) - (2)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = 0;
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
   case 44:
-#line 534 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 531 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_INTEGER;
     (yyval.m_Variable)->m_Id            = (yyvsp[(2) - (2)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = 0;
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
   case 45:
-#line 542 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 540 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_FLOAT;
     (yyval.m_Variable)->m_Id            = (yyvsp[(2) - (2)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = 0;
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
   case 46:
-#line 550 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 549 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_BOOL;
     (yyval.m_Variable)->m_Id            = (yyvsp[(2) - (2)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = 0;
+    (yyval.m_Variable)->m_Next			= 0x0;
 ;}
     break;
 
   case 47:
 #line 561 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
+    (yyval.m_Variable) = 0x0;
 ;}
     break;
 
   case 48:
 #line 566 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
-    if( !(yyval.m_Variable)->Append( (yyvsp[(3) - (3)].m_Variable) ) )
-    {
-        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
-        yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
-        YYERROR;
-    }
+	if( (yyvsp[(1) - (3)].m_Variable) )
+	{
+		Variable* v = FindLastVariable( (yyvsp[(1) - (3)].m_Variable) );
+		v->m_Next = (yyvsp[(3) - (3)].m_Variable);
+		(yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
+	}	
+	else
+	{
+		(yyval.m_Variable) = (yyvsp[(3) - (3)].m_Variable);
+	}
 ;}
     break;
 
   case 49:
-#line 577 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 580 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable) = ctx->m_Tree->CreateVariableList();
-    if( !(yyval.m_Variable)->Append( (yyvsp[(1) - (1)].m_Variable) ) )
-    {
-        ctx->m_Tree->FreeVariableList( (yyval.m_Variable) );
-        yyerror( ctx, scanner, "number of variables exceeds allowed maximum." );
-        YYERROR;
-    }
+	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 50:
-#line 591 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 588 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_STRING;
     (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_String = (yyvsp[(3) - (3)].m_String);
+    (yyval.m_Variable)->m_Next			= 0x0;
 ;}
     break;
 
   case 51:
-#line 599 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 597 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_INTEGER;
     (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = (yyvsp[(3) - (3)].m_Integer);
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
   case 52:
-#line 607 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 606 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_FLOAT;
     (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Float  = (yyvsp[(3) - (3)].m_Float);
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
   case 53:
 #line 615 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = ctx->m_Tree->CreateVariable();
+    (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_BOOL;
     (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Int    = (yyvsp[(3) - (3)].m_Integer);
+    (yyval.m_Variable)->m_Next			= 0x0;    
 ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2091 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 2102 "libs\\btree\\source\\parser\\btree_parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

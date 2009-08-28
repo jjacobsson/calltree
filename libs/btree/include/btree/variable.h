@@ -16,7 +16,7 @@
 class Identifier;
 class BehaviourTree;
 
-struct Variable
+class Variable
 {
 public:
     enum EVariableTypes
@@ -40,45 +40,12 @@ public:
     const char* ValueAsString() const;
 
     int             m_Type;
-    Identifier*    m_Id;
+    Identifier*     m_Id;
     UData           m_Data;
+    Variable*       m_Next;
 };
 
-
-class VariableList
-{
-public:
-
-    VariableList();
-    ~VariableList();
-
-    static const int s_MaxVariableCount = 128;
-
-    typedef Variable**                 iterator;
-    typedef const Variable* const *    const_iterator;
-
-    inline iterator begin()                         { return &m_Variables[0]; }
-    inline iterator end()                           { return &m_Variables[m_Count]; }
-
-    inline const_iterator begin() const             { return &m_Variables[0]; }
-    inline const_iterator end() const               { return &m_Variables[m_Count]; }
-
-    inline Variable* operator[] (int i)                { return m_Variables[i]; }
-    inline const Variable* operator[] (int i) const    { return m_Variables[i]; }
-
-    void SetTree( BehaviourTree* bt );
-    bool Append( Variable* variable );
-    int Size();
-
-private:
-    BehaviourTree* m_Tree;
-    Variable*     m_Variables[ s_MaxVariableCount ];
-    int            m_Count;
-};
-
-struct VariableSortPred
-{
-    bool operator() ( Variable* lhs, Variable* rhs ) const;
-};
+void DeleteVariableList( Variable* v );
+Variable* FindLastVariable( Variable* v );
 
 #endif /*VARIABLE_H_*/

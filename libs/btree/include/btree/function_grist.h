@@ -21,7 +21,7 @@ public:
     FunctionGrist();
     ~FunctionGrist();
 
-    bool ValiadateVariables( VariableList* variables ) const;
+    bool ValiadateVariables( Variable* variables ) const;
 
     int            m_bssSize;
     Variable*      m_Variables;

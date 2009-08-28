@@ -259,28 +259,6 @@ void BehaviourTree::FreeFunctionGrist( FunctionGrist* fg )
     m_Impl->m_FunctionGristPool.Free( fg );
 }
 
-Variable* BehaviourTree::CreateVariable()
-{
-    return m_Impl->m_VariablePool.Alloc();
-}
-
-void BehaviourTree::FreeVariable( Variable* v )
-{
-    m_Impl->m_VariablePool.Free( v );
-}
-
-VariableList* BehaviourTree::CreateVariableList()
-{
-    VariableList* r = m_Impl->m_VariableListPool.Alloc();
-    r->SetTree( this );
-    return r;
-}
-
-void BehaviourTree::FreeVariableList( VariableList* vl )
-{
-    m_Impl->m_VariableListPool.Free( vl );
-}
-
 ParseFile* BehaviourTree::CreateParseFile()
 {
     return m_Impl->m_ParseFilePool.Alloc();
