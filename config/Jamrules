@@ -25,9 +25,14 @@ else
 {
     DEFINES_COMMON = LINUX ;
     PRELIB  = lib ;
+    SLASH	= / ;
+
+    CCFLAGS += -O0 ;
+    CCFLAGS += -g ;
+
     CC      = g++ ;
     LINK    = g++ ;
-    SLASH	= / ;
+
 }
 
 BUILD_ROOT		= build ;

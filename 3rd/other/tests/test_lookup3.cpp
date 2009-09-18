@@ -1,8 +1,10 @@
 #include <UnitTest++.h>
 #include <other/lookup3.h>
 
-TEST( IsItInTheArchive )
+#include <stdio.h>
+
+TEST( hashlittleProducesPredictableValues )
 {
-    int bla = hashlittle( "A test string" );
-    CHECK( bla == hashlittle( "A test string" ) );
+    int hash = hashlittle( "A test string" );    
+    CHECK( hash == 0xe0ecf1a7 );
 }
