@@ -29,16 +29,17 @@ public:
     };
 
     union UData {
-        int         m_Int;
+        int         m_Integer;
     	float       m_Float;
         const char* m_String;
         bool		m_Bool;
     };
 
     bool        SafeToConvert( int to_type ) const;
-    int         ValueAsInt() const;
+    int         ValueAsInteger() const;
     float       ValueAsFloat() const;
     const char* ValueAsString() const;
+    bool		ValueAsBool() const;
 
     int             m_Type;
     Identifier*     m_Id;

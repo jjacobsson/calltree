@@ -35,10 +35,10 @@ bool Variable::SafeToConvert( int to_type ) const
     return false;
 }
 
-int Variable::ValueAsInt() const
+int Variable::ValueAsInteger() const
 {
     if( m_Type == E_VART_INTEGER || m_Type == E_VART_BOOL )
-        return m_Data.m_Int;
+        return m_Data.m_Integer;
     if( m_Type == E_VART_FLOAT )
         return (int)m_Data.m_Float;
     return -1;
@@ -49,7 +49,7 @@ float Variable::ValueAsFloat() const
     if( m_Type == E_VART_FLOAT )
         return m_Data.m_Float;
     if( m_Type == E_VART_INTEGER || m_Type == E_VART_BOOL )
-        return (float)m_Data.m_Int;
+        return (float)m_Data.m_Integer;
     return -1.0f;
 }
 
@@ -57,7 +57,28 @@ const char* Variable::ValueAsString() const
 {
     if( m_Type == E_VART_STRING )
         return m_Data.m_String;
-    return "";
+    return 0x0;
+}
+
+bool Variable::ValueAsBool() const
+{
+	bool r;
+	switch( m_Type )
+	{
+	case E_VART_BOOL:
+		r = m_Data.m_Bool;
+		break;
+	case E_VART_INTEGER:
+		r = m_Data.m_Integer != 0;
+		break;
+	case E_VART_FLOAT:
+		r = m_Data.m_Float != 0.0f;
+		break;
+	default:
+		r = false;
+		break;
+	}
+	return r;
 }
 
 void DeleteVariableList( Variable* v )

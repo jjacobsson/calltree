@@ -80,6 +80,71 @@ TEST( IntegerCanConvertToBool )
 	CHECK( v.SafeToConvert( Variable::E_VART_BOOL ) );
 }
 
+TEST( IntegerToIntegerConversionReturnsCorrectValue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 357;
+	CHECK( 357 == v.ValueAsInteger() );
+}
+
+TEST( IntegerToIntegerConversionDoesNotReturnIncorrectValue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 357;
+	CHECK( 4723 != v.ValueAsInteger() );
+}
+
+TEST( IntegerToFloatConversionReturnsCorrectValue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 17;
+	CHECK( 17.0f == v.ValueAsFloat() );
+}
+
+TEST( IntegerToFloatConversionDoesNotReturnIncorrectValue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 17;
+	CHECK( 17.0002f != v.ValueAsFloat() );
+}
+
+TEST( IntegerToStringConversionReturnsNull )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 242754;
+	CHECK( 0x0 == v.ValueAsString() );
+}
+
+TEST( PositiveIntegerToBoolConversionReturnsTrue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 1;
+	CHECK( true == v.ValueAsBool() );
+}
+
+TEST( NegativeIntegerToBoolConversionReturnsTrue )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = -3746;
+	CHECK( true == v.ValueAsBool() );
+}
+
+TEST( ZeroIntegerToBoolConversionReturnsFalse )
+{
+	Variable v;
+	v.m_Type = Variable::E_VART_INTEGER;
+	v.m_Data.m_Integer = 0;
+	CHECK( false == v.ValueAsBool() );
+}
+
+
 /*
  * Float tests
  */
