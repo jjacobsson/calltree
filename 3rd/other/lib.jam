@@ -2,7 +2,9 @@ if $(_pass) = Declarations
 {
 	SetSearchPaths $(_libname) : $(_libpath) include ;
     SetSourceFiles $(_libname) : [ GLOB [ FDirName $(_libpath) source ] : *.c ] ;
+    SetSourceFiles $(_testname) : [ GLOB [ FDirName $(_libpath) tests ] : *.cpp ] ;
 }
 else if $(_pass) = Dependencies
 {
+    SetDependantOf $(_testname) : UnitTest++ $(_libname) ;
 }
