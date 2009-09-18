@@ -29,9 +29,10 @@ public:
     };
 
     union UData {
-        float       m_Float;
         int         m_Int;
+    	float       m_Float;
         const char* m_String;
+        bool		m_Bool;
     };
 
     bool        SafeToConvert( int to_type ) const;
