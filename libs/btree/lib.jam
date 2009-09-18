@@ -14,10 +14,11 @@ if $(_pass) = Declarations
     Bison $(_parser_c)	: $(_parser_y) ;
     Flex $(_lexer_c)	: $(_lexer_l) ;
 
-    SetSourceFiles $(_libname) : $(_parser_c) ;
-    SetSourceFiles $(_libname) : $(_lexer_c) ;
-    SetSourceFiles $(_libname) : $(_source_files) ;
-
+    SetSourceFiles $(_libname)  : $(_parser_c) ;
+    SetSourceFiles $(_libname)  : $(_lexer_c) ;
+    SetSourceFiles $(_libname)  : $(_source_files) ;
+	SetSourceFiles $(_testname) : [ RecursiveDirList $(_libpath) tests : *.cpp ] ;
+	
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
     AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
 
@@ -29,4 +30,5 @@ if $(_pass) = Declarations
 else if $(_pass) = Dependencies
 {
 	SetDependantOf $(_libname) : common callback other ;
+	SetDependantOf $(_testname) : UnitTest++ $(_libname) ;
 }
