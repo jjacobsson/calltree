@@ -41,7 +41,7 @@ int Variable::ValueAsInteger() const
         return m_Data.m_Integer;
     if( m_Type == E_VART_FLOAT )
         return (int)m_Data.m_Float;
-    return -1;
+    return 0;
 }
 
 float Variable::ValueAsFloat() const
@@ -50,7 +50,7 @@ float Variable::ValueAsFloat() const
         return m_Data.m_Float;
     if( m_Type == E_VART_INTEGER || m_Type == E_VART_BOOL )
         return (float)m_Data.m_Integer;
-    return -1.0f;
+    return 0.0f;
 }
 
 const char* Variable::ValueAsString() const
