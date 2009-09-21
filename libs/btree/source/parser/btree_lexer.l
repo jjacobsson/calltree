@@ -399,7 +399,35 @@ bool push_parse_file( ParserContext* ctx, const char* filename )
         return false;
 
     ParseFile* file = ctx->m_Tree->CreateParseFile();
-    memcpy( file->m_Name, filename, len+1 );
+	if( ctx->m_File )
+	{
+#ifdef WIN32
+		char slash = '\\';
+#else
+		char slash = '/';
+#endif
+		int s = 0, last = -1;
+		char* p = ctx->m_File->m_Name;
+		while( p && *p )
+		{
+			if( *p == slash )
+				last = s;
+			++p; ++s;	
+		} 
+		if( last != -1 )
+		{
+			memcpy( file->m_Name, ctx->m_File->m_Name, last+1 );
+			memcpy( &file->m_Name[last+1], filename, len+1 );
+		}
+		else
+		{
+			memcpy( file->m_Name, filename, len+1 );
+		}
+	}
+	else
+	{
+	    memcpy( file->m_Name, filename, len+1 );
+	}
     file->m_File    = fopen( file->m_Name, "r" );
     file->m_Buffer  = 0x0;
     file->m_Next    = ctx->m_File;

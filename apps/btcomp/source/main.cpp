@@ -134,10 +134,5 @@ int main( int argc, char** argv )
     if( outputFile )
         fclose( outputFile );
 
-    if( returnCode != 0 )
-    {
-        fprintf( stderr, "Compile failed.\n" );
-    }
-
     return returnCode;
 }
