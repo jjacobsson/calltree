@@ -37,20 +37,44 @@ bool Variable::SafeToConvert( int to_type ) const
 
 int Variable::ValueAsInteger() const
 {
-    if( m_Type == E_VART_INTEGER || m_Type == E_VART_BOOL )
-        return m_Data.m_Integer;
-    if( m_Type == E_VART_FLOAT )
-        return (int)m_Data.m_Float;
-    return 0;
+	int r;
+	switch( m_Type )
+	{
+	case E_VART_INTEGER:
+		r = m_Data.m_Integer;
+		break;
+	case E_VART_FLOAT:
+		r = (int)m_Data.m_Float;
+		break;
+	case E_VART_BOOL:
+		r = m_Data.m_Bool?1:0;
+		break;
+	default:
+		r = 0;
+		break;
+	}
+    return r;
 }
 
 float Variable::ValueAsFloat() const
 {
-    if( m_Type == E_VART_FLOAT )
-        return m_Data.m_Float;
-    if( m_Type == E_VART_INTEGER || m_Type == E_VART_BOOL )
-        return (float)m_Data.m_Integer;
-    return 0.0f;
+	float r;
+	switch( m_Type )
+	{
+	case E_VART_INTEGER:
+		r = (float)m_Data.m_Integer;
+		break;
+	case E_VART_FLOAT:
+		r = m_Data.m_Float;
+		break;
+	case E_VART_BOOL:
+		r = m_Data.m_Bool?1.0f:0.0f;
+		break;
+	default:
+		r = 0.0f;
+		break;
+	}
+	return r;
 }
 
 const char* Variable::ValueAsString() const
@@ -65,14 +89,14 @@ bool Variable::ValueAsBool() const
 	bool r;
 	switch( m_Type )
 	{
-	case E_VART_BOOL:
-		r = m_Data.m_Bool;
-		break;
 	case E_VART_INTEGER:
 		r = m_Data.m_Integer != 0;
 		break;
 	case E_VART_FLOAT:
 		r = m_Data.m_Float != 0.0f;
+		break;
+	case E_VART_BOOL:
+		r = m_Data.m_Bool;
 		break;
 	default:
 		r = false;
