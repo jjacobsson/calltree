@@ -27,11 +27,15 @@ rule CompileBehaviourTrees
 	local _source ;
 	for _source in $(_sources)
 	{
-		local _btc = $(_source:S=$(SUFBTC)) ;
+		local _btc = $(BUILD_TST_DIR)$(_source:S=$(SUFBTC)) ;
+		local _path = $(_btc:P) ;
+		
 		btcomp $(_btc) : $(_source) ;
 		
+		Depends $(_btc) : $(_path) ;
 		Depends $(_btc)	: $(_source) ;
 		Depends $(1)	: $(_btc) ;
+		MkDir $(_path) ;
 		
 		Clean clean : $(_btc) ;
 	}
