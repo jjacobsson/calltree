@@ -243,7 +243,10 @@ int DataSection::PushString( const char* str )
 
 bool DataSection::Save( FILE* outFile, bool swapEndian ) const
 {
-    DataList t( m_Data );
+    if( m_Data.empty() )
+    	return true;
+
+	DataList t( m_Data );
     if( swapEndian )
     {
         MetaDataList::const_iterator it, it_e( m_Meta.end() );
