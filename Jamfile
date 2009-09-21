@@ -13,4 +13,38 @@ InvokeTags ;
 
 Depends apps : libs ;
 
+SUFBTC = .btc ;
 
+BTCOMP_EXE = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
+
+actions btcomp
+{
+	$(BTCOMP_EXE) -i $(>) -o $(<)
+}
+
+rule CompileBehaviourTrees
+{
+	NotFile $(1) ;
+	local _sources = [ GLOB $(1) : *.bts ] ;
+	local _source ;
+	for _source in $(_sources)
+	{
+		local _btc = $(BUILD_TST_DIR)$(_source:S=$(SUFBTC)) ;
+		local _path = $(_btc:P) ;
+		
+		btcomp $(_btc) : $(_source) ;
+		
+		Depends $(_btc) : $(BTCOMP_EXE) ;
+		Depends $(_btc) : $(_path) ;
+		Depends $(_btc)	: $(_source) ;
+		Depends $(1)	: $(_btc) ;
+		MkDir $(_path) ;
+		
+		Clean clean : $(_btc) ;
+	}
+}
+
+CompileBehaviourTrees trees ;
+
+
+Depends all : trees ;
