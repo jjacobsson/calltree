@@ -15,9 +15,11 @@ Depends apps : libs ;
 
 SUFBTC = .btc ;
 
+BTCOMP_EXE = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
+
 actions btcomp
 {
-	$(BUILD_BIN_DIR)btcomp$(SUFEXE) -i $(>) -o $(<)
+	$(BTCOMP_EXE) -i $(>) -o $(<)
 }
 
 rule CompileBehaviourTrees
@@ -32,6 +34,7 @@ rule CompileBehaviourTrees
 		
 		btcomp $(_btc) : $(_source) ;
 		
+		Depends $(_btc) : $(BTCOMP_EXE) ;
 		Depends $(_btc) : $(_path) ;
 		Depends $(_btc)	: $(_source) ;
 		Depends $(1)	: $(_btc) ;
@@ -43,5 +46,5 @@ rule CompileBehaviourTrees
 
 CompileBehaviourTrees trees ;
 
-Depends trees : apps ;
+
 Depends all : trees ;
