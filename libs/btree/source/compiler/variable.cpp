@@ -160,4 +160,27 @@ Variable* FindVariableWithIdHash( Variable* s, int hash )
 	return 0x0;
 }
 
+int CountOccourancesOfIdHashInList( Variable* s, int hash )
+{
+	int r = 0;
+	while( s )
+	{
+		if( s->m_Id && s->m_Id->m_Hash == hash )
+			++r;
+		s = s->m_Next;
+	}
+	return r;
+}
+
+bool VariableIdsAreUniqueInList( Variable* s )
+{
+	while( s )
+	{
+		if( s->m_Id && CountOccourancesOfIdHashInList( s->m_Next, s->m_Id->m_Hash ) > 0 )
+			return false;
+		s = s->m_Next;
+	}
+	return true;
+}
+
 

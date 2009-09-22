@@ -59,4 +59,8 @@ int CountElementsInList( Variable* start );
 
 Variable* FindVariableWithIdHash( Variable* start, int hash );
 
+int CountOccourancesOfIdHashInList( Variable* start, int hash );
+
+bool VariableIdsAreUniqueInList( Variable* start );
+
 #endif /*VARIABLE_H_*/
