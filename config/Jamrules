@@ -1,14 +1,14 @@
 if $(NT)
 {
-	DEFINES_COMMON += WIN32 ;
-	DEFINES_COMMON += _CONSOLE ;
-	DEFINES_COMMON += _CRT_SECURE_NO_WARNINGS ;
-	DEFINES_COMMON += _UNICODE ;
-	DEFINES_COMMON += UNICODE ;
-	 
+    DEFINES_COMMON += WIN32 ;
+    DEFINES_COMMON += _CONSOLE ;
+    DEFINES_COMMON += _CRT_SECURE_NO_WARNINGS ;
+    DEFINES_COMMON += _UNICODE ;
+    DEFINES_COMMON += UNICODE ;
+
     PRELIB	= "" ;
     SLASH	= "\\" ;
-    
+
     CCFLAGS += /c ;
     CCFLAGS	+= /W3 ;
     CCFLAGS += /TP ;
@@ -17,7 +17,7 @@ if $(NT)
     CCFLAGS += /Od ;
     CCFLAGS += /errorReport:prompt ;
     CCFLAGS += /wd4530 ;
-    
+
     LINKFLAGS += /DEBUG ;
     LINKFLAGS += /INCREMENTAL:NO ;
 }
@@ -27,19 +27,20 @@ else
     PRELIB  = lib ;
     SLASH	= / ;
 
-    CCFLAGS += -O0 ;
-    CCFLAGS += -g ;
+    CCFLAGS   += -O0 ;
+    CCFLAGS   += -g ;
+    CCFLAGS   += -m32 ;
+    LINKFLAGS += -m32 ;
 
     CC      = g++ ;
     LINK    = g++ ;
-
 }
 
-BUILD_ROOT		= build ;
-BUILD_OBJ_DIR	= $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
-BUILD_LIB_DIR	= $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
-BUILD_BIN_DIR	= $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
-BUILD_TST_DIR	= $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
+BUILD_ROOT    = build ;
+BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
+BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
+BUILD_BIN_DIR = $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
+BUILD_TST_DIR = $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
 
 actions quietly MkDir1
 {
@@ -54,9 +55,9 @@ if $(NT)
     }
    
     actions piecemeal Archive
-	{
-		$(AR) /NOLOGO /OUT:$(<) $(>)
-	}
+    {
+        $(AR) /NOLOGO /OUT:$(<) $(>)
+    }
 }
 else
 {
@@ -65,10 +66,10 @@ else
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
 	
-	actions piecemeal Archive
-	{
-		$(AR) $(<) $(>) >/dev/null 2>&1
-	}
+    actions piecemeal Archive
+    {
+        $(AR) $(<) $(>) >/dev/null 2>&1
+    }
 
 }
 
