@@ -487,8 +487,8 @@ static const yytype_uint16 yyrline[] =
      135,   158,   185,   193,   203,   212,   221,   232,   259,   267,
      272,   277,   282,   287,   292,   300,   309,   318,   327,   337,
      345,   364,   370,   389,   393,   412,   435,   452,   469,   486,
-     495,   499,   513,   521,   530,   539,   548,   561,   565,   579,
-     587,   596,   605,   614
+     495,   499,   512,   520,   529,   538,   547,   560,   564,   577,
+     585,   594,   603,   612
 };
 #endif
 
@@ -1960,8 +1960,7 @@ yyreduce:
     {
 	if( (yyvsp[(1) - (3)].m_Variable) )
 	{
-		Variable* v = FindLastVariable( (yyvsp[(1) - (3)].m_Variable) );
-		v->m_Next = (yyvsp[(3) - (3)].m_Variable);
+		AppendToEndOfList( (yyvsp[(1) - (3)].m_Variable), (yyvsp[(3) - (3)].m_Variable) );
 		(yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
 	}	
 	else
@@ -1972,14 +1971,14 @@ yyreduce:
     break;
 
   case 42:
-#line 514 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 513 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 43:
-#line 522 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 521 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_STRING;
@@ -1990,7 +1989,7 @@ yyreduce:
     break;
 
   case 44:
-#line 531 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 530 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_INTEGER;
@@ -2001,7 +2000,7 @@ yyreduce:
     break;
 
   case 45:
-#line 540 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 539 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_FLOAT;
@@ -2012,7 +2011,7 @@ yyreduce:
     break;
 
   case 46:
-#line 549 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 548 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_BOOL;
@@ -2023,19 +2022,18 @@ yyreduce:
     break;
 
   case 47:
-#line 561 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 560 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable) = 0x0;
 ;}
     break;
 
   case 48:
-#line 566 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 565 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	if( (yyvsp[(1) - (3)].m_Variable) )
 	{
-		Variable* v = FindLastVariable( (yyvsp[(1) - (3)].m_Variable) );
-		v->m_Next = (yyvsp[(3) - (3)].m_Variable);
+		AppendToEndOfList( (yyvsp[(1) - (3)].m_Variable), (yyvsp[(3) - (3)].m_Variable) );
 		(yyval.m_Variable) = (yyvsp[(1) - (3)].m_Variable);
 	}	
 	else
@@ -2046,14 +2044,14 @@ yyreduce:
     break;
 
   case 49:
-#line 580 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 578 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 50:
-#line 588 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 586 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_STRING;
@@ -2064,7 +2062,7 @@ yyreduce:
     break;
 
   case 51:
-#line 597 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 595 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_INTEGER;
@@ -2075,7 +2073,7 @@ yyreduce:
     break;
 
   case 52:
-#line 606 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 604 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                  = new Variable;
     (yyval.m_Variable)->m_Type          = Variable::E_VART_FLOAT;
@@ -2086,7 +2084,7 @@ yyreduce:
     break;
 
   case 53:
-#line 615 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 613 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable)                   = new Variable;
     (yyval.m_Variable)->m_Type           = Variable::E_VART_BOOL;
@@ -2098,7 +2096,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2102 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 2100 "libs\\btree\\source\\parser\\btree_parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

@@ -1,19 +1,22 @@
+/*
+ *
+ * Copyright (C) 2009, Joacim Jacobsson ( j dot jacobsson at gmail dot com )
+ * All rights reserved.
+ *
+ * See LICENSE file for details
+ *
+ */
+
 #include <UnitTest++.h>
-#include <btree/variable.h>
+#include "test_variables.h"
 
 const char* g_TestString = "A test string.";
-
-class VariableTypeFixture
-{
-public:
-	Variable v;
-};
 
 /*
  * Undefined test (lol)
  */
 
-class VariableTypeUndefinedFixture : public VariableTypeFixture
+class VariableTypeUndefinedFixture : public TestVariablesFixture
 {
 public:
 	VariableTypeUndefinedFixture()
@@ -51,7 +54,7 @@ TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToBool )
  * Integer tests
  */
 
-class VariableTypeIntegerFixture : public VariableTypeFixture
+class VariableTypeIntegerFixture : public TestVariablesFixture
 {
 public:
 	VariableTypeIntegerFixture()
@@ -141,7 +144,7 @@ TEST_FIXTURE( VariableTypeIntegerFixture, ZeroIntegerToBoolConversionReturnsFals
  */
 
 
-class VariableTypeFloatFixture : public VariableTypeFixture
+class VariableTypeFloatFixture : public TestVariablesFixture
 {
 public:
 	VariableTypeFloatFixture()
@@ -210,7 +213,7 @@ TEST_FIXTURE( VariableTypeFloatFixture, ZeroFloatConvertsToFalseBool )
  * String Tests
  */
 
-class VariableTypeStringFixture : public VariableTypeFixture
+class VariableTypeStringFixture : public TestVariablesFixture
 {
 public:
 	VariableTypeStringFixture()
@@ -270,7 +273,7 @@ TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToBool )
  * Bool Tests
  */
 
-class VariableTypeBoolFixture : public VariableTypeFixture
+class VariableTypeBoolFixture : public TestVariablesFixture
 {
 public:
 	VariableTypeBoolFixture()

@@ -47,7 +47,16 @@ public:
     Variable*       m_Next;
 };
 
+void InitVariable( Variable* v );
+
 void DeleteVariableList( Variable* v );
+
 Variable* FindLastVariable( Variable* v );
+
+void AppendToEndOfList( Variable* start, Variable* v );
+
+int CountElementsInList( Variable* start );
+
+Variable* FindVariableWithIdHash( Variable* start, int hash );
 
 #endif /*VARIABLE_H_*/

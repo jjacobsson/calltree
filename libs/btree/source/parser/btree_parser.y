@@ -500,8 +500,7 @@ nt_variable_dec_list T_COMMA nt_variable_dec
 {
 	if( $1 )
 	{
-		Variable* v = FindLastVariable( $1 );
-		v->m_Next = $3;
+		AppendToEndOfList( $1, $3 );
 		$$ = $1;
 	}	
 	else
@@ -566,8 +565,7 @@ nt_variable_list T_COMMA nt_variable
 {
 	if( $1 )
 	{
-		Variable* v = FindLastVariable( $1 );
-		v->m_Next = $3;
+		AppendToEndOfList( $1, $3 );
 		$$ = $1;
 	}	
 	else

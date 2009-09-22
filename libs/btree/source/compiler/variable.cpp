@@ -105,6 +105,14 @@ bool Variable::ValueAsBool() const
 	return r;
 }
 
+void InitVariable( Variable* v )
+{
+	v->m_Type = Variable::E_VART_UNDEFINED;
+	v->m_Id = 0x0;
+	v->m_Data.m_Integer = 0;
+	v->m_Next = 0x0;
+}
+
 void DeleteVariableList( Variable* v )
 {
 	while( v )
@@ -120,6 +128,36 @@ Variable* FindLastVariable( Variable* v )
 	while( v && v->m_Next )
 		v = v->m_Next;
 	return v;
+}
+
+void AppendToEndOfList( Variable* s, Variable* v )
+{
+	while( s && s->m_Next )
+		s = s->m_Next;
+	if( s )
+		s->m_Next = v;
+}
+
+int CountElementsInList( Variable* s )
+{
+	int r = 0;
+	while( s )
+	{
+		++r;
+		s = s->m_Next;
+	}
+	return r;
+}
+
+Variable* FindVariableWithIdHash( Variable* s, int hash )
+{
+	while( s )
+	{
+		if( s->m_Id && s->m_Id->m_Hash == hash )
+			return s;
+		s = s->m_Next;
+	}
+	return 0x0;
 }
 
 
