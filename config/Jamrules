@@ -25,9 +25,13 @@ else
 {
     DEFINES_COMMON = LINUX ;
     PRELIB  = lib ;
+    SLASH	= / ;
+
+		CCFLAGS += -m32 ;
+    LINKFLAGS += -m32 ;
+
     CC      = g++ ;
     LINK    = g++ ;
-    SLASH	= / ;
 }
 
 BUILD_ROOT		= build ;
@@ -49,9 +53,9 @@ if $(NT)
     }
    
     actions piecemeal Archive
-	{
-		$(AR) /NOLOGO /OUT:$(<) $(>)
-	}
+    {
+        $(AR) /NOLOGO /OUT:$(<) $(>)
+    }
 }
 else
 {
@@ -60,10 +64,10 @@ else
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
 	
-	actions piecemeal Archive
-	{
-		$(AR) $(<) $(>) >/dev/null 2>&1
-	}
+    actions piecemeal Archive
+    {
+        $(AR) $(<) $(>) >/dev/null 2>&1
+    }
 
 }
 
