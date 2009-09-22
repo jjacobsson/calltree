@@ -19,6 +19,7 @@
 const double XGMLPrinter::s_node_width = 120.0;
 
 XGMLPrinter::XGMLPrinter()
+	: m_Debug( false )
 {
 }
 

@@ -19,7 +19,7 @@ BTCOMP_EXE = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
 
 actions btcomp
 {
-	$(BTCOMP_EXE) -i $(>) -o $(<)
+	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
 }
 
 rule CompileBehaviourTrees
@@ -41,6 +41,8 @@ rule CompileBehaviourTrees
 		MkDir $(_path) ;
 		
 		Clean clean : $(_btc) ;
+		Clean clean : $(_btc:S=.asm) ;
+		Clean clean : $(_btc:S=.xgml) ;
 	}
 }
 

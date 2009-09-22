@@ -103,12 +103,13 @@ typedef union YYSTYPE
     Decorator*     m_Decorator;
     int            m_Integer;
     float          m_Float;
+    bool           m_Bool;
     const char*    m_String;
     Variable*      m_Variable;
 	/*VariableList*  m_VariableList;*/
 }
 /* Line 1529 of yacc.c.  */
-#line 112 "libs\\btree\\source\\parser\\btree_parser.h"
+#line 113 "libs\\btree\\source\\parser\\btree_parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

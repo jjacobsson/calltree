@@ -89,8 +89,8 @@ int32           { return T_INT32; }
 bool            { return T_BOOL; }
 float           { return T_FLOAT; }
 string          { return T_STRING; }
-true            { yylval->m_Integer = 1; return T_BOOL_VALUE; }
-false           { yylval->m_Integer = 0; return T_BOOL_VALUE; }
+true            { yylval->m_Bool = true; return T_BOOL_VALUE; }
+false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 {ID}            {
                     ParserContext* ctx = yyget_extra(yyscanner); 
                     (*yylval).m_Id = ctx->m_Tree->CreateId( yytext, yylineno );

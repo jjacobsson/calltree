@@ -157,12 +157,13 @@ typedef union YYSTYPE
     Decorator*     m_Decorator;
     int            m_Integer;
     float          m_Float;
+    bool           m_Bool;
     const char*    m_String;
     Variable*      m_Variable;
 	/*VariableList*  m_VariableList;*/
 }
 /* Line 193 of yacc.c.  */
-#line 166 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 167 "libs\\btree\\source\\parser\\btree_parser.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -175,7 +176,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 179 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 180 "libs\\btree\\source\\parser\\btree_parser.c"
 
 #ifdef short
 # undef short
@@ -483,12 +484,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   106,   106,   114,   116,   121,   123,   125,   127,   129,
-     135,   158,   185,   193,   203,   212,   221,   232,   259,   267,
-     272,   277,   282,   287,   292,   300,   309,   318,   327,   337,
-     345,   364,   370,   389,   393,   412,   435,   452,   469,   486,
-     495,   499,   512,   520,   529,   538,   547,   560,   564,   577,
-     585,   594,   603,   612
+       0,   107,   107,   115,   117,   122,   124,   126,   128,   130,
+     136,   159,   186,   194,   204,   213,   222,   233,   260,   268,
+     273,   278,   283,   288,   293,   301,   310,   319,   328,   338,
+     346,   365,   371,   390,   394,   413,   436,   453,   470,   487,
+     496,   500,   513,   521,   529,   537,   545,   557,   561,   574,
+     582,   591,   600,   609
 };
 #endif
 
@@ -1176,99 +1177,99 @@ yydestruct (yymsg, yytype, yyvaluep, ctx, scanner)
   switch (yytype)
     {
       case 5: /* "T_ID" */
-#line 83 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 84 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeId( (yyvaluep->m_Id) ); };
-#line 1182 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1183 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 32: /* "nt_function_grist" */
-#line 100 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 101 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeFunctionGrist( (yyvaluep->m_FuncGrist) ); };
-#line 1187 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1188 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 33: /* "nt_node_dec" */
-#line 84 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 85 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNode( (yyvaluep->m_Node) ); };
-#line 1192 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1193 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 35: /* "nt_node_grist" */
-#line 89 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1197 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
-      case 36: /* "nt_selector_node_grist" */
 #line 90 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1202 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1198 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 37: /* "nt_dyn_selector_node_grist" */
+      case 36: /* "nt_selector_node_grist" */
 #line 91 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1207 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1203 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 38: /* "nt_sequence_node_grist" */
+      case 37: /* "nt_dyn_selector_node_grist" */
 #line 92 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1212 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1208 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 39: /* "nt_parallel_node_grist" */
+      case 38: /* "nt_sequence_node_grist" */
 #line 93 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1217 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1213 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 40: /* "nt_decorator_node_grist" */
+      case 39: /* "nt_parallel_node_grist" */
 #line 94 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1222 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1218 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 41: /* "nt_action_node_grist" */
+      case 40: /* "nt_decorator_node_grist" */
 #line 95 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
-#line 1227 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1223 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
+      case 41: /* "nt_action_node_grist" */
+#line 96 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ ctx->m_Tree->FreeNodeGrist( (yyvaluep->m_NodeGrist) ); };
+#line 1228 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 42: /* "nt_node_list" */
-#line 88 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 89 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeNodeList( (yyvaluep->m_NodeList) ); };
-#line 1232 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1233 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 43: /* "nt_node_ref" */
-#line 85 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ /* do nothing */ };
-#line 1237 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
-      case 44: /* "nt_action_ref" */
 #line 86 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ /* do nothing */ };
-#line 1242 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1238 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 45: /* "nt_decorator_ref" */
+      case 44: /* "nt_action_ref" */
 #line 87 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ /* do nothing */ };
-#line 1247 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1243 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
+      case 45: /* "nt_decorator_ref" */
+#line 88 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ /* do nothing */ };
+#line 1248 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 46: /* "nt_id" */
-#line 82 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 83 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ ctx->m_Tree->FreeId( (yyvaluep->m_Id) ); };
-#line 1252 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1253 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
       case 47: /* "nt_variable_dec_list" */
-#line 98 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
-#line 1257 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
-      case 48: /* "nt_variable_dec" */
-#line 96 "libs\\btree\\source\\parser\\btree_parser.y"
-	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
-#line 1262 "libs\\btree\\source\\parser\\btree_parser.c"
-	break;
-      case 49: /* "nt_variable_list" */
 #line 99 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
-#line 1267 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1258 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
-      case 50: /* "nt_variable" */
+      case 48: /* "nt_variable_dec" */
 #line 97 "libs\\btree\\source\\parser\\btree_parser.y"
 	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
-#line 1272 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 1263 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
+      case 49: /* "nt_variable_list" */
+#line 100 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1268 "libs\\btree\\source\\parser\\btree_parser.c"
+	break;
+      case 50: /* "nt_variable" */
+#line 98 "libs\\btree\\source\\parser\\btree_parser.y"
+	{ DeleteVariableList( (yyvaluep->m_Variable) ); };
+#line 1273 "libs\\btree\\source\\parser\\btree_parser.c"
 	break;
 
       default:
@@ -1578,14 +1579,14 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 107 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 108 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     YYACCEPT;
 ;}
     break;
 
   case 10:
-#line 136 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 137 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Action* a = ctx->m_Tree->CreateAction( (yyvsp[(3) - (6)].m_Id) );
     if( !a )
@@ -1607,7 +1608,7 @@ yyreduce:
     break;
 
   case 11:
-#line 159 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 160 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Decorator* d = ctx->m_Tree->CreateDecorator( (yyvsp[(3) - (10)].m_Id) );
     if( !d )
@@ -1627,64 +1628,64 @@ yyreduce:
     d->m_Id         = (yyvsp[(3) - (10)].m_Id);
     d->m_FunctionId = (yyvsp[(5) - (10)].m_Integer);
     d->m_Grist      = (yyvsp[(10) - (10)].m_FuncGrist);
-    d->m_Prune      = (yyvsp[(7) - (10)].m_Integer) == 1;
-    d->m_Modify     = (yyvsp[(9) - (10)].m_Integer) == 1;
+    d->m_Prune      = (yyvsp[(7) - (10)].m_Bool) == 1;
+    d->m_Modify     = (yyvsp[(9) - (10)].m_Bool) == 1;
 ;}
     break;
 
   case 12:
-#line 186 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 187 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Integer) = (yyvsp[(1) - (1)].m_Integer);
 ;}
     break;
 
   case 13:
-#line 194 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 195 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     /* bss-value and variable list grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
     (yyval.m_FuncGrist)->m_bssSize   = (yyvsp[(6) - (9)].m_Integer);
     (yyval.m_FuncGrist)->m_Variables = (yyvsp[(8) - (9)].m_Variable);
-    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (9)].m_Integer) == 1;
-    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(2) - (9)].m_Integer) == 1;
+    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (9)].m_Bool) == 1;
+    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(2) - (9)].m_Bool) == 1;
 ;}
     break;
 
   case 14:
-#line 204 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 205 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     /* only a variable declaration list grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
     (yyval.m_FuncGrist)->m_Variables = (yyvsp[(6) - (7)].m_Variable);
-    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (7)].m_Integer) == 1;
-    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (7)].m_Integer) == 1;
+    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (7)].m_Bool) == 1;
+    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (7)].m_Bool) == 1;
 ;}
     break;
 
   case 15:
-#line 213 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 214 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     /* only a bss-value grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
     (yyval.m_FuncGrist)->m_bssSize   = (yyvsp[(6) - (7)].m_Integer);
-    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (7)].m_Integer) == 1;
-    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (7)].m_Integer) == 1;
+    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (7)].m_Bool) == 1;
+    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (7)].m_Bool) == 1;
 ;}
     break;
 
   case 16:
-#line 222 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 223 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     /* essentialy, no grist */
     (yyval.m_FuncGrist) = ctx->m_Tree->CreateFunctionGrist();
-    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (5)].m_Integer) == 1;
-    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (5)].m_Integer) == 1;
+    (yyval.m_FuncGrist)->m_Construct = (yyvsp[(2) - (5)].m_Bool) == 1;
+    (yyval.m_FuncGrist)->m_Destruct  = (yyvsp[(4) - (5)].m_Bool) == 1;
 ;}
     break;
 
   case 17:
-#line 233 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 234 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Node* n = ctx->m_Tree->CreateNode( (yyvsp[(3) - (5)].m_Id) );
     if( !n )
@@ -1710,56 +1711,56 @@ yyreduce:
     break;
 
   case 18:
-#line 260 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 261 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     ctx->m_Tree->SetRootNode( (yyvsp[(3) - (4)].m_Node) );
 ;}
     break;
 
   case 19:
-#line 268 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 269 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 20:
-#line 273 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 274 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 21:
-#line 278 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 279 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 22:
-#line 283 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 284 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 23:
-#line 288 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 289 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 24:
-#line 293 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 294 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = (yyvsp[(1) - (1)].m_NodeGrist);
 ;}
     break;
 
   case 25:
-#line 301 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 302 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_SELECTOR );
     static_cast<SelectorNodeGrist*>( (yyval.m_NodeGrist) )->SetChildList( (yyvsp[(3) - (4)].m_NodeList) );
@@ -1767,7 +1768,7 @@ yyreduce:
     break;
 
   case 26:
-#line 310 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 311 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_DYN_SELECTOR );
     static_cast<DynamicSelectorNodeGrist*>( (yyval.m_NodeGrist) )->SetChildList( (yyvsp[(3) - (4)].m_NodeList) );
@@ -1775,7 +1776,7 @@ yyreduce:
     break;
 
   case 27:
-#line 319 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 320 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_SEQUENCE );
     static_cast<SequenceNodeGrist*>( (yyval.m_NodeGrist) )->SetChildList( (yyvsp[(3) - (4)].m_NodeList) );
@@ -1783,7 +1784,7 @@ yyreduce:
     break;
 
   case 28:
-#line 328 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 329 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_PARALLEL );
     ParallelNodeGrist* grist = static_cast<ParallelNodeGrist*>( (yyval.m_NodeGrist) );
@@ -1792,7 +1793,7 @@ yyreduce:
     break;
 
   case 29:
-#line 338 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 339 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_DECORATOR );
     DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>((yyval.m_NodeGrist));
@@ -1802,7 +1803,7 @@ yyreduce:
     break;
 
   case 30:
-#line 346 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 347 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     if( !(yyvsp[(3) - (8)].m_Decorator)->m_Grist->ValiadateVariables( (yyvsp[(7) - (8)].m_Variable) ) )
     {
@@ -1820,7 +1821,7 @@ yyreduce:
     break;
 
   case 31:
-#line 365 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 366 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeGrist) = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
     static_cast<ActionNodeGrist*>((yyval.m_NodeGrist))->SetAction( (yyvsp[(3) - (4)].m_Action) );
@@ -1828,7 +1829,7 @@ yyreduce:
     break;
 
   case 32:
-#line 371 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 372 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     if( !(yyvsp[(3) - (6)].m_Action)->m_Grist->ValiadateVariables( (yyvsp[(5) - (6)].m_Variable) ) )
     {
@@ -1845,14 +1846,14 @@ yyreduce:
     break;
 
   case 33:
-#line 389 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 390 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_NodeList) = ctx->m_Tree->CreateNodeList();
 ;}
     break;
 
   case 34:
-#line 394 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 395 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     if( (yyvsp[(3) - (3)].m_Node)->m_IsChild  )
     {
@@ -1873,7 +1874,7 @@ yyreduce:
     break;
 
   case 35:
-#line 413 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 414 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     if( (yyvsp[(1) - (1)].m_Node)->m_IsChild  )
     {
@@ -1894,7 +1895,7 @@ yyreduce:
     break;
 
   case 36:
-#line 436 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 437 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Node* n = ctx->m_Tree->LookupNode( (yyvsp[(1) - (1)].m_Id) );
     if( n == 0x0 )
@@ -1910,7 +1911,7 @@ yyreduce:
     break;
 
   case 37:
-#line 453 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 454 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Action* a = ctx->m_Tree->LookupAction( (yyvsp[(1) - (1)].m_Id) );
     if( a == 0x0 )
@@ -1926,7 +1927,7 @@ yyreduce:
     break;
 
   case 38:
-#line 470 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 471 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     Decorator* d = ctx->m_Tree->LookupDecorator( (yyvsp[(1) - (1)].m_Id) );
     if( d == 0x0 )
@@ -1942,21 +1943,21 @@ yyreduce:
     break;
 
   case 39:
-#line 487 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 488 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Id) = (yyvsp[(1) - (1)].m_Id);
 ;}
     break;
 
   case 40:
-#line 495 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 496 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable) = 0x0;
 ;}
     break;
 
   case 41:
-#line 500 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 501 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	if( (yyvsp[(1) - (3)].m_Variable) )
 	{
@@ -1971,65 +1972,61 @@ yyreduce:
     break;
 
   case 42:
-#line 513 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 514 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 43:
-#line 521 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 522 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_STRING;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(2) - (2)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Integer = 0;
-    (yyval.m_Variable)->m_Next			 = 0x0;    
+    (yyval.m_Variable) = new Variable;
+	InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_STRING;
+    (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
 
   case 44:
 #line 530 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_INTEGER;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(2) - (2)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Integer = 0;
-    (yyval.m_Variable)->m_Next			 = 0x0;    
+    (yyval.m_Variable) = new Variable;
+   	InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_INTEGER;
+    (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
 
   case 45:
-#line 539 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 538 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_FLOAT;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(2) - (2)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Integer = 0;
-    (yyval.m_Variable)->m_Next			 = 0x0;    
+    (yyval.m_Variable) = new Variable;
+	InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_FLOAT;
+    (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
 
   case 46:
-#line 548 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 546 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_BOOL;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(2) - (2)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Integer = 0;
-    (yyval.m_Variable)->m_Next			 = 0x0;
+    (yyval.m_Variable) = new Variable;
+	InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_BOOL;
+    (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
 
   case 47:
-#line 560 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 557 "libs\\btree\\source\\parser\\btree_parser.y"
     {
     (yyval.m_Variable) = 0x0;
 ;}
     break;
 
   case 48:
-#line 565 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 562 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	if( (yyvsp[(1) - (3)].m_Variable) )
 	{
@@ -2044,59 +2041,59 @@ yyreduce:
     break;
 
   case 49:
-#line 578 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 575 "libs\\btree\\source\\parser\\btree_parser.y"
     {
 	(yyval.m_Variable) = (yyvsp[(1) - (1)].m_Variable);
 ;}
     break;
 
   case 50:
-#line 586 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 583 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = new Variable;
-    (yyval.m_Variable)->m_Type          = Variable::E_VART_STRING;
-    (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
+    (yyval.m_Variable) = new Variable;
+    InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_STRING;
+    (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_String = (yyvsp[(3) - (3)].m_String);
-    (yyval.m_Variable)->m_Next			= 0x0;
 ;}
     break;
 
   case 51:
-#line 595 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 592 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_INTEGER;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(1) - (3)].m_Id);
+    (yyval.m_Variable) = new Variable;
+    InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_INTEGER;
+    (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Integer = (yyvsp[(3) - (3)].m_Integer);
-    (yyval.m_Variable)->m_Next			 = 0x0;    
 ;}
     break;
 
   case 52:
-#line 604 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 601 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                  = new Variable;
-    (yyval.m_Variable)->m_Type          = Variable::E_VART_FLOAT;
-    (yyval.m_Variable)->m_Id            = (yyvsp[(1) - (3)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Float  = (yyvsp[(3) - (3)].m_Float);
-    (yyval.m_Variable)->m_Next			= 0x0;    
+    (yyval.m_Variable) = new Variable;
+    InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_FLOAT;
+    (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
+    (yyval.m_Variable)->m_Data.m_Float = (yyvsp[(3) - (3)].m_Float);
 ;}
     break;
 
   case 53:
-#line 613 "libs\\btree\\source\\parser\\btree_parser.y"
+#line 610 "libs\\btree\\source\\parser\\btree_parser.y"
     {
-    (yyval.m_Variable)                   = new Variable;
-    (yyval.m_Variable)->m_Type           = Variable::E_VART_BOOL;
-    (yyval.m_Variable)->m_Id             = (yyvsp[(1) - (3)].m_Id);
-    (yyval.m_Variable)->m_Data.m_Integer = (yyvsp[(3) - (3)].m_Integer);
-    (yyval.m_Variable)->m_Next			 = 0x0;    
+    (yyval.m_Variable) = new Variable;
+    InitVariable( (yyval.m_Variable) );
+    (yyval.m_Variable)->m_Type = Variable::E_VART_BOOL;
+    (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
+    (yyval.m_Variable)->m_Data.m_Integer = (yyvsp[(3) - (3)].m_Bool);
 ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2100 "libs\\btree\\source\\parser\\btree_parser.c"
+#line 2097 "libs\\btree\\source\\parser\\btree_parser.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

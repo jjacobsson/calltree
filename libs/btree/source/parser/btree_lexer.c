@@ -1148,12 +1148,12 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 92 "libs\\btree\\source\\parser\\btree_lexer.l"
-{ yylval->m_Integer = 1; return T_BOOL_VALUE; }
+{ yylval->m_Bool = true; return T_BOOL_VALUE; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 93 "libs\\btree\\source\\parser\\btree_lexer.l"
-{ yylval->m_Integer = 0; return T_BOOL_VALUE; }
+{ yylval->m_Bool = false; return T_BOOL_VALUE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP

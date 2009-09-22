@@ -39,7 +39,7 @@
 %token            T_FLOAT        /* literal string "float" */
 %token            T_STRING       /* literal string "string" */
 %token<m_Integer> T_INT32_VALUE  /* a integer value */
-%token<m_Integer> T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
+%token<m_Bool>    T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
 %token<m_Float>   T_FLOAT_VALUE  /* a float value */
 %token<m_String>  T_STRING_VALUE /* a string value */
 %token            T_END_OF_FILE  /* end of file token */
@@ -54,6 +54,7 @@
     Decorator*     m_Decorator;
     int            m_Integer;
     float          m_Float;
+    bool           m_Bool;
     const char*    m_String;
     Variable*      m_Variable;
 	/*VariableList*  m_VariableList;*/
@@ -519,38 +520,34 @@ nt_variable_dec
 :
 T_STRING T_ID
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_STRING;
-    $$->m_Id             = $2;
-    $$->m_Data.m_Integer = 0;
-    $$->m_Next			 = 0x0;    
+    $$ = new Variable;
+	InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_STRING;
+    $$->m_Id = $2;
 }
 |
 T_INT32 T_ID
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_INTEGER;
-    $$->m_Id             = $2;
-    $$->m_Data.m_Integer = 0;
-    $$->m_Next			 = 0x0;    
+    $$ = new Variable;
+   	InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_INTEGER;
+    $$->m_Id = $2;
 }
 |
 T_FLOAT T_ID
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_FLOAT;
-    $$->m_Id             = $2;
-    $$->m_Data.m_Integer = 0;
-    $$->m_Next			 = 0x0;    
+    $$ = new Variable;
+	InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_FLOAT;
+    $$->m_Id = $2;
 }
 |
 T_BOOL T_ID
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_BOOL;
-    $$->m_Id             = $2;
-    $$->m_Data.m_Integer = 0;
-    $$->m_Next			 = 0x0;
+    $$ = new Variable;
+	InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_BOOL;
+    $$->m_Id = $2;
 }
 ;
 
@@ -584,38 +581,38 @@ nt_variable
 :
 T_ID T_ASSIGNMENT T_STRING_VALUE
 {
-    $$                  = new Variable;
-    $$->m_Type          = Variable::E_VART_STRING;
-    $$->m_Id            = $1;
+    $$ = new Variable;
+    InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_STRING;
+    $$->m_Id = $1;
     $$->m_Data.m_String = $3;
-    $$->m_Next			= 0x0;
 }
 |
 T_ID T_ASSIGNMENT T_INT32_VALUE
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_INTEGER;
-    $$->m_Id             = $1;
+    $$ = new Variable;
+    InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_INTEGER;
+    $$->m_Id = $1;
     $$->m_Data.m_Integer = $3;
-    $$->m_Next			 = 0x0;    
 }
 |
 T_ID T_ASSIGNMENT T_FLOAT_VALUE
 {
-    $$                  = new Variable;
-    $$->m_Type          = Variable::E_VART_FLOAT;
-    $$->m_Id            = $1;
-    $$->m_Data.m_Float  = $3;
-    $$->m_Next			= 0x0;    
+    $$ = new Variable;
+    InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_FLOAT;
+    $$->m_Id = $1;
+    $$->m_Data.m_Float = $3;
 }
 |
 T_ID T_ASSIGNMENT T_BOOL_VALUE
 {
-    $$                   = new Variable;
-    $$->m_Type           = Variable::E_VART_BOOL;
-    $$->m_Id             = $1;
+    $$ = new Variable;
+    InitVariable( $$ );
+    $$->m_Type = Variable::E_VART_BOOL;
+    $$->m_Id = $1;
     $$->m_Data.m_Integer = $3;
-    $$->m_Next			 = 0x0;    
 }
 ;
 

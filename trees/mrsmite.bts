@@ -115,7 +115,7 @@ node : fight_to_the_death
 	: parallel : enemies_present_2, health_above_zero, fight_sequence_nocare ;
 	
 node : victory_dialog
-	: action : print : str = "Is that the best you can do? (all players died or ran off)\n" ;
+	: action : print : str = "Is that the best you can do? (all players died or ran off)" ;
 
 node : regenerate_health
 	: action : inc_gc ;
@@ -133,7 +133,7 @@ node : await_victory
 	: sequence : fight_to_the_death, victory_dialog, reset_encounter, exit_tree_won ; 
 	
 node : noooo_I_cant_LOOOSE
-	: action : print : str = "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)\n" ; 
+	: action : print : str = "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)" ; 
 	
 node : handle_defeat
 	: selector : await_victory, noooo_I_cant_LOOOSE ;

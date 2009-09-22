@@ -39,11 +39,12 @@ void VariableOwner::StoreVariablesInDataSection( BehaviourTree* bt, Variable* de
     Variable* it;
     for( it = dec; it != 0x0; it = it->m_Next )
     {
-/*
-        switch( (*it)->m_Type )
+    	Variable* v = FindVariableWithIdHash( m_Variables, it->m_Id->m_Hash );
+
+        switch( it->m_Type )
         {
         case Variable::E_VART_INTEGER:
-            m_Data.push_back( d.PushInteger( v->ValueAsInt() ) );
+            m_Data.push_back( d.PushInteger( v->ValueAsInteger() ) );
             break;
         case Variable::E_VART_FLOAT:
             m_Data.push_back( d.PushFloat( v->ValueAsFloat() ) );
@@ -52,13 +53,12 @@ void VariableOwner::StoreVariablesInDataSection( BehaviourTree* bt, Variable* de
             m_Data.push_back( d.PushString( v->ValueAsString() ) );
             break;
         case Variable::E_VART_BOOL:
-            m_Data.push_back( d.PushInteger( v->ValueAsInt() ) );
+            m_Data.push_back( d.PushInteger( v->ValueAsInteger() ) );
             break;
         default:
             //assert( false );
             break;
         }
-*/
     }
 
 }
