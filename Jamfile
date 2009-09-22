@@ -15,7 +15,8 @@ Depends apps : libs ;
 
 SUFBTC = .btc ;
 
-BTCOMP_EXE = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
+BTCOMP_EXE      = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
+BUILD_TREES_DIR = $(BUILD_ROOT)$(SLASH)trees$(SLASH) ;
 
 actions btcomp
 {
@@ -29,7 +30,7 @@ rule CompileBehaviourTrees
 	local _source ;
 	for _source in $(_sources)
 	{
-		local _btc = $(BUILD_TST_DIR)$(_source:S=$(SUFBTC)) ;
+		local _btc = $(BUILD_TREES_DIR)$(_source:S=$(SUFBTC)) ;
 		local _path = $(_btc:P) ;
 		
 		btcomp $(_btc) : $(_source) ;
