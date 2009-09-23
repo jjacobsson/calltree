@@ -1163,7 +1163,7 @@ YY_RULE_SETUP
                     ParserContext* ctx = yyget_extra(yyscanner); 
                     (*yylval).m_Id.m_Hash = hashlittle( yytext );
                     (*yylval).m_Id.m_Line = yylineno;
-                    (*yylval).m_Id.m_Text =  ctx->m_Tree->RegisterString( yytext, (*yylval).m_Id.m_Hash );
+                    (*yylval).m_Id.m_Text = ctx->m_Tree->RegisterString( yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }
 	YY_BREAK
