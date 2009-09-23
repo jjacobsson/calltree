@@ -367,7 +367,7 @@ void XGMLPrinter::PrintDynSelector( FILE* f, const NodeInfo* n ) const
 void XGMLPrinter::PrintDecorator( FILE* f, const NodeInfo* n ) const
 {
     DecoratorNodeGrist* dng = (DecoratorNodeGrist*)n->m_Node->m_Grist;
-    const char* const text      = dng->GetDecorator()->m_Id->m_Text;
+    const char* const text      = dng->GetDecorator()->m_Id.m_Text;
 
     fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
@@ -383,7 +383,7 @@ void XGMLPrinter::PrintDecorator( FILE* f, const NodeInfo* n ) const
 void XGMLPrinter::PrintAction( FILE* f, const NodeInfo* n ) const
 {
     ActionNodeGrist* ang    = (ActionNodeGrist*)n->m_Node->m_Grist;
-    const char* const text  = ang->GetAction()->m_Id->m_Text;
+    const char* const text  = ang->GetAction()->m_Id.m_Text;
     fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">triangle</attribute>\n" );
