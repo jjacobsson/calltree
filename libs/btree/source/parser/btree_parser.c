@@ -1594,7 +1594,7 @@ yyreduce:
         a = ctx->m_Tree->LookupAction( (yyvsp[(3) - (6)].m_Id) );
 
         char tmp[2048];
-        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (6)].m_Id)->m_Text, a->m_Id->m_Line );
+        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (6)].m_Id).m_Text, a->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( (yyvsp[(6) - (6)].m_FuncGrist) );
@@ -1617,7 +1617,7 @@ yyreduce:
 
 
         char tmp[2048];
-        sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (10)].m_Id)->m_Text, d->m_Id->m_Line );
+        sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (10)].m_Id).m_Text, d->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( (yyvsp[(10) - (10)].m_FuncGrist) );
@@ -1694,7 +1694,7 @@ yyreduce:
 
 
         char tmp[2048];
-        sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (5)].m_Id)->m_Text, n->m_Id->m_Line );
+        sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", (yyvsp[(3) - (5)].m_Id).m_Text, n->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeId( (yyvsp[(3) - (5)].m_Id) );
