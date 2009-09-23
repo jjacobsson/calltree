@@ -126,7 +126,7 @@ void CodeSection::PushDebugScope( BehaviourTree* bt, Node* n, NodeAction action 
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
-    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id->m_Text, n->m_Id->m_Line, g_CBActionNames[action] );
+    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
     int data = bt->GetDataSection().PushString( buff );
     Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
@@ -136,7 +136,7 @@ void CodeSection::PopDebugScope( BehaviourTree* bt, Node* n, NodeAction action )
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
-    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id->m_Text, n->m_Id->m_Line, g_CBActionNames[action] );
+    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
     int data = bt->GetDataSection().PushString( buff );
     Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }

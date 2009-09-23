@@ -10,22 +10,24 @@
 #ifndef DECORATOR_H_
 #define DECORATOR_H_
 
+#include "identifier.h"
+
 class FunctionGrist;
-struct Identifier;
 
 class Decorator
 {
 public:
 
 	Decorator()
-		: m_Id( 0x0 )
-		, m_FunctionId( ~0 )
+		: m_FunctionId( ~0 )
 		, m_Grist( 0x0 )
 		, m_Prune( false )
 		, m_Modify( false )
-	{}
+	{
+		InitIdentifier( &m_Id );
+	}
 
-	Identifier*	m_Id;
+	Identifier      m_Id;
 	int				m_FunctionId;
 	FunctionGrist*	m_Grist;
 	bool			m_Prune;

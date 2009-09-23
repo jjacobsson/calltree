@@ -145,7 +145,6 @@ T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( $6 );
-        ctx->m_Tree->FreeId( $3 );
 
         YYERROR;
     }
@@ -169,7 +168,6 @@ T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( $10 );
-        ctx->m_Tree->FreeId( $3 );
 
         YYERROR;
     }
@@ -397,7 +395,7 @@ nt_node_list T_COMMA nt_node_ref
     {
         ctx->m_Tree->FreeNodeList( $1 );
         char tmp[2048];
-        sprintf( tmp, "child node \"%s\" already has a parent.", $3->m_Id->m_Text );
+        sprintf( tmp, "child node \"%s\" already has a parent.", $3->m_Id.m_Text );
         yyerror( ctx, scanner, tmp );
         YYERROR;
     }
@@ -415,7 +413,7 @@ nt_node_ref
     if( $1->m_IsChild  )
     {
         char tmp[2048];
-        sprintf( tmp, "child node \"%s\" has a parent.", $1->m_Id->m_Text );
+        sprintf( tmp, "child node \"%s\" has a parent.", $1->m_Id.m_Text );
         yyerror( ctx, scanner, tmp );
         YYERROR;
     }
@@ -439,7 +437,7 @@ nt_id
     if( n == 0x0 )
     {
         char tmp[2048];
-        sprintf( tmp, "node \"%s\" has not been declared.\n", $1->m_Text );
+        sprintf( tmp, "node \"%s\" has not been declared.\n", $1.m_Text );
         ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;
@@ -456,7 +454,7 @@ nt_id
     if( a == 0x0 )
     {
         char tmp[2048];
-        sprintf( tmp, "action \"%s\" has not been declared.\n", $1->m_Text );
+        sprintf( tmp, "action \"%s\" has not been declared.\n", $1.m_Text );
         ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;
@@ -473,7 +471,7 @@ nt_id
     if( d == 0x0 )
     {
         char tmp[2048];
-        sprintf( tmp, "decorator \"%s\" has not been declared.", $1->m_Text );
+        sprintf( tmp, "decorator \"%s\" has not been declared.", $1.m_Text );
         ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;

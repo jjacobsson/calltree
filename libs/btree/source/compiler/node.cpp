@@ -11,14 +11,6 @@
 #include <btree/btree.h>
 #include <btree/node_grist.h>
 
-Node::~Node()
-{
-	if( m_Tree )
-	{
-		m_Tree->FreeId( m_Id );
-	}
-}
-
 void Node::Visit( INodeVisitor* nv )
 {
 	if( m_Grist )

@@ -10,7 +10,8 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-struct Identifier;
+#include "identifier.h"
+
 class NodeGrist;
 class BehaviourTree;
 class INodeVisitor;
@@ -21,18 +22,17 @@ public:
     Node()
         : m_Tree( 0x0 )
         , m_Parent( 0x0 )
-        , m_Id( 0x0 )
         , m_Grist( 0x0 )
         , m_IsChild( false )
-    {}
-
-    ~Node();
+    {
+    	InitIdentifier( &m_Id );
+    }
 
     void Visit( INodeVisitor* v );
 
     BehaviourTree*  m_Tree;
     Node*           m_Parent;
-    Identifier*     m_Id;
+    Identifier      m_Id;
     NodeGrist*      m_Grist;
     bool            m_IsChild;
 };

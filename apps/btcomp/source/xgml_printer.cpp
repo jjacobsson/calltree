@@ -311,7 +311,7 @@ int XGMLPrinter::FindParentIndex( const Node* n ) const
 
 void XGMLPrinter::PrintSequence( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">ellipse</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#FFFF00</attribute>\n" );
@@ -320,47 +320,47 @@ void XGMLPrinter::PrintSequence( FILE* f, const NodeInfo* n ) const
     fprintf( f, "<attribute key=\"outlineStyle\" type=\"String\">dashed</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Sequence\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintSelector( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">ellipse</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#00FF00</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Selector\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintParallel( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">roundrectangle</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#800080</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Parallel\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     fprintf( f, "<attribute key=\"color\" type=\"String\">#FFFFFF</attribute>\n" );
     fprintf( f, "</section>\n" );
 }
 
 void XGMLPrinter::PrintDynSelector( FILE* f, const NodeInfo* n ) const
 {
-    fprintf( f, "<attribute key=\"label\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">octagon</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#339966</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">Dyn Selector\n%s</attribute>\n", n->m_Node->m_Id.m_Text );
     fprintf( f, "</section>\n" );
 }
 
@@ -369,14 +369,14 @@ void XGMLPrinter::PrintDecorator( FILE* f, const NodeInfo* n ) const
     DecoratorNodeGrist* dng = (DecoratorNodeGrist*)n->m_Node->m_Grist;
     const char* const text      = dng->GetDecorator()->m_Id->m_Text;
 
-    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">diamond</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#FF0000</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     fprintf( f, "</section>\n" );
 }
 
@@ -384,14 +384,14 @@ void XGMLPrinter::PrintAction( FILE* f, const NodeInfo* n ) const
 {
     ActionNodeGrist* ang    = (ActionNodeGrist*)n->m_Node->m_Grist;
     const char* const text  = ang->GetAction()->m_Id->m_Text;
-    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"label\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     PrintCommonGraphics( f, n );
     fprintf( f, "<attribute key=\"type\" type=\"String\">triangle</attribute>\n" );
     fprintf( f, "<attribute key=\"fill\" type=\"String\">#6666FF</attribute>\n" );
     fprintf( f, "<attribute key=\"outline\" type=\"String\">#000000</attribute>\n" );
     fprintf( f, "</section>\n" );
     PrintCommonLabel( f );
-    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id->m_Text );
+    fprintf( f, "<attribute key=\"text\" type=\"String\">%s\n%s</attribute>\n", text, n->m_Node->m_Id.m_Text );
     fprintf( f, "</section>\n" );
 }
 

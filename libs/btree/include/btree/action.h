@@ -10,20 +10,22 @@
 #ifndef ACTION_H_
 #define ACTION_H_
 
+#include "identifier.h"
+
 class FunctionGrist;
-struct Identifier;
 
 class Action
 {
 public:
-	
+
 	Action()
-		: m_Id( 0x0 )
-		, m_FunctionId( ~0 )
+		: m_FunctionId( ~0 )
 		, m_Grist( 0x0 )
-	{}
+	{
+		InitIdentifier( &m_Id );
+	}
 	
-	Identifier*     m_Id;
+	Identifier      m_Id;
 	int             m_FunctionId;
 	FunctionGrist*  m_Grist;
 };
