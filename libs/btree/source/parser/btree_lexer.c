@@ -708,6 +708,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[85] =
 #line 20 "libs\\btree\\source\\parser\\btree_lexer.l"
 
 #include "common.h"
+#include <other/lookup3.h>
 #include <stdio.h>
 #define YY_INPUT(inBuffer, outResult, inMaxSize) ((outResult) = fill_lex_buffer( yyget_extra(yyscanner), (inBuffer), (inMaxSize)))
 
@@ -727,7 +728,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[85] =
 
 
 
-#line 731 "btree_lexer.c"
+#line 732 "btree_lexer.c"
 
 #define INITIAL 0
 #define preprocessor 1
@@ -965,10 +966,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 71 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 72 "libs\\btree\\source\\parser\\btree_lexer.l"
 
 
-#line 972 "btree_lexer.c"
+#line 973 "btree_lexer.c"
 
     yylval = yylval_param;
 
@@ -1062,111 +1063,113 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case YY_STATE_EOF(INITIAL):
-#line 73 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 74 "libs\\btree\\source\\parser\\btree_lexer.l"
 { EOF_DANCE; }
 	YY_BREAK
 case 1:
 YY_RULE_SETUP
-#line 76 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 77 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_COLON; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 77 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 78 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_SEMICOLON; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 78 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 79 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_COMMA; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 79 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 80 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_ASSIGNMENT; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 80 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 81 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_ROOT; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 81 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 82 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_NODE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 82 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 83 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_SEQUENCE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 83 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 84 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_SELECTOR; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 84 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 85 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_DSELECTOR; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 85 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 86 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_PARALLEL; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 86 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 87 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_ACTION; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 87 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 88 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_DECORATOR; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 88 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 89 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_INT32; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 89 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 90 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_BOOL; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 90 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 91 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_FLOAT; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 91 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 92 "libs\\btree\\source\\parser\\btree_lexer.l"
 { return T_STRING; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 92 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 93 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yylval->m_Bool = true; return T_BOOL_VALUE; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 93 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 94 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yylval->m_Bool = false; return T_BOOL_VALUE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 94 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 95 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner); 
-                    (*yylval).m_Id = ctx->m_Tree->CreateId( yytext, yylineno );
+                    (*yylval).m_Id.m_Hash = hashlittle( yytext );
+                    (*yylval).m_Id.m_Line = yylineno;
+                    (*yylval).m_Id.m_Text =  ctx->m_Tree->RegisterString( yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 99 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 102 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     sscanf( yytext, "%d", &((*yylval).m_Integer) ); 
                     return T_INT32_VALUE;
@@ -1174,7 +1177,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 103 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 106 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     sscanf( yytext, "%x", &((*yylval).m_Integer) ); 
                     return T_INT32_VALUE;
@@ -1182,7 +1185,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 107 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 110 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     sscanf( yytext, "%f", &((*yylval).m_Float) );
                     return T_FLOAT_VALUE;
@@ -1191,43 +1194,43 @@ YY_RULE_SETUP
 case 23:
 /* rule 23 can match eol */
 YY_RULE_SETUP
-#line 111 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 114 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat newlines, or they get echoed to the screen... */ }             
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 112 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 115 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat whitespace */ }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 115 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 118 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat single line comments */ }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 117 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 120 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(string); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 118 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 121 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(ml_comment); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 119 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 122 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(preprocessor); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 120 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 123 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyerror( yyget_extra(yyscanner), yyscanner, "unrecognized character." ); }
 	YY_BREAK
 
 case 30:
 YY_RULE_SETUP
-#line 123 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 126 "libs\\btree\\source\\parser\\btree_lexer.l"
 {   /*closing quote*/
                     BEGIN(INITIAL);
                     ParserContext* ctx = yyget_extra(yyscanner );
@@ -1238,44 +1241,44 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 130 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 133 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '\n'; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 131 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 134 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '\t'; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 132 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 135 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '\r'; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 133 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 136 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '\b'; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 134 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 137 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '\f'; }
 	YY_BREAK
 case 36:
 /* rule 36 can match eol */
 YY_RULE_SETUP
-#line 136 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 139 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += yytext[1]; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 138 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 141 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     yyget_extra(yyscanner)->m_TmpString += yytext;
                 }
 	YY_BREAK
 case YY_STATE_EOF(string):
-#line 141 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 144 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file in string constant" ); 
                     BEGIN(INITIAL);
@@ -1286,61 +1289,61 @@ case YY_STATE_EOF(string):
 
 case 38:
 YY_RULE_SETUP
-#line 149 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 152 "libs\\btree\\source\\parser\\btree_lexer.l"
 { }
 	YY_BREAK
 case 39:
 /* rule 39 can match eol */
 YY_RULE_SETUP
-#line 150 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 153 "libs\\btree\\source\\parser\\btree_lexer.l"
 { }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 151 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 154 "libs\\btree\\source\\parser\\btree_lexer.l"
 { }
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 152 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 155 "libs\\btree\\source\\parser\\btree_lexer.l"
 { }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 153 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 156 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(INITIAL); }
 	YY_BREAK
 
 
 case 43:
 YY_RULE_SETUP
-#line 157 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 160 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat whitespace */ }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 158 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 161 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_ifdef); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 159 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 162 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_ifndef); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 160 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 163 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_define); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 161 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 164 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_undef); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 162 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 165 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner );
                     if( ctx->m_PPCurrScope == 0 )
@@ -1355,7 +1358,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 173 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 176 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner );
                     if( ctx->m_PPCurrScope == 0 )
@@ -1370,13 +1373,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 184 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 187 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_include); }
 	YY_BREAK
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 185 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 188 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, yyget_lineno(yyscanner) - 1, "invalid pre-processor directive" );
                     BEGIN(INITIAL);
@@ -1384,11 +1387,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 189 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 192 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_eat_statement); yyless(0); }
 	YY_BREAK
 case YY_STATE_EOF(preprocessor):
-#line 190 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 193 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file in pre-processor directive" ); 
                     BEGIN(INITIAL);
@@ -1399,17 +1402,17 @@ case YY_STATE_EOF(preprocessor):
 
 case 53:
 YY_RULE_SETUP
-#line 198 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 201 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat whitespace */ }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 199 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 202 "libs\\btree\\source\\parser\\btree_lexer.l"
 { BEGIN(pp_inc_string); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 200 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 203 "libs\\btree\\source\\parser\\btree_lexer.l"
 {   
                     yyerror( yyget_extra(yyscanner), yyscanner, "invalid include statement" ); 
                     BEGIN(INITIAL);
@@ -1420,7 +1423,7 @@ YY_RULE_SETUP
 
 case 56:
 YY_RULE_SETUP
-#line 208 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 211 "libs\\btree\\source\\parser\\btree_lexer.l"
 {   /*closing quote*/
                     /* setup the buffer here */
                     ParserContext* ctx = yyget_extra(yyscanner );
@@ -1431,18 +1434,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 215 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 218 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '/'; }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 216 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 219 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += '"'; }
 	YY_BREAK
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
-#line 218 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 221 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, yyget_lineno(yyscanner) - 1, "include strings cannot span multiple lines" ); 
                     BEGIN(INITIAL);
@@ -1451,11 +1454,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 223 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 226 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner)->m_TmpString += yytext; }
 	YY_BREAK
 case YY_STATE_EOF(pp_inc_string):
-#line 224 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 227 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file in include string" ); 
                     BEGIN(INITIAL);
@@ -1466,18 +1469,18 @@ case YY_STATE_EOF(pp_inc_string):
 
 case 61:
 YY_RULE_SETUP
-#line 232 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 235 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner )->m_TmpString += yytext; }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 233 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 236 "libs\\btree\\source\\parser\\btree_lexer.l"
 { yyget_extra(yyscanner )->m_NewLines++; yyget_extra(yyscanner )->m_TmpString += yytext; }
 	YY_BREAK
 case 63:
 /* rule 63 can match eol */
 YY_RULE_SETUP
-#line 234 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 237 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     if( ctx->m_NewLines == 0 )
@@ -1497,7 +1500,7 @@ YY_RULE_SETUP
                 }
 	YY_BREAK
 case YY_STATE_EOF(pp_eat_statement):
-#line 251 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 254 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     char tmp[2048];
@@ -1513,12 +1516,12 @@ case YY_STATE_EOF(pp_eat_statement):
 
 case 64:
 YY_RULE_SETUP
-#line 264 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 267 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat the white-space */ }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 265 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 268 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_PPCurrScope++;
@@ -1536,7 +1539,7 @@ YY_RULE_SETUP
 case 66:
 /* rule 66 can match eol */
 YY_RULE_SETUP
-#line 278 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 281 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     yyerror( yyget_extra(yyscanner), yyscanner, "unexpected newline in #ifdef directive" ); 
                     BEGIN(INITIAL);
@@ -1544,7 +1547,7 @@ YY_RULE_SETUP
                 }               
 	YY_BREAK
 case YY_STATE_EOF(pp_ifdef):
-#line 283 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 286 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file #ifdef directive" ); 
                     BEGIN(INITIAL);
@@ -1555,12 +1558,12 @@ case YY_STATE_EOF(pp_ifdef):
 
 case 67:
 YY_RULE_SETUP
-#line 291 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 294 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat the white-space */ }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 292 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 295 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_PPCurrScope++;
@@ -1578,7 +1581,7 @@ YY_RULE_SETUP
 case 69:
 /* rule 69 can match eol */
 YY_RULE_SETUP
-#line 305 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 308 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     yyerror( yyget_extra(yyscanner), yyscanner, "unexpected newline in #ifndef directive" ); 
                     BEGIN(INITIAL);
@@ -1586,7 +1589,7 @@ YY_RULE_SETUP
                 }               
 	YY_BREAK
 case YY_STATE_EOF(pp_ifndef):
-#line 310 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 313 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file #ifndef directive" ); 
                     BEGIN(INITIAL);
@@ -1597,12 +1600,12 @@ case YY_STATE_EOF(pp_ifndef):
 
 case 70:
 YY_RULE_SETUP
-#line 317 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 320 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat the white-space */ }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 318 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 321 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_Tree->Define( yytext );
@@ -1612,7 +1615,7 @@ YY_RULE_SETUP
 case 72:
 /* rule 72 can match eol */
 YY_RULE_SETUP
-#line 323 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 326 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     yyerror( yyget_extra(yyscanner), yyscanner, "unexpected newline in #define directive" ); 
                     BEGIN(INITIAL);
@@ -1620,7 +1623,7 @@ YY_RULE_SETUP
                 }               
 	YY_BREAK
 case YY_STATE_EOF(pp_define):
-#line 328 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 331 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file #define directive" ); 
                     BEGIN(INITIAL);
@@ -1631,12 +1634,12 @@ case YY_STATE_EOF(pp_define):
 
 case 73:
 YY_RULE_SETUP
-#line 335 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 338 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* eat the white-space */ }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 336 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 339 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_Tree->Undefine( yytext );
@@ -1646,7 +1649,7 @@ YY_RULE_SETUP
 case 75:
 /* rule 75 can match eol */
 YY_RULE_SETUP
-#line 341 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 344 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     yyerror( yyget_extra(yyscanner), yyscanner, "unexpected newline in #undef directive" ); 
                     BEGIN(INITIAL);
@@ -1654,7 +1657,7 @@ YY_RULE_SETUP
                 }               
 	YY_BREAK
 case YY_STATE_EOF(pp_undef):
-#line 346 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 349 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "end of file #undef directive" ); 
                     BEGIN(INITIAL);
@@ -1664,12 +1667,12 @@ case YY_STATE_EOF(pp_undef):
 
 
 case 76:
-#line 355 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 358 "libs\\btree\\source\\parser\\btree_lexer.l"
 case 77:
-#line 356 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 359 "libs\\btree\\source\\parser\\btree_lexer.l"
 case 78:
 YY_RULE_SETUP
-#line 356 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 359 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_PPCurrScope++;
@@ -1677,7 +1680,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 360 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 363 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner );
                     if( ctx->m_PPCurrScope == ctx->m_PPUntilScope + 1 )
@@ -1686,7 +1689,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 365 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 368 "libs\\btree\\source\\parser\\btree_lexer.l"
 {
                     ParserContext* ctx = yyget_extra(yyscanner );
                     ctx->m_PPCurrScope--;
@@ -1696,22 +1699,22 @@ YY_RULE_SETUP
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 371 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 374 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* just eat it */ }
 	YY_BREAK
 case 82:
 /* rule 82 can match eol */
 YY_RULE_SETUP
-#line 372 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 375 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* just eat it */ }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 373 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 376 "libs\\btree\\source\\parser\\btree_lexer.l"
 { /* just eat it */ }
 	YY_BREAK
 case YY_STATE_EOF(pp_eat_until):
-#line 374 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 377 "libs\\btree\\source\\parser\\btree_lexer.l"
 { 
                     yyerror( yyget_extra(yyscanner), yyscanner, "#ifdef/#ifndef statements cannot span several files" ); 
                     BEGIN(INITIAL);
@@ -1721,10 +1724,10 @@ case YY_STATE_EOF(pp_eat_until):
 
 case 84:
 YY_RULE_SETUP
-#line 381 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 384 "libs\\btree\\source\\parser\\btree_lexer.l"
 ECHO;
 	YY_BREAK
-#line 1728 "btree_lexer.c"
+#line 1731 "btree_lexer.c"
 case YY_STATE_EOF(pp_include):
 case YY_STATE_EOF(ml_comment):
 	yyterminate();
@@ -2852,7 +2855,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 381 "libs\\btree\\source\\parser\\btree_lexer.l"
+#line 384 "libs\\btree\\source\\parser\\btree_lexer.l"
 
 
 

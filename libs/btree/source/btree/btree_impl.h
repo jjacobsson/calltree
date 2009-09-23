@@ -70,28 +70,28 @@ struct HasIdPredicate
 {
     inline bool operator() ( const T* l, const hash_t r ) const
     {
-        return l->m_Id->m_Hash < r;
+        return l->m_Id.m_Hash < r;
     }
     inline bool operator() ( const hash_t l, const T* r ) const
     {
-        return l < r->m_Id->m_Hash;
+        return l < r->m_Id.m_Hash;
     }
-    inline bool operator() ( const T* l, const Identifier* r ) const
+    inline bool operator() ( const T* l, const Identifier& r ) const
     {
-        return l->m_Id->m_Hash < r->m_Hash;
+        return l->m_Id.m_Hash < r.m_Hash;
     }
-    inline bool operator() ( const Identifier* l, const T* r ) const
+    inline bool operator() ( const Identifier& l, const T* r ) const
     {
-        return l->m_Hash < r->m_Id->m_Hash;
+        return l.m_Hash < r->m_Id.m_Hash;
     }
     inline bool operator() ( const T* l, const T* r ) const
     {
-        return l->m_Id->m_Hash < r->m_Id->m_Hash;
+        return l->m_Id.m_Hash < r->m_Id.m_Hash;
     }
 
-    inline bool Equals( const T* l, const Identifier* r ) const
+    inline bool Equals( const T* l, const Identifier& r ) const
     {
-        return l->m_Id->m_Hash == r->m_Hash;
+        return l->m_Id.m_Hash == r.m_Hash;
     }
 
     inline bool Equals( const T* l, const T* r ) const

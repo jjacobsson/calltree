@@ -12,9 +12,10 @@
 
 #include <stdio.h>
 
+#include "identifier.h"
+
 class BehaviourTreeImpl;
 
-struct Identifier;
 class  Node;
 class  Action;
 class  Decorator;
@@ -35,7 +36,7 @@ class BehaviourTree
 {
 public:
 
-    typedef const Node* const *       const_node_iterator;
+    typedef const Node* const *      const_node_iterator;
     typedef const Action* const *    const_action_iterator;
     typedef const Decorator* const * const_decorator_iterator;
 
@@ -57,21 +58,19 @@ public:
 
     void SetRootNode( Node* n );
 
-    const char*  RegisterString( const char* str );
+    const char* RegisterString( const char* str );
+    const char* RegisterString( const char* str, hash_t hash );
 
-    Identifier* CreateId( const char*, int );
-    void FreeId( Identifier* id );
-
-    Node* LookupNode( Identifier* );
-    Node* CreateNode( Identifier* );
+    Node* LookupNode( const Identifier& );
+    Node* CreateNode( const Identifier& );
     void FreeNode( Node* );
 
-    Action* LookupAction( Identifier* );
-    Action* CreateAction( Identifier* );
+    Action* LookupAction( const Identifier& );
+    Action* CreateAction( const Identifier& );
     void FreeAction( Action* );
 
-    Decorator* LookupDecorator( Identifier* );
-    Decorator* CreateDecorator( Identifier* );
+    Decorator* LookupDecorator( const Identifier& );
+    Decorator* CreateDecorator( const Identifier& );
     void FreeDecorator( Decorator* );
 
     NodeList* CreateNodeList();

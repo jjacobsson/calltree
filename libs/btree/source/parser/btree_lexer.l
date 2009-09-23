@@ -19,6 +19,7 @@
 %{
 
 #include "common.h"
+#include <other/lookup3.h>
 #include <stdio.h>
 #define YY_INPUT(inBuffer, outResult, inMaxSize) ((outResult) = fill_lex_buffer( yyget_extra(yyscanner), (inBuffer), (inMaxSize)))
 
@@ -93,7 +94,9 @@ true            { yylval->m_Bool = true; return T_BOOL_VALUE; }
 false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 {ID}            {
                     ParserContext* ctx = yyget_extra(yyscanner); 
-                    (*yylval).m_Id = ctx->m_Tree->CreateId( yytext, yylineno );
+                    (*yylval).m_Id.m_Hash = hashlittle( yytext );
+                    (*yylval).m_Id.m_Line = yylineno;
+                    (*yylval).m_Id.m_Text =  ctx->m_Tree->RegisterString( yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }
 {INTEGER}       {

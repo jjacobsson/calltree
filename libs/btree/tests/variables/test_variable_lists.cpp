@@ -87,20 +87,13 @@ public:
 		v3.m_Next = &v4;
 		v4.m_Next = 0x0;
 
-		v.m_Id  = &id;
-		v1.m_Id = &id1;
-		v2.m_Id = &id2;
-		v3.m_Id = &id3;
-		v4.m_Id = &id4;
-
-		id.m_Hash  = 0xfefefefe;
-		id1.m_Hash = 0xcafebabe;
-		id2.m_Hash = 0xdeadbeef;
-		id3.m_Hash = 0xdeadc0de;
-		id4.m_Hash = 0xcafebabe;
+		v.m_Id.m_Hash  = 0xfefefefe;
+		v1.m_Id.m_Hash = 0xcafebabe;
+		v2.m_Id.m_Hash = 0xdeadbeef;
+		v3.m_Id.m_Hash = 0xdeadc0de;
+		v4.m_Id.m_Hash = 0xcafebabe;
 	}
 
-	Identifier id, id1, id2, id3, id4;
 };
 
 
@@ -138,9 +131,7 @@ TEST( TestIfAllIDsAreUniqueInVariableListReturnsTrueOnEmptyList )
 
 TEST_FIXTURE( TestVariablesFixture, TestIfAllIDsAreUniqueInVariableListSingleElementReturnsTrue )
 {
-	Identifier id;
-	v.m_Id = &id;
-	id.m_Hash = 0xcafebabe;
+	v.m_Id.m_Hash = 0xcafebabe;
 	CHECK( VariableIdsAreUniqueInList( &v ) == true );
 }
 
@@ -151,7 +142,7 @@ TEST_FIXTURE( VariableListsWithIDs, TestIfAllIDsAreUniqueInVariableListMultiElem
 
 TEST_FIXTURE( VariableListsWithIDs, estIfAllIDsAreUniqueInVariableListMultiElementReturnsTrue )
 {
-	id4.m_Hash = 0xcdcdcdcd;
+	v4.m_Id.m_Hash = 0xcdcdcdcd;
 	CHECK( VariableIdsAreUniqueInList( &v ) == true );
 }
 

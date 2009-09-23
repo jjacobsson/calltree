@@ -80,8 +80,8 @@
 %type<m_Variable>     nt_variable_list
 %type<m_FuncGrist>    nt_function_grist
 
-%destructor { ctx->m_Tree->FreeId( $$ ); }            nt_id
-%destructor { ctx->m_Tree->FreeId( $$ ); }		      T_ID
+%destructor { /* do nothing */ }                      nt_id
+%destructor { /* do nothing */ }		              T_ID
 %destructor { ctx->m_Tree->FreeNode( $$ ); }	      nt_node_dec
 %destructor { /* do nothing */ }					  nt_node_ref
 %destructor { /* do nothing */ }					  nt_action_ref
@@ -240,7 +240,6 @@ T_NODE T_COLON nt_id T_COLON nt_node_grist
         sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", $3.m_Text, n->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
-        ctx->m_Tree->FreeId( $3 );
         ctx->m_Tree->FreeNodeGrist( $5 );
 
         YYERROR;
@@ -438,7 +437,6 @@ nt_id
     {
         char tmp[2048];
         sprintf( tmp, "node \"%s\" has not been declared.\n", $1.m_Text );
-        ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;
     }
@@ -455,7 +453,6 @@ nt_id
     {
         char tmp[2048];
         sprintf( tmp, "action \"%s\" has not been declared.\n", $1.m_Text );
-        ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;
     }
@@ -472,7 +469,6 @@ nt_id
     {
         char tmp[2048];
         sprintf( tmp, "decorator \"%s\" has not been declared.", $1.m_Text );
-        ctx->m_Tree->FreeId( $1 );
         yyerror( ctx, scanner, tmp );
         YYERROR;
     }

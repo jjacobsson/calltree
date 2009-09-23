@@ -93,33 +93,24 @@ const char* BehaviourTree::RegisterString( const char* str )
     return m_Impl->m_StringTable.PutString( hashlittle( str ), str );
 }
 
-void BehaviourTree::FreeId( Identifier* id )
+const char* BehaviourTree::RegisterString( const char* str, hash_t hash )
 {
-    m_Impl->m_IdPool.Free( id );
+    return m_Impl->m_StringTable.PutString( hash, str );
 }
 
-Identifier* BehaviourTree::CreateId( const char* str, int line )
-{
-    Identifier* id = m_Impl->m_IdPool.Alloc();
-    id->m_Hash = hashlittle( str );
-    id->m_Text = m_Impl->m_StringTable.PutString( id->m_Hash, str );
-    id->m_Line = line;
-    return id;
-}
-
-Node* BehaviourTree::LookupNode( Identifier* id )
+Node* BehaviourTree::LookupNode( const Identifier& id )
 {
     return m_Impl->m_NodeTable.Find( id );
 }
 
-Node* BehaviourTree::CreateNode( Identifier* id )
+Node* BehaviourTree::CreateNode( const Identifier& id )
 {
     Node* n = m_Impl->m_NodeTable.Find( id );
 
     if( n )
         return 0x0;
 
-    n     = m_Impl->m_NodePool.Alloc();
+    n         = m_Impl->m_NodePool.Alloc();
     n->m_Id   = id;
     n->m_Tree = this;
 
@@ -134,12 +125,12 @@ void BehaviourTree::FreeNode( Node* n )
     m_Impl->m_NodePool.Free( n );
 }
 
-Action* BehaviourTree::LookupAction( Identifier* id )
+Action* BehaviourTree::LookupAction( const Identifier& id )
 {
     return m_Impl->m_ActionTable.Find( id );
 }
 
-Action* BehaviourTree::CreateAction( Identifier* id )
+Action* BehaviourTree::CreateAction( const Identifier& id )
 {
     Action* a = m_Impl->m_ActionTable.Find( id );
 
@@ -159,12 +150,12 @@ void BehaviourTree::FreeAction( Action* a )
     m_Impl->m_ActionPool.Free( a );
 }
 
-Decorator* BehaviourTree::LookupDecorator( Identifier* id )
+Decorator* BehaviourTree::LookupDecorator( const Identifier& id )
 {
     return m_Impl->m_DecoratorTable.Find( id );
 }
 
-Decorator* BehaviourTree::CreateDecorator( Identifier* id )
+Decorator* BehaviourTree::CreateDecorator( const Identifier& id )
 {
     Decorator* d = m_Impl->m_DecoratorTable.Find( id );
 
