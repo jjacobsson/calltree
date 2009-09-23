@@ -14,7 +14,7 @@
 
 class BehaviourTreeImpl;
 
-class  Identifier;
+struct Identifier;
 class  Node;
 class  Action;
 class  Decorator;

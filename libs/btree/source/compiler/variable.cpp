@@ -108,9 +108,10 @@ bool Variable::ValueAsBool() const
 void InitVariable( Variable* v )
 {
 	v->m_Type = Variable::E_VART_UNDEFINED;
-	v->m_Id = 0x0;
 	v->m_Data.m_Integer = 0;
 	v->m_Next = 0x0;
+
+	InitIdentifier( &v->m_Id );
 }
 
 void DeleteVariableList( Variable* v )
@@ -153,7 +154,7 @@ Variable* FindVariableWithIdHash( Variable* s, int hash )
 {
 	while( s )
 	{
-		if( s->m_Id && s->m_Id->m_Hash == hash )
+		if( s->m_Id.m_Hash == hash )
 			return s;
 		s = s->m_Next;
 	}
@@ -165,7 +166,7 @@ int CountOccourancesOfIdHashInList( Variable* s, int hash )
 	int r = 0;
 	while( s )
 	{
-		if( s->m_Id && s->m_Id->m_Hash == hash )
+		if( s->m_Id.m_Hash == hash )
 			++r;
 		s = s->m_Next;
 	}
@@ -176,7 +177,7 @@ bool VariableIdsAreUniqueInList( Variable* s )
 {
 	while( s )
 	{
-		if( s->m_Id && CountOccourancesOfIdHashInList( s->m_Next, s->m_Id->m_Hash ) > 0 )
+		if( CountOccourancesOfIdHashInList( s->m_Next, s->m_Id.m_Hash ) > 0 )
 			return false;
 		s = s->m_Next;
 	}

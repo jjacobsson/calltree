@@ -11,7 +11,7 @@
 #define DECORATOR_H_
 
 class FunctionGrist;
-class Identifier;
+struct Identifier;
 
 class Decorator
 {

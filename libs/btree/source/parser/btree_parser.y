@@ -46,7 +46,7 @@
 
 %union {
     Node*          m_Node;
-    Identifier*    m_Id;
+    Identifier     m_Id;
     NodeGrist*     m_NodeGrist;
     FunctionGrist* m_FuncGrist;
     NodeList*      m_NodeList;
@@ -141,7 +141,7 @@ T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
         a = ctx->m_Tree->LookupAction( $3 );
 
         char tmp[2048];
-        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", $3->m_Text, a->m_Id->m_Line );
+        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", $3.m_Text, a->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( $6 );
@@ -165,7 +165,7 @@ T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_
 
 
         char tmp[2048];
-        sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", $3->m_Text, d->m_Id->m_Line );
+        sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", $3.m_Text, d->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeFunctionGrist( $10 );
@@ -239,7 +239,7 @@ T_NODE T_COLON nt_id T_COLON nt_node_grist
 
 
         char tmp[2048];
-        sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", $3->m_Text, n->m_Id->m_Line );
+        sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", $3.m_Text, n->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
 
         ctx->m_Tree->FreeId( $3 );

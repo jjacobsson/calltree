@@ -13,7 +13,9 @@
 #include <string>
 #include <vector>
 
-class Identifier;
+#include "identifier.h"
+
+struct Identifier;
 class BehaviourTree;
 
 class Variable
@@ -41,10 +43,10 @@ public:
     const char* ValueAsString() const;
     bool		ValueAsBool() const;
 
-    int             m_Type;
-    Identifier*     m_Id;
-    UData           m_Data;
-    Variable*       m_Next;
+    int        m_Type;
+    Identifier m_Id;
+    UData      m_Data;
+    Variable*  m_Next;
 };
 
 void InitVariable( Variable* v );

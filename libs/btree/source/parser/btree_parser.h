@@ -95,7 +95,7 @@ typedef union YYSTYPE
 #line 47 "libs\\btree\\source\\parser\\btree_parser.y"
 {
     Node*          m_Node;
-    Identifier*    m_Id;
+    Identifier     m_Id;
     NodeGrist*     m_NodeGrist;
     FunctionGrist* m_FuncGrist;
     NodeList*      m_NodeList;

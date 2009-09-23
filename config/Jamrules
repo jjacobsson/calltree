@@ -207,28 +207,48 @@ rule SetDependantOf
 	}
 }
 
+rule SetIncludeHeaders
+{
+	local _headers = [ RecursiveDir $(2) : *.h ] ;
+	if $(_headers)
+	{
+		if $($(1)_include_headers) 
+		{
+	    	$(1)_include_headers += $(_headers) ;
+	    }
+	    else
+	    {
+	    	$(1)_include_headers = $(_headers) ;
+	    }
+    }
+}
+
+rule GetIncludeHeaders
+{
+	if $($(1)_include_headers)
+	{
+		return $($(1)_include_headers) ;
+	}
+	else
+	{
+		echo $(2) is attempting to use headers for library $(1), but they are not set. ;
+	}
+}
+
+
 rule SetSearchPaths 
 {
 	local _dir = [ FDirName $(2) ] ;
-    local _headers = ;
+
 	if $($(1)_include_search_paths)
 	{
 		$(1)_include_search_paths += $(_dir) ;
-		_headers = [ RecursiveDir $(_dir) : *.h ] ;
-        if $(_tag_headers)
-        {
-            $(1)_include_headers += $(_headers) ;
-        }        
 	}
 	else
 	{
 		$(1)_include_search_paths = $(_dir) ;
-		_headers = [ RecursiveDir $(_dir) : *.h ] ;
-        if $(_tag_headers)
-        {
-            $(1)_include_headers = $(_headers) ;
-        }        
 	}
+	SetIncludeHeaders $(1) : $(_dir) ;
 }
 
 rule GetSearchPaths
@@ -242,6 +262,7 @@ rule GetSearchPaths
 		echo Attempting to use include path for library $(1), but they are not set. ;
 	}
 }
+
 
 rule SetLinkLibraries
 {
@@ -284,6 +305,17 @@ rule SetObjectFiles
 		Compile $(_object) : $(_i) ;
 		MkDir $(_path) ;
 	}
+
+	for _i in $($(1)_dependant_of)
+	{
+		Includes $($(1)_source_files) : [ GetIncludeHeaders $(_i) : $(1) ] ;	
+	}	
+
+	if $($(1)_include_headers)
+	{
+		Includes $($(1)_source_files) : $($(1)_include_headers) ;
+	}
+
 	Clean clean : $($(1)_object_files) ;
 }
 
@@ -320,7 +352,7 @@ rule SetVariablesOnObjects
 		if $($(_i)_include_search_paths)
 		{
 			CCHDRS on $(_objects) += [ GetSearchPaths $(_i) ] ;	
-		}	
+		}
 	}	
 	if $($(1)_include_search_paths)
 	{

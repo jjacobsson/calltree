@@ -39,7 +39,7 @@ void VariableOwner::StoreVariablesInDataSection( BehaviourTree* bt, Variable* de
     Variable* it;
     for( it = dec; it != 0x0; it = it->m_Next )
     {
-    	Variable* v = FindVariableWithIdHash( m_Variables, it->m_Id->m_Hash );
+    	Variable* v = FindVariableWithIdHash( m_Variables, it->m_Id.m_Hash );
 
         switch( it->m_Type )
         {

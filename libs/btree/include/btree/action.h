@@ -11,7 +11,7 @@
 #define ACTION_H_
 
 class FunctionGrist;
-class Identifier;
+struct Identifier;
 
 class Action
 {
@@ -23,9 +23,9 @@ public:
 		, m_Grist( 0x0 )
 	{}
 	
-	Identifier*	m_Id;
-	int				m_FunctionId;
-	FunctionGrist*	m_Grist;
+	Identifier*     m_Id;
+	int             m_FunctionId;
+	FunctionGrist*  m_Grist;
 };
 
 #endif /*ACTION_H_*/
