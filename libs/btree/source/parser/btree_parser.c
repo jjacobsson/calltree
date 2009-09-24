@@ -1977,7 +1977,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
 	InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_STRING;
+    (yyval.m_Variable)->m_Type = E_VART_STRING;
     (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
@@ -1987,7 +1987,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
    	InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_INTEGER;
+    (yyval.m_Variable)->m_Type = E_VART_INTEGER;
     (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
@@ -1997,7 +1997,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
 	InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_FLOAT;
+    (yyval.m_Variable)->m_Type = E_VART_FLOAT;
     (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
@@ -2007,7 +2007,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
 	InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_BOOL;
+    (yyval.m_Variable)->m_Type = E_VART_BOOL;
     (yyval.m_Variable)->m_Id = (yyvsp[(2) - (2)].m_Id);
 ;}
     break;
@@ -2046,7 +2046,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
     InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_STRING;
+    (yyval.m_Variable)->m_Type = E_VART_STRING;
     (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_String = (yyvsp[(3) - (3)].m_String);
 ;}
@@ -2057,7 +2057,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
     InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_INTEGER;
+    (yyval.m_Variable)->m_Type = E_VART_INTEGER;
     (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Integer = (yyvsp[(3) - (3)].m_Integer);
 ;}
@@ -2068,7 +2068,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
     InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_FLOAT;
+    (yyval.m_Variable)->m_Type = E_VART_FLOAT;
     (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Float = (yyvsp[(3) - (3)].m_Float);
 ;}
@@ -2079,7 +2079,7 @@ yyreduce:
     {
     (yyval.m_Variable) = new Variable;
     InitVariable( (yyval.m_Variable) );
-    (yyval.m_Variable)->m_Type = Variable::E_VART_BOOL;
+    (yyval.m_Variable)->m_Type = E_VART_BOOL;
     (yyval.m_Variable)->m_Id = (yyvsp[(1) - (3)].m_Id);
     (yyval.m_Variable)->m_Data.m_Integer = (yyvsp[(3) - (3)].m_Bool);
 ;}

@@ -90,7 +90,7 @@ bool VariableIdsAreUniqueInList( Variable* s )
 	return true;
 }
 
-bool SafeToConvert( const Variable& v, VariableType to_type ) const
+bool SafeToConvert( const Variable& v, VariableType to_type )
 {
     switch( v.m_Type )
     {
@@ -114,7 +114,7 @@ bool SafeToConvert( const Variable& v, VariableType to_type ) const
     return false;
 }
 
-int ValueAsInteger( const Variable& v ) const
+int ValueAsInteger( const Variable& v )
 {
 	int r;
 	switch( v.m_Type )
@@ -135,7 +135,7 @@ int ValueAsInteger( const Variable& v ) const
     return r;
 }
 
-float ValueAsFloat( const Variable& v ) const
+float ValueAsFloat( const Variable& v )
 {
 	float r;
 	switch( v.m_Type )
@@ -156,14 +156,14 @@ float ValueAsFloat( const Variable& v ) const
 	return r;
 }
 
-const char* ValueAsString( const Variable& v ) const
+const char* ValueAsString( const Variable& v )
 {
     if( v.m_Type == E_VART_STRING )
         return v.m_Data.m_String;
     return 0x0;
 }
 
-bool ValueAsBool( const Variable& v ) const
+bool ValueAsBool( const Variable& v )
 {
 	bool r;
 	switch( v.m_Type )

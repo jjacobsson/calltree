@@ -11,6 +11,7 @@
 #define ACTION_H_
 
 #include "btree_data.h"
+#include "btree_func.h"
 
 class FunctionGrist;
 

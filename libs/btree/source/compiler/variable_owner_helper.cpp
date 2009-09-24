@@ -44,16 +44,16 @@ void VariableOwner::StoreVariablesInDataSection( BehaviourTree* bt, Variable* de
         switch( it->m_Type )
         {
         case E_VART_INTEGER:
-            m_Data.push_back( d.PushInteger( ValueAsInteger(v) ) );
+            m_Data.push_back( d.PushInteger( ValueAsInteger(*v) ) );
             break;
         case E_VART_FLOAT:
-            m_Data.push_back( d.PushFloat( ValueAsFloat(v) ) );
+            m_Data.push_back( d.PushFloat( ValueAsFloat(*v) ) );
             break;
         case E_VART_STRING:
-            m_Data.push_back( d.PushString( ValueAsString(v) ) );
+            m_Data.push_back( d.PushString( ValueAsString(*v) ) );
             break;
         case E_VART_BOOL:
-            m_Data.push_back( d.PushInteger( ValueAsInteger(v) ) );
+            m_Data.push_back( d.PushInteger( ValueAsInteger(*v) ) );
             break;
         default:
             //assert( false );

@@ -40,15 +40,15 @@ int CountOccourancesOfIdHashInList( Variable* start, int hash );
 
 bool VariableIdsAreUniqueInList( Variable* start );
 
-bool SafeToConvert( const Variable&, VariableType to_type ) const;
+bool SafeToConvert( const Variable&, VariableType to_type );
 
-int ValueAsInteger( const Variable& ) const;
+int ValueAsInteger( const Variable& );
 
-float ValueAsFloat( const Variable& ) const;
+float ValueAsFloat( const Variable& );
 
-const char* ValueAsString( const Variable& ) const;
+const char* ValueAsString( const Variable& );
 
-bool ValueAsBool( const Variable& ) const;
+bool ValueAsBool( const Variable& );
 
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

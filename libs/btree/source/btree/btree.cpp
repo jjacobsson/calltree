@@ -17,7 +17,8 @@
 #include "btree_impl.h"
 #include <btree/node.h>
 #include <btree/node_grist.h>
-#include <btree/identifier.h>
+#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 
 #include "../parser/common.h"
 
