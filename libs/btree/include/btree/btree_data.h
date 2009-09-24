@@ -318,5 +318,53 @@ private:
     PatchList m_DestructionCodeLocation;
 };
 
+class DecoratorNodeGrist : public VariableOwner
+{
+public:
+    DecoratorNodeGrist();
+    ~DecoratorNodeGrist();
+
+    int GetType() const { return E_GRIST_DECORATOR; }
+
+    void GenerateConstructionCode( BehaviourTree* bt );
+    void GenerateExecutionCode( BehaviourTree* bt );
+    void GenerateDestructionCode( BehaviourTree* bt );
+    void Visit( INodeVisitor* nv );
+    void SetChaff( Node* n );
+
+    void SetDecorator( Decorator* dec );
+    Decorator* GetDecorator();
+
+    void SetChild( Node* child );
+    Node* GetChild();
+
+private:
+    Decorator* m_Decorator;
+    Node*      m_Child;
+    int        m_bssPos;
+    int        m_bssModPos;
+};
+
+class ActionNodeGrist : public VariableOwner
+{
+public:
+	ActionNodeGrist();
+	~ActionNodeGrist();
+
+	int GetType() const { return E_GRIST_ACTION; }
+
+	void GenerateConstructionCode( BehaviourTree* bt );
+	void GenerateExecutionCode( BehaviourTree* bt );
+	void GenerateDestructionCode( BehaviourTree* bt );
+
+	void SetAction( Action* action );
+	Action* GetAction();
+
+
+private:
+
+	Action*	m_Action;
+	int		m_bssPos;
+};
 
 #endif /* BTREE_DATA_H_INCLUDED */
