@@ -7,9 +7,7 @@
  * 
  */
 
-#include <btree/node.h>
 #include <btree/btree.h>
-#include <btree/node_grist.h>
 
 void Node::Visit( INodeVisitor* nv )
 {

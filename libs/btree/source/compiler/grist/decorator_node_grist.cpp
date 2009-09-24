@@ -7,11 +7,6 @@
  *
  */
 
-#include <btree/decorator_node_grist.h>
-#include <btree/decorator.h>
-#include <btree/node.h>
-#include <btree/node_grist.h>
-#include <btree/function_grist.h>
 #include "../../code/bt_program.h"
 #include <btree/btree.h>
 

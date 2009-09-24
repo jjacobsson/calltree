@@ -7,10 +7,8 @@
  *
  */
 
-#include <btree/variable_owner_helper.h>
 #include "../code/bt_program.h"
 #include <btree/btree.h>
-#include <btree/node.h>
 
 #include <algorithm>
 

@@ -7,8 +7,7 @@
  *
  */
 
-#include <btree/node_list.h>
-#include <btree/node.h>
+#include <btree/btree_data.h>
 
 void NodeList::SetParent( Node* n )
 {
