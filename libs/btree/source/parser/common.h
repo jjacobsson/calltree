@@ -33,7 +33,7 @@ struct ParserContext
     ParserContext();
 
     void*          yyscanner;
-    std::string    m_TmpString; // <- argh! kill it! TODO.
+    std::string    m_TmpString; // TODO: KILL KILL KILL!
     int            m_NewLines;
     BehaviourTree* m_Tree;
     ParseFile*     m_File;
