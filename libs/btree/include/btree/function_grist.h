@@ -15,19 +15,5 @@
 
 class BehaviourTree;
 
-class FunctionGrist
-{
-public:
-    FunctionGrist();
-    ~FunctionGrist();
-
-    bool ValiadateVariables( Variable* variables ) const;
-
-    int            m_bssSize;
-    Variable*      m_Variables;
-    BehaviourTree* m_Tree;
-    bool           m_Construct;
-    bool           m_Destruct;
-};
 
 #endif /*FUNCTION_GRIST_H_*/

@@ -7,7 +7,7 @@
  * 
  */
 
-#include <btree/node_grist.h>
+#include <btree/btree_data.h>
 
 int NodeGrist::s_GristCount;
 

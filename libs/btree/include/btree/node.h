@@ -17,26 +17,6 @@ class NodeGrist;
 class BehaviourTree;
 class INodeVisitor;
 
-class Node
-{
-public:
-    Node()
-        : m_Tree( 0x0 )
-        , m_Parent( 0x0 )
-        , m_Grist( 0x0 )
-        , m_IsChild( false )
-    {
-    	InitIdentifier( &m_Id );
-    }
-
-    void Visit( INodeVisitor* v );
-
-    BehaviourTree*  m_Tree;
-    Node*           m_Parent;
-    Identifier      m_Id;
-    NodeGrist*      m_Grist;
-    bool            m_IsChild;
-};
 
 
 #endif /*NODE_H_*/

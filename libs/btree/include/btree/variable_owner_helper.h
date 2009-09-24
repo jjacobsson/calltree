@@ -12,27 +12,5 @@
 
 #include "node_grist.h"
 #include "btree_data.h"
-#include <vector>
-
-class VariableOwner : public NodeGrist
-{
-public:
-
-    VariableOwner();
-    ~VariableOwner();
-
-    void SetVariableList( Variable* variables );
-    Variable* GetVariableList();
-
-protected:
-
-    void StoreVariablesInDataSection( BehaviourTree* bt, Variable* declaration );
-    void GenerateVariableInstructions( BehaviourTree* bt );
-    void SetupVariableRegistry( BehaviourTree* bt );
-
-    Variable*			m_Variables;
-    int                 m_bssStart;
-    std::vector<int>    m_Data;
-};
 
 #endif /* VARIABLE_OWNER_HELPER_H_ */
