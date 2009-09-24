@@ -8,7 +8,6 @@
  */
 
 #include <btree/function_grist.h>
-#include <btree/identifier.h>
 #include <btree/btree.h>
 
 #include <algorithm>

@@ -9,7 +9,6 @@
 
 #include <UnitTest++.h>
 #include "test_variables.h"
-#include <btree/identifier.h>
 
 TEST( FindLastVariableReturnsNullOnNull )
 {

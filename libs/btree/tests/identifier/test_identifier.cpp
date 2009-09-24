@@ -8,7 +8,8 @@
  */
 
 #include <UnitTest++.h>
-#include <btree/identifier.h>
+#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 
 TEST( IdentifierInitSetsAllMembersCorrectly )
 {

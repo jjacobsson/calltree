@@ -10,7 +10,8 @@
 #ifndef TEST_VARIABLES_H_INCLUDED
 #define TEST_VARIABLES_H_INCLUDED
 
-#include <btree/variable.h>
+#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 
 class TestVariablesFixture
 {

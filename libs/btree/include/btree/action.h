@@ -10,7 +10,7 @@
 #ifndef ACTION_H_
 #define ACTION_H_
 
-#include "identifier.h"
+#include "btree_data.h"
 
 class FunctionGrist;
 

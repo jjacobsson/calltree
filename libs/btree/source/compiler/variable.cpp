@@ -7,107 +7,13 @@
  *
  */
 
-#include <btree/variable.h>
-#include <btree/identifier.h>
-#include <btree/btree.h>
+#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 
-bool Variable::SafeToConvert( int to_type ) const
-{
-    switch( m_Type )
-    {
-    case E_VART_INTEGER:
-        if( to_type == E_VART_INTEGER || to_type == E_VART_FLOAT || to_type == E_VART_BOOL )
-            return true;
-        break;
-    case E_VART_FLOAT:
-        if( to_type == E_VART_FLOAT || to_type == E_VART_INTEGER || to_type == E_VART_BOOL )
-            return true;
-        break;
-    case E_VART_STRING:
-        if( to_type == E_VART_STRING )
-            return true;
-        break;
-    case E_VART_BOOL:
-        if( to_type == E_VART_FLOAT || to_type == E_VART_INTEGER || to_type == E_VART_BOOL )
-            return true;
-        break;
-    }
-    return false;
-}
-
-int Variable::ValueAsInteger() const
-{
-	int r;
-	switch( m_Type )
-	{
-	case E_VART_INTEGER:
-		r = m_Data.m_Integer;
-		break;
-	case E_VART_FLOAT:
-		r = (int)m_Data.m_Float;
-		break;
-	case E_VART_BOOL:
-		r = m_Data.m_Bool?1:0;
-		break;
-	default:
-		r = 0;
-		break;
-	}
-    return r;
-}
-
-float Variable::ValueAsFloat() const
-{
-	float r;
-	switch( m_Type )
-	{
-	case E_VART_INTEGER:
-		r = (float)m_Data.m_Integer;
-		break;
-	case E_VART_FLOAT:
-		r = m_Data.m_Float;
-		break;
-	case E_VART_BOOL:
-		r = m_Data.m_Bool?1.0f:0.0f;
-		break;
-	default:
-		r = 0.0f;
-		break;
-	}
-	return r;
-}
-
-const char* Variable::ValueAsString() const
-{
-    if( m_Type == E_VART_STRING )
-        return m_Data.m_String;
-    return 0x0;
-}
-
-bool Variable::ValueAsBool() const
-{
-	bool r;
-	switch( m_Type )
-	{
-	case E_VART_INTEGER:
-		r = m_Data.m_Integer != 0;
-		break;
-	case E_VART_FLOAT:
-		r = m_Data.m_Float != 0.0f;
-		break;
-	case E_VART_BOOL:
-		r = m_Data.m_Bool;
-		break;
-	default:
-		r = false;
-		break;
-	}
-	return r;
-}
 
 void InitVariable( Variable* v )
 {
-	v->m_Type = Variable::E_VART_UNDEFINED;
+	v->m_Type = E_VART_UNDEFINED;
 	v->m_Data.m_Integer = 0;
 	v->m_Next = 0x0;
 
@@ -184,4 +90,96 @@ bool VariableIdsAreUniqueInList( Variable* s )
 	return true;
 }
 
+bool SafeToConvert( const Variable& v, VariableType to_type ) const
+{
+    switch( v.m_Type )
+    {
+    case E_VART_INTEGER:
+        if( to_type == E_VART_INTEGER || to_type == E_VART_FLOAT || to_type == E_VART_BOOL )
+            return true;
+        break;
+    case E_VART_FLOAT:
+        if( to_type == E_VART_FLOAT || to_type == E_VART_INTEGER || to_type == E_VART_BOOL )
+            return true;
+        break;
+    case E_VART_STRING:
+        if( to_type == E_VART_STRING )
+            return true;
+        break;
+    case E_VART_BOOL:
+        if( to_type == E_VART_FLOAT || to_type == E_VART_INTEGER || to_type == E_VART_BOOL )
+            return true;
+        break;
+    }
+    return false;
+}
 
+int ValueAsInteger( const Variable& v ) const
+{
+	int r;
+	switch( v.m_Type )
+	{
+	case E_VART_INTEGER:
+		r = v.m_Data.m_Integer;
+		break;
+	case E_VART_FLOAT:
+		r = (int)v.m_Data.m_Float;
+		break;
+	case E_VART_BOOL:
+		r = v.m_Data.m_Bool?1:0;
+		break;
+	default:
+		r = 0;
+		break;
+	}
+    return r;
+}
+
+float ValueAsFloat( const Variable& v ) const
+{
+	float r;
+	switch( v.m_Type )
+	{
+	case E_VART_INTEGER:
+		r = (float)v.m_Data.m_Integer;
+		break;
+	case E_VART_FLOAT:
+		r = v.m_Data.m_Float;
+		break;
+	case E_VART_BOOL:
+		r = v.m_Data.m_Bool?1.0f:0.0f;
+		break;
+	default:
+		r = 0.0f;
+		break;
+	}
+	return r;
+}
+
+const char* ValueAsString( const Variable& v ) const
+{
+    if( v.m_Type == E_VART_STRING )
+        return v.m_Data.m_String;
+    return 0x0;
+}
+
+bool ValueAsBool( const Variable& v ) const
+{
+	bool r;
+	switch( v.m_Type )
+	{
+	case E_VART_INTEGER:
+		r = v.m_Data.m_Integer != 0;
+		break;
+	case E_VART_FLOAT:
+		r = v.m_Data.m_Float != 0.0f;
+		break;
+	case E_VART_BOOL:
+		r = v.m_Data.m_Bool;
+		break;
+	default:
+		r = false;
+		break;
+	}
+	return r;
+}

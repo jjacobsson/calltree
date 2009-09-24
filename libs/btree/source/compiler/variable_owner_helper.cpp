@@ -43,17 +43,17 @@ void VariableOwner::StoreVariablesInDataSection( BehaviourTree* bt, Variable* de
 
         switch( it->m_Type )
         {
-        case Variable::E_VART_INTEGER:
-            m_Data.push_back( d.PushInteger( v->ValueAsInteger() ) );
+        case E_VART_INTEGER:
+            m_Data.push_back( d.PushInteger( ValueAsInteger(v) ) );
             break;
-        case Variable::E_VART_FLOAT:
-            m_Data.push_back( d.PushFloat( v->ValueAsFloat() ) );
+        case E_VART_FLOAT:
+            m_Data.push_back( d.PushFloat( ValueAsFloat(v) ) );
             break;
-        case Variable::E_VART_STRING:
-            m_Data.push_back( d.PushString( v->ValueAsString() ) );
+        case E_VART_STRING:
+            m_Data.push_back( d.PushString( ValueAsString(v) ) );
             break;
-        case Variable::E_VART_BOOL:
-            m_Data.push_back( d.PushInteger( v->ValueAsInteger() ) );
+        case E_VART_BOOL:
+            m_Data.push_back( d.PushInteger( ValueAsInteger(v) ) );
             break;
         default:
             //assert( false );
@@ -78,12 +78,12 @@ void VariableOwner::SetupVariableRegistry( BehaviourTree* bt )
 {
     if( !m_Data.empty() )
     {
-        // Load the user data registry with a pointer to the bss structure for variables
+        // Load the user data register with a pointer to the bss structure for variables
         bt->GetCodeSection().Push( INST_STORE_PB_IN_R, 2, m_bssStart, 0 );
     }
     else
     {
-        //Load the user data registry with a null pointer
+        //Load the user data register with a null pointer
         bt->GetCodeSection().Push( INST_LOAD_REGISTRY, 2, 0, 0 );
     }
 }

@@ -10,13 +10,12 @@
 #ifndef COMPILER_H_
 #define COMPILER_H_
 
-#include <btree/identifier.h>
+#include <btree/btree.h>
 #include <btree/node.h>
 #include <btree/action.h>
 #include <btree/decorator.h>
 #include <btree/node_list.h>
 #include <btree/node_grist.h>
-#include <btree/variable.h>
 #include <btree/function_grist.h>
 #include <btree/selector_node_grist.h>
 #include <btree/dyn_selector_node_grist.h>

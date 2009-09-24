@@ -12,7 +12,6 @@
 
 #include "../compiler/compiler.h"
 #include <btree/btree.h>
-#include <btree/identifier.h>
 #include "btree_parser.h"
 #include <string>
 

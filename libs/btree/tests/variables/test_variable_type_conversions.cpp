@@ -21,33 +21,33 @@ class VariableTypeUndefinedFixture : public TestVariablesFixture
 public:
 	VariableTypeUndefinedFixture()
 	{
-		v.m_Type = Variable::E_VART_UNDEFINED;
+		v.m_Type = E_VART_UNDEFINED;
 	}
 };
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToUndefined )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_UNDEFINED ) );
+	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToInteger )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_INTEGER ) );
+	CHECK( !SafeToConvert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToFloat )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_FLOAT ) );
+	CHECK( !SafeToConvert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToString )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_STRING ) );
+	CHECK( !SafeToConvert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToBool )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_BOOL ) );
+	CHECK( !SafeToConvert( v, E_VART_BOOL ) );
 }
 
 /*
@@ -59,7 +59,7 @@ class VariableTypeIntegerFixture : public TestVariablesFixture
 public:
 	VariableTypeIntegerFixture()
 	{
-		v.m_Type = Variable::E_VART_INTEGER;
+		v.m_Type = E_VART_INTEGER;
 		v.m_Data.m_Integer = 17;
 	}
 };
@@ -67,75 +67,75 @@ public:
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToUndefined )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_UNDEFINED ) );
+	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToInteger )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_INTEGER ) );
+	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToFloat )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_FLOAT ) );
+	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToString )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_STRING ) );
+	CHECK( !SafeToConvert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToBool )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_BOOL ) );
+	CHECK( SafeToConvert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToIntegerConversionReturnsCorrectValue )
 {
 	v.m_Data.m_Integer = 357;
-	CHECK( 357 == v.ValueAsInteger() );
+	CHECK( 357 == ValueAsInteger( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToIntegerConversionDoesNotReturnIncorrectValue )
 {
 	v.m_Data.m_Integer = 357;
-	CHECK( 4723 != v.ValueAsInteger() );
+	CHECK( 4723 != ValueAsInteger( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToFloatConversionReturnsCorrectValue )
 {
 	v.m_Data.m_Integer = 17;
-	CHECK( 17.0f == v.ValueAsFloat() );
+	CHECK( 17.0f == ValueAsFloat( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToFloatConversionDoesNotReturnIncorrectValue )
 {
 	v.m_Data.m_Integer = 17;
-	CHECK( 17.0002f != v.ValueAsFloat() );
+	CHECK( 17.0002f != ValueAsFloat( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToStringConversionReturnsNull )
 {
 	v.m_Data.m_Integer = 242754;
-	CHECK( 0x0 == v.ValueAsString() );
+	CHECK( 0x0 == ValueAsString( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, PositiveIntegerToBoolConversionReturnsTrue )
 {
 	v.m_Data.m_Integer = 1;
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, NegativeIntegerToBoolConversionReturnsTrue )
 {
 	v.m_Data.m_Integer = -3746;
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, ZeroIntegerToBoolConversionReturnsFalse )
 {
 	v.m_Data.m_Integer = 0;
-	CHECK( false == v.ValueAsBool() );
+	CHECK( false == ValueAsBool( v ) );
 }
 
 
@@ -149,64 +149,64 @@ class VariableTypeFloatFixture : public TestVariablesFixture
 public:
 	VariableTypeFloatFixture()
 	{
-		v.m_Type = Variable::E_VART_FLOAT;
+		v.m_Type = E_VART_FLOAT;
 		v.m_Data.m_Float = 17.003f;
 	}
 };
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToUndefined )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_UNDEFINED ) );
+	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToInteger )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_INTEGER ) );
+	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToFloat )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_FLOAT ) );
+	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToString )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_STRING ) );
+	CHECK( !SafeToConvert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToBool )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_BOOL ) );
+	CHECK( SafeToConvert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatConvertToIntegerReturnsCorrectValue )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( 17 == v.ValueAsInteger() );
+	CHECK( 17 == ValueAsInteger( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatConvertToStringReturnsNull )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( 0x0 == v.ValueAsString() );
+	CHECK( 0x0 == ValueAsString( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, PositiveFloatConvertsToTrueBool )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, NegativeFloatConvertsToTrueBool )
 {
 	v.m_Data.m_Float = -317.002f;
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, ZeroFloatConvertsToFalseBool )
 {
 	v.m_Data.m_Float = -317.002f;
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 
 /*
@@ -218,54 +218,54 @@ class VariableTypeStringFixture : public TestVariablesFixture
 public:
 	VariableTypeStringFixture()
 	{
-		v.m_Type = Variable::E_VART_STRING;
+		v.m_Type = E_VART_STRING;
 		v.m_Data.m_String = g_TestString;
 	}
 };
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToUndefined )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_UNDEFINED ) );
+	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToInteger )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_INTEGER ) );
+	CHECK( !SafeToConvert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToFloat )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_FLOAT ) );
+	CHECK( !SafeToConvert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCanConvertToString )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_STRING ) );
+	CHECK( SafeToConvert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToBool )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_BOOL ) );
+	CHECK( !SafeToConvert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroInteger )
 {
-	CHECK( 0 == v.ValueAsInteger() );
+	CHECK( 0 == ValueAsInteger( v ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroFloat )
 {
-	CHECK( 0.0f == v.ValueAsFloat() );
+	CHECK( 0.0f == ValueAsFloat( v ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToString )
 {
-	CHECK( g_TestString == v.ValueAsString() );
+	CHECK( g_TestString == ValueAsString( v ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToBool )
 {
-	CHECK( false == v.ValueAsBool() );
+	CHECK( false == ValueAsBool( v ) );
 }
 
 
@@ -278,53 +278,53 @@ class VariableTypeBoolFixture : public TestVariablesFixture
 public:
 	VariableTypeBoolFixture()
 	{
-		v.m_Type = Variable::E_VART_BOOL;
+		v.m_Type = E_VART_BOOL;
 		v.m_Data.m_Bool = true;
 	}
 };
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToUndefined )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_UNDEFINED ) );
+	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToInteger )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_INTEGER ) );
+	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToFloat )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_FLOAT ) );
+	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToString )
 {
-	CHECK( !v.SafeToConvert( Variable::E_VART_STRING ) );
+	CHECK( !SafeToConvert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToBool )
 {
-	CHECK( v.SafeToConvert( Variable::E_VART_BOOL ) );
+	CHECK( SafeToConvert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToInteger )
 {
-	CHECK( 1 == v.ValueAsInteger() );
+	CHECK( 1 == ValueAsInteger( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToFloat )
 {
-	CHECK( 1.0f == v.ValueAsFloat() );
+	CHECK( 1.0f == ValueAsFloat( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsPredictablyToString )
 {
-	CHECK( false == v.ValueAsString() );
+	CHECK( false == ValueAsString( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToBool )
 {
-	CHECK( true == v.ValueAsBool() );
+	CHECK( true == ValueAsBool( v ) );
 }
 

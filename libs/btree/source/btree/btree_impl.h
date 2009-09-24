@@ -10,7 +10,7 @@
 #ifndef BTREE_IMPL_H_
 #define BTREE_IMPL_H_
 
-#include <btree/identifier.h>
+#include <btree/btree_data.h>
 #include <btree/node.h>
 #include <btree/action.h>
 #include <btree/decorator.h>
@@ -22,7 +22,6 @@
 #include <btree/decorator_node_grist.h>
 #include <btree/action_node_grist.h>
 #include <btree/function_grist.h>
-#include <btree/variable.h>
 
 #include "../parser/common.h"
 

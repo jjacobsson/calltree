@@ -12,7 +12,7 @@
 
 TEST_FIXTURE( TestVariablesFixture, InitVariableSetsTypeToUndefined )
 {
-	CHECK( v.m_Type == Variable::E_VART_UNDEFINED );
+	CHECK( v.m_Type == E_VART_UNDEFINED );
 }
 
 TEST_FIXTURE( TestVariablesFixture, InitVariableInitsTheID )

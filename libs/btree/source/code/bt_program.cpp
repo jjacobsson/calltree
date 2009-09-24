@@ -12,7 +12,7 @@
 #include <callback/callback.h>
 #include <btree/node.h>
 #include <btree/node_grist.h>
-#include <btree/identifier.h>
+#include <btree/btree_data.h>
 
 #include "../btree/endian.h"
 #include "../btree/inst_text.h"

@@ -10,7 +10,8 @@
 #ifndef DECORATOR_H_
 #define DECORATOR_H_
 
-#include "identifier.h"
+#include "btree_data.h"
+#include "btree_func.h"
 
 class FunctionGrist;
 

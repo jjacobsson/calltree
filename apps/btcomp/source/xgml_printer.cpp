@@ -10,7 +10,7 @@
 #include "xgml_printer.h"
 #include <btree/node.h>
 #include <btree/node_grist.h>
-#include <btree/identifier.h>
+#include <btree/btree_data.h>
 #include <btree/action.h>
 #include <btree/decorator.h>
 #include <btree/action_node_grist.h>

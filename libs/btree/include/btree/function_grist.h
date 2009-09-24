@@ -10,7 +10,7 @@
 #ifndef FUNCTION_GRIST_H_
 #define FUNCTION_GRIST_H_
 
-#include "variable.h"
+#include "btree_data.h"
 #include <vector>
 
 class BehaviourTree;

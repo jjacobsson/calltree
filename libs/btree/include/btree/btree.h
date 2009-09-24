@@ -7,12 +7,13 @@
  *
  */
 
-#ifndef BEHAVIOURTREE_H_
-#define BEHAVIOURTREE_H_
+#ifndef BTREE_HEADER_INCLUDED
+#define BTREE_HEADER_INCLUDED
 
 #include <stdio.h>
 
-#include "identifier.h"
+#include "btree_data.h"
+#include "btree_func.h"
 
 class BehaviourTreeImpl;
 
@@ -117,4 +118,4 @@ public:
 };
 
 
-#endif /*BEHAVIOURTREE_H_*/
+#endif /*BTREE_HEADER_INCLUDED*/

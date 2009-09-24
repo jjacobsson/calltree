@@ -10,7 +10,8 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#include "identifier.h"
+#include "btree_data.h"
+#include "btree_func.h"
 
 class NodeGrist;
 class BehaviourTree;

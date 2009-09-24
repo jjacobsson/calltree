@@ -11,7 +11,7 @@
 #define VARIABLE_OWNER_HELPER_H_
 
 #include "node_grist.h"
-#include "variable.h"
+#include "btree_data.h"
 #include <vector>
 
 class VariableOwner : public NodeGrist
