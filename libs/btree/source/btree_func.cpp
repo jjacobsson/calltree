@@ -7,9 +7,24 @@
  *
  */
 
+
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 
+/*
+ * Identifier Functions
+ */
+
+void InitIdentifier( Identifier* id )
+{
+	id->m_Text = 0x0;
+	id->m_Hash = INVALID_ID;
+	id->m_Line = 0;
+}
+
+/*
+ * Variable Functions
+ */
 
 void InitVariable( Variable* v )
 {
@@ -183,3 +198,20 @@ bool ValueAsBool( const Variable& v )
 	}
 	return r;
 }
+
+/*
+ * Action functions
+ */
+
+void InitAction( Action* a )
+{
+	InitIdentifier( &a->m_Id );
+	a->m_Grist      = 0x0;
+	a->m_FunctionId = ~0;
+	a->m_Declared   = false;
+}
+
+
+
+
+

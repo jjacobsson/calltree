@@ -135,21 +135,26 @@ nt_action_dec
 :
 T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
 {
-    Action* a = ctx->m_Tree->CreateAction( $3 );
+    Action* a = ctx->m_Tree->LookupAction( $3 );
     if( !a )
     {
-        a = ctx->m_Tree->LookupAction( $3 );
-
+    	a = new Action;
+    	InitAction( a );
+    }
+    else if( a->m_Declared )
+    {
         char tmp[2048];
         sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", $3.m_Text, a->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
-
         ctx->m_Tree->FreeFunctionGrist( $6 );
-
         YYERROR;
     }
+ 
+	a->m_Id         = $3;
     a->m_FunctionId = $5;
     a->m_Grist      = $6;
+    a->m_Declared	= true;
+    ctx->m_Tree->RegisterAction( a );
 }
 ;
 

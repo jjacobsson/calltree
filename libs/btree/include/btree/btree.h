@@ -17,17 +17,9 @@
 
 class BehaviourTreeImpl;
 
-class  Node;
-class  Action;
-class  Decorator;
-class  NodeList;
-class  NodeGrist;
-class  FunctionGrist;
-class  CReturnState;
 struct ParseFile;
 struct ParserContext;
 struct SPreProcessScope;
-class  INodeVisitor;
 
 class CodeSection;
 class BSSSection;
@@ -67,8 +59,8 @@ public:
     void FreeNode( Node* );
 
     Action* LookupAction( const Identifier& );
-    Action* CreateAction( const Identifier& );
-    void FreeAction( Action* );
+    bool RegisterAction( Action* );
+    void UnregisterAction( const Identifier& );
 
     Decorator* LookupDecorator( const Identifier& );
     Decorator* CreateDecorator( const Identifier& );

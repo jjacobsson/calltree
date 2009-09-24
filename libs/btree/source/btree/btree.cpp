@@ -129,24 +129,17 @@ Action* BehaviourTree::LookupAction( const Identifier& id )
     return m_Impl->m_ActionTable.Find( id );
 }
 
-Action* BehaviourTree::CreateAction( const Identifier& id )
+bool BehaviourTree::RegisterAction( Action* a )
 {
-    Action* a = m_Impl->m_ActionTable.Find( id );
-
-    if( a )
-        return 0x0;
-
-    a   = m_Impl->m_ActionPool.Alloc();
-    a->m_Id = id;
+    if( m_Impl->m_ActionTable.Find( a->m_Id ) != 0x0 )
+        return false;
     m_Impl->m_ActionTable.Insert( a );
-
-    return a;
+    return true;
 }
 
-void BehaviourTree::FreeAction( Action* a )
+void BehaviourTree::UnregisterAction( const Identifier& id )
 {
-    m_Impl->m_ActionTable.Erase( a );
-    m_Impl->m_ActionPool.Free( a );
+	m_Impl->m_ActionTable.Erase( id );
 }
 
 Decorator* BehaviourTree::LookupDecorator( const Identifier& id )

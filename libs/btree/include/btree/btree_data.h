@@ -79,20 +79,12 @@ public:
     bool           m_Destruct;
 };
 
-class Action
+struct Action
 {
-public:
-
-	Action()
-		: m_FunctionId( ~0 )
-		, m_Grist( 0x0 )
-	{
-		InitIdentifier( &m_Id );
-	}
-
 	Identifier      m_Id;
-	int             m_FunctionId;
 	FunctionGrist*  m_Grist;
+	int             m_FunctionId;
+	bool			m_Declared;
 };
 
 class Decorator

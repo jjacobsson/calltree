@@ -12,7 +12,8 @@
 
 struct Identifier;
 struct Variable;
-enum VariableType;
+enum   VariableType;
+struct Action;
 
 /*
  * Identifier Functions
@@ -50,5 +51,10 @@ const char* ValueAsString( const Variable& );
 
 bool ValueAsBool( const Variable& );
 
+/*
+ * Action Functions
+ */
+
+void InitAction( Action* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
