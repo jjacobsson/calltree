@@ -140,6 +140,11 @@ T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
     {
     	a = new Action;
     	InitAction( a );
+		a->m_Id         = $3;
+	    a->m_FunctionId = $5;
+	    a->m_Grist      = $6;
+	    a->m_Declared	= true;
+	    ctx->m_Tree->RegisterAction( a );
     }
     else if( a->m_Declared )
     {
@@ -149,12 +154,6 @@ T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
         ctx->m_Tree->FreeFunctionGrist( $6 );
         YYERROR;
     }
- 
-	a->m_Id         = $3;
-    a->m_FunctionId = $5;
-    a->m_Grist      = $6;
-    a->m_Declared	= true;
-    ctx->m_Tree->RegisterAction( a );
 }
 ;
 
@@ -162,25 +161,27 @@ nt_decorator_dec
 :
 T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
 {
-    Decorator* d = ctx->m_Tree->CreateDecorator( $3 );
+    Decorator* d = ctx->m_Tree->LookupDecorator( $3 );
     if( !d )
     {
-        d = ctx->m_Tree->LookupDecorator( $3 );
-
-
+    	d = new Decorator;
+    	InitDecorator( d );
+	    d->m_Id         = $3;
+	    d->m_FunctionId = $5;
+	    d->m_Grist      = $10;
+	    d->m_Prune      = $7 == 1;
+	    d->m_Modify     = $9 == 1;
+	    d->m_Declared	= true;
+    	ctx->m_Tree->RegisterDecorator( d );
+    }
+    else if( d->m_Declared )
+    {
         char tmp[2048];
         sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", $3.m_Text, d->m_Id.m_Line );
         yyerror( ctx, scanner, tmp );
-
         ctx->m_Tree->FreeFunctionGrist( $10 );
-
         YYERROR;
     }
-    d->m_Id         = $3;
-    d->m_FunctionId = $5;
-    d->m_Grist      = $10;
-    d->m_Prune      = $7 == 1;
-    d->m_Modify     = $9 == 1;
 }
 ;
 

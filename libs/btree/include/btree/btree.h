@@ -63,8 +63,8 @@ public:
     void UnregisterAction( const Identifier& );
 
     Decorator* LookupDecorator( const Identifier& );
-    Decorator* CreateDecorator( const Identifier& );
-    void FreeDecorator( Decorator* );
+    bool RegisterDecorator( Decorator* );
+    void UnregisterDecorator( const Identifier& );
 
     NodeList* CreateNodeList();
     void FreeNodeList( NodeList* );

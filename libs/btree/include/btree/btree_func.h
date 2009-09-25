@@ -14,6 +14,7 @@ struct Identifier;
 struct Variable;
 enum   VariableType;
 struct Action;
+struct Decorator;
 
 /*
  * Identifier Functions
@@ -56,5 +57,11 @@ bool ValueAsBool( const Variable& );
  */
 
 void InitAction( Action* );
+
+/*
+ * Decorator Functions
+ */
+
+void InitDecorator( Decorator* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

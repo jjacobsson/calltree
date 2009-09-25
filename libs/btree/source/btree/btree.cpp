@@ -147,25 +147,17 @@ Decorator* BehaviourTree::LookupDecorator( const Identifier& id )
     return m_Impl->m_DecoratorTable.Find( id );
 }
 
-Decorator* BehaviourTree::CreateDecorator( const Identifier& id )
+bool BehaviourTree::RegisterDecorator( Decorator* d )
 {
-    Decorator* d = m_Impl->m_DecoratorTable.Find( id );
-
-    if( d )
-        return 0x0;
-
-    d   = m_Impl->m_DecoratorPool.Alloc();
-    d->m_Id = id;
-
-    m_Impl->m_DecoratorTable.Insert( d );
-
-    return d;
+	if( m_Impl->m_DecoratorTable.Find( d->m_Id ) != 0x0 )
+		return false;
+	m_Impl->m_DecoratorTable.Insert( d );
+	return true;
 }
 
-void BehaviourTree::FreeDecorator( Decorator* d )
+void BehaviourTree::UnregisterDecorator( const Identifier& id )
 {
-    m_Impl->m_DecoratorTable.Erase( d );
-    m_Impl->m_DecoratorPool.Free( d );
+	m_Impl->m_DecoratorTable.Erase( id );
 }
 
 NodeList* BehaviourTree::CreateNodeList()

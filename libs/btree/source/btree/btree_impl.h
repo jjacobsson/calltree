@@ -97,7 +97,6 @@ public:
         : m_StringTable( 4096, 128 )
         , m_IdPool( 512 )
         , m_NodePool( 128 )
-        , m_DecoratorPool( 32 )
         , m_NodeListPool( 128 )
         , m_SequenceGristPool( 16 )
         , m_SelectorGristPool( 16 )
@@ -118,7 +117,6 @@ public:
 
     typedef TObjectPool< Identifier >               IdPool;
     typedef TObjectPool< Node >                     NodePool;
-    typedef TObjectPool< Decorator >                DecoratorPool;
     typedef TObjectPool< NodeList >                 NodeListPool;
     typedef TObjectPool< SequenceNodeGrist >        SequenceGristPool;
     typedef TObjectPool< SelectorNodeGrist >        SelectorGristPool;
@@ -135,7 +133,6 @@ public:
     NodePool                 m_NodePool;
     NodeTable                m_NodeTable;
     ActionTable              m_ActionTable;
-    DecoratorPool            m_DecoratorPool;
     DecoratorTable           m_DecoratorTable;
     NodeListPool             m_NodeListPool;
     SequenceGristPool        m_SequenceGristPool;

@@ -201,6 +201,7 @@ bool ValueAsBool( const Variable& v )
 
 /*
  * Action functions
+ *
  */
 
 void InitAction( Action* a )
@@ -211,7 +212,17 @@ void InitAction( Action* a )
 	a->m_Declared   = false;
 }
 
+/*
+ * Decorator functions
+ *
+ */
 
-
-
-
+void InitDecorator( Decorator* d )
+{
+	InitIdentifier( &d->m_Id );
+	d->m_Grist		= 0x0;
+	d->m_FunctionId = ~0;
+	d->m_Prune		= false;
+	d->m_Modify		= false;
+	d->m_Declared	= false;
+}

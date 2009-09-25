@@ -87,25 +87,14 @@ struct Action
 	bool			m_Declared;
 };
 
-class Decorator
+struct Decorator
 {
-public:
-
-	Decorator()
-		: m_FunctionId( ~0 )
-		, m_Grist( 0x0 )
-		, m_Prune( false )
-		, m_Modify( false )
-	{
-		InitIdentifier( &m_Id );
-	}
-
 	Identifier      m_Id;
 	int				m_FunctionId;
 	FunctionGrist*	m_Grist;
 	bool			m_Prune;
 	bool			m_Modify;
-
+	bool			m_Declared;
 };
 
 class NodeGrist;
