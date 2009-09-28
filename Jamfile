@@ -27,9 +27,11 @@ rule CompileBehaviourTrees
 {
 	NotFile $(1) ;
 	local _sources = [ GLOB $(1) : *.bts ] ;
+	local _headers = [ GLOB $(1) : *.h ] ;
 	local _source ;
 	for _source in $(_sources)
 	{
+		Includes $(_source) : $(_headers) ;
 		local _btc = $(BUILD_TREES_DIR)$(_source:S=$(SUFBTC)) ;
 		local _path = $(_btc:P) ;
 		

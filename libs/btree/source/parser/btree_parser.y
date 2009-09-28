@@ -385,12 +385,12 @@ nt_action_ref
 nt_id
 {
     Action* a = ctx->m_Tree->LookupAction( $1 );
-    if( a == 0x0 )
+    if( !a )
     {
-        char tmp[2048];
-        sprintf( tmp, "action \"%s\" has not been declared.\n", $1.m_Text );
-        yyerror( ctx, scanner, tmp );
-        YYERROR;
+    	a = new Action;
+    	InitAction( a );
+    	a->m_Id = $1;
+    	ctx->m_Tree->RegisterAction( a );
     }
     $$ = a;
 }
@@ -401,12 +401,12 @@ nt_decorator_ref
 nt_id
 {
     Decorator* d = ctx->m_Tree->LookupDecorator( $1 );
-    if( d == 0x0 )
+    if( !d )
     {
-        char tmp[2048];
-        sprintf( tmp, "decorator \"%s\" has not been declared.", $1.m_Text );
-        yyerror( ctx, scanner, tmp );
-        YYERROR;
+    	d = new Decorator;
+    	InitDecorator( d );
+    	d->m_Id = $1;
+    	ctx->m_Tree->RegisterDecorator( d );
     }
     $$ = d;
 }
