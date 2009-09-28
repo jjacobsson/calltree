@@ -276,14 +276,6 @@ T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
 |
 T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
 {
-/*
-    if( !$3->m_Grist->ValiadateVariables( $7 ) )
-    {
-        DeleteVariableList( $7 );
-        yyerror( ctx, scanner, "variable list is invalid." );
-        YYERROR;
-    }
-*/
     $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_DECORATOR );
     DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>($$);
     grist->SetDecorator( $3 );
@@ -302,14 +294,6 @@ T_ACTION T_COLON nt_action_ref T_SEMICOLON
 |
 T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
 {
-/*
-    if( !$3->m_Grist->ValiadateVariables( $5 ) )
-    {
-        DeleteVariableList( $5 );
-        yyerror( ctx, scanner, "variable list is invalid." );
-        YYERROR;
-    }
-*/
     $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
     ActionNodeGrist* grist = static_cast<ActionNodeGrist*>($$);
     grist->SetAction( $3 );

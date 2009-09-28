@@ -14,7 +14,7 @@ action : dec_gc 			: id=9 ;
 action : inc_gc 			: id=10 ;
 action : check_gc_smlr		: id=11 : int32 value ;
 action : check_gc_grtr		: id=12 : int32 value ;
-action : time_delay			: id=13,construct=true,bss=4 : float seconds ;
+action : time_delay			: id=13,construct=true,bss=8 : float seconds ;
 
 decorator : modify_return	: id=100,modify=true : int32 f, int32 s, int32 r ;
 

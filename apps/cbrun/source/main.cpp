@@ -23,7 +23,7 @@ struct UserData
 {
     uint64      m_TotalCounter;
     uint64      m_FrameCounter;
-    float       m_FrameTime;
+    double      m_FrameTime;
     int         m_GlobalCounter;
     char        m_String[4096];
     bool        m_Silent;
@@ -159,16 +159,16 @@ uint32 cb_check_gc_grtr(uint32 action, void* bss, void** data, UserData& ud )
 
 uint32 cb_time_delay( uint32 action, void* bss, void** data, UserData& ud )
 {
-    float* t = (float*)bss;
+    double* t = (double*)bss;
 
     if( action == ACT_CONSTRUCT )
     {
-        *t = *(float*)(data[0]);
+        *t = (double)(*(float*)(data[0]));
         return E_NODE_UNDEFINED;
     }
     else if( action == ACT_EXECUTE )
     {
-        *t -= ud.m_FrameTime;
+    	*t -= ud.m_FrameTime;
         if( *t <= 0.0f )
             return E_NODE_SUCCESS;
         return E_NODE_RUNNING;
@@ -368,6 +368,7 @@ int main(int argc, char** argv)
         uint64 maxima = 0;
         uint64 minima = freq;
 
+        double acc_ft = 0;
         start = get_cpu_counter();
         while( !ud.m_Exit )
         {
@@ -382,6 +383,7 @@ int main(int argc, char** argv)
             frame_end = get_cpu_counter();
 
             ud.m_FrameTime = (float)(((double)(frame_end - frame_start)) / (double)freq);
+            acc_ft += ud.m_FrameTime;
             uint64 in_vm_this_frame = (frame_end - frame_start) - (ud.m_FrameCounter);
 
             if( in_vm_this_frame > maxima )
@@ -414,6 +416,7 @@ int main(int argc, char** argv)
         printf( "s spent in VM:            %10.2f\n", in_vm );
         printf( "s spent in callbacks:     %10.2f\n", total - in_vm );
         printf( "Total Time in seconds:    %10.2f\n", total );
+        printf( "Acc Time in seconds:      %10.2f\n", acc_ft );
         printf( "\n********************************************\n\n" );
 
     }
