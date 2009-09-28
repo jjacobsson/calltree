@@ -12,7 +12,6 @@
 
 struct Identifier;
 struct Variable;
-enum   VariableType;
 struct Action;
 struct Decorator;
 
@@ -42,7 +41,7 @@ int CountOccourancesOfIdHashInList( Variable* start, int hash );
 
 bool VariableIdsAreUniqueInList( Variable* start );
 
-bool SafeToConvert( const Variable&, VariableType to_type );
+bool SafeToConvert( const Variable&, int to_type );
 
 int ValueAsInteger( const Variable& );
 

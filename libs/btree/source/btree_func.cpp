@@ -105,7 +105,7 @@ bool VariableIdsAreUniqueInList( Variable* s )
 	return true;
 }
 
-bool SafeToConvert( const Variable& v, VariableType to_type )
+bool SafeToConvert( const Variable& v, int to_type )
 {
     switch( v.m_Type )
     {
