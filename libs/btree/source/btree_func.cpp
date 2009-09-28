@@ -207,8 +207,8 @@ bool ValueAsBool( const Variable& v )
 void InitAction( Action* a )
 {
 	InitIdentifier( &a->m_Id );
-	a->m_Grist      = 0x0;
-	a->m_FunctionId = ~0;
+	a->m_Args		= 0x0;
+	a->m_Vars		= 0x0;
 	a->m_Declared   = false;
 }
 
@@ -220,9 +220,7 @@ void InitAction( Action* a )
 void InitDecorator( Decorator* d )
 {
 	InitIdentifier( &d->m_Id );
-	d->m_Grist		= 0x0;
-	d->m_FunctionId = ~0;
-	d->m_Prune		= false;
-	d->m_Modify		= false;
-	d->m_Declared	= false;
+	d->m_Args		= 0x0;
+	d->m_Vars		= 0x0;
+	d->m_Declared   = false;
 }

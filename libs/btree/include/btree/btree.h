@@ -72,9 +72,6 @@ public:
     NodeGrist* CreateNodeGrist( int grist_type );
     void FreeNodeGrist( NodeGrist* grist );
 
-    FunctionGrist* CreateFunctionGrist();
-    void FreeFunctionGrist( FunctionGrist* fg );
-
     ParseFile* CreateParseFile();
     void FreeParseFile( ParseFile* pf );
 

@@ -222,18 +222,6 @@ void BehaviourTree::FreeNodeGrist( NodeGrist* grist )
     }
 }
 
-FunctionGrist* BehaviourTree::CreateFunctionGrist()
-{
-    FunctionGrist* fg = m_Impl->m_FunctionGristPool.Alloc();
-    fg->m_Tree = this;
-    return fg;
-}
-
-void BehaviourTree::FreeFunctionGrist( FunctionGrist* fg )
-{
-    m_Impl->m_FunctionGristPool.Free( fg );
-}
-
 ParseFile* BehaviourTree::CreateParseFile()
 {
     return m_Impl->m_ParseFilePool.Alloc();

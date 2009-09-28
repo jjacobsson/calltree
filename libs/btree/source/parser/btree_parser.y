@@ -19,6 +19,10 @@
 
 #define YYMALLOC malloc
 #define YYFREE free
+
+bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
+bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
+
 %}
 
 %token            T_ROOT         /* literal string "root" */
@@ -48,7 +52,6 @@
     Node*          m_Node;
     Identifier     m_Id;
     NodeGrist*     m_NodeGrist;
-    FunctionGrist* m_FuncGrist;
     NodeList*      m_NodeList;
     Action*        m_Action;
     Decorator*     m_Decorator;
@@ -57,7 +60,6 @@
     bool           m_Bool;
     const char*    m_String;
     Variable*      m_Variable;
-	/*VariableList*  m_VariableList;*/
 }
 
 %type<m_Id>			  nt_id
@@ -73,12 +75,10 @@
 %type<m_NodeGrist>	  nt_decorator_node_grist
 %type<m_NodeGrist>	  nt_action_node_grist
 %type<m_NodeList>	  nt_node_list
-%type<m_Integer>	  nt_function_id
 %type<m_Variable>	  nt_variable_dec
 %type<m_Variable>	  nt_variable
 %type<m_Variable>     nt_variable_dec_list
 %type<m_Variable>     nt_variable_list
-%type<m_FuncGrist>    nt_function_grist
 
 %destructor { /* do nothing */ }                      nt_id
 %destructor { /* do nothing */ }		              T_ID
@@ -98,7 +98,6 @@
 %destructor { DeleteVariableList( $$ ); }			  nt_variable
 %destructor { DeleteVariableList( $$ ); }			  nt_variable_dec_list
 %destructor { DeleteVariableList( $$ ); }			  nt_variable_list
-%destructor { ctx->m_Tree->FreeFunctionGrist( $$ ); } nt_function_grist
 
 %%
 
@@ -133,102 +132,31 @@ T_SEMICOLON
 
 nt_action_dec
 :
-T_ACTION T_COLON nt_id T_COLON nt_function_id nt_function_grist
+T_ACTION T_COLON nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
 {
-    Action* a = ctx->m_Tree->LookupAction( $3 );
-    if( !a )
-    {
-    	a = new Action;
-    	InitAction( a );
-		a->m_Id         = $3;
-	    a->m_FunctionId = $5;
-	    a->m_Grist      = $6;
-	    a->m_Declared	= true;
-	    ctx->m_Tree->RegisterAction( a );
-    }
-    else if( a->m_Declared )
-    {
-        char tmp[2048];
-        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", $3.m_Text, a->m_Id.m_Line );
-        yyerror( ctx, scanner, tmp );
-        ctx->m_Tree->FreeFunctionGrist( $6 );
-        YYERROR;
-    }
+	if( !DeclareAction( ctx, $3, $5, $7 ) )
+		YYERROR;
+}
+|
+T_ACTION T_COLON nt_id T_COLON nt_variable_list T_SEMICOLON
+{
+	if( !DeclareAction( ctx, $3, $5, 0x0 ) )
+		YYERROR;
 }
 ;
 
 nt_decorator_dec
 :
-T_DECORATOR T_COLON nt_id T_COLON nt_function_id T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE nt_function_grist
+T_DECORATOR T_COLON nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
 {
-    Decorator* d = ctx->m_Tree->LookupDecorator( $3 );
-    if( !d )
-    {
-    	d = new Decorator;
-    	InitDecorator( d );
-	    d->m_Id         = $3;
-	    d->m_FunctionId = $5;
-	    d->m_Grist      = $10;
-	    d->m_Prune      = $7 == 1;
-	    d->m_Modify     = $9 == 1;
-	    d->m_Declared	= true;
-    	ctx->m_Tree->RegisterDecorator( d );
-    }
-    else if( d->m_Declared )
-    {
-        char tmp[2048];
-        sprintf( tmp, "decorator \"%s\" was previously declared on line %d.\n", $3.m_Text, d->m_Id.m_Line );
-        yyerror( ctx, scanner, tmp );
-        ctx->m_Tree->FreeFunctionGrist( $10 );
-        YYERROR;
-    }
-}
-;
-
-nt_function_id
-:
-T_INT32_VALUE
-{
-    $$ = $1;
-}
-;
-
-nt_function_grist
-:
-T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
-{
-    /* bss-value and variable list grist */
-    $$ = ctx->m_Tree->CreateFunctionGrist();
-    $$->m_bssSize   = $6;
-    $$->m_Variables = $8;
-    $$->m_Construct = $2 == 1;
-    $$->m_Destruct  = $2 == 1;
+	if( !DeclareDecorator( ctx, $3, $5, $7 ) )
+		YYERROR;
 }
 |
-T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON nt_variable_dec_list T_SEMICOLON
+T_DECORATOR T_COLON nt_id T_COLON nt_variable_list T_SEMICOLON
 {
-    /* only a variable declaration list grist */
-    $$ = ctx->m_Tree->CreateFunctionGrist();
-    $$->m_Variables = $6;
-    $$->m_Construct = $2 == 1;
-    $$->m_Destruct  = $4 == 1;
-}
-|
-T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_COLON T_INT32_VALUE T_SEMICOLON
-{
-    /* only a bss-value grist */
-    $$ = ctx->m_Tree->CreateFunctionGrist();
-    $$->m_bssSize   = $6;
-    $$->m_Construct = $2 == 1;
-    $$->m_Destruct  = $4 == 1;
-}
-|
-T_COLON T_BOOL_VALUE T_COLON T_BOOL_VALUE T_SEMICOLON
-{
-    /* essentialy, no grist */
-    $$ = ctx->m_Tree->CreateFunctionGrist();
-    $$->m_Construct = $2 == 1;
-    $$->m_Destruct  = $4 == 1;
+	if( !DeclareDecorator( ctx, $3, $5, 0x0 ) )
+		YYERROR;
 }
 ;
 
@@ -348,13 +276,14 @@ T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
 |
 T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
 {
+/*
     if( !$3->m_Grist->ValiadateVariables( $7 ) )
     {
         DeleteVariableList( $7 );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
-
+*/
     $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_DECORATOR );
     DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>($$);
     grist->SetDecorator( $3 );
@@ -373,13 +302,14 @@ T_ACTION T_COLON nt_action_ref T_SEMICOLON
 |
 T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
 {
+/*
     if( !$3->m_Grist->ValiadateVariables( $5 ) )
     {
         DeleteVariableList( $5 );
         yyerror( ctx, scanner, "variable list is invalid." );
         YYERROR;
     }
-
+*/
     $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
     ActionNodeGrist* grist = static_cast<ActionNodeGrist*>($$);
     grist->SetAction( $3 );
@@ -617,5 +547,70 @@ T_ID T_ASSIGNMENT T_BOOL_VALUE
 ;
 
 
+%%
+
+bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
+{
+    Action* a = ctx->m_Tree->LookupAction( id );
+	if( !a )
+	{
+    	a = new Action;
+    	InitAction( a );
+    	a->m_Id = id;
+		a->m_Args = args;
+		a->m_Vars = vars;	
+	    a->m_Declared = true;
+	    ctx->m_Tree->RegisterAction( a );
+    }
+	else if( a && !a->m_Declared )
+    {
+    	a->m_Args = args;
+    	a->m_Vars = vars;
+    	a->m_Declared = true;
+	}
+    else if( a && a->m_Declared )
+    {
+    	DeleteVariableList( vars );
+    	DeleteVariableList( args );
+    	
+        char tmp[2048];
+        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", id.m_Text, a->m_Id.m_Line );
+        yyerror( ctx, ctx->yyscanner, tmp );
+        return false;
+    }
+    return true;
+}
+
+bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
+{
+    Decorator* d = ctx->m_Tree->LookupDecorator( id );
+	if( !d )
+	{
+    	d = new Decorator;
+    	InitDecorator( d );
+    	d->m_Id = id;
+		d->m_Args = args;
+		d->m_Vars = vars;	
+	    d->m_Declared = true;
+	    ctx->m_Tree->RegisterDecorator( d );
+    }
+	else if( d && !d->m_Declared )
+    {
+    	d->m_Args = args;
+    	d->m_Vars = vars;
+    	d->m_Declared = true;
+	}
+    else if( d && d->m_Declared )
+    {
+    	DeleteVariableList( vars );
+    	DeleteVariableList( args );
+    	
+        char tmp[2048];
+        sprintf( tmp, "Decorator \"%s\" was previously declared on line %d.\n", id.m_Text, d->m_Id.m_Line );
+        yyerror( ctx, ctx->yyscanner, tmp );
+        return false;
+    }
+    return true;
+}
 
 

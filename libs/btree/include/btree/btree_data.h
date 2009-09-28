@@ -64,36 +64,19 @@ enum NodeGristType
 
 class BehaviourTree;
 
-class FunctionGrist
-{
-public:
-    FunctionGrist();
-    ~FunctionGrist();
-
-    bool ValiadateVariables( Variable* variables ) const;
-
-    int            m_bssSize;
-    Variable*      m_Variables;
-    BehaviourTree* m_Tree;
-    bool           m_Construct;
-    bool           m_Destruct;
-};
-
 struct Action
 {
 	Identifier      m_Id;
-	FunctionGrist*  m_Grist;
-	int             m_FunctionId;
+	Variable*		m_Args;		/* Argument declarations */
+	Variable*		m_Vars;		/* Code-generation variables */
 	bool			m_Declared;
 };
 
 struct Decorator
 {
 	Identifier      m_Id;
-	int				m_FunctionId;
-	FunctionGrist*	m_Grist;
-	bool			m_Prune;
-	bool			m_Modify;
+	Variable*		m_Args;		/* Argument declarations */
+	Variable*		m_Vars;		/* Code-generation variables */
 	bool			m_Declared;
 };
 

@@ -9,8 +9,7 @@
 
 #include "../../code/bt_program.h"
 #include <btree/btree.h>
-
-#include <callback/instructions.h>
+#include <other/lookup3.h>
 
 using namespace callback;
 
@@ -28,19 +27,23 @@ DecoratorNodeGrist::~DecoratorNodeGrist()
 
 void DecoratorNodeGrist::GenerateConstructionCode( BehaviourTree* bt )
 {
-    int fid = m_Decorator->m_FunctionId;
+	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
 
     // Enter Debug scope
     bt->GetCodeSection().PushDebugScope( bt, m_Chaff, ACT_CONSTRUCT );
 
     //Store the variable values in the data section.
-    StoreVariablesInDataSection( bt, m_Decorator->m_Grist->m_Variables );
+    StoreVariablesInDataSection( bt, m_Decorator->m_Args );
 
     // Load bss section with pointers to the data section, for the variables
     GenerateVariableInstructions( bt );
 
-    int bss_need = m_Decorator->m_Grist->m_bssSize;
-    if( m_Decorator->m_Modify )
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "bss" ) );
+    int bss_need = t?ValueAsInteger(*t):0;
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "modify" ) );
+    if( t && ValueAsBool( *t ) )
         bss_need += 4;
 
     if( bss_need > 0 )
@@ -49,7 +52,8 @@ void DecoratorNodeGrist::GenerateConstructionCode( BehaviourTree* bt )
         m_bssModPos = (m_bssPos + bss_need) - 4;
     }
 
-    if( m_Decorator->m_Grist->m_Construct )
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "construct" ) );
+    if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
         SetupVariableRegistry( bt );
@@ -70,14 +74,17 @@ void DecoratorNodeGrist::GenerateConstructionCode( BehaviourTree* bt )
 
 void DecoratorNodeGrist::GenerateExecutionCode( BehaviourTree* bt )
 {
-    int fid = m_Decorator->m_FunctionId;
+	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
 
     // Enter Debug scope
     bt->GetCodeSection().PushDebugScope( bt, m_Chaff, ACT_EXECUTE );
 
     int jump_out = -1;
 
-    if( m_Decorator->m_Prune )
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "prune" ) );
+    if( t && ValueAsBool( *t ) )
     {
         // Enter Debug scope
         bt->GetCodeSection().PushDebugScope( bt, m_Chaff, ACT_PRUNE );
@@ -102,7 +109,8 @@ void DecoratorNodeGrist::GenerateExecutionCode( BehaviourTree* bt )
     //Generate child execution code
     m_Child->m_Grist->GenerateExecutionCode( bt );
 
-    if( m_Decorator->m_Modify )
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "modify" ) );
+    if( t && ValueAsBool( *t ) )
     {
         // Enter Debug scope
         bt->GetCodeSection().PushDebugScope( bt, m_Chaff, ACT_MODIFY );
@@ -132,14 +140,16 @@ void DecoratorNodeGrist::GenerateExecutionCode( BehaviourTree* bt )
 
 void DecoratorNodeGrist::GenerateDestructionCode( BehaviourTree* bt )
 {
-    int fid = m_Decorator->m_FunctionId;
+	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
 
     // Enter Debug scope
     bt->GetCodeSection().PushDebugScope( bt, m_Chaff, ACT_DESTRUCT );
 
     m_Child->m_Grist->GenerateDestructionCode( bt );
 
-    if( m_Decorator->m_Grist->m_Destruct )
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "destruct" ) );
+    if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
         SetupVariableRegistry( bt );
