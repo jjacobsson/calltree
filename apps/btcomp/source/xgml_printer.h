@@ -15,7 +15,7 @@
 #include <vector>
 #include <stdlib.h>
 
-class XGMLPrinter : public INodeVisitor
+class XGMLPrinter
 {
 public:
     XGMLPrinter();

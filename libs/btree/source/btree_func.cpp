@@ -201,7 +201,6 @@ bool ValueAsBool( const Variable& v )
 
 /*
  * Action functions
- *
  */
 
 void InitAction( Action* a )
@@ -214,7 +213,6 @@ void InitAction( Action* a )
 
 /*
  * Decorator functions
- *
  */
 
 void InitDecorator( Decorator* d )
@@ -224,3 +222,20 @@ void InitDecorator( Decorator* d )
 	d->m_Vars		= 0x0;
 	d->m_Declared   = false;
 }
+
+/*
+ * Node functions
+ */
+
+void InitNode( Node* n )
+{
+	InitIdentifier( &n->m_Id );
+	n->m_Tree		= 0x0;
+	n->m_Parent		= 0x0;
+	n->m_Grist		= 0x0;
+	n->m_IsChild	= false;
+	n->m_Declared	= false;
+}
+
+
+

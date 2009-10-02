@@ -146,13 +146,6 @@ void SequenceNodeGrist::GenerateDestructionCode( BehaviourTree* bt )
     bt->GetCodeSection().PopDebugScope( bt, m_Chaff, ACT_DESTRUCT );
 }
 
-void SequenceNodeGrist::Visit( INodeVisitor* nv )
-{
-    NodeList::iterator it( m_Children->begin() ), it_e( m_Children->end() );
-    for( ; it != it_e; ++it )
-        (*it)->Visit( nv );
-}
-
 void SequenceNodeGrist::SetChaff( Node* n )
 {
     NodeGrist::SetChaff( n );

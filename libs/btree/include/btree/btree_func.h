@@ -14,6 +14,7 @@ struct Identifier;
 struct Variable;
 struct Action;
 struct Decorator;
+struct Node;
 
 /*
  * Identifier Functions
@@ -62,5 +63,11 @@ void InitAction( Action* );
  */
 
 void InitDecorator( Decorator* );
+
+/*
+ * Node Function
+ */
+
+void InitNode( Node* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

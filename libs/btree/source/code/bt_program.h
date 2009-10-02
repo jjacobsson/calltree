@@ -16,7 +16,6 @@
 #include <vector>
 #include <btree/btree_data.h>
 
-class Node;
 class BehaviourTree;
 
 class CodeSection

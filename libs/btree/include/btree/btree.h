@@ -55,8 +55,8 @@ public:
     const char* RegisterString( const char* str, hash_t hash );
 
     Node* LookupNode( const Identifier& );
-    Node* CreateNode( const Identifier& );
-    void FreeNode( Node* );
+    bool RegisterNode( Node* );
+    void UnregisterNode( const Identifier& );
 
     Action* LookupAction( const Identifier& );
     bool RegisterAction( Action* );
@@ -90,20 +90,8 @@ public:
     void Error( ParserContext*, int lineno, const char* msg );
     void Warning( ParserContext*, int lineno, const char* msg );
 
-    void Visit( INodeVisitor* nv );
-
     Node*              m_Root;
     BehaviourTreeImpl* m_Impl;
-};
-
-
-class INodeVisitor
-{
-public:
-	~INodeVisitor() {}
-
-	virtual void Visit( Node* n ) = 0;
-
 };
 
 

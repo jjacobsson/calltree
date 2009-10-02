@@ -95,8 +95,6 @@ public:
 
     BehaviourTreeImpl()
         : m_StringTable( 4096, 128 )
-        , m_IdPool( 512 )
-        , m_NodePool( 128 )
         , m_NodeListPool( 128 )
         , m_SequenceGristPool( 16 )
         , m_SelectorGristPool( 16 )
@@ -114,8 +112,6 @@ public:
     typedef TSymbolTable< Action*, HasIdPredicate<Action> >       ActionTable;
     typedef TSymbolTable< Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
 
-    typedef TObjectPool< Identifier >               IdPool;
-    typedef TObjectPool< Node >                     NodePool;
     typedef TObjectPool< NodeList >                 NodeListPool;
     typedef TObjectPool< SequenceNodeGrist >        SequenceGristPool;
     typedef TObjectPool< SelectorNodeGrist >        SelectorGristPool;
@@ -127,8 +123,6 @@ public:
 
     StringTable              m_StringTable;
     IntTable                 m_Defines;
-    IdPool                   m_IdPool;
-    NodePool                 m_NodePool;
     NodeTable                m_NodeTable;
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;

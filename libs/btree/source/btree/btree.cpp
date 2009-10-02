@@ -102,26 +102,17 @@ Node* BehaviourTree::LookupNode( const Identifier& id )
     return m_Impl->m_NodeTable.Find( id );
 }
 
-Node* BehaviourTree::CreateNode( const Identifier& id )
+bool BehaviourTree::RegisterNode( Node* n )
 {
-    Node* n = m_Impl->m_NodeTable.Find( id );
-
-    if( n )
-        return 0x0;
-
-    n         = m_Impl->m_NodePool.Alloc();
-    n->m_Id   = id;
-    n->m_Tree = this;
-
+    if( m_Impl->m_NodeTable.Find( n->m_Id ) != 0x0 )
+        return false;
     m_Impl->m_NodeTable.Insert( n );
-
-    return n;
+    return true;
 }
 
-void BehaviourTree::FreeNode( Node* n )
+void BehaviourTree::UnregisterNode( const Identifier& id )
 {
-    m_Impl->m_NodeTable.Erase( n );
-    m_Impl->m_NodePool.Free( n );
+    m_Impl->m_NodeTable.Erase( id );
 }
 
 Action* BehaviourTree::LookupAction( const Identifier& id )
@@ -368,11 +359,5 @@ void BehaviourTree::Warning( ParserContext* ctx, int lineno, const char* msg )
     {
         fprintf( stdout, "<no file>(%d) : warning : %s\n", lineno, msg );
     }
-}
-
-void BehaviourTree::Visit( INodeVisitor* nv )
-{
-    if( m_Root )
-        m_Root->Visit( nv );
 }
 

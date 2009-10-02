@@ -49,7 +49,6 @@ struct Variable
     Variable*     m_Next;
 };
 
-
 enum NodeGristType
 {
 	E_GRIST_SEQUENCE,
@@ -80,29 +79,8 @@ struct Decorator
 	bool			m_Declared;
 };
 
+struct Node;
 class NodeGrist;
-class INodeVisitor; // <- TODO: KILL KILL KILL!
-
-class Node
-{
-public:
-    Node()
-        : m_Tree( 0x0 )
-        , m_Parent( 0x0 )
-        , m_Grist( 0x0 )
-        , m_IsChild( false )
-    {
-    	InitIdentifier( &m_Id );
-    }
-
-    void Visit( INodeVisitor* v );
-
-    BehaviourTree*  m_Tree;
-    Node*           m_Parent;
-    Identifier      m_Id;
-    NodeGrist*      m_Grist;
-    bool            m_IsChild;
-};
 
 class NodeGrist
 {
@@ -115,7 +93,6 @@ public:
 	virtual void GenerateConstructionCode( BehaviourTree* bt ) {};
 	virtual void GenerateExecutionCode( BehaviourTree* bt ) {};
 	virtual void GenerateDestructionCode( BehaviourTree* bt ) {};
-	virtual void Visit( INodeVisitor* nv ) {};
 
 	virtual void SetChaff( Node* chaff )
 	{
@@ -196,7 +173,6 @@ public:
     void GenerateConstructionCode( BehaviourTree* cb );
     void GenerateExecutionCode( BehaviourTree* cb );
     void GenerateDestructionCode( BehaviourTree* cb );
-    void Visit( INodeVisitor* nv );
     void SetChaff( Node* n );
 
     void SetChildList( NodeList* children );
@@ -220,7 +196,6 @@ public:
     void GenerateConstructionCode( BehaviourTree* cb );
     void GenerateExecutionCode( BehaviourTree* cb );
     void GenerateDestructionCode( BehaviourTree* cb );
-    void Visit( INodeVisitor* nv );
     void SetChaff( Node* n );
 
     void SetChildList( NodeList* children );
@@ -243,7 +218,6 @@ public:
     void GenerateConstructionCode( BehaviourTree* cb );
     void GenerateExecutionCode( BehaviourTree* cb );
     void GenerateDestructionCode( BehaviourTree* cb );
-    void Visit( INodeVisitor* nv );
     void SetChaff( Node* chaff );
 
     void SetChildList( NodeList* children );
@@ -265,7 +239,6 @@ public:
     void GenerateConstructionCode( BehaviourTree* cb );
     void GenerateExecutionCode( BehaviourTree* cb );
     void GenerateDestructionCode( BehaviourTree* cb );
-    void Visit( INodeVisitor* nv );
     void SetChaff( Node* n );
 
     void SetChildList( NodeList* children );
@@ -293,7 +266,6 @@ public:
     void GenerateConstructionCode( BehaviourTree* bt );
     void GenerateExecutionCode( BehaviourTree* bt );
     void GenerateDestructionCode( BehaviourTree* bt );
-    void Visit( INodeVisitor* nv );
     void SetChaff( Node* n );
 
     void SetDecorator( Decorator* dec );
@@ -329,6 +301,16 @@ private:
 
 	Action*	m_Action;
 	int		m_bssPos;
+};
+
+struct Node
+{
+    BehaviourTree*  m_Tree;
+    Node*           m_Parent;
+    Identifier      m_Id;
+    NodeGrist*      m_Grist;
+    bool            m_IsChild;
+    bool			m_Declared;
 };
 
 #endif /* BTREE_DATA_H_INCLUDED */

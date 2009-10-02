@@ -22,6 +22,7 @@
 
 bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
+bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist );
 
 %}
 
@@ -63,7 +64,6 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
 }
 
 %type<m_Id>			  nt_id
-%type<m_Node>	      nt_node_dec
 %type<m_Node>		  nt_node_ref
 %type<m_Action>		  nt_action_ref
 %type<m_Decorator>	  nt_decorator_ref
@@ -82,7 +82,6 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
 
 %destructor { /* do nothing */ }                      nt_id
 %destructor { /* do nothing */ }		              T_ID
-%destructor { ctx->m_Tree->FreeNode( $$ ); }	      nt_node_dec
 %destructor { /* do nothing */ }					  nt_node_ref
 %destructor { /* do nothing */ }					  nt_action_ref
 %destructor { /* do nothing */ }					  nt_decorator_ref
@@ -164,25 +163,8 @@ nt_node_dec
 :
 T_NODE T_COLON nt_id T_COLON nt_node_grist
 {
-    Node* n = ctx->m_Tree->CreateNode( $3 );
-    if( !n )
-    {
-        n = ctx->m_Tree->LookupNode( $3 );
-
-
-        char tmp[2048];
-        sprintf( tmp, "node \"%s\" was previously declared on line %d.\n", $3.m_Text, n->m_Id.m_Line );
-        yyerror( ctx, scanner, tmp );
-
-        ctx->m_Tree->FreeNodeGrist( $5 );
-
-        YYERROR;
-    }
-
-    n->m_Id     = $3;
-    n->m_Grist  = $5;
-    $5->SetChaff( n );
-    $$ = n;
+	if( !DeclareNode( ctx, $3, $5 ) )
+		YYERROR;
 }
 ;
 
@@ -548,6 +530,7 @@ bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Va
     }
 	else if( a && !a->m_Declared )
     {
+    	a->m_Id = id;
     	a->m_Args = args;
     	a->m_Vars = vars;
     	a->m_Declared = true;
@@ -580,6 +563,7 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
     }
 	else if( d && !d->m_Declared )
     {
+    	d->m_Id = id;
     	d->m_Args = args;
     	d->m_Vars = vars;
     	d->m_Declared = true;
@@ -597,4 +581,31 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
     return true;
 }
 
+bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist )
+{
+	Node* n = ctx->m_Tree->LookupNode( id );
+	if( !n )
+	{
+		n = new Node;
+		InitNode( n );
+		n->m_Id = id;
+		n->m_Grist = grist;
+		n->m_Declared = true;
+		ctx->m_Tree->RegisterNode( n );
+	}
+	else if( n && !n->m_Declared )
+	{
+		n->m_Id = id;
+		n->m_Grist = grist;
+		n->m_Declared = true;
+	}
+	else if( n && n->m_Declared )
+	{
+		char tmp[2048];
+		sprintf( tmp, "Node \"%s\" was previously declared on line %d.\n", id.m_Text, n->m_Id.m_Line );
+		yyerror( ctx, ctx->yyscanner, tmp );
+		return false;
+	}
+	return true;
+}
 

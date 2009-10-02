@@ -165,13 +165,6 @@ void DecoratorNodeGrist::GenerateDestructionCode( BehaviourTree* bt )
     bt->GetCodeSection().PopDebugScope( bt, m_Chaff, ACT_DESTRUCT );
 }
 
-void DecoratorNodeGrist::Visit( INodeVisitor* nv )
-{
-    if( !m_Child )
-        return;
-    m_Child->Visit( nv );
-}
-
 void DecoratorNodeGrist::SetChaff( Node* n )
 {
     NodeGrist::SetChaff( n );

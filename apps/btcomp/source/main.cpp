@@ -107,9 +107,10 @@ int main( int argc, char** argv )
                 fprintf( stderr, "error: Failed to write output file %s.\n", outputFileName );
                 returnCode = -5;
             }
-            
+
             if( xgmlFileName )
             {
+/*
                 XGMLPrinter xgml_printer;
                 bt.Visit( &xgml_printer );
                 xgml_printer.Layout();
@@ -123,6 +124,8 @@ int main( int argc, char** argv )
                 {
                     fprintf( stderr, "warning: Unable to open xgml file \"%s\" for writing.\n", xgmlFileName );
                 }
+*/
+				fprintf( stderr, "warning: xgml file creation is currently broken. Sorry. \n" );
             }
         }
         else
