@@ -118,17 +118,37 @@ public:
 
 	static const int s_MaxNodeCount = 128;
 
-	typedef Node**					iterator;
-	typedef const Node* const *	const_iterator;
+	typedef Node** iterator;
+	typedef const Node* const* const_iterator;
 
-	inline iterator begin()							{ return &m_Nodes[0]; }
-	inline iterator end()							{ return &m_Nodes[m_Count]; }
+	inline iterator begin()
+	{
+		return &m_Nodes[0];
+	}
 
-	inline const_iterator begin() const				{ return &m_Nodes[0]; }
-	inline const_iterator end() const				{ return &m_Nodes[m_Count]; }
+	inline iterator end()
+	{
+		return &m_Nodes[m_Count];
+	}
 
-	inline Node* operator[] (int i)				{ return m_Nodes[i]; }
-	inline const Node* operator[] (int i) const	{ return m_Nodes[i]; }
+	inline const_iterator begin() const
+	{
+		return &m_Nodes[0];
+	}
+	inline const_iterator end() const
+	{
+		return &m_Nodes[m_Count];
+	}
+
+	inline Node* operator[] (int i)
+	{
+		return m_Nodes[i];
+	}
+
+	inline const Node* operator[] (int i) const
+	{
+		return m_Nodes[i];
+	}
 
 	void SetParent( Node* node );
 	bool Append( Node* node );
@@ -301,6 +321,54 @@ private:
 
 	Action*	m_Action;
 	int		m_bssPos;
+};
+
+struct SequenceGrist
+{
+	Node* m_FirstChild;
+};
+
+struct SelectorGrist
+{
+	Node* m_FirstChild;
+};
+
+struct ParallelGrist
+{
+	Node* m_FirstChild;
+};
+
+struct DynSelectorGrist
+{
+	Node* m_FirstChild;
+};
+
+struct DecoratorGrist
+{
+	Node*      m_Child;
+	Decorator* m_Decorator;
+};
+
+struct ActionGrist
+{
+	Action* m_Action;
+};
+
+/*
+ * Prefixing "S" for now... don't want to break everything just yet.
+ */
+struct SNodeGrist
+{
+	NodeGristType    m_Type;
+	union
+	{
+		SequenceGrist    m_Sequence;
+		SelectorGrist    m_Selector;
+		ParallelGrist    m_Parallel;
+		DynSelectorGrist m_DynSelector;
+		DecoratorGrist   m_Decorator;
+		ActionGrist      m_Action;
+	};
 };
 
 struct Node
