@@ -21,13 +21,16 @@ public:
     XGMLPrinter();
     ~XGMLPrinter();
 
-    void Visit( Node* n );
+    void Visit( Node* n, Node* parent = 0x0 );
 
     void Layout();
 
     void Print( FILE* file ) const;
 
 private:
+
+    void VisitSiblings( Node* n, Node* parent );
+    void InternalVisit( Node* n, Node* parent );
 
     static const double s_node_width;
 

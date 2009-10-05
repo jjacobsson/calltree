@@ -376,7 +376,6 @@ struct Node
     Identifier      m_Id;
     NodeGrist       m_Grist;
 	BehaviourTree*  m_Tree;
-    Node*           m_Parent;
     Node*			m_Sibling;
     bool			m_Declared;
 };

@@ -19,15 +19,15 @@ BTCOMP_EXE      = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
 BUILD_TREES_DIR = $(BUILD_ROOT)$(SLASH)trees$(SLASH) ;
 
 
-actions btcomp
-{
-	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm)
-}
-
 #actions btcomp
 #{
-#	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
+#	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm)
 #}
+
+actions btcomp
+{
+	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
+}
 
 rule CompileBehaviourTrees
 {

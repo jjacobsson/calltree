@@ -24,7 +24,40 @@ XGMLPrinter::~XGMLPrinter()
         delete *it;
 }
 
-void XGMLPrinter::Visit( Node* n )
+void XGMLPrinter::Visit( Node* n, Node* parent )
+{
+	InternalVisit( n, parent );
+
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		VisitSiblings( n->m_Grist.m_Sequence.m_FirstChild, n );
+		break;
+	case E_GRIST_SELECTOR:
+		VisitSiblings( n->m_Grist.m_Selector.m_FirstChild, n );
+		break;
+	case E_GRIST_PARALLEL:
+		VisitSiblings( n->m_Grist.m_Parallel.m_FirstChild, n );
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		VisitSiblings( n->m_Grist.m_DynSelector.m_FirstChild, n );
+		break;
+	case E_GRIST_DECORATOR:
+		VisitSiblings( n->m_Grist.m_Decorator.m_Child, n );
+		break;
+	}
+}
+
+void XGMLPrinter::VisitSiblings( Node* n, Node* parent )
+{
+	while( n )
+	{
+		Visit( n, parent );
+		n = n->m_Sibling;
+	}
+}
+
+void XGMLPrinter::InternalVisit( Node* n, Node* parent )
 {
     NodeInfo* gn = new NodeInfo;
     gn->m_Node   = n;
@@ -34,9 +67,9 @@ void XGMLPrinter::Visit( Node* n )
     gn->m_Parent = gn->m_PrevDepth  = gn->m_NextDepth  = 0x0;
     gn->m_FirstChild = gn->m_LastChild = 0x0;
 
-    if( n->m_Parent )
+    if( parent )
     {
-        int pgn = FindParentIndex( n->m_Parent );
+        int pgn = FindParentIndex( parent );
         Spring s;
         s.m_From = pgn;
         s.m_To   = m_Nodes.size();

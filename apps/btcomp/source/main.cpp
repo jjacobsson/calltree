@@ -110,9 +110,9 @@ int main( int argc, char** argv )
 
             if( xgmlFileName )
             {
-/*
+
                 XGMLPrinter xgml_printer;
-                bt.Visit( &xgml_printer );
+                xgml_printer.Visit( bt.m_Root );
                 xgml_printer.Layout();
                 FILE* xgml_file = fopen( xgmlFileName, "w" );
                 if( xgml_file )
@@ -124,8 +124,6 @@ int main( int argc, char** argv )
                 {
                     fprintf( stderr, "warning: Unable to open xgml file \"%s\" for writing.\n", xgmlFileName );
                 }
-*/
-				fprintf( stderr, "warning: xgml file creation is currently broken. Sorry. \n" );
             }
         }
         else
