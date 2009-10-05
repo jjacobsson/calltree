@@ -8,7 +8,7 @@
  */
 
 #include <btree/btree_data.h>
-
+/*
 int NodeGrist::s_GristCount;
 
 NodeGrist::NodeGrist()
@@ -21,5 +21,5 @@ NodeGrist::~NodeGrist()
 {
 	--s_GristCount;
 }
-
+*/
 

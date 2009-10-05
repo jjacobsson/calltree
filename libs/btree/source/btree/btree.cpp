@@ -151,68 +151,6 @@ void BehaviourTree::UnregisterDecorator( const Identifier& id )
 	m_Impl->m_DecoratorTable.Erase( id );
 }
 
-NodeList* BehaviourTree::CreateNodeList()
-{
-    return m_Impl->m_NodeListPool.Alloc();
-}
-
-void BehaviourTree::FreeNodeList( NodeList* nl )
-{
-    return m_Impl->m_NodeListPool.Free( nl );
-}
-
-NodeGrist* BehaviourTree::CreateNodeGrist( int grist_type )
-{
-    NodeGrist* r = 0x0;
-    switch( grist_type )
-    {
-    case E_GRIST_SEQUENCE:
-        r = m_Impl->m_SequenceGristPool.Alloc();
-        break;
-    case E_GRIST_SELECTOR:
-        r = m_Impl->m_SelectorGristPool.Alloc();
-        break;
-    case E_GRIST_PARALLEL:
-        r = m_Impl->m_ParallelGristPool.Alloc();
-        break;
-    case E_GRIST_DYN_SELECTOR:
-        r = m_Impl->m_DynamicSelectorGristPool.Alloc();
-        break;
-    case E_GRIST_DECORATOR:
-        r = m_Impl->m_DecoratorGristPool.Alloc();
-        break;
-    case E_GRIST_ACTION:
-        r = m_Impl->m_ActionGristPool.Alloc();
-        break;
-    }
-    return r;
-}
-
-void BehaviourTree::FreeNodeGrist( NodeGrist* grist )
-{
-    switch( grist->GetType() )
-    {
-    case E_GRIST_SEQUENCE:
-        m_Impl->m_SequenceGristPool.Free( static_cast<SequenceNodeGrist*>(grist) );
-        break;
-    case E_GRIST_SELECTOR:
-        m_Impl->m_SelectorGristPool.Free( static_cast<SelectorNodeGrist*>(grist) );
-        break;
-    case E_GRIST_PARALLEL:
-        m_Impl->m_ParallelGristPool.Free( static_cast<ParallelNodeGrist*>(grist) );
-        break;
-    case E_GRIST_DYN_SELECTOR:
-        m_Impl->m_DynamicSelectorGristPool.Free( static_cast<DynamicSelectorNodeGrist*>(grist) );
-        break;
-    case E_GRIST_DECORATOR:
-        m_Impl->m_DecoratorGristPool.Free( static_cast<DecoratorNodeGrist*>(grist) );
-        break;
-    case E_GRIST_ACTION:
-        m_Impl->m_ActionGristPool.Free( static_cast<ActionNodeGrist*>(grist) );
-        break;
-    }
-}
-
 ParseFile* BehaviourTree::CreateParseFile()
 {
     return m_Impl->m_ParseFilePool.Alloc();
@@ -250,6 +188,7 @@ void BehaviourTree::SetGenerateDebugInfo( bool debug_info_on )
 
 void BehaviourTree::Generate()
 {
+/*
     //Alloc storage area for bss header
     int bss_header  = m_Impl->m_B.Push( sizeof(BssHeader), 4 );
     //Alloc storage area for child-node return value.
@@ -282,6 +221,7 @@ void BehaviourTree::Generate()
 
     //Suspend execution
     m_Impl->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
+*/
 }
 
 void BehaviourTree::Print( FILE* outFile )

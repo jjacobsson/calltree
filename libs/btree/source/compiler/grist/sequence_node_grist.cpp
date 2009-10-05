@@ -11,7 +11,7 @@
 #include <btree/btree.h>
 
 using namespace callback;
-
+/*
 SequenceNodeGrist::SequenceNodeGrist()
     : m_Children( 0x0 )
 {
@@ -166,3 +166,4 @@ NodeList* SequenceNodeGrist::GetChildList()
     return m_Children;
 }
 
+*/

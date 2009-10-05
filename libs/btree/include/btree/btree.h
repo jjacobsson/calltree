@@ -66,12 +66,6 @@ public:
     bool RegisterDecorator( Decorator* );
     void UnregisterDecorator( const Identifier& );
 
-    NodeList* CreateNodeList();
-    void FreeNodeList( NodeList* );
-
-    NodeGrist* CreateNodeGrist( int grist_type );
-    void FreeNodeGrist( NodeGrist* grist );
-
     ParseFile* CreateParseFile();
     void FreeParseFile( ParseFile* pf );
 

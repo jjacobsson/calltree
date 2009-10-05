@@ -12,7 +12,7 @@
 #include <other/lookup3.h>
 
 using namespace callback;
-
+/*
 DecoratorNodeGrist::DecoratorNodeGrist()
     : m_Decorator( 0x0 )
     , m_Child( 0x0 )
@@ -193,6 +193,6 @@ Node* DecoratorNodeGrist::GetChild()
     return m_Child;
 }
 
-
+*/
 
 

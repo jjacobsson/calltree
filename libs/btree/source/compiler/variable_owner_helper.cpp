@@ -13,7 +13,7 @@
 #include <algorithm>
 
 using namespace callback;
-
+/*
 VariableOwner::VariableOwner()
     : m_Variables( 0x0 )
     , m_bssStart( 0 )
@@ -95,4 +95,4 @@ Variable* VariableOwner::GetVariableList()
 {
     return m_Variables;
 }
-
+*/

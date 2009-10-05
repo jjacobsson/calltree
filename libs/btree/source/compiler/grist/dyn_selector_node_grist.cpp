@@ -12,6 +12,8 @@
 
 using namespace callback;
 
+/*
+
 DynamicSelectorNodeGrist::DynamicSelectorNodeGrist( )
     : m_Children( 0x0 )
 {
@@ -202,7 +204,7 @@ NodeList* DynamicSelectorNodeGrist::GetChildList()
 }
 
 
-
+*/
 
 
 

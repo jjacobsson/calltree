@@ -15,6 +15,7 @@ struct Variable;
 struct Action;
 struct Decorator;
 struct Node;
+struct NodeGrist;
 
 /*
  * Identifier Functions
@@ -65,9 +66,17 @@ void InitAction( Action* );
 void InitDecorator( Decorator* );
 
 /*
- * Node Function
+ * Node Functions
  */
 
 void InitNode( Node* );
+
+void AppendToEndOfList( Node* s, Node* n );
+
+/*
+ * Node Grist Functions
+ */
+
+void InitGrist( NodeGrist* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

@@ -22,7 +22,7 @@
 
 bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
-bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist );
+bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& grist );
 
 %}
 
@@ -50,17 +50,16 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist );
 %token            T_END_OF_FILE  /* end of file token */
 
 %union {
-    Node*          m_Node;
+    NodeGrist      m_NodeGrist;
     Identifier     m_Id;
-    NodeGrist*     m_NodeGrist;
-    NodeList*      m_NodeList;
+    Node*          m_Node;
     Action*        m_Action;
     Decorator*     m_Decorator;
+    Variable*      m_Variable;
+    const char*    m_String;
     int            m_Integer;
     float          m_Float;
     bool           m_Bool;
-    const char*    m_String;
-    Variable*      m_Variable;
 }
 
 %type<m_Id>			  nt_id
@@ -74,29 +73,29 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist );
 %type<m_NodeGrist>	  nt_parallel_node_grist
 %type<m_NodeGrist>	  nt_decorator_node_grist
 %type<m_NodeGrist>	  nt_action_node_grist
-%type<m_NodeList>	  nt_node_list
+%type<m_Node>         nt_node_list
 %type<m_Variable>	  nt_variable_dec
 %type<m_Variable>	  nt_variable
 %type<m_Variable>     nt_variable_dec_list
 %type<m_Variable>     nt_variable_list
 
-%destructor { /* do nothing */ }                      nt_id
-%destructor { /* do nothing */ }		              T_ID
-%destructor { /* do nothing */ }					  nt_node_ref
-%destructor { /* do nothing */ }					  nt_action_ref
-%destructor { /* do nothing */ }					  nt_decorator_ref
-%destructor { ctx->m_Tree->FreeNodeList( $$ ); }	  nt_node_list
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_selector_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_dyn_selector_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_sequence_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_parallel_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_decorator_node_grist
-%destructor { ctx->m_Tree->FreeNodeGrist( $$ ); }	  nt_action_node_grist
-%destructor { DeleteVariableList( $$ ); }			  nt_variable_dec
-%destructor { DeleteVariableList( $$ ); }			  nt_variable
-%destructor { DeleteVariableList( $$ ); }			  nt_variable_dec_list
-%destructor { DeleteVariableList( $$ ); }			  nt_variable_list
+%destructor { /* do nothing */ }          nt_id
+%destructor { /* do nothing */ }          T_ID
+%destructor { /* do nothing */ }          nt_node_ref
+%destructor { /* do nothing */ }          nt_action_ref
+%destructor { /* do nothing */ }          nt_decorator_ref
+%destructor { /* do nothing */ }          nt_node_list
+%destructor { /* do nothing */ }          nt_node_grist
+%destructor { /* do nothing */ }          nt_selector_node_grist
+%destructor { /* do nothing */ }          nt_dyn_selector_node_grist
+%destructor { /* do nothing */ }          nt_sequence_node_grist
+%destructor { /* do nothing */ }          nt_parallel_node_grist
+%destructor { /* do nothing */ }          nt_decorator_node_grist
+%destructor { /* do nothing */ }          nt_action_node_grist
+%destructor { DeleteVariableList( $$ ); } nt_variable_dec
+%destructor { DeleteVariableList( $$ ); } nt_variable
+%destructor { DeleteVariableList( $$ ); } nt_variable_dec_list
+%destructor { DeleteVariableList( $$ ); } nt_variable_list
 
 %%
 
@@ -213,8 +212,9 @@ nt_selector_node_grist
 :
 T_SELECTOR T_COLON nt_node_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_SELECTOR );
-    static_cast<SelectorNodeGrist*>( $$ )->SetChildList( $3 );
+	InitGrist( &$$ );
+    $$.m_Type = E_GRIST_SELECTOR;
+    $$.m_Selector.m_FirstChild = $3;
 }
 ;
 
@@ -222,8 +222,9 @@ nt_dyn_selector_node_grist
 :
 T_DSELECTOR T_COLON nt_node_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_DYN_SELECTOR );
-    static_cast<DynamicSelectorNodeGrist*>( $$ )->SetChildList( $3 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_DYN_SELECTOR;
+	$$.m_DynSelector.m_FirstChild = $3;
 }
 ;
 
@@ -231,8 +232,9 @@ nt_sequence_node_grist
 :
 T_SEQUENCE T_COLON nt_node_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_SEQUENCE );
-    static_cast<SequenceNodeGrist*>( $$ )->SetChildList( $3 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_SEQUENCE;
+	$$.m_Sequence.m_FirstChild = $3;
 }
 ;
 
@@ -240,9 +242,9 @@ nt_parallel_node_grist
 :
 T_PARALLEL T_COLON nt_node_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_PARALLEL );
-    ParallelNodeGrist* grist = static_cast<ParallelNodeGrist*>( $$ );
-    grist->SetChildList( $3 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_PARALLEL;
+	$$.m_Parallel.m_FirstChild = $3;
 }
 ;
 
@@ -250,19 +252,19 @@ nt_decorator_node_grist
 :
 T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_DECORATOR );
-    DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>($$);
-    grist->SetDecorator( $3 );
-    grist->SetChild( $5 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_DECORATOR;
+	$$.m_Decorator.m_Decorator = $3;
+	$$.m_Decorator.m_Child = $5;
 }
 |
 T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_DECORATOR );
-    DecoratorNodeGrist* grist = static_cast<DecoratorNodeGrist*>($$);
-    grist->SetDecorator( $3 );
-    grist->SetChild( $5 );
-    grist->SetVariableList( $7 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_DECORATOR;
+	$$.m_Decorator.m_Decorator = $3;
+	$$.m_Decorator.m_Child = $5;
+	$$.m_Decorator.m_Arguments = $7;
 }
 ;
 
@@ -270,16 +272,17 @@ nt_action_node_grist
 :
 T_ACTION T_COLON nt_action_ref T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
-    static_cast<ActionNodeGrist*>($$)->SetAction( $3 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_ACTION;
+	$$.m_Action.m_Action = $3;
 }
 |
 T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
 {
-    $$ = ctx->m_Tree->CreateNodeGrist( E_GRIST_ACTION );
-    ActionNodeGrist* grist = static_cast<ActionNodeGrist*>($$);
-    grist->SetAction( $3 );
-    grist->SetVariableList( $5 );
+	InitGrist( &$$ );
+	$$.m_Type = E_GRIST_ACTION;
+	$$.m_Action.m_Action = $3;
+	$$.m_Action.m_Arguments = $5;
 }
 ;
 
@@ -287,45 +290,19 @@ nt_node_list
 :
 /* empty */
 {
-    $$ = ctx->m_Tree->CreateNodeList();
+    $$ = 0x0;
 }
 |
 nt_node_list T_COMMA nt_node_ref
 {
-    if( $3->m_IsChild  )
-    {
-        ctx->m_Tree->FreeNodeList( $1 );
-        char tmp[2048];
-        sprintf( tmp, "child node \"%s\" already has a parent.", $3->m_Id.m_Text );
-        yyerror( ctx, scanner, tmp );
-        YYERROR;
-    }
-    if( !$1->Append( $3 ) )
-    {
-        ctx->m_Tree->FreeNodeList( $1 );
-        yyerror( ctx, scanner, "number of allowed child-nodes exceeded." );
-        YYERROR;
-    }
-    $$ = $1;
+	$$ = $1;
+	AppendToEndOfList( $1, $3 );
 }
 |
 nt_node_ref
 {
-    if( $1->m_IsChild  )
-    {
-        char tmp[2048];
-        sprintf( tmp, "child node \"%s\" has a parent.", $1->m_Id.m_Text );
-        yyerror( ctx, scanner, tmp );
-        YYERROR;
-    }
-    NodeList* cl = ctx->m_Tree->CreateNodeList();
-    if( !cl->Append( $1 ) )
-    {
-        ctx->m_Tree->FreeNodeList( cl );
-        yyerror( ctx, scanner, "number of allowed child-nodes exceeded." );
-        YYERROR;
-    }
-    $$ = cl;
+	// TODO
+	$$ = $1;
 }
 ;
 
@@ -581,7 +558,7 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
     return true;
 }
 
-bool DeclareNode( ParserContext* ctx, const Identifier& id, NodeGrist* grist )
+bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& grist )
 {
 	Node* n = ctx->m_Tree->LookupNode( id );
 	if( !n )

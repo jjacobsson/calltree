@@ -14,6 +14,8 @@
 
 using namespace callback;
 
+/*
+
 ParallelNodeGrist::ParallelNodeGrist( )
     : m_Children( 0x0 )
 {
@@ -130,7 +132,7 @@ NodeList* ParallelNodeGrist::GetChildList()
     return m_Children;
 }
 
-
+*/
 
 
 

@@ -12,7 +12,7 @@
 #include <other/lookup3.h>
 
 using namespace callback;
-
+/*
 ActionNodeGrist::ActionNodeGrist()
     : m_Action( 0x0 )
     , m_bssPos( 0 )
@@ -114,7 +114,7 @@ Action* ActionNodeGrist::GetAction()
     return m_Action;
 }
 
-
+*/
 
 
 

@@ -8,7 +8,7 @@
  */
 
 #include <btree/btree_data.h>
-
+/*
 void NodeList::SetParent( Node* n )
 {
     iterator it, it_e( end() );
@@ -32,4 +32,4 @@ int NodeList::Size()
 {
     return (int)m_Count;
 }
-
+*/

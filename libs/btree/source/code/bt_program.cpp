@@ -99,6 +99,9 @@ void CodeSection::SetA3( int i, TIn A3 )
 
 bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
 {
+	if( m_Inst.empty() )
+		return true;
+
     Instructions t( m_Inst );
     size_t s = t.size();
 

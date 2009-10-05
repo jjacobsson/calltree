@@ -51,6 +51,7 @@ struct Variable
 
 enum NodeGristType
 {
+	E_GRIST_UNKOWN,
 	E_GRIST_SEQUENCE,
 	E_GRIST_SELECTOR,
 	E_GRIST_PARALLEL,
@@ -80,8 +81,7 @@ struct Decorator
 };
 
 struct Node;
-class NodeGrist;
-
+/*
 class NodeGrist
 {
 public:
@@ -103,11 +103,11 @@ public:
 
 	Node* m_Chaff;
 };
-
+*/
 /*
  * I can't believe I wrote this class...
  */
-
+/*
 class NodeList
 {
 public:
@@ -322,6 +322,7 @@ private:
 	Action*	m_Action;
 	int		m_bssPos;
 };
+*/
 
 struct SequenceGrist
 {
@@ -347,17 +348,16 @@ struct DecoratorGrist
 {
 	Node*      m_Child;
 	Decorator* m_Decorator;
+	Variable*  m_Arguments;
 };
 
 struct ActionGrist
 {
-	Action* m_Action;
+	Action*   m_Action;
+	Variable* m_Arguments;
 };
 
-/*
- * Prefixing "S" for now... don't want to break everything just yet.
- */
-struct SNodeGrist
+struct NodeGrist
 {
 	NodeGristType    m_Type;
 	union
@@ -373,11 +373,11 @@ struct SNodeGrist
 
 struct Node
 {
-    BehaviourTree*  m_Tree;
-    Node*           m_Parent;
     Identifier      m_Id;
-    NodeGrist*      m_Grist;
-    bool            m_IsChild;
+    NodeGrist       m_Grist;
+	BehaviourTree*  m_Tree;
+    Node*           m_Parent;
+    Node*			m_Sibling;
     bool			m_Declared;
 };
 

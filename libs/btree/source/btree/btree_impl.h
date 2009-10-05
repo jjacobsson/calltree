@@ -95,13 +95,6 @@ public:
 
     BehaviourTreeImpl()
         : m_StringTable( 4096, 128 )
-        , m_NodeListPool( 128 )
-        , m_SequenceGristPool( 16 )
-        , m_SelectorGristPool( 16 )
-        , m_ParallelGristPool( 16 )
-        , m_DynamicSelectorGristPool( 16 )
-        , m_DecoratorGristPool( 16 )
-        , m_ActionGristPool( 64 )
         , m_ParseFilePool( 16 )
     {}
 
@@ -112,13 +105,6 @@ public:
     typedef TSymbolTable< Action*, HasIdPredicate<Action> >       ActionTable;
     typedef TSymbolTable< Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
 
-    typedef TObjectPool< NodeList >                 NodeListPool;
-    typedef TObjectPool< SequenceNodeGrist >        SequenceGristPool;
-    typedef TObjectPool< SelectorNodeGrist >        SelectorGristPool;
-    typedef TObjectPool< ParallelNodeGrist >        ParallelGristPool;
-    typedef TObjectPool< DynamicSelectorNodeGrist > DynamicSelectorGristPool;
-    typedef TObjectPool< DecoratorNodeGrist >       DecoratorGristPool;
-    typedef TObjectPool< ActionNodeGrist >          ActionGristPool;
     typedef TObjectPool< ParseFile >                ParseFilePool;
 
     StringTable              m_StringTable;
@@ -126,13 +112,6 @@ public:
     NodeTable                m_NodeTable;
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;
-    NodeListPool             m_NodeListPool;
-    SequenceGristPool        m_SequenceGristPool;
-    SelectorGristPool        m_SelectorGristPool;
-    ParallelGristPool        m_ParallelGristPool;
-    DynamicSelectorGristPool m_DynamicSelectorGristPool;
-    DecoratorGristPool       m_DecoratorGristPool;
-    ActionGristPool          m_ActionGristPool;
     ParseFilePool            m_ParseFilePool;
 
     CodeSection        m_I;

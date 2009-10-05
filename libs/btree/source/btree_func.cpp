@@ -11,6 +11,8 @@
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 
+#include <string.h> // for memset....
+
 /*
  * Identifier Functions
  */
@@ -230,12 +232,28 @@ void InitDecorator( Decorator* d )
 void InitNode( Node* n )
 {
 	InitIdentifier( &n->m_Id );
+	InitGrist( &n->m_Grist );
+
 	n->m_Tree		= 0x0;
 	n->m_Parent		= 0x0;
-	n->m_Grist		= 0x0;
-	n->m_IsChild	= false;
+	n->m_Sibling	= 0x0;
+
 	n->m_Declared	= false;
 }
 
+void AppendToEndOfList( Node* s, Node* e )
+{
+	while( s && s->m_Sibling )
+		s = s->m_Sibling;
+	if( s )
+		s->m_Sibling = e;
+}
 
+/*
+ * Node Grist functions
+ */
 
+void InitGrist( NodeGrist* g )
+{
+	memset( g, 0, sizeof( NodeGrist ) );
+}
