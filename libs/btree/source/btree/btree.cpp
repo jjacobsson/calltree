@@ -67,21 +67,6 @@ BehaviourTree::const_decorator_iterator BehaviourTree::DecoratorEnd() const
     return m_Impl->m_DecoratorTable.end();
 }
 
-CodeSection& BehaviourTree::GetCodeSection()
-{
-    return m_Impl->m_I;
-}
-
-DataSection& BehaviourTree::GetDataSection()
-{
-    return m_Impl->m_D;
-}
-
-BSSSection& BehaviourTree::GetBSSSection()
-{
-    return m_Impl->m_B;
-}
-
 void BehaviourTree::SetRootNode( Node* n )
 {
     m_Root = n;
@@ -183,7 +168,6 @@ void BehaviourTree::Undefine( const char* str )
 
 void BehaviourTree::SetGenerateDebugInfo( bool debug_info_on )
 {
-    m_Impl->m_I.SetGenerateDebugInfo( debug_info_on );
 }
 
 void BehaviourTree::Generate()
@@ -226,13 +210,16 @@ void BehaviourTree::Generate()
 
 void BehaviourTree::Print( FILE* outFile )
 {
+/*
     m_Impl->m_I.Print( outFile );
     m_Impl->m_B.Print( outFile );
     m_Impl->m_D.Print( outFile );
+*/
 }
 
 bool BehaviourTree::Save( FILE* outFile, bool swapEndian ) const
 {
+/*
     ProgramHeader h;
     h.m_IC  = m_Impl->m_I.Count();
     h.m_DS  = 0;
@@ -253,6 +240,8 @@ bool BehaviourTree::Save( FILE* outFile, bool swapEndian ) const
     if( !m_Impl->m_D.Save( outFile, swapEndian ) )
         return false;
     return true;
+*/
+	return true;
 }
 
 int BehaviourTree::Parse( const char* filename )

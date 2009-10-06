@@ -11,10 +11,7 @@
 #define BTREE_IMPL_H_
 
 #include <btree/btree_data.h>
-
 #include "../parser/common.h"
-
-#include "../code/bt_program.h"
 
 #include "sym_table.h"
 #include "object_pool.h"
@@ -113,11 +110,6 @@ public:
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;
     ParseFilePool            m_ParseFilePool;
-
-    CodeSection        m_I;
-    DataSection        m_D;
-    BSSSection         m_B;
-
 };
 
 #endif /*BTREE_IMPL_H_*/
