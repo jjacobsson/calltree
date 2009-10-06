@@ -1,0 +1,4 @@
+CCFLAGS += /MD ;
+CCFLAGS += /O2 ;
+
+LINKFLAGS += /RELEASE ;
