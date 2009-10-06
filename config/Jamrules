@@ -1,5 +1,5 @@
 include config/buildconfig ;
-
+include config/libsettings ;
 
 actions quietly MkDir1
 {

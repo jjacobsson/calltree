@@ -1,0 +1,3 @@
+SetDependantOf $(_appname) : btree common ;
+
+SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp ] ;
