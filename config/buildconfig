@@ -27,7 +27,7 @@ else
 include config/buildconfig.$(PLATFORM) ;
 include config/buildconfig.$(PLATFORM).$(CONFIGURATION) ;
 
-BUILD_ROOT    = build$(SLASH)$(PLATFORM)$(SLASH)$(CONFIGURATION) ;
+BUILD_ROOT    = build ;
 BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
 BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
 BUILD_BIN_DIR = $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
