@@ -1,0 +1,34 @@
+if $(PLATFORM)
+{
+	PLATFORM = $(PLATFORM:L) ;
+}
+else
+{
+	if $(NT)
+	{
+		PLATFORM = win32 ;
+	
+	}
+	else
+	{
+		PLATFORM = linux ;
+	}
+}
+
+if $(CONFIGURATION) 
+{
+	CONFIGURATION = $(CONFIGURATION:L) ;
+}
+else
+{
+	CONFIGURATION = release ;
+}
+
+include config/buildconfig.$(PLATFORM) ;
+include config/buildconfig.$(PLATFORM).$(CONFIGURATION) ;
+
+BUILD_ROOT    = build ;
+BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH) ;
+BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH) ;
+BUILD_BIN_DIR = $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
+BUILD_TST_DIR = $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
