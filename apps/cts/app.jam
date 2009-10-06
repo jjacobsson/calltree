@@ -1,3 +1,7 @@
-SetDependantOf $(_appname) : btree common ;
+if $(QT_PATH)
+{
+	SetDependantOf $(_appname) : btree common ;
+	SetExtDependantOf $(_appname) : qt ;
 
-SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+}

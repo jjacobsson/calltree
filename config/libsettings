@@ -1,5 +1,21 @@
 
 if $(QT_PATH)
 {
-	qt_ext_include_paths = $(QT_PATH)$(SLASH) ;
+	local _includes = ; 
+	_includes += include ;
+	_includes += mkspecs$(SLASH)default ;
+	
+	qt_ext_include_search_paths = $(QT_PATH)$(SLASH)$(_includes) ;
+	
+	qt_ext_defines = ;
+	qt_ext_defines += UNICODE ;
+	qt_ext_defines += QT_DLL ;
+	qt_ext_defines += QT_LARGEFILE_SUPPORT ;
+	qt_ext_defines += QT_GUI_LIB ;
+	qt_ext_defines += QT_CORE_LIB ;
+	qt_ext_defines += QT_THREAD_SUPPORT ;
+	qt_ext_defines += QT_NEEDS_DOMAIN ;
+
+	qt_ext_link_search_paths = $(QT_PATH)$(SLASH)lib ;
+	qt_ext_library_files = qtmaind QtGuid4 QtCore4 ;
 }

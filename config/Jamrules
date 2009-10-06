@@ -20,7 +20,7 @@ if $(NT)
 }
 else
 {
-    actions piecemeal Compile
+    actions piecemeal Compile bind CCFLAGS bind CCDEFS bind CCHDRS
     {
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
@@ -166,6 +166,18 @@ rule SetDependantOf
 	}
 }
 
+rule SetExtDependantOf
+{
+	if $($(1)_ext_dependant_of) 
+	{
+		$(1)_ext_dependant_of += $(2) ;
+	}
+	else
+	{
+		$(1)_ext_dependant_of = $(2) ;
+	}
+}
+
 rule SetIncludeHeaders
 {
 	local _headers = [ RecursiveDir $(2) : *.h ] ;
@@ -257,7 +269,7 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
-		Includes $(_i) : config$(SLASH)Jamrules ;
+		#Includes $(_i) : config$(SLASH)Jamrules ;
 
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
@@ -313,6 +325,19 @@ rule SetVariablesOnObjects
 			CCHDRS on $(_objects) += [ GetSearchPaths $(_i) ] ;	
 		}
 	}	
+
+	for _i in $($(1)_ext_dependant_of)
+	{
+		if $($(_i)_ext_include_search_paths)
+		{
+			CCHDRS on $(_objects) += [ FIncludes $($(_i)_ext_include_search_paths) ] ;
+		}
+		if $($(_i)_ext_defines)
+		{
+			CCDEFS on $(_objects) += [ FDefines $($(_i)_ext_defines) ] ;
+		}
+	}
+
 	if $($(1)_include_search_paths)
 	{
 		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
@@ -328,6 +353,30 @@ rule SetVariablesOnObjects
     return $(_objects) ;
 }
 
+if $(NT)
+{
+	rule FLibrarySearchPaths
+	{
+		return /LIBPATH:$(1) ;
+	}
+	
+	rule FLibrary
+	{
+		return $(1)$(SUFLIB) ;
+	}
+}
+else
+{
+	rule FLibrarySearchPaths
+	{
+		return -L$(1) ;
+	}
+	
+	rule FLibrary
+	{
+		return -l$(1) ;
+	}
+}
 
 rule SetNeededLibraries
 {
@@ -338,6 +387,18 @@ rule SetNeededLibraries
         NEEDLIBS on $(2) += $(_library) ;
         Depends $(2) : $(_library) ;
     }
+    for _i in $($(1)_ext_dependant_of)
+    {
+        if $($(_i)_ext_link_search_paths)
+        {
+            LINKFLAGS on $(2) += [ FLibrarySearchPaths $($(_i)_ext_link_search_paths) ] ;
+        }
+        if $($(_i)_ext_library_files)
+        {
+            LINKLIBS on $(2) += [ FLibrary $($(_i)_ext_library_files) ] ;
+        }
+    }
+    
 }
 
 rule InvokeLibraryDeclarations
@@ -457,7 +518,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
+			#Includes config$(SLASH)Jamrules : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -481,7 +542,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_app_file) ;
+			#Includes config$(SLASH)Jamrules : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;
