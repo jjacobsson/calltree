@@ -1,0 +1,10 @@
+	
+DEFINES_COMMON = LINUX ;
+PRELIB  = lib ;
+SLASH	= / ;
+
+CCFLAGS   += -m32 ;
+LINKFLAGS += -m32 ;
+
+CC      = g++ ;
+LINK    = g++ ;
