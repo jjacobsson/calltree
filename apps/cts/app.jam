@@ -3,5 +3,13 @@ if $(QT_PATH)
 	SetDependantOf $(_appname) : btree common ;
 	SetExtDependantOf $(_appname) : qt ;
 
-	SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	local _source_files = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	local _source_path  = [ FDirName $(_apppath) source ] ;
+	local _moc_headers  = FindDialog.h ;
+
+	_source_path = $(_source_path)$(SLASH) ;
+
+	_source_files += [ mocHeaders $(_source_path)$(_moc_headers) ] ;
+
+	SetSourceFiles $(_appname) : $(_source_files) ;
 }

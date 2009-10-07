@@ -4,6 +4,8 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
 
+#include "FindDialog.h"
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -27,5 +29,9 @@ int main(int argc, char *argv[])
     layout->addWidget(button);
     window->setLayout(layout);
     window->show();
+
+    FindDialog* dialog = new FindDialog;
+    dialog->show();
+
     return app.exec();
 }
