@@ -20,7 +20,7 @@ if $(NT)
 }
 else
 {
-    actions piecemeal Compile bind CCFLAGS bind CCDEFS bind CCHDRS
+    actions piecemeal Compile
     {
         $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
     }
@@ -140,6 +140,37 @@ rule RecursiveDirList
 {
 	local _dir = [ FDirName $(1) ] ;
 	return [ RecursiveDir $(_dir) : $(2) ] ;
+}
+
+if $(QT_PATH)
+{
+	actions mocFile
+	{
+		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
+	}
+	
+	rule mocHeader
+	{
+		local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
+		
+		mocFile $(_moc_output) : $(1) ;
+		Depends $(_moc_output) : $(1) ;
+		
+		Clean clean : $(_moc_output) ;
+		
+		return $(_moc_output) ;
+	}
+	
+	rule mocHeaders
+	{
+		local _result = ;
+		local _i = ;
+		for _i in $(1) 
+		{
+			_result += [ mocHeader $(_i) ] ;
+		}
+		return $(_result) ;
+	}
 }
 
 rule AddFilesToTag
@@ -486,7 +517,7 @@ rule InvokeApplication
 {
 	local _appname			 = $(1) ;
 	local _apppath			 = $(2) ;
-	local _appfile			 = $(BUILD_BIN_DIR)$(_appname)$(SUFEXE) ;
+	local _appfile			 = $(BUILD_BIN_DIR)$(1)$(SUFEXE) ;
 	
 	include [ GLOB [ FDirName $(2) ] : app.jam ] ;
 

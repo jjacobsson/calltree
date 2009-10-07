@@ -29,33 +29,4 @@ if $(QT_PATH)
 		qt_ext_library_files = QtMain QtGui4 QtCore4 ;
 	}
 	
-	actions mocFile
-	{
-		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
-	}
-	
-	rule mocHeader
-	{
-		local _path = $(1:P) ;
-		local _file = $(1:B) ;
-		local _moc_output = $(_path)$(SLASH)$(MOCPREFIX)$(_file:S=.cpp) ;
-		
-		mocFile $(_moc_output) : $(1) ;
-		Depends $(_moc_output) : $(1) ;
-		Clean clean : $(_moc_output) ;
-		
-		return $(_moc_output) ;
-	}
-	
-	rule mocHeaders
-	{
-		local _result = ;
-		local _i = ;
-		for _i in $(1) 
-		{
-			_result += [ mocHeader $(1) ] ;
-		}
-		return $(_result) ;
-	}
-	
 }
