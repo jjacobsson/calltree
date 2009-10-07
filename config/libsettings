@@ -17,5 +17,12 @@ if $(QT_PATH)
 	qt_ext_defines += QT_NEEDS_DOMAIN ;
 
 	qt_ext_link_search_paths = $(QT_PATH)$(SLASH)lib ;
-	qt_ext_library_files = qtmaind QtGuid4 QtCore4 ;
+	if $(CONFIGURATION) = debug
+	{
+		qt_ext_library_files = QtMaind QtGuid4 QtCored4 ;
+	}
+	else
+	{
+		qt_ext_library_files = QtMain QtGui4 QtCore4 ;
+	}
 }

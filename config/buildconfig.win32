@@ -1,5 +1,6 @@
 
 PRELIB = "" ;
+SUFLIB = .lib ;
 SLASH  = "\\" ;
 
 DEFINES_COMMON += WIN32 ;

@@ -381,11 +381,20 @@ else
 rule SetNeededLibraries
 {
     local _i = ;
+ 	LINKFLAGS on $(2) += [ FLibrarySearchPaths $(BUILD_LIB_DIR) ] ;
     for _i in $($(1)_dependant_of)
     {
         local _library = [ GetLinkLibraries $(_i) ] ;
-        NEEDLIBS on $(2) += $(_library) ;
-        Depends $(2) : $(_library) ;
+        if $(NT)
+        {
+        	LINKLIBS on $(2) += $(_library)$(SUFLIB) ;
+        }
+        else
+        {
+        	LINKLIBS on $(2) += $(_library) ;
+        }
+        
+        Depends $(2) : $(BUILD_LIB_DIR)$(PRELIB)$(_library)$(SUFLIB) ;
     }
     for _i in $($(1)_ext_dependant_of)
     {
@@ -398,7 +407,6 @@ rule SetNeededLibraries
             LINKLIBS on $(2) += [ FLibrary $($(_i)_ext_library_files) ] ;
         }
     }
-    
 }
 
 rule InvokeLibraryDeclarations
@@ -411,7 +419,7 @@ rule InvokeLibraryDeclarations
 
 	include [ GLOB [ FDirName $(2) ] : lib.jam ] ;
 
-	SetLinkLibraries $(_libname) : $(_libfile) ;
+	SetLinkLibraries $(_libname) : $(_libname) ;
 }
 
 rule InvokeLibraryDependencies
@@ -427,7 +435,7 @@ rule InvokeLibraryDependencies
 	SetObjectFiles $(_libname) ;
     SetObjectFiles $(_testname) ;
 
-	local _libfile     = [ GetLinkLibraries $(_libname) ] ;
+	local _libfile     = $(BUILD_LIB_DIR)$(PRELIB)$(_libname)$(SUFLIB) ;
     local _testfile    = $(BUILD_TST_DIR)$(_testname)$(SUFEXE) ;
     local _objects     = [ SetVariablesOnObjects $(_libname) ] ;
     local _testobjects = [ SetVariablesOnObjects $(_testname) ] ;
