@@ -11,8 +11,10 @@ if $(QT_PATH)
 
 	local _moc_sources = [ mocHeaders $(_source_path)$(_moc_headers) ] ;
 
-	_source_files = [ StripAllCommon $(_moc_sources) : $(_source_files) ] ;
+	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
 	_source_files += $(_moc_sources) ;
+
+	echo $(_source_files) ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
 }

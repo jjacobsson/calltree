@@ -86,51 +86,32 @@ rule StripCommon
 	return $(_result) ;
 }
 
-# Strip ALL common elements of variables v1 and v2, return the result
-rule StripAllCommon
+# Strip one specific entry v2 from v1 and return the result
+rule StripSpecific
 {
 	local _result = ;
-	local _j = ;
 	local _i = ;
-
-	local _found = false ;
-
 	for _i in $(<)
 	{
-		for _j in $(>) 
-		{
-			if $(_i) = $(_j)
-			{
- 				_found = true ;
-			}
-		}
-		
-		if $(_found) = false
+		if $(_i) != $(>)
 		{
 			_result += $(_i) ;
 		}
-
-		_found = false ;
 	}
+	return $(_result) ;
+}
+
+# Strip all elements in v2 from v1 and return the result
+rule StripAllCommon
+{
+	local _result = $(<) ;
+	local _i = ;
 
 	for _i in $(>)
 	{
-		for _j in $(<) 
-		{
-			if $(_i) = $(_j)
-			{
- 				_found = true ;
-			}
-		}
-		
-		if $(_found) = false
-		{
-			_result += $(_i) ;
-		}
-
-		_found = false ;
+		_result = [ StripSpecific $(_result) : $(_i) ] ;
 	}
-
+	
 	return $(_result) ;
 }
 
