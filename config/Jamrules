@@ -144,6 +144,9 @@ rule RecursiveDirList
 
 if $(QT_PATH)
 {
+
+	NotFile moc ;
+
 	actions mocFile
 	{
 		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
@@ -156,6 +159,8 @@ if $(QT_PATH)
 		mocFile $(_moc_output) : $(1) ;
 		Depends $(_moc_output) : $(1) ;
 		
+		Depends moc : $(_moc_output) ;
+
 		Clean clean : $(_moc_output) ;
 		
 		return $(_moc_output) ;

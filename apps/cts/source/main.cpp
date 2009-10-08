@@ -3,6 +3,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QFileDialog>
 
 #include "FindDialog.h"
 
@@ -32,6 +33,9 @@ int main(int argc, char *argv[])
 
     FindDialog* dialog = new FindDialog;
     dialog->show();
+
+	QFileDialog* fd = new QFileDialog;
+	fd->show();
 
     return app.exec();
 }
