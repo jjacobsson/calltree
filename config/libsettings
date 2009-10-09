@@ -3,6 +3,7 @@ if $(QT_PATH)
 {
 
 	MOCPREFIX = moc_ ;
+	UIPREFIX = ui_ ;
 
 	local _includes = ; 
 	_includes += include ;

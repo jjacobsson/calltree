@@ -14,5 +14,9 @@ if $(QT_PATH)
 	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
 	_source_files += $(_moc_sources) ;
 
+	local _ui_headers = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
+
+	Depends $(_source_files) : $(_ui_headers) ;
+
 	SetSourceFiles $(_appname) : $(_source_files) ;
 }

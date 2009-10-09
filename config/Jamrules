@@ -173,38 +173,79 @@ rule RecursiveDirList
 
 if $(QT_PATH)
 {
-
-	NotFile moc ;
-
 	actions mocFile
 	{
 		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
 	}
-	
-	rule mocHeader
-	{
-		local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
-		
-		mocFile $(_moc_output) : $(1) ;
-		Depends $(_moc_output) : $(1) ;
-		
-		Depends moc : $(_moc_output) ;
 
-		Clean clean : $(_moc_output) ;
-		
-		return $(_moc_output) ;
-	}
-	
-	rule mocHeaders
+	actions uiHeader
 	{
-		local _result = ;
-		local _i = ;
-		for _i in $(1) 
-		{
-			_result += [ mocHeader $(_i) ] ;
-		}
-		return $(_result) ;
+		uic $(2) -o $(1)
 	}
+}
+else
+{
+	actions mocFile
+	{
+		echo "QT_PATH not set!"
+	}
+	actions uiHeader
+	{
+		echo "QT_PATH not set!"
+	}
+}
+
+NotFile moc ;
+NotFile ui ;
+
+rule mocHeader
+{
+	local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
+	
+	mocFile $(_moc_output) : $(1) ;
+	Depends $(_moc_output) : $(1) ;
+	
+	Depends moc : $(_moc_output) ;
+
+	Clean clean : $(_moc_output) ;
+	
+	return $(_moc_output) ;
+}
+
+rule mocHeaders
+{
+	local _result = ;
+	local _i = ;
+	for _i in $(1) 
+	{
+		_result += [ mocHeader $(_i) ] ;
+	}
+	return $(_result) ;
+}
+
+rule uiFile
+{
+	local _output = $(1:P)$(SLASH)$(UIPREFIX)$(1:B).h ;
+	
+	uiHeader $(_output) : $(1) ;
+	Depends $(_output) : $(1) ;
+	
+	Depends ui : $(_output) ;
+
+	Clean clean : $(_output) ;
+	
+	return $(_output) ;
+}
+
+rule uiFiles
+{
+	local _result = ;
+	local _i = ;
+	for _i in $(1) 
+	{
+		_result += [ uiFile $(_i) ] ;
+	}
+	return $(_result) ;
 }
 
 rule AddFilesToTag
