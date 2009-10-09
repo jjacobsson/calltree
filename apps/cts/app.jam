@@ -14,7 +14,5 @@ if $(QT_PATH)
 	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
 	_source_files += $(_moc_sources) ;
 
-	echo $(_source_files) ;
-
 	SetSourceFiles $(_appname) : $(_source_files) ;
 }

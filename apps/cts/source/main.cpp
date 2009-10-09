@@ -34,8 +34,11 @@ int main(int argc, char *argv[])
     FindDialog* dialog = new FindDialog;
     dialog->show();
 
+    QFileDialog::getOpenFileName(0x0,
+         "Open Image", "", "Behaviour Tree Sources (*.bts);;Behaviour Tree Headers (*.bth)" );
+/*
 	QFileDialog* fd = new QFileDialog;
 	fd->show();
-
+*/
     return app.exec();
 }
