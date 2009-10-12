@@ -7,6 +7,7 @@
 #include <btree/btree.h>
 
 class BehaviorTreeWidget;
+class QGraphicsView;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -27,7 +28,8 @@ private:
 	void readSettings();
 	void writeSettings();
 
-	BehaviorTreeWidget* m_BTreeWidget;
+	BehaviorTreeWidget*	m_BTreeWidget;
+	QGraphicsView*		m_View;
 };
 
 #endif

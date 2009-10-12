@@ -16,5 +16,8 @@ if $(QT_PATH)
 
 	Depends $(_main_window_cpp) : $(_ui_main_window_h) ;
 
+	Includes [ FDirName $(_apppath) source moc MainWindow.h ] : [ FDirName $(_apppath) ui ui_MainWindow.h ] ;	
+	Includes [ FDirName $(_apppath) source main.cpp ] : [ FDirName $(_apppath) source moc MainWindow.h ] ;
+
 	SetSourceFiles $(_appname) : $(_source_files) ;
 }
