@@ -8,6 +8,9 @@ class BehaviorTreeWidget : public QGraphicsScene
 	Q_OBJECT
 public:
 	BehaviorTreeWidget();
+
+	bool readFile( QString* fileName );
+
 };
 
 #endif

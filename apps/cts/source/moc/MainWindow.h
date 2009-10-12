@@ -25,6 +25,7 @@ private slots:
 
 private:
 
+	bool okToContinue();
 	void readSettings();
 	void writeSettings();
 
