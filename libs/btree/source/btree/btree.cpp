@@ -26,68 +26,68 @@
 
 using namespace callback;
 
-BehaviourTree::BehaviourTree()
+BehaviorTree::BehaviorTree()
     : m_Root( 0x0 )
-    , m_Impl( new BehaviourTreeImpl )
+    , m_Impl( new BehaviorTreeImpl )
 {
 }
 
-BehaviourTree::~BehaviourTree()
+BehaviorTree::~BehaviorTree()
 {
     delete m_Impl;
 }
 
-BehaviourTree::const_node_iterator BehaviourTree::NodeBegin() const
+BehaviorTree::const_node_iterator BehaviorTree::NodeBegin() const
 {
     return m_Impl->m_NodeTable.begin();
 }
 
-BehaviourTree::const_node_iterator BehaviourTree::NodeEnd() const
+BehaviorTree::const_node_iterator BehaviorTree::NodeEnd() const
 {
     return m_Impl->m_NodeTable.end();
 }
 
-BehaviourTree::const_action_iterator BehaviourTree::ActionBegin() const
+BehaviorTree::const_action_iterator BehaviorTree::ActionBegin() const
 {
     return m_Impl->m_ActionTable.begin();
 }
 
-BehaviourTree::const_action_iterator BehaviourTree::ActionEnd() const
+BehaviorTree::const_action_iterator BehaviorTree::ActionEnd() const
 {
     return m_Impl->m_ActionTable.end();
 }
 
-BehaviourTree::const_decorator_iterator BehaviourTree::DecoratorBegin() const
+BehaviorTree::const_decorator_iterator BehaviorTree::DecoratorBegin() const
 {
     return m_Impl->m_DecoratorTable.begin();
 }
 
-BehaviourTree::const_decorator_iterator BehaviourTree::DecoratorEnd() const
+BehaviorTree::const_decorator_iterator BehaviorTree::DecoratorEnd() const
 {
     return m_Impl->m_DecoratorTable.end();
 }
 
-void BehaviourTree::SetRootNode( Node* n )
+void BehaviorTree::SetRootNode( Node* n )
 {
     m_Root = n;
 }
 
-const char* BehaviourTree::RegisterString( const char* str )
+const char* BehaviorTree::RegisterString( const char* str )
 {
     return m_Impl->m_StringTable.PutString( hashlittle( str ), str );
 }
 
-const char* BehaviourTree::RegisterString( const char* str, hash_t hash )
+const char* BehaviorTree::RegisterString( const char* str, hash_t hash )
 {
     return m_Impl->m_StringTable.PutString( hash, str );
 }
 
-Node* BehaviourTree::LookupNode( const Identifier& id )
+Node* BehaviorTree::LookupNode( const Identifier& id )
 {
     return m_Impl->m_NodeTable.Find( id );
 }
 
-bool BehaviourTree::RegisterNode( Node* n )
+bool BehaviorTree::RegisterNode( Node* n )
 {
     if( m_Impl->m_NodeTable.Find( n->m_Id ) != 0x0 )
         return false;
@@ -95,17 +95,17 @@ bool BehaviourTree::RegisterNode( Node* n )
     return true;
 }
 
-void BehaviourTree::UnregisterNode( const Identifier& id )
+void BehaviorTree::UnregisterNode( const Identifier& id )
 {
     m_Impl->m_NodeTable.Erase( id );
 }
 
-Action* BehaviourTree::LookupAction( const Identifier& id )
+Action* BehaviorTree::LookupAction( const Identifier& id )
 {
     return m_Impl->m_ActionTable.Find( id );
 }
 
-bool BehaviourTree::RegisterAction( Action* a )
+bool BehaviorTree::RegisterAction( Action* a )
 {
     if( m_Impl->m_ActionTable.Find( a->m_Id ) != 0x0 )
         return false;
@@ -113,17 +113,17 @@ bool BehaviourTree::RegisterAction( Action* a )
     return true;
 }
 
-void BehaviourTree::UnregisterAction( const Identifier& id )
+void BehaviorTree::UnregisterAction( const Identifier& id )
 {
 	m_Impl->m_ActionTable.Erase( id );
 }
 
-Decorator* BehaviourTree::LookupDecorator( const Identifier& id )
+Decorator* BehaviorTree::LookupDecorator( const Identifier& id )
 {
     return m_Impl->m_DecoratorTable.Find( id );
 }
 
-bool BehaviourTree::RegisterDecorator( Decorator* d )
+bool BehaviorTree::RegisterDecorator( Decorator* d )
 {
 	if( m_Impl->m_DecoratorTable.Find( d->m_Id ) != 0x0 )
 		return false;
@@ -131,22 +131,22 @@ bool BehaviourTree::RegisterDecorator( Decorator* d )
 	return true;
 }
 
-void BehaviourTree::UnregisterDecorator( const Identifier& id )
+void BehaviorTree::UnregisterDecorator( const Identifier& id )
 {
 	m_Impl->m_DecoratorTable.Erase( id );
 }
 
-ParseFile* BehaviourTree::CreateParseFile()
+ParseFile* BehaviorTree::CreateParseFile()
 {
     return m_Impl->m_ParseFilePool.Alloc();
 }
 
-void BehaviourTree::FreeParseFile( ParseFile* pf )
+void BehaviorTree::FreeParseFile( ParseFile* pf )
 {
     m_Impl->m_ParseFilePool.Free( pf );
 }
 
-bool BehaviourTree::IsDefined( const char* str )
+bool BehaviorTree::IsDefined( const char* str )
 {
     hash_t hash = hashlittle( str );
     if( m_Impl->m_Defines.Exists( hash ) )
@@ -154,23 +154,23 @@ bool BehaviourTree::IsDefined( const char* str )
     return false;
 }
 
-void BehaviourTree::Define( const char* str )
+void BehaviorTree::Define( const char* str )
 {
     hash_t hash = hashlittle( str );
     m_Impl->m_Defines.Insert( hash );
 }
 
-void BehaviourTree::Undefine( const char* str )
+void BehaviorTree::Undefine( const char* str )
 {
     hash_t hash = hashlittle( str );
     m_Impl->m_Defines.Erase( hash );
 }
 
-void BehaviourTree::SetGenerateDebugInfo( bool debug_info_on )
+void BehaviorTree::SetGenerateDebugInfo( bool debug_info_on )
 {
 }
 
-void BehaviourTree::Generate()
+void BehaviorTree::Generate()
 {
 /*
     //Alloc storage area for bss header
@@ -208,7 +208,7 @@ void BehaviourTree::Generate()
 */
 }
 
-void BehaviourTree::Print( FILE* outFile )
+void BehaviorTree::Print( FILE* outFile )
 {
 /*
     m_Impl->m_I.Print( outFile );
@@ -217,7 +217,7 @@ void BehaviourTree::Print( FILE* outFile )
 */
 }
 
-bool BehaviourTree::Save( FILE* outFile, bool swapEndian ) const
+bool BehaviorTree::Save( FILE* outFile, bool swapEndian ) const
 {
 /*
     ProgramHeader h;
@@ -244,7 +244,7 @@ bool BehaviourTree::Save( FILE* outFile, bool swapEndian ) const
 	return true;
 }
 
-int BehaviourTree::Parse( const char* filename )
+int BehaviorTree::Parse( const char* filename )
 {
 
     ParserContext ctx;
@@ -266,7 +266,7 @@ int BehaviourTree::Parse( const char* filename )
 }
 
 
-void BehaviourTree::Error( ParserContext* ctx, int lineno, const char* msg )
+void BehaviorTree::Error( ParserContext* ctx, int lineno, const char* msg )
 {
     if( ctx->m_File  )
     {
@@ -278,7 +278,7 @@ void BehaviourTree::Error( ParserContext* ctx, int lineno, const char* msg )
     }
 }
 
-void BehaviourTree::Warning( ParserContext* ctx, int lineno, const char* msg )
+void BehaviorTree::Warning( ParserContext* ctx, int lineno, const char* msg )
 {
     if( ctx->m_File  )
     {

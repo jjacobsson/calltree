@@ -86,11 +86,11 @@ struct HasIdPredicate
 
 };
 
-class BehaviourTreeImpl
+class BehaviorTreeImpl
 {
 public:
 
-    BehaviourTreeImpl()
+	BehaviorTreeImpl()
         : m_StringTable( 4096, 128 )
         , m_ParseFilePool( 16 )
     {}

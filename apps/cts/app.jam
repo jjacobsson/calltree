@@ -4,19 +4,17 @@ if $(QT_PATH)
 	SetExtDependantOf $(_appname) : qt ;
 
 	local _source_files = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
-	local _source_path  = [ FDirName $(_apppath) source ] ;
-	local _moc_headers  = FindDialog.h ;
-
-	_source_path = $(_source_path)$(SLASH) ;
-
-	local _moc_sources = [ mocHeaders $(_source_path)$(_moc_headers) ] ;
+	local _moc_headers  = [ RecursiveDirList $(_apppath) source moc : *.h ] ;
+	local _ui_headers   = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
+	local _moc_sources  = [ mocHeaders $(_moc_headers) ] ;
 
 	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
 	_source_files += $(_moc_sources) ;
 
-	local _ui_headers = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
+	local _main_window_cpp  = [ FDirName $(_apppath) source moc MainWindow.cpp ] ;
+	local _ui_main_window_h = [ FDirName $(_apppath) ui ui_MainWindow.h ] ;
 
-	Depends $(_source_files) : $(_ui_headers) ;
+	Depends $(_main_window_cpp) : $(_ui_main_window_h) ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
 }

@@ -62,7 +62,7 @@ enum NodeGristType
 	_E_MAX_GRIST_TYPES_
 };
 
-class BehaviourTree;
+class BehaviorTree;
 
 struct Action
 {
@@ -133,7 +133,7 @@ struct Node
 {
     Identifier      m_Id;
     NodeGrist       m_Grist;
-	BehaviourTree*  m_Tree;
+	BehaviorTree*   m_Tree;
     Node*			m_Sibling;
     bool			m_Declared;
 };
