@@ -1,11 +1,12 @@
 #ifndef BEHAVOIRTREEWIDGET_H_INCLUDED
 #define BEHAVOIRTREEWIDGET_H_INCLUDED
 
-#include <QtGui/QGraphicsScene>
+#include <QtGui/QTreeWidget>
 
-class BehaviorTreeWidget : public QGraphicsScene
+class BehaviorTreeWidget : public QTreeWidget
 {
 	Q_OBJECT
+
 public:
 	BehaviorTreeWidget();
 
