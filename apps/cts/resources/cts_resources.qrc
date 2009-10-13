@@ -1,11 +1,11 @@
  <!DOCTYPE RCC>
  <RCC version="1.0">
  <qresource>
-     <file>icons/nodes/sequence.png</file>
-     <file>icons/nodes/selector.png</file>
-     <file>icons/nodes/parallel.png</file>
-     <file>icons/nodes/dyn_selector.png</file>
-     <file>icons/nodes/decorator.png</file>
-     <file>icons/nodes/action.png</file>     
+     <file>nodes/sequence.svg</file>
+     <file>nodes/selector.svg</file>
+     <file>nodes/parallel.svg</file>
+     <file>nodes/dyn_selector.svg</file>
+     <file>nodes/decorator.svg</file>
+     <file>nodes/action.svg</file>     
  </qresource>
  </RCC>
