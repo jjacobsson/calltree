@@ -236,6 +236,7 @@ void InitNode( Node* n )
 
 	n->m_Tree		= 0x0;
 	n->m_Sibling	= 0x0;
+	n->m_UserData	= 0x0;
 
 	n->m_Declared	= false;
 }

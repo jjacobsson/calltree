@@ -1,7 +1,17 @@
+/*
+ *
+ * Copyright (C) 2009, Joacim Jacobsson ( j dot jacobsson at gmail dot com )
+ * All rights reserved.
+ *
+ * See LICENSE file for details
+ *
+ */
+
 #include "MainWindow.h"
 #include "BehaviorTreeWidget.h"
 
 #include <QtGui/QtGui>
+#include <QtOpenGL/QtOpenGL>
 
 MainWindow::MainWindow()
 	: m_BTreeView( 0x0 )
@@ -11,8 +21,23 @@ MainWindow::MainWindow()
 
 	m_BTree     = new BehaviorTreeWidget;
 	m_BTreeView = new QGraphicsView( m_BTree );
-	setCentralWidget( m_BTreeView );
+	m_BTreeView->setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
+	m_BTreeView->setDragMode( QGraphicsView::ScrollHandDrag );
+	m_BTreeView->setResizeAnchor( QGraphicsView::AnchorUnderMouse );
 
+	QGLFormat format;
+	QGLWidget* view_port = new QGLWidget( format );
+
+	if( view_port->isValid() )
+	{
+		m_BTreeView->setViewport( view_port );
+		setCentralWidget( view_port );
+	}
+	else
+	{
+		delete view_port;
+		setCentralWidget( m_BTreeView );
+	}
 	connect(m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()));
 	connect(m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -71,6 +96,8 @@ bool MainWindow::loadFile(const QString& fileName)
 {
 	if( m_BTree->readFile( fileName ) )
 	{
+		m_BTreeView->fitInView( m_BTree->sceneRect(), Qt::KeepAspectRatio );
+
 		setCurrentFile(fileName);
 		statusBar()->showMessage(tr("File loaded"), 2000);
 		return true;

@@ -269,7 +269,7 @@ rule qrcFile
 	
 	qrcCppFile $(_output) : $(1) ;
 	Depends $(_output) : $(1) ;
-	Depends $(1) : $(2) ;
+	Includes $(1) : $(2) ;
 	
 	NotFile qrc ;
 	Depends qrc : $(_output) ;

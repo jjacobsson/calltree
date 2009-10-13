@@ -135,6 +135,7 @@ struct Node
     NodeGrist       m_Grist;
 	BehaviorTree*   m_Tree;
     Node*			m_Sibling;
+    void*			m_UserData;
     bool			m_Declared;
 };
 
