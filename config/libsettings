@@ -24,11 +24,11 @@ if $(QT_PATH)
 	qt_ext_link_search_paths = $(QT_PATH)$(SLASH)lib ;
 	if $(CONFIGURATION) = debug
 	{
-		qt_ext_library_files = QtMaind QtGuid4 QtCored4 ;
+		qt_ext_library_files = QtMaind QtGuid4 QtCored4 QtSvgd4 ;
 	}
 	else
 	{
-		qt_ext_library_files = QtMain QtGui4 QtCore4 ;
+		qt_ext_library_files = QtMain QtGui4 QtCore4 QtSvg4 ;
 	}
 	
 }

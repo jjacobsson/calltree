@@ -1,12 +1,26 @@
 #include "BehaviorTreeWidget.h"
 #include <btree/btree.h>
 
+#include <QtGui/QGraphicsScene>
+#include <QtSvg/QGraphicsSvgItem>
+
 BehaviorTreeWidget::BehaviorTreeWidget()
 {
-	QStringList headers;
-	headers << tr("Node");
-	headers << tr("Type");
-	setHeaderLabels( headers );
+	const char* node_paths[] = {
+	    ":/nodes/sequence.svg",
+	    ":/nodes/selector.svg",
+	    ":/nodes/parallel.svg",
+	    ":/nodes/dyn_selector.svg",
+	    ":/nodes/decorator.svg",
+	    ":/nodes/action.svg"
+	};
+	QGraphicsSvgItem* item;
+	for( int i = 0; i < 6; ++i )
+	{
+		item = new QGraphicsSvgItem( node_paths[i] );
+		item->setPos( i * 256.0f, 0.0f );
+		addItem( item );
+	}
 }
 
 bool BehaviorTreeWidget::readFile( const QString& filename )
@@ -16,66 +30,36 @@ bool BehaviorTreeWidget::readFile( const QString& filename )
 	if( returnCode != 0 )
 		return false;
 
-	clear();
-
-	parseNode( bt.m_Root, 0x0 );
+	//parseNode( bt.m_Root, 0x0 );
 
 	return true;
 }
-
-void BehaviorTreeWidget::parseNode( Node* n, QTreeWidgetItem* parent )
+/*
+void BehaviorTreeWidget::parseNode( Node* n )
 {
 	while( n )
 	{
-		QStringList strings;
-		strings << n->m_Id.m_Text;
-		QTreeWidgetItem* twi = 0x0;
-
 		switch( n->m_Grist.m_Type )
 		{
 		case E_GRIST_SEQUENCE:
-			strings << tr("Sequence");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/sequence.svg") );
 			parseNode( n->m_Grist.m_Sequence.m_FirstChild, twi );
 			break;
 		case E_GRIST_SELECTOR:
-			strings << tr("Selector");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/selector.svg") );
 			parseNode( n->m_Grist.m_Selector.m_FirstChild, twi );
 			break;
 		case E_GRIST_PARALLEL:
-			strings << tr("Parallel");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/parallel.svg") );
 			parseNode( n->m_Grist.m_Parallel.m_FirstChild, twi );
 			break;
 		case E_GRIST_DYN_SELECTOR:
-			strings << tr("Dynamic Selector");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/dyn_selector.svg") );
 			parseNode( n->m_Grist.m_DynSelector.m_FirstChild, twi );
 			break;
 		case E_GRIST_DECORATOR:
-			strings << tr("Decorator");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/decorator.svg") );
 			parseNode( n->m_Grist.m_Decorator.m_Child, twi );
 			break;
 		case E_GRIST_ACTION:
-			strings << tr("Action");
-			twi = new QTreeWidgetItem( strings );
-			twi->setIcon( 0, QIcon(":/nodes/action.svg") );
 			break;
 		}
-
-		if( parent )
-			parent->addChild( twi );
-		else
-			addTopLevelItem( twi );
-
 		n = n->m_Sibling;
-
 	}
 }
+*/

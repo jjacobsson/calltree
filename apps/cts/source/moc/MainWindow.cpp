@@ -4,12 +4,14 @@
 #include <QtGui/QtGui>
 
 MainWindow::MainWindow()
-	: m_BTree(0x0)
+	: m_BTreeView( 0x0 )
+	, m_BTree(0x0)
 {
 	setupUi(this);
 
-	m_BTree = new BehaviorTreeWidget;
-	setCentralWidget( m_BTree );
+	m_BTree     = new BehaviorTreeWidget;
+	m_BTreeView = new QGraphicsView( m_BTree );
+	setCentralWidget( m_BTreeView );
 
 	connect(m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()));
 	connect(m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));

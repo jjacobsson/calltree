@@ -5,8 +5,12 @@
 #include <QtGui/QMainWindow>
 #include <QtCore/QString>
 
-class BehaviorTreeWidget;
+// Qt Forward declares
 class QGraphicsView;
+
+// Internal Forward declares
+class BehaviorTreeWidget;
+
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -34,6 +38,7 @@ private:
 	void setCurrentFile( const QString& fileName );
 	QString strippedName( const QString& fullFileName );
 
+	QGraphicsView*		m_BTreeView;
 	BehaviorTreeWidget*	m_BTree;
 };
 
