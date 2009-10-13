@@ -17,6 +17,12 @@ if $(NT)
     {
         $(AR) /NOLOGO /OUT:$(<) $(>)
     }
+    
+	actions Link bind NEEDLIBS
+	{
+		$(LINK) $(LINKFLAGS) /out:$(<) $(UNDEFS) $(>) $(NEEDLIBS) $(LINKLIBS)
+	}
+	
 }
 else
 {
@@ -510,6 +516,7 @@ else
 rule SetNeededLibraries
 {
     local _i = ;
+ 	LINKFLAGS on $(2) = $(LINKFLAGS) ;
  	LINKFLAGS on $(2) += [ FLibrarySearchPaths $(BUILD_LIB_DIR) ] ;
     for _i in $($(1)_dependant_of)
     {
@@ -606,6 +613,7 @@ rule InvokeLibraryDependencies
 	if $(NT)
 	{
 		Clean clean : $(_testfile:S=.pdb) ;
+		Clean clean : $(_testfile).manifest ;
 	}
 
     NotFile $(_libname) $(_testname) $(_testrun) test ;
@@ -638,6 +646,7 @@ rule InvokeApplication
 	if $(NT)
 	{
 		Clean clean : $(_appfile:S=.pdb) ;
+		Clean clean : $(_appfile).manifest ;
 	}
 	
     NotFile $(_appname) ;

@@ -36,31 +36,37 @@ void BehaviorTreeWidget::parseNode( Node* n, QTreeWidgetItem* parent )
 		case E_GRIST_SEQUENCE:
 			strings << tr("Sequence");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/sequence.png") );
 			parseNode( n->m_Grist.m_Sequence.m_FirstChild, twi );
 			break;
 		case E_GRIST_SELECTOR:
 			strings << tr("Selector");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/selector.png") );
 			parseNode( n->m_Grist.m_Selector.m_FirstChild, twi );
 			break;
 		case E_GRIST_PARALLEL:
 			strings << tr("Parallel");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/parallel.png") );
 			parseNode( n->m_Grist.m_Parallel.m_FirstChild, twi );
 			break;
 		case E_GRIST_DYN_SELECTOR:
 			strings << tr("Dynamic Selector");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/dyn_selector.png") );
 			parseNode( n->m_Grist.m_DynSelector.m_FirstChild, twi );
 			break;
 		case E_GRIST_DECORATOR:
 			strings << tr("Decorator");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/decorator.png") );
 			parseNode( n->m_Grist.m_Decorator.m_Child, twi );
 			break;
 		case E_GRIST_ACTION:
 			strings << tr("Action");
 			twi = new QTreeWidgetItem( strings );
+			twi->setIcon( 0, QIcon(":/icons/nodes/action.png") );
 			break;
 		}
 

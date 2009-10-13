@@ -15,7 +15,10 @@
    sodipodi:version="0.32"
    inkscape:version="0.46"
    sodipodi:docname="parallel.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="C:\Users\Joacim\Documents\calltree\apps\cts\resources\icons\nodes\parallel.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
   <metadata
      id="metadata2456">
     <rdf:RDF>
@@ -43,9 +46,10 @@
      inkscape:zoom="1.8046875"
      inkscape:cx="31.584416"
      inkscape:cy="128"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:current-layer="svg2" />
+     inkscape:window-x="0"
+     inkscape:window-y="14"
+     inkscape:current-layer="svg2"
+     showborder="false" />
   <defs
      id="defs4">
     <inkscape:perspective
