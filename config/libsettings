@@ -3,8 +3,9 @@ if $(QT_PATH)
 {
 
 	MOCPREFIX = moc_ ;
-	UIPREFIX = ui_ ;
-
+	UIPREFIX  = ui_ ;
+	QRCPREFIX = qrc_ ;
+	
 	local _includes = ; 
 	_includes += include ;
 	_includes += mkspecs$(SLASH)default ;

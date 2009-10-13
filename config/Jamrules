@@ -182,6 +182,11 @@ if $(QT_PATH)
 	{
 		uic $(2) -o $(1)
 	}
+	
+	actions qrcCppFile
+	{
+		rcc -name $(2:B) $(2) -o $(1) 
+	}
 }
 else
 {
@@ -193,10 +198,12 @@ else
 	{
 		echo "QT_PATH not set!"
 	}
+	
+	actions qrcCppFile
+	{
+		echo "QT_PATH not set!"
+	}
 }
-
-NotFile moc ;
-NotFile ui ;
 
 rule mocHeader
 {
@@ -205,6 +212,7 @@ rule mocHeader
 	mocFile $(_moc_output) : $(1) ;
 	Depends $(_moc_output) : $(1) ;
 	
+	NotFile moc ;
 	Depends moc : $(_moc_output) ;
 
 	Clean clean : $(_moc_output) ;
@@ -230,6 +238,7 @@ rule uiFile
 	uiHeader $(_output) : $(1) ;
 	Depends $(_output) : $(1) ;
 	
+	NotFile ui ;
 	Depends ui : $(_output) ;
 
 	Clean clean : $(_output) ;
@@ -246,6 +255,20 @@ rule uiFiles
 		_result += [ uiFile $(_i) ] ;
 	}
 	return $(_result) ;
+}
+
+rule qrcFile
+{
+	local _output = $(1:P)$(SLASH)$(QRCPREFIX)$(1:B).cpp ;
+	
+	qrcCppFile $(_output) : $(1) ;
+	Depends $(_output) : $(1) ;
+	Depends $(1) : $(2) ;
+	
+	NotFile qrc ;
+	Depends qrc : $(_output) ;
+	Clean clean : $(_output) ;
+	return $(_output) ;
 }
 
 rule AddFilesToTag
