@@ -3,15 +3,20 @@
 
 #include <QtGui/QTreeWidget>
 
+class QString;
+class QTreeWidgetItem;
+struct Node;
+
 class BehaviorTreeWidget : public QTreeWidget
 {
 	Q_OBJECT
-
 public:
 	BehaviorTreeWidget();
 
-	bool readFile( QString* fileName );
+	bool readFile( const QString& fileName );
 
+private:
+	void parseNode( Node*, QTreeWidgetItem* );
 };
 
 #endif

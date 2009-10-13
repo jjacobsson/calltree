@@ -5,8 +5,6 @@
 #include <QtGui/QMainWindow>
 #include <QtCore/QString>
 
-#include <btree/btree.h>
-
 class BehaviorTreeWidget;
 class QGraphicsView;
 

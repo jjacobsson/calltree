@@ -67,9 +67,14 @@ void MainWindow::writeSettings()
 
 bool MainWindow::loadFile(const QString& fileName)
 {
-	setCurrentFile(fileName);
-	statusBar()->showMessage(tr("File loaded"), 2000);
-	return true;
+	if( m_BTree->readFile( fileName ) )
+	{
+		setCurrentFile(fileName);
+		statusBar()->showMessage(tr("File loaded"), 2000);
+		return true;
+	}
+	statusBar()->showMessage(tr("Load Failed!"), 2000);
+	return false;
 }
 
 void MainWindow::setCurrentFile( const QString& fileName )
