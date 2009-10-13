@@ -29,15 +29,12 @@ MainWindow::MainWindow()
 	QGLWidget* view_port = new QGLWidget( format );
 
 	if( view_port->isValid() )
-	{
 		m_BTreeView->setViewport( view_port );
-		setCentralWidget( view_port );
-	}
 	else
-	{
 		delete view_port;
-		setCentralWidget( m_BTreeView );
-	}
+
+	setCentralWidget( m_BTreeView );
+
 	connect(m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()));
 	connect(m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
@@ -81,22 +78,22 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::readSettings()
 {
 	QSettings settings("calltree", "Call Tree Studio");
-	QRect rect = settings.value("geometry", QRect(0, 0, 800, 600)).toRect();
-	move(rect.topLeft());
-	resize(rect.size());
+	restoreGeometry(settings.value("geometry").toByteArray());
 }
 
 void MainWindow::writeSettings()
 {
 	QSettings settings("calltree", "Call Tree Studio");
-	settings.setValue("geometry", geometry());
+	settings.setValue("geometry", saveGeometry());
 }
 
 bool MainWindow::loadFile(const QString& fileName)
 {
 	if( m_BTree->readFile( fileName ) )
 	{
-		m_BTreeView->fitInView( m_BTree->sceneRect(), Qt::KeepAspectRatio );
+		QRectF itemsRect =  m_BTree->itemsBoundingRect();
+		m_BTree->setSceneRect( itemsRect );
+		m_BTreeView->fitInView( itemsRect, Qt::KeepAspectRatio );
 
 		setCurrentFile(fileName);
 		statusBar()->showMessage(tr("File loaded"), 2000);
