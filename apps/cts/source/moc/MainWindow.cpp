@@ -8,19 +8,20 @@
  */
 
 #include "MainWindow.h"
-#include "BehaviorTreeWidget.h"
+#include "BehaviorTreeScene.h"
+#include "BehaviorTreeView.h"
 
 #include <QtGui/QtGui>
 #include <QtOpenGL/QtOpenGL>
 
 MainWindow::MainWindow()
 	: m_BTreeView( 0x0 )
-	, m_BTree(0x0)
+	, m_BTreeScene( 0x0 )
 {
 	setupUi(this);
 
-	m_BTree     = new BehaviorTreeWidget;
-	m_BTreeView = new QGraphicsView( m_BTree );
+	m_BTreeScene = new BehaviorTreeScene;
+	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
 	m_BTreeView->setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
 	m_BTreeView->setDragMode( QGraphicsView::ScrollHandDrag );
 	m_BTreeView->setResizeAnchor( QGraphicsView::AnchorUnderMouse );
@@ -49,7 +50,6 @@ void MainWindow::open()
 {
 	if (okToContinue())
 	{
-
 		QString fileName = QFileDialog::getOpenFileName(this, tr(
 				"Open Behavior Tree"), ".", tr("Behavior Tree files (*.bts)"));
 		if (!fileName.isEmpty())
@@ -89,10 +89,10 @@ void MainWindow::writeSettings()
 
 bool MainWindow::loadFile(const QString& fileName)
 {
-	if( m_BTree->readFile( fileName ) )
+	if( m_BTreeScene->readFile( fileName ) )
 	{
-		QRectF itemsRect =  m_BTree->itemsBoundingRect();
-		m_BTree->setSceneRect( itemsRect );
+		QRectF itemsRect =  m_BTreeScene->itemsBoundingRect();
+		m_BTreeScene->setSceneRect( itemsRect );
 		m_BTreeView->fitInView( itemsRect, Qt::KeepAspectRatio );
 
 		setCurrentFile(fileName);

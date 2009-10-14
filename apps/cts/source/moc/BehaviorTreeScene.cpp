@@ -7,7 +7,7 @@
  *
  */
 
-#include "BehaviorTreeWidget.h"
+#include "BehaviorTreeScene.h"
 #include <btree/btree.h>
 
 #include <QtGui/QGraphicsScene>
@@ -54,11 +54,11 @@ Node* GetFirstChild( Node* n )
 	return r;
 }
 
-BehaviorTreeWidget::BehaviorTreeWidget()
+BehaviorTreeScene::BehaviorTreeScene()
 {
 }
 
-bool BehaviorTreeWidget::readFile( const QString& filename )
+bool BehaviorTreeScene::readFile( const QString& filename )
 {
 	BehaviorTree bt;
 	int returnCode = bt.Parse( filename.toAscii() );
@@ -71,7 +71,7 @@ bool BehaviorTreeWidget::readFile( const QString& filename )
 	return true;
 }
 
-void BehaviorTreeWidget::parseNode( Node* n )
+void BehaviorTreeScene::parseNode( Node* n )
 {
 	ExtentsList el;
 	while( n )
@@ -87,7 +87,7 @@ void BehaviorTreeWidget::parseNode( Node* n )
 	}
 }
 
-void BehaviorTreeWidget::depthFirstPlace( Node* n, ExtentsList& pel )
+void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
     ExtentsList el;
 
@@ -145,7 +145,7 @@ void BehaviorTreeWidget::depthFirstPlace( Node* n, ExtentsList& pel )
 }
 
 
-double BehaviorTreeWidget::minimumRootDistance( const ExtentsList& lel, const ExtentsList& rel )
+double BehaviorTreeScene::minimumRootDistance( const ExtentsList& lel, const ExtentsList& rel )
 {
     double ret = 0.0;
     size_t s = lel.size();
@@ -165,7 +165,7 @@ double BehaviorTreeWidget::minimumRootDistance( const ExtentsList& lel, const Ex
     return ret;
 }
 
-void BehaviorTreeWidget::moveExtents( ExtentsList& el, double dist )
+void BehaviorTreeScene::moveExtents( ExtentsList& el, double dist )
 {
     size_t s = el.size();
     for( size_t i = 0; i < s; ++i )
@@ -175,7 +175,7 @@ void BehaviorTreeWidget::moveExtents( ExtentsList& el, double dist )
     }
 }
 
-void BehaviorTreeWidget::mergeExtents( ExtentsList& r, const ExtentsList& lel, const ExtentsList& rel )
+void BehaviorTreeScene::mergeExtents( ExtentsList& r, const ExtentsList& lel, const ExtentsList& rel )
 {
     size_t ls = lel.size();
     size_t rs = rel.size();
@@ -203,7 +203,7 @@ void BehaviorTreeWidget::mergeExtents( ExtentsList& r, const ExtentsList& lel, c
     }
 }
 
-void BehaviorTreeWidget::transformToWorld( Node* n, Node* p )
+void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 {
 	QGraphicsSvgItem* p_svg_item = 0x0;
 	if( p )

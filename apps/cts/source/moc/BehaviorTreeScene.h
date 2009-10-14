@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef BEHAVOIRTREEWIDGET_H_INCLUDED
-#define BEHAVOIRTREEWIDGET_H_INCLUDED
+#ifndef BEHAVOIRTREESCENE_H_INCLUDED
+#define BEHAVOIRTREESCENE_H_INCLUDED
 
 #include <QtGui/QGraphicsScene>
 
@@ -21,11 +21,11 @@ class QGraphicsScene;
 // BT Forward declares
 struct Node;
 
-class BehaviorTreeWidget : public QGraphicsScene
+class BehaviorTreeScene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
-	BehaviorTreeWidget();
+	BehaviorTreeScene();
 
 	bool readFile( const QString& fileName );
 

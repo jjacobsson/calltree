@@ -18,16 +18,20 @@ if $(QT_PATH)
 	local _main_cpp         = [ FDirName $(_apppath) source main.cpp ] ;
 	local _main_window_cpp  = [ FDirName $(_apppath) source moc MainWindow.cpp ] ;
 	local _main_window_h    = [ FDirName $(_apppath) source moc MainWindow.h ] ;
-	local _btreewidget_h    = [ FDirName $(_apppath) source moc BehaviorTreeWidget.h ] ;
-	local _btreewidget_cpp  = [ FDirName $(_apppath) source moc BehaviorTreeWidget.cpp ] ;
+	local _btreescene_h     = [ FDirName $(_apppath) source moc BehaviorTreeScene.h ] ;
+	local _btreescene_cpp   = [ FDirName $(_apppath) source moc BehaviorTreeScene.cpp ] ;
+	local _btreeview_h      = [ FDirName $(_apppath) source moc BehaviorTreeView.h ] ;
+	local _btreeview_cpp    = [ FDirName $(_apppath) source moc BehaviorTreeView.cpp ] ;
 	local _ui_main_window_h = [ FDirName $(_apppath) ui ui_MainWindow.h ] ;
 
 	Depends $(_main_window_cpp) : $(_ui_main_window_h) ;
 
 	Includes $(_main_window_h)   : $(_ui_main_window_h) ;	
 	Includes $(_main_window_cpp) : $(_main_window_h) ;
-	Includes $(_main_window_cpp) : $(_btreewidget_h) ;
-	Includes $(_btreewidget_cpp) : $(_btreewidget_h) ;
+	Includes $(_main_window_cpp) : $(_btreescene_h) ;
+	Includes $(_main_window_cpp) : $(_btreeview_h) ;
+	Includes $(_btreescene_cpp)  : $(_btreescene_h) ;
+	Includes $(_btreeview_cpp)   : $(_btreeview_h) ;
 	Includes $(_main_cpp)        : $(_main_window_h) ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
