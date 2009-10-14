@@ -22,13 +22,15 @@ MainWindow::MainWindow()
 
 	m_BTreeScene = new BehaviorTreeScene;
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
-	m_BTreeView->setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
 
-	QGLFormat format;
+	QGLFormat format( QGL::SampleBuffers );
 	QGLWidget* gl_widget = new QGLWidget( format );
 
 	if( gl_widget->isValid() )
+	{
 		m_BTreeView->setViewport( gl_widget );
+		m_BTreeView->setRenderHint(QPainter::HighQualityAntialiasing, true);
+	}
 	else
 		delete gl_widget;
 

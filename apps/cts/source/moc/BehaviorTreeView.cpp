@@ -14,13 +14,11 @@
 BehaviorTreeView::BehaviorTreeView()
 	: QGraphicsView()
 {
-
 }
 
 BehaviorTreeView::BehaviorTreeView( QGraphicsScene* scene )
 	: QGraphicsView( scene )
 {
-
 }
 
 void BehaviorTreeView::wheelEvent( QWheelEvent* event )

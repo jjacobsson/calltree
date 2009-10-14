@@ -9,6 +9,8 @@
 
 #include "BehaviorTreeNode.h"
 
+#include <stdio.h>
+
 const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 	":/nodes/unknown.svg",
 	":/nodes/sequence.svg",
@@ -23,4 +25,13 @@ BehaviorTreeNode::BehaviorTreeNode( NodeGristType type )
 	: QGraphicsSvgItem( g_NodeResourcePaths[type] )
 {
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
+}
+
+QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant &value )
+{
+	if( change == ItemSelectedChange )
+	{
+		update();
+	}
+	return value;
 }

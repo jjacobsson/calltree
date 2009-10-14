@@ -29,7 +29,7 @@ public:
 
 	bool readFile( const QString& fileName );
 
-private:
+protected:
 
     struct Extents
     {

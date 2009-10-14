@@ -10,6 +10,7 @@
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeNode.h"
 #include <btree/btree.h>
+#include <stdio.h>
 
 const float g_NodeWidth  = 256.0f;
 const float g_NodeHeight = 256.0f;
@@ -56,6 +57,7 @@ void BehaviorTreeScene::createGraphics( Node* n )
 	while( n )
 	{
 		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n->m_Grist.m_Type );
+
 		addItem( svg_item );
 		n->m_UserData = (void*)svg_item;
 		createGraphics( GetFirstChild( n ) );

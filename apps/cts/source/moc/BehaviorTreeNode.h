@@ -18,6 +18,9 @@ class BehaviorTreeNode : public QGraphicsSvgItem
 	Q_OBJECT
 public:
 	BehaviorTreeNode( NodeGristType type );
+
+protected:
+	QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 };
 
 #endif
