@@ -23,7 +23,7 @@ MainWindow::MainWindow()
 	m_BTreeScene = new BehaviorTreeScene;
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
 	m_BTreeView->setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
-	m_BTreeView->setDragMode( QGraphicsView::ScrollHandDrag );
+	//m_BTreeView->setDragMode( QGraphicsView::ScrollHandDrag );
 	m_BTreeView->setResizeAnchor( QGraphicsView::AnchorUnderMouse );
 
 	QGLFormat format;

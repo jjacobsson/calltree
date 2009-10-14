@@ -25,8 +25,9 @@ public:
 	BehaviorTreeView( QGraphicsScene* scene );
 
 protected:
-	void wheelEvent( QWheelEvent* event );
-
+	void wheelEvent( QWheelEvent* e );
+	void mousePressEvent( QMouseEvent* e );
+	void mouseReleaseEvent( QMouseEvent* e );
 };
 
 #endif
