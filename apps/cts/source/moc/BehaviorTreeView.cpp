@@ -38,16 +38,28 @@ void BehaviorTreeView::wheelEvent( QWheelEvent* event )
 
 void BehaviorTreeView::mousePressEvent( QMouseEvent* e )
 {
-	if( e->button() == Qt::MidButton )
-	{
-	}
 	QGraphicsView::mousePressEvent( e );
 }
 
 void BehaviorTreeView::mouseReleaseEvent( QMouseEvent* e )
 {
-	if( e->button() == Qt::MidButton )
-	{
-	}
 	QGraphicsView::mouseReleaseEvent( e );
+}
+
+void BehaviorTreeView::keyPressEvent( QKeyEvent* e )
+{
+	if( e->key() == Qt::Key_Alt )
+	{
+		setDragMode( QGraphicsView::ScrollHandDrag );
+	}
+	QGraphicsView::keyPressEvent( e );
+}
+
+void BehaviorTreeView::keyReleaseEvent( QKeyEvent* e )
+{
+	if( e->key() == Qt::Key_Alt )
+	{
+		setDragMode( QGraphicsView::NoDrag );
+	}
+	QGraphicsView::keyReleaseEvent( e );
 }

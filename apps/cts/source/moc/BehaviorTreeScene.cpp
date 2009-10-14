@@ -25,7 +25,7 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 
 const float g_NodeWidth  = 256.0f;
 const float g_NodeHeight = 256.0f;
-const float g_HoriSpace  = 32.0f;
+const float g_HoriSpace  = 64.0f;
 const float g_VertSpace  = 128.0f;
 
 Node* GetFirstChild( Node* n )
@@ -92,7 +92,11 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
     ExtentsList el;
 
     QGraphicsSvgItem* svg_item = new QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] );
-	addItem( svg_item );
+
+    svg_item->setFlag(QGraphicsItem::ItemIsMovable, true);
+    svg_item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+    addItem( svg_item );
 	n->m_UserData = (void*)svg_item;
 
     Node* it = GetFirstChild( n );

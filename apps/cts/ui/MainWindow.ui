@@ -69,7 +69,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QDockWidget" name="dockWidget">
+  <widget class="QDockWidget" name="m_Dock">
    <property name="minimumSize">
     <size>
      <width>140</width>
