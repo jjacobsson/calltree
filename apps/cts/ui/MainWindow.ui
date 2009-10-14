@@ -100,7 +100,7 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="m_ActionOpen"/>
+   <addaction name="m_ActionLayout"/>
   </widget>
   <action name="m_ActionOpen">
    <property name="text">
@@ -119,6 +119,14 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="m_ActionLayout">
+   <property name="text">
+    <string>&amp;Layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Auto layout all nodes</string>
    </property>
   </action>
  </widget>

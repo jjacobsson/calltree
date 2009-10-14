@@ -20,14 +20,19 @@ class QGraphicsItem;
 
 // BT Forward declares
 struct Node;
+class BehaviorTree;
 
 class BehaviorTreeScene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
 	BehaviorTreeScene();
+	~BehaviorTreeScene();
 
 	bool readFile( const QString& fileName );
+
+public slots:
+	void layoutNodes();
 
 protected:
 
@@ -43,8 +48,8 @@ protected:
 
     typedef std::vector<Extents> ExtentsList;
 
-	void parseNode( Node* );
 	void createGraphics( Node* );
+	void layoutNode( Node* );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );
@@ -53,7 +58,7 @@ protected:
 
 	QGraphicsView*  m_View;
 	QGraphicsScene* m_Scene;
-
+	BehaviorTree*	m_Tree;
 };
 
 #endif

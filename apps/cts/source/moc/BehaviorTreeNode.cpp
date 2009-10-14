@@ -24,6 +24,7 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 BehaviorTreeNode::BehaviorTreeNode( NodeGristType type )
 	: QGraphicsSvgItem( g_NodeResourcePaths[type] )
 {
+	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 

@@ -38,6 +38,7 @@ MainWindow::MainWindow()
 
 	connect( m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()) );
 	connect( m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
+	connect( m_ActionLayout, SIGNAL(triggered()), m_BTreeScene, SLOT(layoutNodes()) );
 
 	setupStatusBar();
 

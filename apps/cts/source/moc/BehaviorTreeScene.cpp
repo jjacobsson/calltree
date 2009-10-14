@@ -18,37 +18,39 @@ const float g_HoriSpace  = 64.0f;
 const float g_VertSpace  = 128.0f;
 
 BehaviorTreeScene::BehaviorTreeScene()
+	: m_Tree( 0x0 )
 {
+}
+
+BehaviorTreeScene::~BehaviorTreeScene()
+{
+	delete m_Tree;
 }
 
 bool BehaviorTreeScene::readFile( const QString& filename )
 {
-	BehaviorTree bt;
-	int returnCode = bt.Parse( filename.toAscii() );
+	if( m_Tree )
+		delete m_Tree;
+	m_Tree = new BehaviorTree;
+
+	int returnCode = m_Tree->Parse( filename.toAscii() );
 	if( returnCode != 0 )
 		return false;
 
 	clear();
-	parseNode( bt.m_Root );
+
+	createGraphics( m_Tree->m_Root );
+	layoutNode( m_Tree->m_Root );
 
 	return true;
 }
 
-void BehaviorTreeScene::parseNode( Node* n )
+void BehaviorTreeScene::layoutNodes()
 {
-	createGraphics( n );
-
-	ExtentsList el;
-	while( n )
+	if( m_Tree )
 	{
-        ExtentsList t;
-        depthFirstPlace( n, t );
-        double slide = minimumRootDistance( el, t );
-        moveExtents( t, slide );
-        mergeExtents( el, el, t );
-        transformToWorld( n, 0x0 );
-
-		n = n->m_Sibling;
+		layoutNode( m_Tree->m_Root );
+		setSceneRect( itemsBoundingRect() );
 	}
 }
 
@@ -65,11 +67,30 @@ void BehaviorTreeScene::createGraphics( Node* n )
 	}
 }
 
+void BehaviorTreeScene::layoutNode( Node* n )
+{
+	ExtentsList el;
+	while( n )
+	{
+        ExtentsList t;
+        depthFirstPlace( n, t );
+        double slide = minimumRootDistance( el, t );
+        moveExtents( t, slide );
+        mergeExtents( el, el, t );
+        transformToWorld( n, 0x0 );
+
+		n = n->m_Sibling;
+	}
+}
+
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
     ExtentsList el;
     Node* it = GetFirstChild( n );
     double lx = 0.0f;
+
+    BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
+    svg_item->setPos( 0.0f, 0.0f );
 
     while( it )
     {
@@ -77,7 +98,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
         depthFirstPlace( it, t );
         double slide = minimumRootDistance( el, t );
 
-        BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(it->m_UserData);
+        svg_item = (BehaviorTreeNode*)(it->m_UserData);
         QPointF pos( svg_item->pos() );
         pos.rx() = slide;
         svg_item->setPos( pos );
@@ -92,7 +113,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
     it = GetFirstChild( n );
     if( it )
     {
-    	BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(it->m_UserData);
+    	svg_item = (BehaviorTreeNode*)(it->m_UserData);
         QPointF pos( svg_item->pos() );
         double fx = pos.x();
         double slide = (lx - fx) / 2.0;
