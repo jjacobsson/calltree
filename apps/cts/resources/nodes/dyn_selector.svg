@@ -52,8 +52,8 @@
      objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.5039062"
-     inkscape:cx="58.508578"
+     inkscape:zoom="2.5117188"
+     inkscape:cx="128"
      inkscape:cy="128"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -61,8 +61,8 @@
      showborder="false"
      inkscape:window-width="1440"
      inkscape:window-height="848"
-     inkscape:window-x="0"
-     inkscape:window-y="14"
+     inkscape:window-x="198"
+     inkscape:window-y="261"
      inkscape:snap-global="true"
      inkscape:snap-guide="true">
     <inkscape:grid
@@ -90,8 +90,8 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       style="fill:#808000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:16,4;stroke-dashoffset:0;stroke-opacity:1;marker-mid:none"
-       d="M 64.999515,2.0004732 C 190.99952,2.0004732 190.99952,2.0004732 190.99952,2.0004732 L 253.99953,65.000477 L 253.99953,191.00048 L 190.99952,254.00049 L 64.999515,254.00049 L 1.9995118,191.00048 L 1.9995118,65.000477 L 64.999515,2.0004732"
+       style="fill:#808000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:16;stroke-linecap:butt;stroke-linejoin:round;marker-mid:none;stroke-miterlimit:4;stroke-dasharray:64,16;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 68,8.000001 C 188,8.000001 188,8.000001 188,8.000001 L 248.00001,68.000002 L 248.00001,188 L 188,248 L 68,248 L 8,188 L 8,68.000002 L 68,8.000001"
        id="path3283"
        sodipodi:nodetypes="ccccccccc" />
   </g>

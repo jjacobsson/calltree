@@ -44,10 +44,10 @@
      id="base"
      showgrid="false"
      inkscape:zoom="1.8046875"
-     inkscape:cx="31.584416"
+     inkscape:cx="-59.290043"
      inkscape:cy="128"
-     inkscape:window-x="0"
-     inkscape:window-y="14"
+     inkscape:window-x="110"
+     inkscape:window-y="145"
      inkscape:current-layer="svg2"
      showborder="false" />
   <defs
@@ -74,10 +74,11 @@
   </defs>
   <g
      id="layer1"
-     style="stroke:#000000;stroke-opacity:1;stroke-width:4;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round">
+     style="stroke:#000000;stroke-width:16.80000114;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     transform="matrix(0.9523809,0,0,0.9523809,6.0957033,6.0947846)">
     <path
        d="M 127.99952,2.0004733 C 253.99953,254.00049 253.99953,254.00049 253.99953,254.00049 L 1.9995118,254.00049 L 127.99952,2.0004733 z"
        id="path4598"
-       style="fill:#0000ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#0000ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:16.80000114;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

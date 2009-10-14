@@ -43,11 +43,11 @@
      pagecolor="#ffffff"
      id="base"
      showgrid="false"
-     inkscape:zoom="1.8046875"
-     inkscape:cx="31.584416"
+     inkscape:zoom="2.5117188"
+     inkscape:cx="62.706065"
      inkscape:cy="128"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-x="110"
+     inkscape:window-y="145"
      inkscape:current-layer="svg2"
      showborder="false" />
   <defs
@@ -62,12 +62,12 @@
   </defs>
   <g
      id="layer1"
-     transform="matrix(0.9894555,0,0,0.9894554,1.3497092,1.3497028)"
-     style="stroke:#000000;stroke-opacity:1;stroke-width:4.04262768999999980;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round">
+     transform="matrix(0.9423385,0,0,0.9423384,7.3806757,7.3806885)"
+     style="stroke:#000000;stroke-width:16.97903824;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">
     <path
        d="M -80.000008,-514 C -80.000007,-464.29437 -126.69031,-424 -184.28572,-424 C -241.88113,-424 -288.57143,-464.29437 -288.57143,-514 C -288.57143,-563.70563 -241.88113,-604 -184.28572,-604 C -126.69031,-604 -80.000007,-563.70563 -80.000008,-514 z"
        transform="matrix(1.2210951,0,0,1.4149198,353.03038,855.26878)"
        id="path2423"
-       style="fill:#00ff00;fill-rule:evenodd;stroke:#000000;stroke-width:3.07555210999999980;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+       style="fill:#00ff00;fill-rule:evenodd;stroke:#000000;stroke-width:12.91732025;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
   </g>
 </svg>

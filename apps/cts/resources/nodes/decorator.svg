@@ -31,8 +31,8 @@
     </rdf:RDF>
   </metadata>
   <sodipodi:namedview
-     inkscape:window-height="480"
-     inkscape:window-width="640"
+     inkscape:window-height="718"
+     inkscape:window-width="1121"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      guidetolerance="10.0"
@@ -43,7 +43,13 @@
      pagecolor="#ffffff"
      id="base"
      showgrid="false"
-     showborder="false" />
+     showborder="false"
+     inkscape:zoom="2.0039062"
+     inkscape:cx="128"
+     inkscape:cy="128"
+     inkscape:window-x="312"
+     inkscape:window-y="215"
+     inkscape:current-layer="svg2" />
   <defs
      id="defs4">
     <inkscape:perspective
@@ -67,10 +73,12 @@
     </marker>
   </defs>
   <g
-     id="layer1">
+     id="layer1"
+     style="stroke:#000000;stroke-width:16.80000114;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     transform="matrix(0.9523809,0,0,0.9523809,6.0952454,6.0952418)">
     <path
        d="M 128,1.9999925 L 254.00001,128 L 128,254.00001 L 1.9999925,128 L 128,1.9999925 z"
        id="path4620"
-       style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#ff0000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:16.80000114;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

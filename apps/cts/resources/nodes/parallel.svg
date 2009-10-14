@@ -43,11 +43,11 @@
      pagecolor="#ffffff"
      id="base"
      showgrid="false"
-     inkscape:zoom="1.8046875"
-     inkscape:cx="31.584416"
+     inkscape:zoom="2.5117188"
+     inkscape:cx="62.706065"
      inkscape:cy="128"
-     inkscape:window-x="0"
-     inkscape:window-y="14"
+     inkscape:window-x="66"
+     inkscape:window-y="87"
      inkscape:current-layer="svg2"
      showborder="false" />
   <defs
@@ -62,8 +62,8 @@
   </defs>
   <g
      id="layer1"
-     transform="matrix(0.9843751,0,0,0.9843751,2.0000001,2.0004666)"
-     style="stroke:#000000;stroke-opacity:1;stroke-width:4.06349164999999960;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round">
+     transform="matrix(0.9375,0,0,0.9375,8.0000003,8.0000004)"
+     style="stroke:#000000;stroke-width:17.06666756;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1">
     <rect
        width="256"
        height="256"
@@ -71,7 +71,7 @@
        x="0"
        y="0"
        id="rect3255"
-       style="fill:#800080;stroke:#000000;stroke-width:4.06349164999999960;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;stroke-linejoin:round"
+       style="fill:#800080;stroke:#000000;stroke-width:17.06666756;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        rx="35.546722" />
   </g>
 </svg>
