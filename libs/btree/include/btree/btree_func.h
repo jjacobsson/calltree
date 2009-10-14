@@ -73,6 +73,8 @@ void InitNode( Node* );
 
 void AppendToEndOfList( Node* s, Node* n );
 
+Node* GetFirstChild( Node* n );
+
 /*
  * Node Grist Functions
  */

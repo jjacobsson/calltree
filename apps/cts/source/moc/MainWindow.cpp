@@ -23,21 +23,19 @@ MainWindow::MainWindow()
 	m_BTreeScene = new BehaviorTreeScene;
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
 	m_BTreeView->setRenderHints( QPainter::Antialiasing | QPainter::SmoothPixmapTransform );
-	//m_BTreeView->setDragMode( QGraphicsView::ScrollHandDrag );
-	m_BTreeView->setResizeAnchor( QGraphicsView::AnchorUnderMouse );
 
 	QGLFormat format;
-	QGLWidget* view_port = new QGLWidget( format );
+	QGLWidget* gl_widget = new QGLWidget( format );
 
-	if( view_port->isValid() )
-		m_BTreeView->setViewport( view_port );
+	if( gl_widget->isValid() )
+		m_BTreeView->setViewport( gl_widget );
 	else
-		delete view_port;
+		delete gl_widget;
 
 	setCentralWidget( m_BTreeView );
 
-	connect(m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()));
-	connect(m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+	connect( m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()) );
+	connect( m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
 
 	setupStatusBar();
 

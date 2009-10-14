@@ -249,6 +249,32 @@ void AppendToEndOfList( Node* s, Node* e )
 		s->m_Sibling = e;
 }
 
+Node* GetFirstChild( Node* n )
+{
+	Node* r = 0x0;
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		r = n->m_Grist.m_Sequence.m_FirstChild;
+		break;
+	case E_GRIST_SELECTOR:
+		r = n->m_Grist.m_Selector.m_FirstChild;
+		break;
+	case E_GRIST_PARALLEL:
+		r = n->m_Grist.m_Parallel.m_FirstChild;
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		r = n->m_Grist.m_DynSelector.m_FirstChild;
+		break;
+	case E_GRIST_DECORATOR:
+		r = n->m_Grist.m_Decorator.m_Child;
+		break;
+	case E_GRIST_ACTION:
+		break;
+	}
+	return r;
+}
+
 /*
  * Node Grist functions
  */

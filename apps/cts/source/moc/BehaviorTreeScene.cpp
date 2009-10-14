@@ -8,51 +8,13 @@
  */
 
 #include "BehaviorTreeScene.h"
+#include "BehaviorTreeNode.h"
 #include <btree/btree.h>
-
-#include <QtGui/QGraphicsScene>
-#include <QtSvg/QGraphicsSvgItem>
-
-const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
-	":/nodes/unknown.svg",
-	":/nodes/sequence.svg",
-	":/nodes/selector.svg",
-	":/nodes/parallel.svg",
-	":/nodes/dyn_selector.svg",
-	":/nodes/decorator.svg",
-	":/nodes/action.svg"
-};
 
 const float g_NodeWidth  = 256.0f;
 const float g_NodeHeight = 256.0f;
 const float g_HoriSpace  = 64.0f;
 const float g_VertSpace  = 128.0f;
-
-Node* GetFirstChild( Node* n )
-{
-	Node* r = 0x0;
-	switch( n->m_Grist.m_Type )
-	{
-	case E_GRIST_SEQUENCE:
-		r = n->m_Grist.m_Sequence.m_FirstChild;
-		break;
-	case E_GRIST_SELECTOR:
-		r = n->m_Grist.m_Selector.m_FirstChild;
-		break;
-	case E_GRIST_PARALLEL:
-		r = n->m_Grist.m_Parallel.m_FirstChild;
-		break;
-	case E_GRIST_DYN_SELECTOR:
-		r = n->m_Grist.m_DynSelector.m_FirstChild;
-		break;
-	case E_GRIST_DECORATOR:
-		r = n->m_Grist.m_Decorator.m_Child;
-		break;
-	case E_GRIST_ACTION:
-		break;
-	}
-	return r;
-}
 
 BehaviorTreeScene::BehaviorTreeScene()
 {
@@ -73,6 +35,8 @@ bool BehaviorTreeScene::readFile( const QString& filename )
 
 void BehaviorTreeScene::parseNode( Node* n )
 {
+	createGraphics( n );
+
 	ExtentsList el;
 	while( n )
 	{
@@ -87,20 +51,22 @@ void BehaviorTreeScene::parseNode( Node* n )
 	}
 }
 
+void BehaviorTreeScene::createGraphics( Node* n )
+{
+	while( n )
+	{
+		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n->m_Grist.m_Type );
+		addItem( svg_item );
+		n->m_UserData = (void*)svg_item;
+		createGraphics( GetFirstChild( n ) );
+		n = n->m_Sibling;
+	}
+}
+
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
     ExtentsList el;
-
-    QGraphicsSvgItem* svg_item = new QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] );
-
-    svg_item->setFlag(QGraphicsItem::ItemIsMovable, true);
-    svg_item->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-    addItem( svg_item );
-	n->m_UserData = (void*)svg_item;
-
     Node* it = GetFirstChild( n );
-
     double lx = 0.0f;
 
     while( it )
@@ -109,7 +75,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
         depthFirstPlace( it, t );
         double slide = minimumRootDistance( el, t );
 
-        QGraphicsSvgItem* svg_item = (QGraphicsSvgItem*)(it->m_UserData);
+        BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(it->m_UserData);
         QPointF pos( svg_item->pos() );
         pos.rx() = slide;
         svg_item->setPos( pos );
@@ -124,14 +90,14 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
     it = GetFirstChild( n );
     if( it )
     {
-        QGraphicsSvgItem* svg_item = (QGraphicsSvgItem*)(it->m_UserData);
+    	BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(it->m_UserData);
         QPointF pos( svg_item->pos() );
         double fx = pos.x();
         double slide = (lx - fx) / 2.0;
 
         while( it )
         {
-        	svg_item = (QGraphicsSvgItem*)(it->m_UserData);
+        	svg_item = (BehaviorTreeNode*)(it->m_UserData);
             svg_item->moveBy( -slide, 0.0f );
             it = it->m_Sibling;
         }
@@ -211,12 +177,12 @@ void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 {
 	QGraphicsSvgItem* p_svg_item = 0x0;
 	if( p )
-		p_svg_item = (QGraphicsSvgItem*)(p->m_UserData);
+		p_svg_item = (BehaviorTreeNode*)(p->m_UserData);
 	while( n )
 	{
 		if( p_svg_item )
 		{
-			QGraphicsSvgItem* n_svg_item = (QGraphicsSvgItem*)(n->m_UserData);
+			BehaviorTreeNode* n_svg_item = (BehaviorTreeNode*)(n->m_UserData);
 			n_svg_item->moveBy( p_svg_item->x(), p_svg_item->y() + g_NodeHeight + g_VertSpace );
 		}
 		Node* c = GetFirstChild( n );

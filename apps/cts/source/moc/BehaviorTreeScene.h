@@ -16,7 +16,7 @@
 
 // Qt Forward declares
 class QString;
-class QGraphicsScene;
+class QGraphicsItem;
 
 // BT Forward declares
 struct Node;
@@ -44,6 +44,7 @@ private:
     typedef std::vector<Extents> ExtentsList;
 
 	void parseNode( Node* );
+	void createGraphics( Node* );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );

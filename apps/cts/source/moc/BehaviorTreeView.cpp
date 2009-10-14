@@ -25,13 +25,22 @@ BehaviorTreeView::BehaviorTreeView( QGraphicsScene* scene )
 
 void BehaviorTreeView::wheelEvent( QWheelEvent* event )
 {
-	QPointF p = mapToScene( event->pos() );
-	qreal factor = 1.2;
+	QPoint mouse_pos( event->pos() );
+	QPointF scene_pos( mapToScene( mouse_pos ) );
+
+	qreal factor = 1.1;
 	if (event->delta() < 0 )
 		factor = 1.0 / factor;
-	centerOn( p );
 	scale( factor, factor );
 
+	QPoint view_pos( mapFromScene( scene_pos ) );
+
+	QPoint delta( mouse_pos - view_pos );
+
+    QScrollBar *hBar = horizontalScrollBar();
+    QScrollBar *vBar = verticalScrollBar();
+    hBar->setValue(hBar->value() + (isRightToLeft() ? delta.x() : -delta.x()));
+    vBar->setValue(vBar->value() - delta.y());
 
 	event->accept();
 }
@@ -50,6 +59,7 @@ void BehaviorTreeView::keyPressEvent( QKeyEvent* e )
 {
 	if( e->key() == Qt::Key_Alt )
 	{
+		setInteractive( false );
 		setDragMode( QGraphicsView::ScrollHandDrag );
 	}
 	QGraphicsView::keyPressEvent( e );
@@ -59,6 +69,7 @@ void BehaviorTreeView::keyReleaseEvent( QKeyEvent* e )
 {
 	if( e->key() == Qt::Key_Alt )
 	{
+		setInteractive( true );
 		setDragMode( QGraphicsView::NoDrag );
 	}
 	QGraphicsView::keyReleaseEvent( e );
