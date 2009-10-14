@@ -19,6 +19,15 @@
   <property name="windowTitle">
    <string>Call Tree Studio</string>
   </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowTabbedDocks</set>
+  </property>
   <widget class="QWidget" name="m_CentralWidget">
    <widget class="QLabel" name="m_StatusLabelCurrentFile">
     <property name="geometry">
@@ -81,6 +90,18 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="m_ActionOpen"/>
+  </widget>
   <action name="m_ActionOpen">
    <property name="text">
     <string>&amp;Open</string>
@@ -88,10 +109,16 @@
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="m_ActionAboutQt">
    <property name="text">
     <string>&amp;About Qt</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
  </widget>
