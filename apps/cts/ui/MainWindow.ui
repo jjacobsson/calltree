@@ -129,6 +129,11 @@
     <string>Auto layout all nodes</string>
    </property>
   </action>
+  <action name="actionBanan">
+   <property name="text">
+    <string>Banan</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

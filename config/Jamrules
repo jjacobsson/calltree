@@ -449,6 +449,18 @@ rule SetExtraCompileFlags
 	}
 }
 
+rule SetExtraLinkFlags
+{
+	if $($(1)_extra_link_flags)
+	{
+		$(1)_extra_link_flags = $($(1)_extra_link_flags) $(2) ;
+	}
+	else
+	{
+		$(1)_extra_link_flags = $(2) ;
+	}
+}
+
 rule SetVariablesOnObjects
 {
 	local _objects = $($(1)_object_files) ;
@@ -542,6 +554,10 @@ rule SetNeededLibraries
         {
             LINKLIBS on $(2) += [ FLibrary $($(_i)_ext_library_files) ] ;
         }
+    }
+    if $($(1)_extra_link_flags)
+    {
+    	LINKFLAGS on $(2) += $($(1)_extra_link_flags) ;
     }
 }
 

@@ -29,8 +29,7 @@ if $(QT_PATH)
 
 	local _ui_main_window_h = [ FDirName $(_apppath) ui ui_MainWindow.h ] ;
 
-	Depends $(_main_window_cpp) : $(_ui_main_window_h) ;
-
+	Includes $(_main_window_cpp) : $(_ui_main_window_h) ;
 	Includes $(_main_window_h)   : $(_ui_main_window_h) ;	
 	Includes $(_main_window_cpp) : $(_main_window_h) ;
 	Includes $(_main_window_cpp) : $(_btreescene_h) ;
@@ -45,4 +44,9 @@ if $(QT_PATH)
 	Includes $(_btreenode_cpp)   : $(_nodetonode_h) ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
+	
+	if $(PLATFORM) = win32
+	{
+		SetExtraLinkFlags $(_appname) : "/SUBSYSTEM:WINDOWS" ;
+	}
 }
