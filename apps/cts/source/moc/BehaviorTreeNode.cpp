@@ -8,8 +8,10 @@
  */
 
 #include "BehaviorTreeNode.h"
+#include "../NodeToNodeArrow.h"
+#include <btree/btree.h>
 
-#include <stdio.h>
+#include <QtGui/QGraphicsScene>
 
 const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 	":/nodes/unknown.svg",
@@ -21,18 +23,54 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 	":/nodes/action.svg"
 };
 
-BehaviorTreeNode::BehaviorTreeNode( NodeGristType type )
-	: QGraphicsSvgItem( g_NodeResourcePaths[type] )
+BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
+	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] )
+	, m_Node( n )
 {
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	if( parent )
+		setParentItem( parent );
+}
+
+void BehaviorTreeNode::removeArrow(NodeToNodeArrow *arrow)
+{
+	int index = m_Arrows.indexOf(arrow);
+
+	if (index != -1)
+		m_Arrows.removeAt(index);
+}
+
+void BehaviorTreeNode::removeArrows()
+{
+	foreach( NodeToNodeArrow *arrow, m_Arrows )
+	{
+		arrow->startItem()->removeArrow(arrow);
+		arrow->endItem()->removeArrow(arrow);
+		scene()->removeItem(arrow);
+		delete arrow;
+	}
+}
+
+void BehaviorTreeNode::addArrow(NodeToNodeArrow *arrow)
+{
+	m_Arrows.append(arrow);
 }
 
 QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant &value )
 {
-	if( change == ItemSelectedChange )
+	switch( change )
 	{
+	case ItemSelectedChange:
 		update();
+		break;
+	case ItemPositionChange:
+		foreach (NodeToNodeArrow *arrow, m_Arrows)
+		{
+			arrow->updatePosition();
+		}
+		break;
 	}
 	return value;
 }

@@ -9,6 +9,7 @@
 
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeNode.h"
+#include "../NodeToNodeArrow.h"
 #include <btree/btree.h>
 #include <stdio.h>
 
@@ -39,7 +40,7 @@ bool BehaviorTreeScene::readFile( const QString& filename )
 
 	clear();
 
-	createGraphics( m_Tree->m_Root );
+	createGraphics( m_Tree->m_Root, 0x0 );
 	layoutNode( m_Tree->m_Root );
 
 	return true;
@@ -54,15 +55,22 @@ void BehaviorTreeScene::layoutNodes()
 	}
 }
 
-void BehaviorTreeScene::createGraphics( Node* n )
+void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 {
 	while( n )
 	{
-		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n->m_Grist.m_Type );
+		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
+		if( !parent )
+			addItem( svg_item );
+		else
+		{
+			NodeToNodeArrow* a = new NodeToNodeArrow( parent, svg_item, parent, this );
+			parent->addArrow( a );
+			svg_item->addArrow( a );
+		}
 
-		addItem( svg_item );
 		n->m_UserData = (void*)svg_item;
-		createGraphics( GetFirstChild( n ) );
+		createGraphics( GetFirstChild( n ), svg_item );
 		n = n->m_Sibling;
 	}
 }
@@ -77,8 +85,6 @@ void BehaviorTreeScene::layoutNode( Node* n )
         double slide = minimumRootDistance( el, t );
         moveExtents( t, slide );
         mergeExtents( el, el, t );
-        transformToWorld( n, 0x0 );
-
 		n = n->m_Sibling;
 	}
 }
@@ -91,6 +97,9 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 
     BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
     svg_item->setPos( 0.0f, 0.0f );
+
+    if( svg_item->parentItem() )
+    	svg_item->moveBy( 0.0f, g_NodeHeight + g_VertSpace );
 
     while( it )
     {

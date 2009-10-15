@@ -21,6 +21,7 @@ class QGraphicsItem;
 // BT Forward declares
 struct Node;
 class BehaviorTree;
+class BehaviorTreeNode;
 
 class BehaviorTreeScene : public QGraphicsScene
 {
@@ -48,7 +49,7 @@ protected:
 
     typedef std::vector<Extents> ExtentsList;
 
-	void createGraphics( Node* );
+	void createGraphics( Node*, BehaviorTreeNode* );
 	void layoutNode( Node* );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );

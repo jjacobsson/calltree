@@ -11,16 +11,31 @@
 #define BEHAVOIRTREENODE_H_INCLUDED
 
 #include <QtSvg/QGraphicsSvgItem>
-#include <btree/btree_data.h>
+#include <QtCore/QList>
+
+// BT Forward declares
+struct Node;
+
+// Internal Forward declares
+class NodeToNodeArrow;
 
 class BehaviorTreeNode : public QGraphicsSvgItem
 {
 	Q_OBJECT
 public:
-	BehaviorTreeNode( NodeGristType type );
+	BehaviorTreeNode( Node* n, BehaviorTreeNode* parent = 0x0 );
+
+    void removeArrow( NodeToNodeArrow* arrow );
+    void removeArrows();
+    void addArrow( NodeToNodeArrow* arrow );
 
 protected:
 	QVariant itemChange( GraphicsItemChange change, const QVariant &value );
+
+private:
+	Node* m_Node;
+
+	QList<NodeToNodeArrow*> m_Arrows;
 };
 
 #endif
