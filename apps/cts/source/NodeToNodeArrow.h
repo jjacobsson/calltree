@@ -34,7 +34,6 @@ public:
 	NodeToNodeArrow(
 		BehaviorTreeNode *start,
 		BehaviorTreeNode *end,
-		QGraphicsItem *parent = 0x0,
 		QGraphicsScene *scene = 0x0
 	);
 
@@ -58,10 +57,10 @@ public slots:
 	void updatePosition();
 
 protected:
-/*
+
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 			QWidget *widget = 0);
-*/
+
 private:
 	BehaviorTreeNode *m_Start;
 	BehaviorTreeNode *m_End;

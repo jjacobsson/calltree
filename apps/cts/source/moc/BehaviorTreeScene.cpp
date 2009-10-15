@@ -60,11 +60,12 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 	while( n )
 	{
 		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
+
 		if( !parent )
 			addItem( svg_item );
 		else
 		{
-			NodeToNodeArrow* a = new NodeToNodeArrow( parent, svg_item, parent, this );
+			NodeToNodeArrow* a = new NodeToNodeArrow( parent, svg_item, this );
 			parent->addArrow( a );
 			svg_item->addArrow( a );
 		}
@@ -87,7 +88,7 @@ void BehaviorTreeScene::layoutNode( Node* n )
         mergeExtents( el, el, t );
 		n = n->m_Sibling;
 	}
-}
+ }
 
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
@@ -130,7 +131,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
         while( it )
         {
         	svg_item = (BehaviorTreeNode*)(it->m_UserData);
-            svg_item->moveBy( -slide, 0.0f );
+			svg_item->moveBy( -slide, 0.0 );
             it = it->m_Sibling;
         }
 
@@ -225,4 +226,3 @@ void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 		n = n->m_Sibling;
 	}
 }
-

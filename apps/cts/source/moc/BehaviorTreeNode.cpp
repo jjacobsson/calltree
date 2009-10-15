@@ -32,6 +32,7 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
 
 	if( parent )
 		setParentItem( parent );
+	setZValue( 0.0 );
 }
 
 void BehaviorTreeNode::removeArrow(NodeToNodeArrow *arrow)
@@ -64,12 +65,6 @@ QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant
 	{
 	case ItemSelectedChange:
 		update();
-		break;
-	case ItemPositionChange:
-		foreach (NodeToNodeArrow *arrow, m_Arrows)
-		{
-			arrow->updatePosition();
-		}
 		break;
 	}
 	return value;
