@@ -11,7 +11,7 @@
 #include "../NodeToNodeArrow.h"
 #include <btree/btree.h>
 
-#include <QtGui/QGraphicsScene>
+#include <QtGui/QtGui>
 
 const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 	":/nodes/unknown.svg",
@@ -26,6 +26,7 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
 	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] )
 	, m_Node( n )
+	, m_LeftMouseDown( false )
 {
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -66,6 +67,29 @@ QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant
 	case ItemSelectedChange:
 		update();
 		break;
+	case ItemPositionChange:
+		if( m_LeftMouseDown )
+		{
+			setOpacity( 0.75 );
+		}
+		break;
 	}
-	return value;
+	return QGraphicsSvgItem::itemChange( change, value );
+}
+
+void BehaviorTreeNode::mousePressEvent( QGraphicsSceneMouseEvent * event )
+{
+	if( event->button() == Qt::LeftButton )
+		m_LeftMouseDown = true;
+	QGraphicsSvgItem::mousePressEvent( event );
+}
+
+void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
+{
+	if( event->button() == Qt::LeftButton )
+	{
+		m_LeftMouseDown = false;
+		setOpacity( 1.0 );
+	}
+	QGraphicsSvgItem::mouseReleaseEvent( event );
 }

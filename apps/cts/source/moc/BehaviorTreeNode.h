@@ -32,10 +32,15 @@ public:
 protected:
 	QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
+	void mousePressEvent( QGraphicsSceneMouseEvent * event );
+	void mouseReleaseEvent( QGraphicsSceneMouseEvent * event );
+
 private:
 	Node* m_Node;
 
 	QList<NodeToNodeArrow*> m_Arrows;
+
+	bool m_LeftMouseDown;
 };
 
 #endif
