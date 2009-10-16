@@ -14,8 +14,6 @@
 
 #include "../parser/common.h"
 
-#include "../code/bt_program.h"
-
 #include "sym_table.h"
 #include "object_pool.h"
 #include "string_table.h"
@@ -105,7 +103,7 @@ public:
     typedef TSymbolTable< Action*, HasIdPredicate<Action> >       ActionTable;
     typedef TSymbolTable< Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
 
-    typedef TObjectPool< ParseFile >                ParseFilePool;
+    typedef TObjectPool< ParseFile > ParseFilePool;
 
     StringTable              m_StringTable;
     IntTable                 m_Defines;
@@ -113,10 +111,6 @@ public:
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;
     ParseFilePool            m_ParseFilePool;
-
-    CodeSection        m_I;
-    DataSection        m_D;
-    BSSSection         m_B;
 
 };
 

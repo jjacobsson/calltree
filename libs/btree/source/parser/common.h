@@ -10,7 +10,6 @@
 #ifndef PARSER_COMMON_H_
 #define PARSER_COMMON_H_
 
-#include "../compiler/compiler.h"
 #include <btree/btree.h>
 #include "btree_parser.h"
 #include <string>

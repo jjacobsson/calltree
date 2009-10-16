@@ -45,10 +45,6 @@ public:
     const_decorator_iterator DecoratorBegin() const;
     const_decorator_iterator DecoratorEnd() const;
 
-    CodeSection& GetCodeSection();
-    DataSection& GetDataSection();
-    BSSSection& GetBSSSection();
-
     void SetRootNode( Node* n );
 
     const char* RegisterString( const char* str );
