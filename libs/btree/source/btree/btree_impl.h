@@ -102,7 +102,7 @@ public:
     typedef TSymbolTable< Action*, HasIdPredicate<Action> >       ActionTable;
     typedef TSymbolTable< Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
 
-    typedef TObjectPool< ParseFile >                ParseFilePool;
+    typedef TObjectPool< ParseFile > ParseFilePool;
 
     StringTable              m_StringTable;
     IntTable                 m_Defines;

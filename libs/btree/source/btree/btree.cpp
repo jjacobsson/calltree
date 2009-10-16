@@ -20,7 +20,7 @@
 
 #include "../parser/common.h"
 
-#include "endian.h"
+//#include "endian.h"
 
 #include <stdio.h>
 
@@ -168,6 +168,7 @@ void BehaviorTree::Undefine( const char* str )
 
 void BehaviorTree::SetGenerateDebugInfo( bool debug_info_on )
 {
+    //m_Impl->m_I.SetGenerateDebugInfo( debug_info_on );
 }
 
 void BehaviorTree::Generate()
@@ -239,7 +240,6 @@ bool BehaviorTree::Save( FILE* outFile, bool swapEndian ) const
         return false;
     if( !m_Impl->m_D.Save( outFile, swapEndian ) )
         return false;
-    return true;
 */
 	return true;
 }
