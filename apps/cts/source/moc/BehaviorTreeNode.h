@@ -32,15 +32,24 @@ public:
 protected:
 	QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-	void mousePressEvent( QGraphicsSceneMouseEvent * event );
-	void mouseReleaseEvent( QGraphicsSceneMouseEvent * event );
+	void mousePressEvent( QGraphicsSceneMouseEvent* event );
+	void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
+	void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
 
 private:
-	Node* m_Node;
+	enum MouseState
+	{
+		E_MS_NONE,
+		E_MS_LB_DOWN,
+		E_MS_DRAGGING
+	};
 
 	QList<NodeToNodeArrow*> m_Arrows;
 
-	bool m_LeftMouseDown;
+	Node*			m_Node;
+	QGraphicsItem*	m_PreviousParent;
+	MouseState		m_MouseState;
+	QPoint			m_StartPos;			// Item's screen position when the LB was pressed;
 };
 
 #endif

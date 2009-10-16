@@ -17,13 +17,13 @@ NodeToNodeArrow::NodeToNodeArrow(
 		BehaviorTreeNode* end,
 		QGraphicsScene* scene
 	)
-	: QGraphicsLineItem(start, scene)
+	: QGraphicsLineItem( 0x0, scene)
 	, m_Start( start )
 	, m_End( end )
 {
 	setFlag(QGraphicsItem::ItemIsSelectable, false );
 	setFlag(QGraphicsItem::ItemStacksBehindParent, true );
-	setPen(QPen(Qt::black, 6, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	setPen(QPen(Qt::black, 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	setZValue( -1000.0 );
 }
 
@@ -43,10 +43,10 @@ void NodeToNodeArrow::paint(
 		QWidget *
 	)
 {
-
 	if (m_Start->collidesWithItem(m_End))
 		return;
 	updatePosition();
+	painter->setPen( pen() );
 	painter->drawLine( line() );
 }
 

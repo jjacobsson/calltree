@@ -26,10 +26,12 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
 	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] )
 	, m_Node( n )
-	, m_LeftMouseDown( false )
+	, m_PreviousParent( 0x0 )
+	, m_MouseState( E_MS_NONE )
 {
-	setFlag(QGraphicsItem::ItemIsMovable, true);
-	setFlag(QGraphicsItem::ItemIsSelectable, true);
+	setFlag( QGraphicsItem::ItemIsMovable, true );
+	setFlag( QGraphicsItem::ItemIsSelectable, true );
+	setFlag( QGraphicsItem::ItemStacksBehindParent, false );
 
 	if( parent )
 		setParentItem( parent );
@@ -68,8 +70,9 @@ QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant
 		update();
 		break;
 	case ItemPositionChange:
-		if( m_LeftMouseDown )
+		if( m_MouseState == E_MS_DRAGGING )
 		{
+			setZValue( 1.0 );
 			setOpacity( 0.75 );
 		}
 		break;
@@ -77,19 +80,46 @@ QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant
 	return QGraphicsSvgItem::itemChange( change, value );
 }
 
-void BehaviorTreeNode::mousePressEvent( QGraphicsSceneMouseEvent * event )
-{
-	if( event->button() == Qt::LeftButton )
-		m_LeftMouseDown = true;
-	QGraphicsSvgItem::mousePressEvent( event );
-}
-
-void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent * event )
+void BehaviorTreeNode::mousePressEvent( QGraphicsSceneMouseEvent* event )
 {
 	if( event->button() == Qt::LeftButton )
 	{
-		m_LeftMouseDown = false;
+		m_MouseState = E_MS_LB_DOWN;
+		m_StartPos = event->screenPos();
+		if( parentItem() )
+		{
+			m_PreviousParent = parentItem();
+			QPointF position( scenePos() );
+			setParentItem( 0x0 );
+			setPos( position );
+		}
+	}
+	QGraphicsSvgItem::mousePressEvent( event );
+}
+
+void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
+{
+	if( event->button() == Qt::LeftButton )
+	{
+		m_MouseState = E_MS_NONE;
 		setOpacity( 1.0 );
+		setZValue( 0.0 );
+		if( m_PreviousParent )
+		{
+			setPos( m_PreviousParent->mapFromScene( scenePos() ) );
+			setParentItem( m_PreviousParent );
+			m_PreviousParent = 0x0;
+		}
 	}
 	QGraphicsSvgItem::mouseReleaseEvent( event );
+}
+
+void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
+{
+	if( m_MouseState == E_MS_LB_DOWN )
+	{
+		if( m_StartPos != event->screenPos() )
+			m_MouseState = E_MS_DRAGGING;
+	}
+	QGraphicsSvgItem::mouseMoveEvent( event );
 }
