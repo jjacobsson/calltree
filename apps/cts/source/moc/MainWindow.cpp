@@ -29,7 +29,7 @@ MainWindow::MainWindow()
 	if( gl_widget->isValid() )
 	{
 		m_BTreeView->setViewport( gl_widget );
-		m_BTreeView->setRenderHint(QPainter::HighQualityAntialiasing, true);
+		m_BTreeView->setRenderHint(QPainter::Antialiasing, true);
 	}
 	else
 		delete gl_widget;
