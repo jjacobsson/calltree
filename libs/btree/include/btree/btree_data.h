@@ -134,8 +134,10 @@ struct Node
     Identifier      m_Id;
     NodeGrist       m_Grist;
 	BehaviorTree*   m_Tree;
-    Node*			m_Sibling;
-    void*			m_UserData;
+    Node*			m_Pare;
+	Node*			m_Next;
+	Node*			m_Prev;
+	void*			m_UserData;
     bool			m_Declared;
 };
 

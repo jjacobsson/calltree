@@ -73,7 +73,7 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 
 		n->m_UserData = (void*)svg_item;
 		createGraphics( GetFirstChild( n ), svg_item );
-		n = n->m_Sibling;
+		n = n->m_Next;
 	}
 }
 
@@ -88,7 +88,7 @@ void BehaviorTreeScene::layoutNode( Node* n )
         moveExtents( t, slide );
         mergeExtents( el, el, t );
 		//transformToWorld( n, 0x0 );
-        n = n->m_Sibling;
+        n = n->m_Next;
 	}
  }
 
@@ -119,7 +119,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
         moveExtents( t, slide );
         mergeExtents( el, el, t );
 
-        it = it->m_Sibling;
+        it = it->m_Next;
     }
 
     it = GetFirstChild( n );
@@ -134,7 +134,7 @@ void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
         {
         	svg_item = (BehaviorTreeNode*)(it->m_UserData);
 			svg_item->moveBy( -slide, 0.0 );
-            it = it->m_Sibling;
+            it = it->m_Next;
         }
 
         moveExtents( el, -slide );
@@ -225,6 +225,6 @@ void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 		if( c )
 			transformToWorld( c, n );
 
-		n = n->m_Sibling;
+		n = n->m_Next;
 	}
 }

@@ -235,7 +235,9 @@ void InitNode( Node* n )
 	InitGrist( &n->m_Grist );
 
 	n->m_Tree		= 0x0;
-	n->m_Sibling	= 0x0;
+	n->m_Pare		= 0x0;
+	n->m_Next		= 0x0;
+	n->m_Prev		= 0x0;
 	n->m_UserData	= 0x0;
 
 	n->m_Declared	= false;
@@ -243,10 +245,20 @@ void InitNode( Node* n )
 
 void AppendToEndOfList( Node* s, Node* e )
 {
-	while( s && s->m_Sibling )
-		s = s->m_Sibling;
+	while( s && s->m_Next )
+		s = s->m_Next;
 	if( s )
-		s->m_Sibling = e;
+		s->m_Next = e;
+}
+
+void SetParentOnChildren( Node* n )
+{
+	Node* c = GetFirstChild( n );
+	while( c )
+	{
+		c->m_Pare = n;
+		c = c->m_Next;
+	}
 }
 
 Node* GetFirstChild( Node* n )
@@ -273,6 +285,55 @@ Node* GetFirstChild( Node* n )
 		break;
 	}
 	return r;
+}
+
+void SetFirstChild( Node* n, Node* c )
+{
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		n->m_Grist.m_Sequence.m_FirstChild = c;
+		break;
+	case E_GRIST_SELECTOR:
+		n->m_Grist.m_Selector.m_FirstChild = c;
+		break;
+	case E_GRIST_PARALLEL:
+		n->m_Grist.m_Parallel.m_FirstChild = c;
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		n->m_Grist.m_DynSelector.m_FirstChild = c;
+		break;
+	case E_GRIST_DECORATOR:
+		n->m_Grist.m_Decorator.m_Child = c;
+		break;
+	case E_GRIST_ACTION:
+		break;
+	}
+}
+
+void UnlinkFromSiblings( Node* n )
+{
+	if( n->m_Prev )
+		n->m_Prev->m_Next = n->m_Next;
+	if( n->m_Next )
+		n->m_Next->m_Prev = n->m_Prev;
+	n->m_Prev = 0x0;
+	n->m_Next = 0x0;
+}
+
+void UnlinkNodeFromParentAndSiblings( Node* n )
+{
+	if( n->m_Pare )
+	{
+		Node* fc = GetFirstChild( n );
+		if( fc == n )
+			SetFirstChild( n->m_Pare, n->m_Next );
+		UnlinkFromSiblings( n );
+	}
+	else
+		UnlinkFromSiblings( n );
+
+	n->m_Pare = 0x0;
 }
 
 /*

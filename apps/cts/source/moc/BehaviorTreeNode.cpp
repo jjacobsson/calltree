@@ -70,11 +70,6 @@ QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant
 		update();
 		break;
 	case ItemPositionChange:
-		if( m_MouseState == E_MS_DRAGGING )
-		{
-			setZValue( 1.0 );
-			setOpacity( 0.75 );
-		}
 		break;
 	}
 	return QGraphicsSvgItem::itemChange( change, value );
@@ -102,7 +97,6 @@ void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 	if( event->button() == Qt::LeftButton )
 	{
 		m_MouseState = E_MS_NONE;
-		setOpacity( 1.0 );
 		setZValue( 0.0 );
 		if( m_PreviousParent )
 		{
@@ -119,7 +113,10 @@ void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 	if( m_MouseState == E_MS_LB_DOWN )
 	{
 		if( m_StartPos != event->screenPos() )
+		{
 			m_MouseState = E_MS_DRAGGING;
+			setZValue( 1.0 );
+		}
 	}
 	QGraphicsSvgItem::mouseMoveEvent( event );
 }

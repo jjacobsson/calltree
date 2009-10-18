@@ -17,7 +17,7 @@ NodeToNodeArrow::NodeToNodeArrow(
 		BehaviorTreeNode* end,
 		QGraphicsScene* scene
 	)
-	: QGraphicsLineItem( 0x0, scene)
+	: QGraphicsLineItem( start, scene)
 	, m_Start( start )
 	, m_End( end )
 {
@@ -26,17 +26,6 @@ NodeToNodeArrow::NodeToNodeArrow(
 	setPen(QPen(Qt::black, 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	setZValue( -1000.0 );
 }
-
- QRectF NodeToNodeArrow::boundingRect() const
- {
-	 qreal extra = (pen().width() + 20) / 2.0;
-
-	 return QRectF(line().p1(), QSizeF(line().p2().x() - line().p1().x(),
-									   line().p2().y() - line().p1().y()))
-		 .normalized()
-		 .adjusted(-extra, -extra, extra, extra);
- }
-
 
 void NodeToNodeArrow::updatePosition()
 {
