@@ -7,10 +7,9 @@
  * 
  */
 
-#include "../bt_program.h"
+//#include "../bt_program.h"
 #include <btree/btree.h>
 
-using namespace callback;
 /*
 SelectorNodeGrist::SelectorNodeGrist()
     : m_Children( 0x0 )

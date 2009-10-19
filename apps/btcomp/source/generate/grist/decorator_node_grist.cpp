@@ -7,11 +7,10 @@
  *
  */
 
-#include "../bt_program.h"
+//#include "../bt_program.h"
 #include <btree/btree.h>
 #include <other/lookup3.h>
 
-using namespace callback;
 /*
 DecoratorNodeGrist::DecoratorNodeGrist()
     : m_Decorator( 0x0 )

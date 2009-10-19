@@ -7,9 +7,9 @@
  *
  */
 
-#include "bt_program.h"
-#include "../endian.h"
-#include "../inst_text.h"
+#include "program.h"
+#include "endian.h"
+#include "inst_text.h"
 
 #include <btree/btree.h>
 #include <other/lookup3.h>
@@ -18,7 +18,6 @@
 #include <string.h>
 
 #include <algorithm>
-
 
 using namespace callback;
 
@@ -272,5 +271,118 @@ int DataSection::PushData( const char* data, int count )
 }
 
 
+int generate_program( Node* n, Program* p )
+{
+	if( !n || !p )
+		return -1;
 
+	int err;
+
+    //Alloc storage area for bss header
+    int bss_header  = p->m_B.Push( sizeof(BssHeader), 4 );
+    //Alloc storage area for child-node return value.
+    int bss_Return  = p->m_B.Push( sizeof(NodeReturns), 4 );
+
+    //Jump past construction code if tree is already running
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, bss_Return );
+
+    //Generate tree construction code
+    if( (err = generate_construction_code( n, p )) != 0 )
+    	return err;
+
+    //Patch jump past construction code instruction
+    p->m_I.SetA1( 0, p->m_I.Count() );
+
+    //Generate tree execution code
+    if( (err = generate_execution_code( n, p )) != 0 )
+    	return err;
+
+    //Store return value in bss.
+    p->m_I.Push( INST__STORE_R_IN_B, bss_Return, 0, 0 );
+
+    //Jump past destruciton code if tree is running
+    int patch_jump_out = p->m_I.Count();
+    p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_RUNNING, 0 );
+
+    //Generate destruction code
+    if( (err = generate_destruction_code( n, p )) != 0 )
+    	return err;
+
+    //Patch jump past destruction code instruction
+    p->m_I.SetA1( patch_jump_out, p->m_I.Count() );
+
+    //Suspend execution
+    p->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
+
+	return 0;
+}
+
+int generate_construction_code( Node* n, Program* p )
+{
+	if( !n->m_Declared )
+		return -1;
+
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		break;
+	case E_GRIST_SELECTOR:
+		break;
+	case E_GRIST_PARALLEL:
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		break;
+	case E_GRIST_DECORATOR:
+		break;
+	case E_GRIST_ACTION:
+		break;
+	}
+	return -1;
+}
+
+int generate_execution_code( Node* n, Program* p )
+{
+	if( !n->m_Declared )
+		return -1;
+
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		break;
+	case E_GRIST_SELECTOR:
+		break;
+	case E_GRIST_PARALLEL:
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		break;
+	case E_GRIST_DECORATOR:
+		break;
+	case E_GRIST_ACTION:
+		break;
+	}
+	return -1;
+}
+
+int generate_destruction_code( Node* n, Program* p )
+{
+	if( !n->m_Declared )
+		return -1;
+
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		break;
+	case E_GRIST_SELECTOR:
+		break;
+	case E_GRIST_PARALLEL:
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		break;
+	case E_GRIST_DECORATOR:
+		break;
+	case E_GRIST_ACTION:
+		break;
+	}
+	return -1;
+}
 

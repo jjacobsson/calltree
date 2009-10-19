@@ -7,12 +7,11 @@
  *
  */
 
-#include "bt_program.h"
+//#include "bt_program.h"
 #include <btree/btree.h>
 
 #include <algorithm>
 
-using namespace callback;
 /*
 VariableOwner::VariableOwner()
     : m_Variables( 0x0 )

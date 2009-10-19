@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef BT_PROGRAM_H_
-#define BT_PROGRAM_H_
+#ifndef PROGRAM_H_INCLUDED
+#define PROGRAM_H_INCLUDED
 
 #include <common/types.h>
 #include <callback/instructions.h>
@@ -16,7 +16,6 @@
 #include <btree/btree_data.h>
 #include <vector>
 
-class BehaviorTree;
 
 class CodeSection
 {
@@ -129,4 +128,17 @@ private:
     StringTable  m_String;
 };
 
-#endif /*BT_PROGRAM*/
+struct Program
+{
+	CodeSection m_I;
+	BSSSection	m_B;
+	DataSection m_D;
+};
+
+int generate_program( Node* root, Program* p );
+
+int generate_construction_code( Node* n, Program* p );
+int generate_execution_code( Node* n, Program* p );
+int generate_destruction_code( Node* n, Program* p );
+
+#endif /*PROGRAM_H_INCLUDED*/

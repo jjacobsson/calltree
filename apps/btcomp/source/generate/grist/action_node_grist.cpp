@@ -7,11 +7,10 @@
  * 
  */
 
-#include "../bt_program.h"
+//#include "../bt_program.h"
 #include <btree/btree.h>
 #include <other/lookup3.h>
 
-using namespace callback;
 /*
 ActionNodeGrist::ActionNodeGrist()
     : m_Action( 0x0 )
