@@ -8,10 +8,11 @@
  */
 
 #include "program.h"
+#include "nodes.h"
 #include "endian.h"
 #include "inst_text.h"
 
-#include <btree/btree.h>
+#include <btree/btree_data.h>
 #include <other/lookup3.h>
 
 #include <stdio.h>
@@ -287,14 +288,14 @@ int generate_program( Node* n, Program* p )
     p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, bss_Return );
 
     //Generate tree construction code
-    if( (err = generate_construction_code( n, p )) != 0 )
+    if( (err = gen_con( n, p )) != 0 )
     	return err;
 
     //Patch jump past construction code instruction
     p->m_I.SetA1( 0, p->m_I.Count() );
 
     //Generate tree execution code
-    if( (err = generate_execution_code( n, p )) != 0 )
+    if( (err = gen_exe( n, p )) != 0 )
     	return err;
 
     //Store return value in bss.
@@ -305,7 +306,7 @@ int generate_program( Node* n, Program* p )
     p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_RUNNING, 0 );
 
     //Generate destruction code
-    if( (err = generate_destruction_code( n, p )) != 0 )
+    if( (err = gen_des( n, p )) != 0 )
     	return err;
 
     //Patch jump past destruction code instruction
@@ -317,72 +318,4 @@ int generate_program( Node* n, Program* p )
 	return 0;
 }
 
-int generate_construction_code( Node* n, Program* p )
-{
-	if( !n->m_Declared )
-		return -1;
-
-	switch( n->m_Grist.m_Type )
-	{
-	case E_GRIST_SEQUENCE:
-		break;
-	case E_GRIST_SELECTOR:
-		break;
-	case E_GRIST_PARALLEL:
-		break;
-	case E_GRIST_DYN_SELECTOR:
-		break;
-	case E_GRIST_DECORATOR:
-		break;
-	case E_GRIST_ACTION:
-		break;
-	}
-	return -1;
-}
-
-int generate_execution_code( Node* n, Program* p )
-{
-	if( !n->m_Declared )
-		return -1;
-
-	switch( n->m_Grist.m_Type )
-	{
-	case E_GRIST_SEQUENCE:
-		break;
-	case E_GRIST_SELECTOR:
-		break;
-	case E_GRIST_PARALLEL:
-		break;
-	case E_GRIST_DYN_SELECTOR:
-		break;
-	case E_GRIST_DECORATOR:
-		break;
-	case E_GRIST_ACTION:
-		break;
-	}
-	return -1;
-}
-
-int generate_destruction_code( Node* n, Program* p )
-{
-	if( !n->m_Declared )
-		return -1;
-
-	switch( n->m_Grist.m_Type )
-	{
-	case E_GRIST_SEQUENCE:
-		break;
-	case E_GRIST_SELECTOR:
-		break;
-	case E_GRIST_PARALLEL:
-		break;
-	case E_GRIST_DYN_SELECTOR:
-		break;
-	case E_GRIST_DECORATOR:
-		break;
-	case E_GRIST_ACTION:
-		break;
-	}
-	return -1;
-}
 

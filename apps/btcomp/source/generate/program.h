@@ -137,8 +137,4 @@ struct Program
 
 int generate_program( Node* root, Program* p );
 
-int generate_construction_code( Node* n, Program* p );
-int generate_execution_code( Node* n, Program* p );
-int generate_destruction_code( Node* n, Program* p );
-
 #endif /*PROGRAM_H_INCLUDED*/
