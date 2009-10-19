@@ -13,10 +13,10 @@
 #include <common/types.h>
 #include <callback/instructions.h>
 #include <callback/callback.h>
-#include <vector>
 #include <btree/btree_data.h>
+#include <vector>
 
-class BehaviourTree;
+class BehaviorTree;
 
 class CodeSection
 {
@@ -39,8 +39,8 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( BehaviourTree* btp, Node* n, callback::NodeAction action );
-    void    PopDebugScope( BehaviourTree* btp, Node* n, callback::NodeAction action );
+    void    PushDebugScope( BehaviorTree* btp, Node* n, callback::NodeAction action );
+    void    PopDebugScope( BehaviorTree* btp, Node* n, callback::NodeAction action );
 
 private:
 

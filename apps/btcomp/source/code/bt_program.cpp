@@ -8,14 +8,10 @@
  */
 
 #include "bt_program.h"
-#include <callback/instructions.h>
-#include <callback/callback.h>
-#include <btree/btree_data.h>
-
 #include "../endian.h"
 #include "../inst_text.h"
-#include <btree/btree.h>
 
+#include <btree/btree.h>
 #include <other/lookup3.h>
 
 #include <stdio.h>
@@ -113,8 +109,6 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
             EndianSwap( t[i].m_A1 );
             EndianSwap( t[i].m_A2 );
             EndianSwap( t[i].m_A3 );
-
-
         }
     }
     size_t write = sizeof( Instruction ) * s;
@@ -122,7 +116,7 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
     return written == write;
 }
 
-void CodeSection::PushDebugScope( BehaviourTree* bt, Node* n, NodeAction action )
+void CodeSection::PushDebugScope( BehaviorTree* bt, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
@@ -132,7 +126,7 @@ void CodeSection::PushDebugScope( BehaviourTree* bt, Node* n, NodeAction action 
     //Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
 
-void CodeSection::PopDebugScope( BehaviourTree* bt, Node* n, NodeAction action )
+void CodeSection::PopDebugScope( BehaviorTree* bt, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
