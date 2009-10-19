@@ -16,6 +16,7 @@
 #include <btree/btree_data.h>
 #include <vector>
 
+struct Program;
 
 class CodeSection
 {
@@ -38,8 +39,8 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( BehaviorTree* btp, Node* n, callback::NodeAction action );
-    void    PopDebugScope( BehaviorTree* btp, Node* n, callback::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action );
+    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action );
 
 private:
 
@@ -136,5 +137,7 @@ struct Program
 };
 
 int generate_program( Node* root, Program* p );
+
+int print_program( FILE* outfile, Program* p );
 
 #endif /*PROGRAM_H_INCLUDED*/

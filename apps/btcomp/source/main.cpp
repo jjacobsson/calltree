@@ -11,6 +11,7 @@
 #include <other/getopt.h>
 
 #include <btree/btree.h>
+#include "generate/program.h"
 #include "xgml_printer.h"
 
 int main( int argc, char** argv )
@@ -79,20 +80,24 @@ int main( int argc, char** argv )
         int parseResults = bt.Parse( inputFileName );
         if( parseResults == 0 )
         {
-            bt.SetGenerateDebugInfo( debug );
-            bt.Generate();
-            if( asmFileName )
+        	Program p;
+        	p.m_I.SetGenerateDebugInfo( debug );
+            returnCode = generate_program( bt.m_Root, &p );
+            if( returnCode == 0 )
             {
-                FILE* asmFile = fopen( asmFileName, "w" );
-                if( !asmFile )
-                {
-                    fprintf( stderr, "warning: Unable to open assembly file %s for writing.\n", asmFile );
-                }
-                else
-                {
-                    bt.Print( asmFile );
-                    fclose( asmFile );
-                }
+				if( asmFileName )
+				{
+					FILE* asmFile = fopen( asmFileName, "w" );
+					if( !asmFile )
+					{
+						fprintf( stderr, "warning: Unable to open assembly file %s for writing.\n", asmFile );
+					}
+					else
+					{
+						print_program( asmFile, &p );
+						fclose( asmFile );
+					}
+				}
             }
 
             outputFile = fopen( outputFileName, "wb" );

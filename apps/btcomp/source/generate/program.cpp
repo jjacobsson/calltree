@@ -116,24 +116,24 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
     return written == write;
 }
 
-void CodeSection::PushDebugScope( BehaviorTree* bt, Node* n, NodeAction action )
+void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
     sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-    //int data = bt->GetDataSection().PushString( buff );
-    //Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+    int data = p->m_D.PushString( buff );
+    Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
 
-void CodeSection::PopDebugScope( BehaviorTree* bt, Node* n, NodeAction action )
+void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
     sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-    //int data = bt->GetDataSection().PushString( buff );
-    //Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+    int data = p->m_D.PushString( buff );
+    Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
 
 VMIType CodeSection::SafeConvert( TIn i ) const
@@ -318,4 +318,10 @@ int generate_program( Node* n, Program* p )
 	return 0;
 }
 
-
+int print_program( FILE* outFile, Program* p )
+{
+    p->m_I.Print( outFile );
+    p->m_B.Print( outFile );
+    p->m_D.Print( outFile );
+    return 0;
+}
