@@ -34,7 +34,7 @@ struct ParserContext
     void*          yyscanner;
     std::string    m_TmpString; // TODO: KILL KILL KILL!
     int            m_NewLines;
-    BehaviourTree* m_Tree;
+    BehaviorTree*  m_Tree;
     ParseFile*     m_File;
     int            m_PPCurrScope;
     int            m_PPUntilScope;

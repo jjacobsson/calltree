@@ -53,7 +53,7 @@ void XGMLPrinter::VisitSiblings( Node* n, Node* parent )
 	while( n )
 	{
 		Visit( n, parent );
-		n = n->m_Sibling;
+		n = n->m_Next;
 	}
 }
 

@@ -15,17 +15,13 @@
 #include "btree_data.h"
 #include "btree_func.h"
 
-class BehaviourTreeImpl;
+class BehaviorTreeImpl;
 
 struct ParseFile;
 struct ParserContext;
 struct SPreProcessScope;
 
-class CodeSection;
-class BSSSection;
-class DataSection; 
-
-class BehaviourTree
+class BehaviorTree
 {
 public:
 
@@ -33,8 +29,8 @@ public:
     typedef const Action* const *    const_action_iterator;
     typedef const Decorator* const * const_decorator_iterator;
 
-    BehaviourTree();
-    ~BehaviourTree();
+    BehaviorTree();
+    ~BehaviorTree();
 
     const_node_iterator NodeBegin() const;
     const_node_iterator NodeEnd() const;
@@ -81,7 +77,7 @@ public:
     void Warning( ParserContext*, int lineno, const char* msg );
 
     Node*              m_Root;
-    BehaviourTreeImpl* m_Impl;
+    BehaviorTreeImpl* m_Impl;
 };
 
 

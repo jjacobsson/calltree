@@ -11,7 +11,6 @@
 #define BTREE_IMPL_H_
 
 #include <btree/btree_data.h>
-
 #include "../parser/common.h"
 
 #include "sym_table.h"
@@ -87,11 +86,11 @@ struct HasIdPredicate
 
 };
 
-class BehaviourTreeImpl
+class BehaviorTreeImpl
 {
 public:
 
-    BehaviourTreeImpl()
+	BehaviorTreeImpl()
         : m_StringTable( 4096, 128 )
         , m_ParseFilePool( 16 )
     {}
@@ -111,7 +110,6 @@ public:
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;
     ParseFilePool            m_ParseFilePool;
-
 };
 
 #endif /*BTREE_IMPL_H_*/
