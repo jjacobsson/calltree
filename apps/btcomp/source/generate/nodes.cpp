@@ -16,6 +16,32 @@
 
 using namespace callback;
 
+int gen_setup( Node* n )
+{
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		return gen_setup_sequence( n, p );
+		break;
+	case E_GRIST_SELECTOR:
+		return gen_setup_selector( n, p );
+		break;
+	case E_GRIST_PARALLEL:
+		return gen_setup_parallel( n, p );
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		return gen_setup_dynselector( n, p );
+		break;
+	case E_GRIST_DECORATOR:
+		return gen_setup_decorator( n, p );
+		break;
+	case E_GRIST_ACTION:
+		return gen_setup_action( n, p );
+		break;
+	}
+	return -1;
+}
+
 int gen_con( Node* n, Program* p )
 {
 	if( !n->m_Declared )
@@ -98,6 +124,32 @@ int gen_des( Node* n, Program* p )
 		break;
 	case E_GRIST_ACTION:
 		return gen_des_action( n, p );
+		break;
+	}
+	return -1;
+}
+
+int gen_teardown( Node* n )
+{
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+		return gen_teardown_sequence( n, p );
+		break;
+	case E_GRIST_SELECTOR:
+		return gen_teardown_selector( n, p );
+		break;
+	case E_GRIST_PARALLEL:
+		return gen_teardown_parallel( n, p );
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		return gen_teardown_dynselector( n, p );
+		break;
+	case E_GRIST_DECORATOR:
+		return gen_teardown_decorator( n, p );
+		break;
+	case E_GRIST_ACTION:
+		return gen_teardown_action( n, p );
 		break;
 	}
 	return -1;
