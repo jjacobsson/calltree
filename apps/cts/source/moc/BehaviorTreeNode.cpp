@@ -116,6 +116,9 @@ void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 		{
 			m_MouseState = E_MS_DRAGGING;
 			setZValue( 1.0 );
+
+			UnlinkNodeFromParentAndSiblings( m_Node );
+
 		}
 	}
 	QGraphicsSvgItem::mouseMoveEvent( event );
