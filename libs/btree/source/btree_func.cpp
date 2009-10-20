@@ -248,7 +248,10 @@ void AppendToEndOfList( Node* s, Node* e )
 	while( s && s->m_Next )
 		s = s->m_Next;
 	if( s )
+	{
 		s->m_Next = e;
+		e->m_Prev = s;
+	}
 }
 
 void SetParentOnChildren( Node* n )
@@ -325,14 +328,12 @@ void UnlinkNodeFromParentAndSiblings( Node* n )
 {
 	if( n->m_Pare )
 	{
-		Node* fc = GetFirstChild( n );
+		Node* fc = GetFirstChild( n->m_Pare );
 		if( fc == n )
 			SetFirstChild( n->m_Pare, n->m_Next );
-		UnlinkFromSiblings( n );
 	}
-	else
-		UnlinkFromSiblings( n );
 
+	UnlinkFromSiblings( n );
 	n->m_Pare = 0x0;
 }
 

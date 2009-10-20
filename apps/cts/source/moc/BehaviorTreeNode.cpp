@@ -100,8 +100,8 @@ void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 		setZValue( 0.0 );
 		if( m_PreviousParent )
 		{
-			setPos( m_PreviousParent->mapFromScene( scenePos() ) );
-			setParentItem( m_PreviousParent );
+			//setPos( m_PreviousParent->mapFromScene( scenePos() ) );
+			//setParentItem( m_PreviousParent );
 			m_PreviousParent = 0x0;
 		}
 	}
