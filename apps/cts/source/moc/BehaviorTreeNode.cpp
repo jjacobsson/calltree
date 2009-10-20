@@ -71,6 +71,7 @@ NodeToNodeArrow* BehaviorTreeNode::findArrowTo( BehaviorTreeNode* other )
 		if( arrow->startItem() == other && arrow->endItem() == this )
 			return arrow;
 	}
+	return 0x0;
 }
 
 QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant &value )
@@ -98,18 +99,6 @@ void BehaviorTreeNode::mousePressEvent( QGraphicsSceneMouseEvent* event )
 			QPointF position( scenePos() );
 			setParentItem( 0x0 );
 			setPos( position );
-
-			if( m_PreviousParent )
-			{
-				NodeToNodeArrow* arrow = findArrowTo( m_PreviousParent );
-				if( arrow )
-				{
-					removeArrow( arrow );
-					m_PreviousParent->removeArrow( arrow );
-					scene()->removeItem( arrow );
-					delete arrow;
-				}
-			}
 		}
 	}
 	QGraphicsSvgItem::mousePressEvent( event );
@@ -121,14 +110,29 @@ void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 	{
 		if( m_MouseState == E_MS_DRAGGING )
 		{
+			if( m_PreviousParent )
+			{
+				NodeToNodeArrow* arrow = findArrowTo( m_PreviousParent );
+				if( arrow )
+				{
+					removeArrow( arrow );
+					m_PreviousParent->removeArrow( arrow );
+					scene()->removeItem( arrow );
+					delete arrow;
+				}
+			}
+
 			m_PreviousParent = 0x0;
+
 			Node* p = m_Node->m_Pare;
 			while( p && p->m_Pare )
 				p = p->m_Pare;
 
-			UnlinkNodeFromParentAndSiblings( m_Node );
 			if( p )
+			{
+				UnlinkNodeFromParentAndSiblings( m_Node );
 				AppendToEndOfList( p, m_Node );
+			}
 
 			emit nodeDragged();
 		}
