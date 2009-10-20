@@ -271,7 +271,7 @@ int DataSection::PushData( const char* data, int count )
     return start;
 }
 
-int setup_before_generate( Node* n, Program* p )
+int setup_before_generate_internal( Node* n, Program* p )
 {
 	while( n )
 	{
@@ -304,7 +304,7 @@ int setup_before_generate( Node* n, Program* p )
 	return 0;
 }
 
-int teardown_after_generate( Node* n, Program* p )
+int teardown_after_generate_internal( Node* n, Program* p )
 {
 	while( n )
 	{
@@ -337,6 +337,20 @@ int teardown_after_generate( Node* n, Program* p )
 	return 0;
 }
 
+int setup_before_generate( Node* n, Program* p )
+{
+    //Alloc storage area for bss header
+    p->m_bss_Header  = p->m_B.Push( sizeof(BssHeader), 4 );
+    //Alloc storage area for child-node return value.
+    p->m_bss_Return  = p->m_B.Push( sizeof(NodeReturns), 4 );
+	return setup_before_generate_internal( n, p );
+}
+
+int teardown_after_generate( Node* n, Program* p )
+{
+	return teardown_after_generate_internal( n, p );
+}
+
 int generate_program( Node* n, Program* p )
 {
 	if( !n || !p )
@@ -344,13 +358,8 @@ int generate_program( Node* n, Program* p )
 
 	int err;
 
-    //Alloc storage area for bss header
-    int bss_header  = p->m_B.Push( sizeof(BssHeader), 4 );
-    //Alloc storage area for child-node return value.
-    int bss_Return  = p->m_B.Push( sizeof(NodeReturns), 4 );
-
     //Jump past construction code if tree is already running
-    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, bss_Return );
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, p->m_bss_Return );
 
     //Generate tree construction code
     if( (err = gen_con( n, p )) != 0 )
@@ -364,7 +373,7 @@ int generate_program( Node* n, Program* p )
     	return err;
 
     //Store return value in bss.
-    p->m_I.Push( INST__STORE_R_IN_B, bss_Return, 0, 0 );
+    p->m_I.Push( INST__STORE_R_IN_B, p->m_bss_Return, 0, 0 );
 
     //Jump past destruciton code if tree is running
     int patch_jump_out = p->m_I.Count();

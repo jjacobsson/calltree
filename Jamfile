@@ -24,9 +24,19 @@ BUILD_TREES_DIR = $(BUILD_ROOT)$(SLASH)trees$(SLASH) ;
 #	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm)
 #}
 
-actions btcomp
+if $(CONFIGURATION) = debug
 {
-	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
+	actions btcomp
+	{
+		$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml) -d
+	}
+}
+else
+{
+	actions btcomp
+	{
+		$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
+	}
 }
 
 rule CompileBehaviourTrees
