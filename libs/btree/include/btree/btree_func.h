@@ -81,6 +81,8 @@ void UnlinkFromSiblings( Node *n );
 
 void UnlinkNodeFromParentAndSiblings( Node* n );
 
+int CountChildNodes( Node* n );
+
 /*
  * Node Grist Functions
  */

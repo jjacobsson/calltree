@@ -326,7 +326,7 @@ int print_program( FILE* outFile, Program* p )
     return 0;
 }
 
-void setup_before_generate( Node* n, Program* p )
+int setup_before_generate( Node* n, Program* p )
 {
 	while( n )
 	{
@@ -350,38 +350,44 @@ void setup_before_generate( Node* n, Program* p )
 		case E_GRIST_ACTION:
 			gen_setup_action( n, p );
 			break;
+		default:
+			return -1;
 		}
 		setup_before_generate( GetFirstChild( n ), p );
 		n = n->m_Next;
 	}
+	return 0;
 }
 
-void teardown_after_generate( Node* n, Program* p )
+int teardown_after_generate( Node* n, Program* p )
 {
 	while( n )
 	{
 		switch( n->m_Grist.m_Type )
 		{
 		case E_GRIST_SEQUENCE:
-			return gen_teardown_sequence( n, p );
+			gen_teardown_sequence( n, p );
 			break;
 		case E_GRIST_SELECTOR:
-			return gen_teardown_selector( n, p );
+			gen_teardown_selector( n, p );
 			break;
 		case E_GRIST_PARALLEL:
-			return gen_teardown_parallel( n, p );
+			gen_teardown_parallel( n, p );
 			break;
 		case E_GRIST_DYN_SELECTOR:
-			return gen_teardown_dynselector( n, p );
+			gen_teardown_dynselector( n, p );
 			break;
 		case E_GRIST_DECORATOR:
-			return gen_teardown_decorator( n, p );
+			gen_teardown_decorator( n, p );
 			break;
 		case E_GRIST_ACTION:
-			return gen_teardown_action( n, p );
+			gen_teardown_action( n, p );
 			break;
+		default:
+			return -1;
 		}
 		teardown_after_generate( GetFirstChild( n ), p );
 		n = n->m_Next;
 	}
+	return 0;
 }

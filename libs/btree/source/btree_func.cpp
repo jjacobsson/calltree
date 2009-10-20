@@ -336,6 +336,18 @@ void UnlinkNodeFromParentAndSiblings( Node* n )
 	n->m_Pare = 0x0;
 }
 
+int CountChildNodes( Node* n )
+{
+	Node* c = GetFirstChild( n );
+	int retval = 0;
+	while( c )
+	{
+		c = c->m_Next;
+		++retval;
+	}
+	return retval;
+}
+
 /*
  * Node Grist functions
  */

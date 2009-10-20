@@ -14,6 +14,8 @@
 #include <btree/btree_func.h>
 #include <callback/callback.h>
 
+#include <other/lookup3.h>
+
 using namespace callback;
 
 int gen_con( Node* n, Program* p )
@@ -573,29 +575,202 @@ int gen_des_parallel( Node* n, Program* p )
  *
  */
 
+struct DynamicSelectorNodeData
+{
+	int m_bss_NewBranch;
+	int m_bss_OldBranch;
+	int m_bss_JumpBackTarget;
+	int m_bss_RunningChild;
+};
+
 void gen_setup_dynselector( Node* n, Program* p )
 {
+	//Alloc space needed for code generation
+	DynamicSelectorNodeData* nd = new DynamicSelectorNodeData;
 
+	//Store needed generation data in the node's UserData pointer
+	n->m_UserData = nd;
+
+	//Alloc storage area in bss
+	nd->m_bss_NewBranch             = p->m_B.Push( sizeof( int ), 4 );
+	nd->m_bss_OldBranch             = p->m_B.Push( sizeof( int ), 4 );
+	nd->m_bss_JumpBackTarget        = p->m_B.Push( sizeof( int ), 4 );
+	nd->m_bss_RunningChild          = p->m_B.Push( sizeof( int ) * CountChildNodes( n ), 4 );
 }
 
 void gen_teardown_dynselector( Node* n, Program* p )
 {
-
+	//Free the space used when generating code.
+	delete ((DynamicSelectorNodeData*)n->m_UserData);
+	n->m_UserData = 0x0;
 }
 
 int gen_con_dynselector( Node* n, Program* p )
 {
+	DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
+	// Enter Debug scope
+	p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+	int i = 0;
+	Node* c = GetFirstChild( n );
+	while( c )
+	{
+		//calculate where in the bss this child's return value should be stored
+		int bss_current_child = nd->m_bss_RunningChild + (i * sizeof(int));
+		//Set bss return value to undefined for all child nodes.
+		p->m_I.Push( INST__STORE_C_IN_B, bss_current_child, E_NODE_UNDEFINED, 0 );
+		//Iterate
+		c = c->m_Next; ++i;
+	}
+
+	//Set bss values to undefined
+	p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_NewBranch, 0xffffffff, 0 );
+	p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_OldBranch, 0xffffffff, 0 );
+
+	// Exit Debug scope
+	p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
 	return -1;
 }
 
 int gen_exe_dynselector( Node* n, Program* p )
 {
-	return -1;
+	DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+
+    typedef std::vector<int> PatchList;
+    PatchList exit_jumps, true_exit_jumps, cons_jumps, exec_jumps, dest_jumps;
+    int i = 0;
+    Node* c = GetFirstChild( n );
+    while( c )
+    {
+        //calculate where in the bss this child's return value should be stored
+        int bss_current_child = nd->m_bss_RunningChild + (i * sizeof(int));
+
+        //Set jump back after construction target.
+        p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, p->m_I.Count() + 2, 0 );
+        //Jump to construction code *if* this child is NOT running.
+        cons_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST_JABC_C_DIFF_B, 0xffffffff, E_NODE_RUNNING, bss_current_child );
+
+        //Set this as the "new" executing branch.
+        dest_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_NewBranch, 0xffffffff, 0 );
+
+        //Jump to execution code and set the jump-back at the same time
+        exec_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST_JABC_S_C_IN_B, 0xffffffff, nd->m_bss_JumpBackTarget, p->m_I.Count() + 1 );
+
+        //exit if running
+        exit_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_RUNNING, 0 );
+
+        //Jump to destruction code and set the jump-back at the same time
+        dest_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST_JABC_S_C_IN_B, 0xffffffff, nd->m_bss_JumpBackTarget,  p->m_I.Count() + 1 );
+
+        //exit if success
+        exit_jumps.push_back( p->m_I.Count() );
+        p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_SUCCESS, 0 );
+
+        //Iterate
+        c = c->m_Next; ++i;
+    }
+
+    // Truly jump to exit instruction... this happens when all nodes fail
+    true_exit_jumps.push_back( p->m_I.Count() );
+    p->m_I.Push( INST_JABC_CONSTANT, 0xffffffff, 0, 0 );
+
+    int err;
+    i = 0;
+    c = GetFirstChild( n );
+    while( c )
+    {
+        //calculate where in the bss this child's return value should be stored
+        int bss_current_child = nd->m_bss_RunningChild + (i * sizeof(int));
+
+        //Patch jump to construction instruction
+        p->m_I.SetA1( cons_jumps[i], p->m_I.Count() );
+        //call child-node construction code
+        if( (err = gen_con( c, p )) != 0 )
+        	return err;
+        //Jump back to calling code
+        p->m_I.Push( INST_JABB_BSSVALUE, nd->m_bss_JumpBackTarget, 0, 0 );
+
+        //Patch jump to execution instruction
+        p->m_I.SetA1( exec_jumps[i], p->m_I.Count() );
+        //call child-node execution code
+        if( (err = gen_exe( c, p )) != 0 )
+        	return err;
+        //Store child's return value
+        p->m_I.Push( INST__STORE_R_IN_B, bss_current_child, 0, 0 );
+        //Jump back to calling code
+        p->m_I.Push( INST_JABB_BSSVALUE, nd->m_bss_JumpBackTarget, 0, 0 );
+
+        //Patch store destruction code pointer instruction
+        p->m_I.SetA2( dest_jumps[0+i*2], p->m_I.Count() );
+        //Patch jump to destruction instruction
+        p->m_I.SetA1( dest_jumps[1+i*2], p->m_I.Count() );
+        //call child-node destruction code
+        if( (err = gen_des( c, p )) != 0 )
+        	return err;
+        //Set childs stored return value to undefined
+        p->m_I.Push( INST__STORE_C_IN_B, bss_current_child, E_NODE_UNDEFINED, 0 );
+        //Jump back to calling code
+        p->m_I.Push( INST_JABB_BSSVALUE, nd->m_bss_JumpBackTarget, 0, 0 );
+        //Iterate
+        c = c->m_Next; ++i;
+    }
+
+    //Time to patch some jumps! wheee!
+
+    //Patch exit jumps
+    int exit_point = p->m_I.Count();
+    int s = exit_jumps.size();
+    for( int i = 0; i < s; ++i )
+        p->m_I.SetA1( exit_jumps[i], exit_point );
+
+    //Jump past all this crap if "old branch" is uninitialized
+    true_exit_jumps.push_back( p->m_I.Count() );
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, 0xffffffff, nd->m_bss_OldBranch );
+    //set jump back after destruction target
+    p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, p->m_I.Count() + 2, 0 );
+    //Jump to destruction code of "old branch" *if* it differs from "new branch"
+    p->m_I.Push( INST_JABB_B_DIFF_B, nd->m_bss_OldBranch, nd->m_bss_NewBranch, nd->m_bss_OldBranch );
+    //Copy "new branch" into "old branch"
+    p->m_I.Push( INST__STORE_B_IN_B, nd->m_bss_OldBranch, nd->m_bss_NewBranch, 0 );
+    //Set new branch to uninitialized
+    p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_NewBranch, 0xffffffff, 0 );
+
+    //Patch "true" exit jumps
+    exit_point = p->m_I.Count();
+    s = true_exit_jumps.size();
+    for( int i = 0; i < s; ++i )
+        p->m_I.SetA1( true_exit_jumps[i], exit_point );
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+	return 0;
 }
 
 int gen_des_dynselector( Node* n, Program* p )
 {
-	return -1;
+	DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+
+    //Jump past all this crap if "old branch" is uninitialized
+    int patch_exit = p->m_I.Count();
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, 0xffffffff, nd->m_bss_OldBranch );
+    //set jump back after destruction target
+    p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, p->m_I.Count() + 2, 0 );
+    //Jump to destruction code of "old branch" if it is set to a valid value
+    p->m_I.Push( INST_JABB_C_DIFF_B, nd->m_bss_OldBranch, 0xffffffff, nd->m_bss_OldBranch );
+    //Patch the jump instruction
+    p->m_I.SetA1( patch_exit, p->m_I.Count() );
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+    return 0;
 }
 
 /*
@@ -604,29 +779,189 @@ int gen_des_dynselector( Node* n, Program* p )
  *
  */
 
+struct DecoratorNodeData
+{
+	int m_bssPos;
+	int m_bssModPos;
+};
+
+
 void gen_setup_decorator( Node* n, Program* p )
 {
+	//Alloc space needed for code generation
+	DecoratorNodeData* nd = new DecoratorNodeData;
+
+	//Store needed generation data in the node's UserData pointer
+	n->m_UserData = nd;
+
+	//Get the decorator declaration.
+	Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
+
+	Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "bss" ) );
+    int bss_need = t?ValueAsInteger(*t):0;
+    t = FindVariableWithIdHash( d->m_Vars, hashlittle( "modify" ) );
+    if( t && ValueAsBool( *t ) )
+        bss_need += 4;
+
+    if( bss_need > 0 )
+    {
+        nd->m_bssPos    = p->m_B.Push( bss_need, 4 );
+        nd->m_bssModPos = (nd->m_bssPos + bss_need) - 4;
+    }
 
 }
 
 void gen_teardown_decorator( Node* n, Program* p )
 {
-
+	//Free the space used when generating code.
+	delete ((DecoratorNodeData*)n->m_UserData);
+	n->m_UserData = 0x0;
 }
 
 int gen_con_decorator( Node* n, Program* p )
 {
-	return -1;
+	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+
+	Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
+
+	Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+
+    //Store the variable values in the data section.
+    StoreVariablesInDataSection( p, d->m_Args );
+
+    // Load bss section with pointers to the data section, for the variables
+    GenerateVariableInstructions( p );
+
+    t = FindVariableWithIdHash( d->m_Vars, hashlittle( "construct" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        // Call the decorator construction function
+        p->m_I.Push( INST_CALL_CONS_FUN, 0, 1, 2 );
+    }
+
+    Node* c = GetFirstChild( n );
+    if( c )
+    {
+    	int err;
+    	if( (err = gen_con( c, p )) != 0 )
+    		return err;
+    }
+
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+	return 0;
 }
 
 int gen_exe_decorator( Node* n, Program* p )
 {
-	return -1;
+	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+
+	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+
+    int jump_out = -1;
+
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "prune" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        // Enter Debug scope
+        p->m_I.PushDebugScope( p, n, ACT_PRUNE );
+
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        // Call the decorator prune function
+        p->m_I.Push( INST_CALL_PRUN_FUN, 0, 1, 2 );
+
+        // Exit Debug scope
+        p->m_I.PopDebugScope( p, n, ACT_PRUNE );
+
+        //Jump out if non-success.
+        jump_out = p->m_I.Count();
+        p->m_I.Push( INST_JABC_R_DIFF_C, 0xffffffff, E_NODE_SUCCESS, 0 );
+    }
+
+    //Generate child execution code
+    m_Child->m_Grist->GenerateExecutionCode( p );
+
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "modify" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        // Enter Debug scope
+        p->m_I.PushDebugScope( p, n, ACT_MODIFY );
+
+        //Copy return value to bss section
+        p->m_I.Push( INST__STORE_R_IN_B, nd->m_bssModPos, 0, 0 );
+
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        //Call the decorator modify function
+        p->m_I.Push( INST_CALL_MODI_FUN, 0, 1, 2 );
+
+        // Exit Debug scope
+        p->m_I.PopDebugScope( p, n, ACT_MODIFY );
+    }
+
+    if( jump_out != -1 )
+        p->m_I.SetA1( jump_out, p->m_I.Count() );
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+
+    return 0;
 }
 
 int gen_des_decorator( Node* n, Program* p )
 {
-	return -1;
+	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+
+	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+
+    m_Child->m_Grist->GenerateDestructionCode( p );
+
+    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "destruct" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        // Call the decorator destruciton function
+        p->m_I.Push( INST_CALL_DEST_FUN, 0, 1, 2 );
+    }
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+
+    return 0;
 }
 
 /*
@@ -635,27 +970,115 @@ int gen_des_decorator( Node* n, Program* p )
  *
  */
 
-void gen_setup_action( Node* n, Program* p )
+struct ActionNodeData
 {
 
+};
+
+void gen_setup_action( Node* n, Program* p )
+{
+	//Alloc space needed for code generation
+	ActionNodeData* nd = new ActionNodeData;
+
+	//Store needed generation data in the node's UserData pointer
+	n->m_UserData = nd;
 }
 
 void gen_teardown_action( Node* n, Program* p )
 {
-
+	//Free the space used when generating code.
+	delete ((ActionNodeData*)n->m_UserData);
+	n->m_UserData = 0x0;
 }
 
 int gen_con_action( Node* n, Program* p )
 {
-	return -1;
+	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
+
+	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+	int fid = t?ValueAsInteger(*t):~0;
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+
+    //Store the variable values in the data section.
+    StoreVariablesInDataSection( p, m_Action->m_Args );
+
+    // Load bss section with pointers to the data section, for the variables
+    GenerateVariableInstructions( p );
+
+    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "bss" ) );
+    int bss = t?ValueAsInteger(*t):0;
+    if( bss > 0 )
+        nd->m_bssPos = p->m_B.Push( bss, 4 );
+
+    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "construct" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the callback id register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        // Call the construction callback
+        p->m_I.Push( INST_CALL_CONS_FUN, 0, 1, 2 );
+    }
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+
+    return 0;
 }
 
 int gen_exe_action( Node* n, Program* p )
 {
-	return -1;
+	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
+
+	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+    int fid = t?ValueAsInteger(*t):~0;
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+    //Setup the register for the data pointer
+    SetupVariableRegistry( p );
+    // Load bss register with bss pointer
+    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    // Load the callback id register with the correct id
+    p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+    // Call the destruction callback
+    p->m_I.Push( INST_CALL_EXEC_FUN, 0, 1, 2 );
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+
+    return 0;
 }
 
 int gen_des_action( Node* n, Program* p )
 {
-	return -1;
+	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
+
+	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+    int fid = t?ValueAsInteger(*t):~0;
+
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+
+    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "destruct" ) );
+    if( t && ValueAsBool( *t ) )
+    {
+        //Setup the register for the data pointer
+        SetupVariableRegistry( p );
+        // Load bss register with bss pointer
+        p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+        // Load the callback id register with the correct id
+        p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid & 0x0000ffff );
+        // Call the destruction callback
+        p->m_I.Push( INST_CALL_DEST_FUN, 0, 1, 2 );
+    }
+
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+
+    return 0;
 }
