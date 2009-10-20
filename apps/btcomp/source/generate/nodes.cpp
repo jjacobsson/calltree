@@ -13,10 +13,23 @@
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 #include <callback/callback.h>
-
 #include <other/lookup3.h>
 
+#include <vector>
+
 using namespace callback;
+
+typedef std::vector<int> IntVector;
+
+struct VariableGenerateData
+{
+	int			m_bssStart;
+	IntVector	m_Data;
+};
+
+int store_variables_in_data_section( VariableGenerateData* vd, Variable* vars, Variable* dec, Program* p );
+int generate_variable_instructions( VariableGenerateData* vd, Variable* vars, Program* p );
+int setup_variable_registry( VariableGenerateData* vd, Variable* vars, Program* p );
 
 int gen_con( Node* n, Program* p )
 {
@@ -163,10 +176,9 @@ int gen_exe_sequence( Node* n, Program* p )
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
 
-    typedef std::vector<int> PatchList;
-    PatchList exit_running;
-    PatchList exit_fail;
-    PatchList dest_jumps;
+    IntVector exit_running;
+    IntVector exit_fail;
+    IntVector dest_jumps;
 
     //Jump to re-entry point if set
     p->m_I.Push( INST_JABB_C_DIFF_B, nd->m_bss_ReEntry, 0xffffffff, nd->m_bss_ReEntry );
@@ -333,10 +345,9 @@ int gen_exe_selector( Node* n, Program* p )
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
 
-    typedef std::vector<int> PatchList;
-    PatchList exit_running;
-    PatchList exit_success;
-    PatchList dest_jumps;
+    IntVector exit_running;
+    IntVector exit_success;
+    IntVector dest_jumps;
 
     //Jump to re-entry point if set
     p->m_I.Push( INST_JABB_C_DIFF_B, nd->m_bss_ReEntry, 0xffffffff, nd->m_bss_ReEntry );
@@ -504,8 +515,7 @@ int gen_exe_parallel( Node* n, Program* p )
     //Set the success counter to 0
     p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_SuccessCounter, 0, 0 );
 
-    typedef std::vector<int> PatchList;
-    PatchList exit_fail;
+    IntVector exit_fail;
 
     int i = 0, err;
     Node* c = GetFirstChild( n );
@@ -628,7 +638,7 @@ int gen_con_dynselector( Node* n, Program* p )
 
 	// Exit Debug scope
 	p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
-	return -1;
+	return 0;
 }
 
 int gen_exe_dynselector( Node* n, Program* p )
@@ -637,8 +647,7 @@ int gen_exe_dynselector( Node* n, Program* p )
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
 
-    typedef std::vector<int> PatchList;
-    PatchList exit_jumps, true_exit_jumps, cons_jumps, exec_jumps, dest_jumps;
+    IntVector exit_jumps, true_exit_jumps, cons_jumps, exec_jumps, dest_jumps;
     int i = 0;
     Node* c = GetFirstChild( n );
     while( c )
@@ -783,11 +792,15 @@ struct DecoratorNodeData
 {
 	int m_bssPos;
 	int m_bssModPos;
+	VariableGenerateData m_VD;
 };
-
 
 void gen_setup_decorator( Node* n, Program* p )
 {
+    Node* c = GetFirstChild( n );
+    if( !c )
+    	return;
+
 	//Alloc space needed for code generation
 	DecoratorNodeData* nd = new DecoratorNodeData;
 
@@ -809,10 +822,16 @@ void gen_setup_decorator( Node* n, Program* p )
         nd->m_bssModPos = (nd->m_bssPos + bss_need) - 4;
     }
 
+    //Store the variable values in the data section.
+    store_variables_in_data_section( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, d->m_Args, p );
 }
 
 void gen_teardown_decorator( Node* n, Program* p )
 {
+    Node* c = GetFirstChild( n );
+    if( !c )
+    	return;
+
 	//Free the space used when generating code.
 	delete ((DecoratorNodeData*)n->m_UserData);
 	n->m_UserData = 0x0;
@@ -820,6 +839,10 @@ void gen_teardown_decorator( Node* n, Program* p )
 
 int gen_con_decorator( Node* n, Program* p )
 {
+    Node* c = GetFirstChild( n );
+    if( !c )
+    	return 0;
+
 	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
 
 	Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
@@ -830,17 +853,20 @@ int gen_con_decorator( Node* n, Program* p )
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
 
-    //Store the variable values in the data section.
-    StoreVariablesInDataSection( p, d->m_Args );
+    int err;
 
-    // Load bss section with pointers to the data section, for the variables
-    GenerateVariableInstructions( p );
+	// Load bss section with pointers to the data section, for the variables
+	err = generate_variable_instructions( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, p );
+	if( err != 0 )
+		return err;
 
     t = FindVariableWithIdHash( d->m_Vars, hashlittle( "construct" ) );
     if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+        err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, p );
+        if( err != 0 )
+        	return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the register with the correct id
@@ -849,14 +875,9 @@ int gen_con_decorator( Node* n, Program* p )
         p->m_I.Push( INST_CALL_CONS_FUN, 0, 1, 2 );
     }
 
-    Node* c = GetFirstChild( n );
-    if( c )
-    {
-    	int err;
-    	if( (err = gen_con( c, p )) != 0 )
-    		return err;
-    }
-
+    //Generate child construction code
+   	if( (err = gen_con( c, p )) != 0 )
+   		return err;
 
     // Exit Debug scope
     p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
@@ -865,25 +886,33 @@ int gen_con_decorator( Node* n, Program* p )
 
 int gen_exe_decorator( Node* n, Program* p )
 {
-	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+    Node* c = GetFirstChild( n );
+    if( !c )
+    	return 0;
 
-	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+	Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
+
+	Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
 	int fid = t?ValueAsInteger(*t):~0;
 
 
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
 
+    int err;
     int jump_out = -1;
 
-    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "prune" ) );
+    t = FindVariableWithIdHash( d->m_Vars, hashlittle( "prune" ) );
     if( t && ValueAsBool( *t ) )
     {
         // Enter Debug scope
         p->m_I.PushDebugScope( p, n, ACT_PRUNE );
 
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+        err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, p );
+        if( err != 0 )
+        	return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the register with the correct id
@@ -900,9 +929,10 @@ int gen_exe_decorator( Node* n, Program* p )
     }
 
     //Generate child execution code
-    m_Child->m_Grist->GenerateExecutionCode( p );
+	if( (err = gen_exe( c, p )) != 0 )
+		return err;
 
-    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "modify" ) );
+    t = FindVariableWithIdHash( d->m_Vars, hashlittle( "modify" ) );
     if( t && ValueAsBool( *t ) )
     {
         // Enter Debug scope
@@ -912,7 +942,9 @@ int gen_exe_decorator( Node* n, Program* p )
         p->m_I.Push( INST__STORE_R_IN_B, nd->m_bssModPos, 0, 0 );
 
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+        err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, p );
+        if( err != 0 )
+        	return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the register with the correct id
@@ -935,21 +967,32 @@ int gen_exe_decorator( Node* n, Program* p )
 
 int gen_des_decorator( Node* n, Program* p )
 {
-	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+    Node* c = GetFirstChild( n );
+    if( !c )
+    	return 0;
 
-	Variable* t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "id" ) );
+	DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
+	Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
+
+	Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
 	int fid = t?ValueAsInteger(*t):~0;
 
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
 
-    m_Child->m_Grist->GenerateDestructionCode( p );
+    int err;
 
-    t = FindVariableWithIdHash( m_Decorator->m_Vars, hashlittle( "destruct" ) );
+    // Generate child destruction code
+	if( (err = gen_des( c, p )) != 0 )
+		return err;
+
+    t = FindVariableWithIdHash( d->m_Vars, hashlittle( "destruct" ) );
     if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+        err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Decorator.m_Arguments, p );
+        if( err != 0 )
+        	return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the register with the correct id
@@ -972,7 +1015,8 @@ int gen_des_decorator( Node* n, Program* p )
 
 struct ActionNodeData
 {
-
+	int m_bssPos;
+	VariableGenerateData m_VD;
 };
 
 void gen_setup_action( Node* n, Program* p )
@@ -982,6 +1026,17 @@ void gen_setup_action( Node* n, Program* p )
 
 	//Store needed generation data in the node's UserData pointer
 	n->m_UserData = nd;
+	//Obtain action declaration
+	Action* a = n->m_Grist.m_Action.m_Action;
+
+	//Alloc bss-space for the callback function if it needs it.
+    Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "bss" ) );
+    int bss = t?ValueAsInteger(*t):0;
+    if( bss > 0 )
+        nd->m_bssPos = p->m_B.Push( bss, 4 );
+
+    //Store the variable values in the data section.
+    store_variables_in_data_section( &nd->m_VD, n->m_Grist.m_Action.m_Arguments, a->m_Args, p );
 }
 
 void gen_teardown_action( Node* n, Program* p )
@@ -994,29 +1049,29 @@ void gen_teardown_action( Node* n, Program* p )
 int gen_con_action( Node* n, Program* p )
 {
 	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
-
-	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+	//Obtain action declaration
+	Action* a = n->m_Grist.m_Action.m_Action;
+	//Get the actions function id
+	Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
 	int fid = t?ValueAsInteger(*t):~0;
 
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
 
-    //Store the variable values in the data section.
-    StoreVariablesInDataSection( p, m_Action->m_Args );
+    int err;
 
     // Load bss section with pointers to the data section, for the variables
-    GenerateVariableInstructions( p );
+    err = generate_variable_instructions( &nd->m_VD, n->m_Grist.m_Action.m_Arguments, p );
+    if( err != 0 )
+    	return err;
 
-    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "bss" ) );
-    int bss = t?ValueAsInteger(*t):0;
-    if( bss > 0 )
-        nd->m_bssPos = p->m_B.Push( bss, 4 );
-
-    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "construct" ) );
+    t = FindVariableWithIdHash( a->m_Vars, hashlittle( "construct" ) );
     if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+    	err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Action.m_Arguments, p );
+    	if( err != 0 )
+    		return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the callback id register with the correct id
@@ -1034,14 +1089,18 @@ int gen_con_action( Node* n, Program* p )
 int gen_exe_action( Node* n, Program* p )
 {
 	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
-
-	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+	//Obtain action declaration
+	Action* a = n->m_Grist.m_Action.m_Action;
+	//Get the actions function id
+	Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
     int fid = t?ValueAsInteger(*t):~0;
 
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
     //Setup the register for the data pointer
-    SetupVariableRegistry( p );
+	int err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Action.m_Arguments, p );
+	if( err != 0 )
+		return err;
     // Load bss register with bss pointer
     p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
     // Load the callback id register with the correct id
@@ -1057,18 +1116,22 @@ int gen_exe_action( Node* n, Program* p )
 int gen_des_action( Node* n, Program* p )
 {
 	ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
-
-	Variable* t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "id" ) );
+	//Obtain action declaration
+	Action* a = n->m_Grist.m_Action.m_Action;
+	//Get the actions function id
+	Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
     int fid = t?ValueAsInteger(*t):~0;
 
     // Enter Debug scope
     p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
 
-    t = FindVariableWithIdHash( m_Action->m_Vars, hashlittle( "destruct" ) );
+    t = FindVariableWithIdHash( a->m_Vars, hashlittle( "destruct" ) );
     if( t && ValueAsBool( *t ) )
     {
         //Setup the register for the data pointer
-        SetupVariableRegistry( p );
+    	int err = setup_variable_registry( &nd->m_VD, n->m_Grist.m_Action.m_Arguments, p );
+    	if( err != 0 )
+    		return err;
         // Load bss register with bss pointer
         p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
         // Load the callback id register with the correct id
@@ -1082,3 +1145,75 @@ int gen_des_action( Node* n, Program* p )
 
     return 0;
 }
+
+int store_variables_in_data_section(
+	VariableGenerateData* vd,
+	Variable* vars,
+	Variable* dec,
+	Program* p
+)
+{
+	if( !vars || !dec )
+        return 0;
+
+    vd->m_Data.clear();
+    vd->m_bssStart = p->m_B.Push( sizeof(void*) * CountElementsInList( dec ), sizeof(void*) );
+
+    DataSection& d = p->m_D;
+    Variable* it;
+    for( it = dec; it != 0x0; it = it->m_Next )
+    {
+    	Variable* v = FindVariableWithIdHash( vars, it->m_Id.m_Hash );
+
+    	if( !v )
+    		return -1;
+
+        switch( it->m_Type )
+        {
+        case E_VART_INTEGER:
+        	vd->m_Data.push_back( d.PushInteger( ValueAsInteger(*v) ) );
+            break;
+        case E_VART_FLOAT:
+        	vd->m_Data.push_back( d.PushFloat( ValueAsFloat(*v) ) );
+            break;
+        case E_VART_STRING:
+        	vd->m_Data.push_back( d.PushString( ValueAsString(*v) ) );
+            break;
+        case E_VART_BOOL:
+        	vd->m_Data.push_back( d.PushInteger( ValueAsInteger(*v) ) );
+            break;
+        default:
+        	return -1;
+            break;
+        }
+    }
+
+	return 0;
+}
+int generate_variable_instructions( VariableGenerateData* vd, Variable* vars, Program* p )
+{
+    IntVector::iterator it, it_e( vd->m_Data.end() );
+    int i = 0;
+    for( it = vd->m_Data.begin(); it != it_e; ++it, ++i )
+    {
+        //Store a pointer to a variable in the data section in the bss section.
+        p->m_I.Push( INST_STORE_PD_IN_B, vd->m_bssStart + (sizeof(void*) * i), *it, 0 );
+    }
+    return 0;
+}
+
+int setup_variable_registry( VariableGenerateData* vd, Variable* vars, Program* p )
+{
+    if( !vd->m_Data.empty() )
+    {
+        // Load the user data register with a pointer to the bss structure for variables
+    	p->m_I.Push( INST_STORE_PB_IN_R, 2, vd->m_bssStart, 0 );
+    }
+    else
+    {
+        //Load the user data register with a null pointer
+    	p->m_I.Push( INST_LOAD_REGISTRY, 2, 0, 0 );
+    }
+    return 0;
+}
+
