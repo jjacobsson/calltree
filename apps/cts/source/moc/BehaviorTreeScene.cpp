@@ -61,6 +61,8 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 	{
 		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
+		connect( svg_item, SIGNAL( nodeDragged() ), this, SLOT( layoutNodes() ) );
+
 		if( !parent )
 			addItem( svg_item );
 
@@ -85,6 +87,8 @@ void BehaviorTreeScene::layoutNode( Node* n )
         ExtentsList t;
         depthFirstPlace( n, t );
         double slide = minimumRootDistance( el, t );
+        BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
+        svg_item->moveBy( slide, 0 );
         moveExtents( t, slide );
         mergeExtents( el, el, t );
 		//transformToWorld( n, 0x0 );

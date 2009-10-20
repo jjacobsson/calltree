@@ -29,6 +29,12 @@ public:
     void removeArrows();
     void addArrow( NodeToNodeArrow* arrow );
 
+    NodeToNodeArrow* findArrowTo( BehaviorTreeNode* other );
+
+signals:
+
+	void nodeDragged();
+
 protected:
 	QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
@@ -46,10 +52,10 @@ private:
 
 	QList<NodeToNodeArrow*> m_Arrows;
 
-	Node*			m_Node;
-	QGraphicsItem*	m_PreviousParent;
-	MouseState		m_MouseState;
-	QPoint			m_StartPos;			// Item's screen position when the LB was pressed;
+	Node*				m_Node;
+	BehaviorTreeNode*	m_PreviousParent;
+	MouseState			m_MouseState;
+	QPoint				m_StartPos;			// Item's screen position when the LB was pressed;
 };
 
 #endif
