@@ -114,7 +114,9 @@ int main( int argc, char** argv )
                 returnCode = -2;
             }
 
-            if( returnCode != 0 || !bt.Save( outputFile, swapEndian ) )
+            if( returnCode == 0 )
+            	returnCode = save_program( outputFile, swapEndian, &p );
+            if( returnCode != 0 )
             {
                 fprintf( stderr, "error: Failed to write output file %s.\n", outputFileName );
                 returnCode = -5;

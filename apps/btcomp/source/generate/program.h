@@ -143,4 +143,6 @@ int generate_program( Node* root, Program* p );
 
 int print_program( FILE* outfile, Program* p );
 
+int save_program( FILE* outfile, bool swapEndian, Program* p );
+
 #endif /*PROGRAM_H_INCLUDED*/
