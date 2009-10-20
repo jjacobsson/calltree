@@ -7,16 +7,16 @@
  *
  */
 
-#ifndef BT_PROGRAM_H_
-#define BT_PROGRAM_H_
+#ifndef PROGRAM_H_INCLUDED
+#define PROGRAM_H_INCLUDED
 
 #include <common/types.h>
 #include <callback/instructions.h>
 #include <callback/callback.h>
-#include <vector>
 #include <btree/btree_data.h>
+#include <vector>
 
-class BehaviourTree;
+struct Program;
 
 class CodeSection
 {
@@ -39,8 +39,8 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( BehaviourTree* btp, Node* n, callback::NodeAction action );
-    void    PopDebugScope( BehaviourTree* btp, Node* n, callback::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action );
+    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action );
 
 private:
 
@@ -129,4 +129,22 @@ private:
     StringTable  m_String;
 };
 
-#endif /*BT_PROGRAM*/
+struct Program
+{
+	int m_bss_Header;
+	int m_bss_Return;
+	CodeSection m_I;
+	BSSSection	m_B;
+	DataSection m_D;
+};
+
+int setup_before_generate( Node* n, Program* p );
+int teardown_after_generate( Node* n, Program* p );
+
+int generate_program( Node* root, Program* p );
+
+int print_program( FILE* outfile, Program* p );
+
+int save_program( FILE* outfile, bool swapEndian, Program* p );
+
+#endif /*PROGRAM_H_INCLUDED*/

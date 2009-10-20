@@ -7,22 +7,18 @@
  *
  */
 
-#include "bt_program.h"
-#include <callback/instructions.h>
-#include <callback/callback.h>
+#include "program.h"
+#include "nodes.h"
+#include "endian.h"
+#include "inst_text.h"
+
 #include <btree/btree_data.h>
-
-#include "../endian.h"
-#include "../inst_text.h"
-#include <btree/btree.h>
-
 #include <other/lookup3.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #include <algorithm>
-
 
 using namespace callback;
 
@@ -113,8 +109,6 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
             EndianSwap( t[i].m_A1 );
             EndianSwap( t[i].m_A2 );
             EndianSwap( t[i].m_A3 );
-
-
         }
     }
     size_t write = sizeof( Instruction ) * s;
@@ -122,24 +116,24 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
     return written == write;
 }
 
-void CodeSection::PushDebugScope( BehaviourTree* bt, Node* n, NodeAction action )
+void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
     sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-    //int data = bt->GetDataSection().PushString( buff );
-    //Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+    int data = p->m_D.PushString( buff );
+    Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
 
-void CodeSection::PopDebugScope( BehaviourTree* bt, Node* n, NodeAction action )
+void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
 {
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
     sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-    //int data = bt->GetDataSection().PushString( buff );
-    //Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+    int data = p->m_D.PushString( buff );
+    Push( INST_CALL_DEBUG_FN, data, 0, 0 );
 }
 
 VMIType CodeSection::SafeConvert( TIn i ) const
@@ -277,6 +271,155 @@ int DataSection::PushData( const char* data, int count )
     return start;
 }
 
+int setup_before_generate_internal( Node* n, Program* p )
+{
+	while( n )
+	{
+		switch( n->m_Grist.m_Type )
+		{
+		case E_GRIST_SEQUENCE:
+			gen_setup_sequence( n, p );
+			break;
+		case E_GRIST_SELECTOR:
+			gen_setup_selector( n, p );
+			break;
+		case E_GRIST_PARALLEL:
+			gen_setup_parallel( n, p );
+			break;
+		case E_GRIST_DYN_SELECTOR:
+			gen_setup_dynselector( n, p );
+			break;
+		case E_GRIST_DECORATOR:
+			gen_setup_decorator( n, p );
+			break;
+		case E_GRIST_ACTION:
+			gen_setup_action( n, p );
+			break;
+		default:
+			return -1;
+		}
+		setup_before_generate( GetFirstChild( n ), p );
+		n = n->m_Next;
+	}
+	return 0;
+}
 
+int teardown_after_generate_internal( Node* n, Program* p )
+{
+	while( n )
+	{
+		switch( n->m_Grist.m_Type )
+		{
+		case E_GRIST_SEQUENCE:
+			gen_teardown_sequence( n, p );
+			break;
+		case E_GRIST_SELECTOR:
+			gen_teardown_selector( n, p );
+			break;
+		case E_GRIST_PARALLEL:
+			gen_teardown_parallel( n, p );
+			break;
+		case E_GRIST_DYN_SELECTOR:
+			gen_teardown_dynselector( n, p );
+			break;
+		case E_GRIST_DECORATOR:
+			gen_teardown_decorator( n, p );
+			break;
+		case E_GRIST_ACTION:
+			gen_teardown_action( n, p );
+			break;
+		default:
+			return -1;
+		}
+		teardown_after_generate( GetFirstChild( n ), p );
+		n = n->m_Next;
+	}
+	return 0;
+}
 
+int setup_before_generate( Node* n, Program* p )
+{
+    //Alloc storage area for bss header
+    p->m_bss_Header  = p->m_B.Push( sizeof(BssHeader), 4 );
+    //Alloc storage area for child-node return value.
+    p->m_bss_Return  = p->m_B.Push( sizeof(NodeReturns), 4 );
+	return setup_before_generate_internal( n, p );
+}
 
+int teardown_after_generate( Node* n, Program* p )
+{
+	return teardown_after_generate_internal( n, p );
+}
+
+int generate_program( Node* n, Program* p )
+{
+	if( !n || !p )
+		return -1;
+
+	int err;
+
+    //Jump past construction code if tree is already running
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, p->m_bss_Return );
+
+    //Generate tree construction code
+    if( (err = gen_con( n, p )) != 0 )
+    	return err;
+
+    //Patch jump past construction code instruction
+    p->m_I.SetA1( 0, p->m_I.Count() );
+
+    //Generate tree execution code
+    if( (err = gen_exe( n, p )) != 0 )
+    	return err;
+
+    //Store return value in bss.
+    p->m_I.Push( INST__STORE_R_IN_B, p->m_bss_Return, 0, 0 );
+
+    //Jump past destruciton code if tree is running
+    int patch_jump_out = p->m_I.Count();
+    p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_RUNNING, 0 );
+
+    //Generate destruction code
+    if( (err = gen_des( n, p )) != 0 )
+    	return err;
+
+    //Patch jump past destruction code instruction
+    p->m_I.SetA1( patch_jump_out, p->m_I.Count() );
+
+    //Suspend execution
+    p->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
+
+	return 0;
+}
+
+int print_program( FILE* outFile, Program* p )
+{
+    p->m_I.Print( outFile );
+    p->m_B.Print( outFile );
+    p->m_D.Print( outFile );
+    return 0;
+}
+
+int save_program( FILE* outFile, bool swapEndian, Program* p )
+{
+    ProgramHeader h;
+    h.m_IC  = p->m_I.Count();
+    h.m_DS  = 0;
+    h.m_BS  = p->m_B.Size();
+
+    if( swapEndian )
+    {
+        EndianSwap( h.m_IC );
+        EndianSwap( h.m_DS );
+        EndianSwap( h.m_BS );
+    }
+    size_t write  = sizeof( ProgramHeader );
+    size_t written  = fwrite( &h, 1, write, outFile );
+    if( written != write )
+        return -1;
+    if( !p->m_I.Save( outFile, swapEndian ) )
+        return -1;
+    if( !p->m_D.Save( outFile, swapEndian ) )
+        return -1;
+    return 0;
+}
