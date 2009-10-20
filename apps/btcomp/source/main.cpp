@@ -77,28 +77,35 @@ int main( int argc, char** argv )
     {
         BehaviorTree bt;
         bt.Define( "_BTREE_COMPILER_" );
-        int parseResults = bt.Parse( inputFileName );
-        if( parseResults == 0 )
+        returnCode = bt.Parse( inputFileName );
+
+        if( returnCode == 0 )
         {
         	Program p;
         	p.m_I.SetGenerateDebugInfo( debug );
-            returnCode = generate_program( bt.m_Root, &p );
-            if( returnCode == 0 )
-            {
-				if( asmFileName )
+
+        	setup_before_generate( bt.m_Root, &p );
+       		returnCode = generate_program( bt.m_Root, &p );
+       		teardown_after_generate( bt.m_Root, &p );
+
+       		if( returnCode != 0 )
+       		{
+       			fprintf( stderr, "error: Internal compiler error.\n" );
+       		}
+
+			if( returnCode == 0 && asmFileName )
+			{
+				FILE* asmFile = fopen( asmFileName, "w" );
+				if( !asmFile )
 				{
-					FILE* asmFile = fopen( asmFileName, "w" );
-					if( !asmFile )
-					{
-						fprintf( stderr, "warning: Unable to open assembly file %s for writing.\n", asmFile );
-					}
-					else
-					{
-						print_program( asmFile, &p );
-						fclose( asmFile );
-					}
+					fprintf( stderr, "warning: Unable to open assembly file %s for writing.\n", asmFile );
 				}
-            }
+				else
+				{
+					print_program( asmFile, &p );
+					fclose( asmFile );
+				}
+			}
 
             outputFile = fopen( outputFileName, "wb" );
             if( !outputFile )
@@ -130,10 +137,6 @@ int main( int argc, char** argv )
                     fprintf( stderr, "warning: Unable to open xgml file \"%s\" for writing.\n", xgmlFileName );
                 }
             }
-        }
-        else
-        {
-            returnCode = parseResults;
         }
     }
 

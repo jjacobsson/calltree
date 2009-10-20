@@ -136,6 +136,9 @@ struct Program
 	DataSection m_D;
 };
 
+void setup_before_generate( Node* n, Program* p );
+void teardown_after_generate( Node* n, Program* p );
+
 int generate_program( Node* root, Program* p );
 
 int print_program( FILE* outfile, Program* p );

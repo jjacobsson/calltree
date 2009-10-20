@@ -325,3 +325,63 @@ int print_program( FILE* outFile, Program* p )
     p->m_D.Print( outFile );
     return 0;
 }
+
+void setup_before_generate( Node* n, Program* p )
+{
+	while( n )
+	{
+		switch( n->m_Grist.m_Type )
+		{
+		case E_GRIST_SEQUENCE:
+			gen_setup_sequence( n, p );
+			break;
+		case E_GRIST_SELECTOR:
+			gen_setup_selector( n, p );
+			break;
+		case E_GRIST_PARALLEL:
+			gen_setup_parallel( n, p );
+			break;
+		case E_GRIST_DYN_SELECTOR:
+			gen_setup_dynselector( n, p );
+			break;
+		case E_GRIST_DECORATOR:
+			gen_setup_decorator( n, p );
+			break;
+		case E_GRIST_ACTION:
+			gen_setup_action( n, p );
+			break;
+		}
+		setup_before_generate( GetFirstChild( n ), p );
+		n = n->m_Next;
+	}
+}
+
+void teardown_after_generate( Node* n, Program* p )
+{
+	while( n )
+	{
+		switch( n->m_Grist.m_Type )
+		{
+		case E_GRIST_SEQUENCE:
+			return gen_teardown_sequence( n, p );
+			break;
+		case E_GRIST_SELECTOR:
+			return gen_teardown_selector( n, p );
+			break;
+		case E_GRIST_PARALLEL:
+			return gen_teardown_parallel( n, p );
+			break;
+		case E_GRIST_DYN_SELECTOR:
+			return gen_teardown_dynselector( n, p );
+			break;
+		case E_GRIST_DECORATOR:
+			return gen_teardown_decorator( n, p );
+			break;
+		case E_GRIST_ACTION:
+			return gen_teardown_action( n, p );
+			break;
+		}
+		teardown_after_generate( GetFirstChild( n ), p );
+		n = n->m_Next;
+	}
+}
