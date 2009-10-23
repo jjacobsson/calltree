@@ -52,6 +52,8 @@ public:
 		return m_End;
 	}
 
+	void setDashed( bool dashed );
+
 public slots:
 
 	void updatePosition();

@@ -23,8 +23,16 @@ NodeToNodeArrow::NodeToNodeArrow(
 {
 	setFlag(QGraphicsItem::ItemIsSelectable, false );
 	setFlag(QGraphicsItem::ItemStacksBehindParent, true );
-	setPen(QPen(Qt::black, 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	setPen(QPen(Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	setZValue( -1000.0 );
+}
+
+void NodeToNodeArrow::setDashed( bool dashed )
+{
+	if( dashed )
+		setPen(QPen(Qt::black, 16.0, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin));
+	else
+		setPen(QPen(Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 void NodeToNodeArrow::updatePosition()

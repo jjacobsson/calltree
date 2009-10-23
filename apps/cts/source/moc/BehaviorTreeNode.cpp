@@ -12,6 +12,7 @@
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
+#include <QtSvg/QSvgRenderer>
 
 const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 	":/nodes/unknown.svg",
@@ -120,6 +121,7 @@ void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 					scene()->removeItem( arrow );
 					delete arrow;
 				}
+
 			}
 
 			m_PreviousParent = 0x0;
@@ -157,8 +159,16 @@ void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 		if( m_StartPos != event->screenPos() )
 		{
 			m_MouseState = E_MS_DRAGGING;
+
+			if( m_PreviousParent )
+			{
+				NodeToNodeArrow* arrow = findArrowTo( m_PreviousParent );
+				if( arrow )
+					arrow->setDashed( true );
+			}
 			setZValue( 1.0 );
 		}
 	}
 	QGraphicsSvgItem::mouseMoveEvent( event );
 }
+
