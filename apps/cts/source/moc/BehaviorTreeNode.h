@@ -13,6 +13,8 @@
 #include <QtSvg/QGraphicsSvgItem>
 #include <QtCore/QList>
 
+#include "../GraphicsItemTypes.h"
+
 // BT Forward declares
 struct Node;
 
@@ -23,7 +25,18 @@ class BehaviorTreeNode : public QGraphicsSvgItem
 {
 	Q_OBJECT
 public:
+
+	enum
+	{
+		Type = BehaviourTreeNodeType
+	};
+
 	BehaviorTreeNode( Node* n, BehaviorTreeNode* parent = 0x0 );
+
+	int type() const
+	{
+		return Type;
+	}
 
     void removeArrow( NodeToNodeArrow* arrow );
     void removeArrows();

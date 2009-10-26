@@ -57,6 +57,14 @@ protected:
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void transformToWorld( Node* n, Node* p );
 
+    void drawItems(
+		QPainter* painter,
+		int numItems,
+		QGraphicsItem* items[],
+		const QStyleOptionGraphicsItem options[],
+		QWidget* widget = 0
+    );
+
 	QGraphicsView*  m_View;
 	QGraphicsScene* m_Scene;
 	BehaviorTree*	m_Tree;
