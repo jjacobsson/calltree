@@ -292,6 +292,9 @@ Node* GetFirstChild( Node* n )
 
 void SetFirstChild( Node* n, Node* c )
 {
+	if( !n )
+		return;
+
 	switch( n->m_Grist.m_Type )
 	{
 	case E_GRIST_SEQUENCE:

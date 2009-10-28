@@ -54,6 +54,7 @@ public:
 		return m_End;
 	}
 
+	void setStartAndEnd( BehaviorTreeNode *start, BehaviorTreeNode *end );
 	void setDashed( bool dashed );
 
 public slots:

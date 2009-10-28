@@ -77,6 +77,8 @@ void SetParentOnChildren( Node* s );
 
 Node* GetFirstChild( Node* n );
 
+void SetFirstChild( Node* p, Node* c );
+
 void UnlinkFromSiblings( Node *n );
 
 void UnlinkNodeFromParentAndSiblings( Node* n );

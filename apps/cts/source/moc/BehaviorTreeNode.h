@@ -55,7 +55,14 @@ protected:
 	void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
 	void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
 
+	void draggingStarted();
+	void draggingEnded();
+
 private:
+
+	void setupRelinkage();
+	void executeRelinkage();
+
 	enum MouseState
 	{
 		E_MS_NONE,
@@ -65,10 +72,20 @@ private:
 
 	QList<NodeToNodeArrow*> m_Arrows;
 
-	Node*				m_Node;
-	BehaviorTreeNode*	m_PreviousParent;
-	MouseState			m_MouseState;
+	Node*				m_Node;				// Associated behavior tree node.
+	MouseState			m_MouseState;		// Current state of mouse handling.
 	QPoint				m_StartPos;			// Item's screen position when the LB was pressed;
+
+	struct Relinkage
+	{
+		Node*	m_Parent;			// The new parent node of this item
+		Node*	m_Sibling;			// The new sibling node of this item
+		bool	m_BeforeSibling;	// If this is true this node should be linked in before the sibling, otherwise it should be linked after the sibling.
+	};
+
+	Relinkage			m_Relinkage;		// This is the information needed to be able to correctly link the m_Node into a new position in the BT.
+	NodeToNodeArrow*	m_DraggingArrow;	// This arrow is the one used to indicate where the node will be linked while dragging.
+
 };
 
 #endif
