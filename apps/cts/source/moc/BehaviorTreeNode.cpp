@@ -120,6 +120,9 @@ void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 			m_MouseState = E_MS_DRAGGING;
 		}
 	}
+	if( m_MouseState == E_MS_DRAGGING )
+		lookForRelinkTarget();
+
 	QGraphicsSvgItem::mouseMoveEvent( event );
 }
 
@@ -232,3 +235,77 @@ void BehaviorTreeNode::executeRelinkage()
 		SetFirstChild( m_Node->m_Pare, m_Node );
 	}
 }
+
+void BehaviorTreeNode::lookForRelinkTarget()
+{
+	QList<QGraphicsItem*> coll( collidingItems() );
+	foreach( QGraphicsItem* uknown_item, coll )
+	{
+		if( uknown_item->type() != Type )
+			continue;
+
+		BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
+		Node* p = item->m_Node;
+
+		if( !AcceptsMoreChildren( p ) && !AcceptsMoreChildren( p = p->m_Pare ) )
+			continue;
+
+		// Current parent does not need evaluation.
+		if( p == m_Relinkage.m_Parent )
+			continue;
+
+		Relinkage t;
+
+		t.m_Parent  		= p;
+		t.m_Sibling			= 0x0;
+		t.m_BeforeSibling 	= true;
+
+		m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
+		m_Relinkage = t;
+	}
+/*
+	BehaviorTreeNode* p = (BehaviorTreeNode*)m_Relinkage.m_Parent->m_UserData;
+
+	QPointF p1(p->scenePos());
+	QPointF p2(scenePos());
+	QRectF r1( p->boundingRect() );
+	QRectF r2( boundingRect() );
+	p1.rx() += r1.width() / 2.0f;
+	p2.rx() += r2.width() / 2.0f;
+
+	if( p1.x() > p2.x() )
+		p2.rx() = p1.x() + (p1.x()-p2.x());
+
+	QLineF line( p1, p2 );
+	qreal a		= line.angle();
+	qreal best	= 0;
+
+	QList<QGraphicsItem*> childlist( p->childItems() );
+	foreach( QGraphicsItem* uknown_item, coll )
+	{
+		if( uknown_item->type() != Type )
+			continue;
+
+		BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
+		p2 = item->scenePos();
+		r2 = item->boundingRect();
+		p2.rx() += r2.width() / 2.0f;
+		line.setP2( p2 );
+		qreal ta = line.angle();
+
+		if( m_Relinkage.m_Sibling == 0x0 )
+		{
+			m_Relinkage.m_Sibling = item->m_Node;
+			best = ta;
+			m_Relinkage.m_BeforeSibling = ta < a;
+		}
+		else if( qAbs( a - best ) > qAbs( ta - best ) )
+		{
+			m_Relinkage.m_Sibling = item->m_Node;
+			best = ta;
+			m_Relinkage.m_BeforeSibling = ta < a;
+		}
+	}
+*/
+}
+

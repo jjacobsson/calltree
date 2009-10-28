@@ -352,6 +352,28 @@ int CountChildNodes( Node* n )
 	return retval;
 }
 
+bool AcceptsMoreChildren( Node* n )
+{
+	if( !n )
+		return false;
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+	case E_GRIST_SELECTOR:
+	case E_GRIST_PARALLEL:
+	case E_GRIST_DYN_SELECTOR:
+		return true;
+		break;
+	case E_GRIST_DECORATOR:
+		return n->m_Grist.m_Decorator.m_Child == 0x0;
+		break;
+	case E_GRIST_ACTION:
+		return false;
+		break;
+	}
+	return false;
+}
+
 /*
  * Node Grist functions
  */

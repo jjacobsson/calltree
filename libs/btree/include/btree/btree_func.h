@@ -85,6 +85,8 @@ void UnlinkNodeFromParentAndSiblings( Node* n );
 
 int CountChildNodes( Node* n );
 
+bool AcceptsMoreChildren( Node* n );
+
 /*
  * Node Grist Functions
  */

@@ -62,6 +62,7 @@ private:
 
 	void setupRelinkage();
 	void executeRelinkage();
+	void lookForRelinkTarget();
 
 	enum MouseState
 	{
