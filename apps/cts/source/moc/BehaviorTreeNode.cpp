@@ -106,7 +106,6 @@ void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 			draggingEnded();
 
 		m_MouseState = E_MS_NONE;
-		setZValue( 0.0 );
 	}
 	QGraphicsSvgItem::mouseReleaseEvent( event );
 }
@@ -117,9 +116,8 @@ void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
 	{
 		if( m_StartPos != event->screenPos() )
 		{
-
+			draggingStarted();
 			m_MouseState = E_MS_DRAGGING;
-			setZValue( 1.0 );
 		}
 	}
 	QGraphicsSvgItem::mouseMoveEvent( event );
@@ -147,6 +145,8 @@ void BehaviorTreeNode::draggingStarted()
 	}
 
 	setupRelinkage();
+
+	setZValue( 1.0 );
 }
 
 void BehaviorTreeNode::draggingEnded()
@@ -170,6 +170,8 @@ void BehaviorTreeNode::draggingEnded()
 	}
 
 	executeRelinkage();
+
+	setZValue( 0.0 );
 
 	emit nodeDragged();
 }
@@ -227,5 +229,6 @@ void BehaviorTreeNode::executeRelinkage()
 	{
 		m_Node->m_Next = 0x0;
 		m_Node->m_Prev = 0x0;
+		SetFirstChild( m_Node->m_Pare, m_Node );
 	}
 }
