@@ -257,7 +257,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
 		Relinkage t;
 
 		t.m_Parent  		= p;
-		t.m_Sibling			= 0x0;
+		t.m_Sibling			= GetFirstChild( p );
 		t.m_BeforeSibling 	= true;
 
 		m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
