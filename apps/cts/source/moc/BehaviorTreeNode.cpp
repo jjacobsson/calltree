@@ -37,6 +37,13 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
 	if( parent )
 		setParentItem( parent );
 	setZValue( 0.0 );
+	QGraphicsTextItem* gti = new QGraphicsTextItem( m_Node->m_Id.m_Text, this );
+
+	QPointF p;
+	QRectF r( gti->boundingRect() );
+	p.rx() = 128.0 - (r.width() / 2.0);
+	p.ry() = 128.0 - (r.height() / 2.0);
+	gti->setPos( p );
 }
 
 void BehaviorTreeNode::removeArrow(NodeToNodeArrow *arrow)
@@ -247,7 +254,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
 		BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
 		Node* p = item->m_Node;
 
-		if( !AcceptsMoreChildren( p ) && !AcceptsMoreChildren( p = p->m_Pare ) )
+		if( !AcceptsMoreChildren( p ) )
 			continue;
 
 		// Current parent does not need evaluation.
@@ -262,6 +269,40 @@ void BehaviorTreeNode::lookForRelinkTarget()
 
 		m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
 		m_Relinkage = t;
+	}
+
+	BehaviorTreeNode* item;
+	Node* n		= GetFirstChild( m_Relinkage.m_Parent );
+
+	if( !n )
+		return;
+
+	item		= (BehaviorTreeNode*)n->m_UserData;
+	qreal x		= scenePos().x();
+	qreal tx	= item->scenePos().x();
+	qreal best	= qAbs( x - tx );
+
+	m_Relinkage.m_Sibling = n;
+	if( tx < x )
+		m_Relinkage.m_BeforeSibling = false;
+	else
+		m_Relinkage.m_BeforeSibling = true;
+
+	while( n )
+	{
+		item	= (BehaviorTreeNode*)n->m_UserData;
+		tx		= item->scenePos().x();
+		qreal d	= qAbs( x - tx );
+		if( d < best )
+		{
+			m_Relinkage.m_Sibling = n;
+			if( tx < x )
+				m_Relinkage.m_BeforeSibling = false;
+			else
+				m_Relinkage.m_BeforeSibling = true;
+			best = d;
+		}
+		n = n->m_Next;
 	}
 }
 

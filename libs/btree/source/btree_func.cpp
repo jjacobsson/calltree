@@ -266,6 +266,9 @@ void SetParentOnChildren( Node* n )
 
 Node* GetFirstChild( Node* n )
 {
+	if( !n )
+		return 0x0;
+
 	Node* r = 0x0;
 	switch( n->m_Grist.m_Type )
 	{

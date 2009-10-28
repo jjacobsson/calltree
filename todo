@@ -4,3 +4,8 @@
  * Save of tree's in cts
  * Cut/Copy/Paste...
  * Editing include's in cts, need's refactor in btree...
+ * Gray-out everything but the selected sub-tree "tool"
+ * Move things with ctrl+arrow-keys (left and right anyway)
+ * Only re-connect while dragging if ctrl is pressed.
+ * Some way to "disconnect" and make a new root.
+ * Order children by angle's instead of x-axis when dragging.
