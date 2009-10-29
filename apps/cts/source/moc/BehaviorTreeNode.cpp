@@ -25,7 +25,7 @@ const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
 };
 
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
-	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type] )
+	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type], parent )
 	, m_Node( n )
 	, m_MouseState( E_MS_NONE )
 	, m_DraggingArrow( 0x0 )
@@ -34,16 +34,11 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
 	setFlag( QGraphicsItem::ItemIsSelectable, true );
 	setFlag( QGraphicsItem::ItemStacksBehindParent, false );
 
-	if( parent )
-		setParentItem( parent );
-	setZValue( 0.0 );
-	QGraphicsTextItem* gti = new QGraphicsTextItem( m_Node->m_Id.m_Text, this );
 
-	QPointF p;
-	QRectF r( gti->boundingRect() );
-	p.rx() = 128.0 - (r.width() / 2.0);
-	p.ry() = 128.0 - (r.height() / 2.0);
-	gti->setPos( p );
+	setZValue( 0.0 );
+
+	setupLabel();
+	setupTooltip();
 }
 
 void BehaviorTreeNode::removeArrow(NodeToNodeArrow *arrow)
@@ -184,6 +179,50 @@ void BehaviorTreeNode::draggingEnded()
 	setZValue( 0.0 );
 
 	emit nodeDragged();
+}
+
+void BehaviorTreeNode::setupLabel()
+{
+	QGraphicsTextItem* gti = new QGraphicsTextItem( m_Node->m_Id.m_Text, this );
+	QPointF p;
+	QRectF r( gti->boundingRect() );
+	p.rx() = 128.0 - (r.width() / 2.0);
+	p.ry() = 128.0 - (r.height() / 2.0);
+	gti->setPos( p );
+}
+
+void BehaviorTreeNode::setupTooltip()
+{
+	QString str;
+	switch( m_Node->m_Grist.m_Type )
+	{
+	case E_GRIST_UNKOWN:
+		str += tr("Unknown");
+		break;
+	case E_GRIST_SEQUENCE:
+		str += tr( "Sequence" );
+		break;
+	case E_GRIST_SELECTOR:
+		str += tr( "Selector" );
+		break;
+	case E_GRIST_PARALLEL:
+		str += tr( "Parallel" );
+		break;
+	case E_GRIST_DYN_SELECTOR:
+		str += tr( "Dynamic Selector" );
+		break;
+	case E_GRIST_DECORATOR:
+		str += tr( "Decorator, " );
+		str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
+		break;
+	case E_GRIST_ACTION:
+		str += tr( "Action, " );
+		str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
+		break;
+	}
+	str += "\n";
+	str += m_Node->m_Id.m_Text;
+	setToolTip( str );
 }
 
 void BehaviorTreeNode::setupRelinkage()

@@ -58,6 +58,9 @@ protected:
 	void draggingStarted();
 	void draggingEnded();
 
+	void setupLabel();
+	void setupTooltip();
+
 private:
 
 	void setupRelinkage();
