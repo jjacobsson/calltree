@@ -16,6 +16,7 @@ struct Action;
 struct Decorator;
 struct Node;
 struct NodeGrist;
+class BehaviorTree;
 
 /*
  * Identifier Functions
@@ -52,6 +53,8 @@ float ValueAsFloat( const Variable& );
 const char* ValueAsString( const Variable& );
 
 bool ValueAsBool( const Variable& );
+
+const char* GetVariableListAsString( BehaviorTree* tree, Variable* start );
 
 /*
  * Action Functions

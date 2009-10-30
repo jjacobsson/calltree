@@ -10,8 +10,10 @@
 
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
+#include <btree/btree.h>
 
 #include <string.h> // for memset....
+#include <stdlib.h>
 
 /*
  * Identifier Functions
@@ -199,6 +201,81 @@ bool ValueAsBool( const Variable& v )
 		break;
 	}
 	return r;
+}
+
+int max( int a, int b )
+{
+	if( a > b )
+		return a;
+	return b;
+}
+
+const char* GetVariableListAsString( BehaviorTree* tree, Variable* v )
+{
+	const char* ret = "";
+	int space	= 0;
+	int written = 0;
+	char* str	= 0x0;
+	char* s;
+	while( v )
+	{
+		char tmp[1024];
+		int n = sprintf( tmp, "%s = ", v->m_Id.m_Text );
+
+
+		if( space - (n + written+1) < 0 )
+		{
+			space	= max( space * 2, n+written+1 );
+			str		= (char*)realloc( str, space );
+		}
+
+		s = str + written;
+		memcpy( s, tmp, n + 1 );
+		written += n;
+
+		switch( v->m_Type )
+		{
+		case E_VART_INTEGER:
+			n = sprintf( tmp, "%d", ValueAsInteger( *v ) );
+			break;
+		case E_VART_FLOAT:
+			n = sprintf( tmp, "%f", ValueAsFloat( *v ) );
+			break;
+		case E_VART_STRING:
+			n = sprintf( tmp, "\"%s\"", ValueAsString( *v ) );
+			break;
+		case E_VART_BOOL:
+			n = sprintf( tmp, "%s", ValueAsBool( *v )?"true":"false" );
+			break;
+		}
+		v = v->m_Next;
+		if( v )
+		{
+			tmp[++n] = ',';
+			tmp[++n] = ' ';
+			tmp[n+1] = 0;
+		}
+
+		if( space - (n + written+1) < 0 )
+		{
+			space	= max( space * 2, n+written+1 );
+			str		= (char*)realloc( str, space );
+		}
+
+		s = str + written;
+		memcpy( s, tmp, n + 1 );
+		written += n;
+	}
+
+	if( str )
+	{
+		if( tree )
+			ret = tree->RegisterString( str );
+
+		free( str );
+		str = 0x0;
+	}
+	return ret;
 }
 
 /*

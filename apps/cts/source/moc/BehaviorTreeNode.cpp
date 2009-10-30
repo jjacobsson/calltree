@@ -214,10 +214,32 @@ void BehaviorTreeNode::setupTooltip()
 	case E_GRIST_DECORATOR:
 		str += tr( "Decorator, " );
 		str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
+		{
+			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Decorator.m_Arguments ) );
+			if( t.isEmpty() )
+				str += "()";
+			else
+			{
+				str += "( ";
+				str += t;
+				str += " )";
+			}
+		}
 		break;
 	case E_GRIST_ACTION:
 		str += tr( "Action, " );
 		str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
+		{
+			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Action.m_Arguments ) );
+			if( t.isEmpty() )
+				str += "()";
+			else
+			{
+				str += "( ";
+				str += t;
+				str += " )";
+			}
+		}
 		break;
 	}
 	str += "\n";
