@@ -347,7 +347,6 @@ int CountChildNodes( Node* n )
 	}
 	return retval;
 }
-
 /*
  * Node Grist functions
  */

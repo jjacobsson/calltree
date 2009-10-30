@@ -1,0 +1,52 @@
+if $(QT_PATH)
+{
+	SetDependantOf $(_appname) : btree common other ;
+	SetExtDependantOf $(_appname) : qt ;
+
+	local _source_files  = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	local _moc_headers   = [ RecursiveDirList $(_apppath) source moc : *.h ] ;
+	local _ui_headers    = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
+	local _moc_sources   = [ mocHeaders $(_moc_headers) ] ;
+	local _qrc_resources = [ RecursiveDirList $(_apppath) resources : *.svg ] ;
+	local _qrc_file		 = [ FDirName $(_apppath) resources cts_resources.qrc ] ;
+	local _qrc_sources   = [ qrcFile $(_qrc_file) : $(_qrc_resources) ] ;
+
+	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
+	_source_files += $(_moc_sources) ;
+	_source_files += $(_qrc_sources) ;
+
+	local _main_cpp         = [ FDirName $(_apppath) source main.cpp ] ;
+	local _nodetonode_h		= [ FDirName $(_apppath) source NodeToNodeArrow.h ] ;
+	local _nodetonode_cpp	= [ FDirName $(_apppath) source NodeToNodeArrow.cpp ] ;
+	local _main_window_cpp  = [ FDirName $(_apppath) source moc MainWindow.cpp ] ;
+	local _main_window_h    = [ FDirName $(_apppath) source moc MainWindow.h ] ;
+	local _btreescene_h     = [ FDirName $(_apppath) source moc BehaviorTreeScene.h ] ;
+	local _btreescene_cpp   = [ FDirName $(_apppath) source moc BehaviorTreeScene.cpp ] ;
+	local _btreeview_h      = [ FDirName $(_apppath) source moc BehaviorTreeView.h ] ;
+	local _btreeview_cpp    = [ FDirName $(_apppath) source moc BehaviorTreeView.cpp ] ;
+	local _btreenode_h      = [ FDirName $(_apppath) source moc BehaviorTreeNode.h ] ;
+	local _btreenode_cpp    = [ FDirName $(_apppath) source moc BehaviorTreeNode.cpp ] ;
+
+	local _ui_main_window_h = [ FDirName $(_apppath) ui ui_MainWindow.h ] ;
+
+	Includes $(_main_window_cpp) : $(_ui_main_window_h) ;
+	Includes $(_main_window_h)   : $(_ui_main_window_h) ;	
+	Includes $(_main_window_cpp) : $(_main_window_h) ;
+	Includes $(_main_window_cpp) : $(_btreescene_h) ;
+	Includes $(_main_window_cpp) : $(_btreeview_h) ;
+	Includes $(_btreescene_cpp)  : $(_btreescene_h) ;
+	Includes $(_btreescene_cpp)  : $(_btreenode_h) ;
+	Includes $(_btreeview_cpp)   : $(_btreeview_h) ;
+	Includes $(_btreenode_cpp)   : $(_btreenode_h) ;
+	Includes $(_main_cpp)        : $(_main_window_h) ;
+	Includes $(_btreescene_cpp)  : $(_nodetonode_h) ;
+	Includes $(_nodetonode_cpp)  : $(_nodetonode_h) ;
+	Includes $(_btreenode_cpp)   : $(_nodetonode_h) ;
+
+	SetSourceFiles $(_appname) : $(_source_files) ;
+	
+	if $(PLATFORM) = win32
+	{
+		SetExtraLinkFlags $(_appname) : "/SUBSYSTEM:WINDOWS" ;
+	}
+}

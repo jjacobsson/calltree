@@ -1,4 +1,3 @@
-
 PRELIB = "" ;
 SLASH  = "\\" ;
 
@@ -15,5 +14,3 @@ CCFLAGS	+= /W3 ;
 CCFLAGS += /TP ;
 
 LINKFLAGS += /INCREMENTAL:NO ;
-
-

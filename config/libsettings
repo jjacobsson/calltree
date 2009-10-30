@@ -1,0 +1,34 @@
+
+if $(QT_PATH)
+{
+
+	MOCPREFIX = moc_ ;
+	UIPREFIX  = ui_ ;
+	QRCPREFIX = qrc_ ;
+	
+	local _includes = ; 
+	_includes += include ;
+	_includes += mkspecs$(SLASH)default ;
+	
+	qt_ext_include_search_paths = $(QT_PATH)$(SLASH)$(_includes) ;
+	
+	qt_ext_defines = ;
+	qt_ext_defines += UNICODE ;
+	qt_ext_defines += QT_DLL ;
+	qt_ext_defines += QT_LARGEFILE_SUPPORT ;
+	qt_ext_defines += QT_GUI_LIB ;
+	qt_ext_defines += QT_CORE_LIB ;
+	qt_ext_defines += QT_THREAD_SUPPORT ;
+	qt_ext_defines += QT_NEEDS_DOMAIN ;
+
+	qt_ext_link_search_paths = $(QT_PATH)$(SLASH)lib ;
+	if $(CONFIGURATION) = debug
+	{
+		qt_ext_library_files = QtMaind QtGuid4 QtCored4 QtSvgd4 QtOpenGLd4 ;
+	}
+	else
+	{
+		qt_ext_library_files = QtMain QtGui4 QtCore4 QtSvg4 QtOpenGL4 ;
+	}
+	
+}

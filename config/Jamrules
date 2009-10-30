@@ -1,4 +1,5 @@
 include config/buildconfig ;
+include config/libsettings ;
 
 actions quietly MkDir1
 {
@@ -16,6 +17,12 @@ if $(NT)
     {
         $(AR) /NOLOGO /OUT:$(<) $(>)
     }
+    
+	actions Link bind NEEDLIBS
+	{
+		$(LINK) $(LINKFLAGS) /out:$(<) $(UNDEFS) $(>) $(NEEDLIBS) $(LINKLIBS)
+	}
+	
 }
 else
 {
@@ -85,6 +92,35 @@ rule StripCommon
 	return $(_result) ;
 }
 
+# Strip one specific entry v2 from v1 and return the result
+rule StripSpecific
+{
+	local _result = ;
+	local _i = ;
+	for _i in $(<)
+	{
+		if $(_i) != $(>)
+		{
+			_result += $(_i) ;
+		}
+	}
+	return $(_result) ;
+}
+
+# Strip all elements in v2 from v1 and return the result
+rule StripAllCommon
+{
+	local _result = $(<) ;
+	local _i = ;
+
+	for _i in $(>)
+	{
+		_result = [ StripSpecific $(_result) : $(_i) ] ;
+	}
+	
+	return $(_result) ;
+}
+
 rule FWords
 {
     local string = $(1) ;
@@ -141,6 +177,106 @@ rule RecursiveDirList
 	return [ RecursiveDir $(_dir) : $(2) ] ;
 }
 
+if $(QT_PATH)
+{
+	actions mocFile
+	{
+		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
+	}
+
+	actions uiHeader
+	{
+		uic $(2) -o $(1)
+	}
+	
+	actions qrcCppFile
+	{
+		rcc -name $(2:B) $(2) -o $(1) 
+	}
+}
+else
+{
+	actions mocFile
+	{
+		echo "QT_PATH not set!"
+	}
+	actions uiHeader
+	{
+		echo "QT_PATH not set!"
+	}
+	
+	actions qrcCppFile
+	{
+		echo "QT_PATH not set!"
+	}
+}
+
+rule mocHeader
+{
+	local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
+	
+	mocFile $(_moc_output) : $(1) ;
+	Depends $(_moc_output) : $(1) ;
+	
+	NotFile moc ;
+	Depends moc : $(_moc_output) ;
+
+	Clean clean : $(_moc_output) ;
+	
+	return $(_moc_output) ;
+}
+
+rule mocHeaders
+{
+	local _result = ;
+	local _i = ;
+	for _i in $(1) 
+	{
+		_result += [ mocHeader $(_i) ] ;
+	}
+	return $(_result) ;
+}
+
+rule uiFile
+{
+	local _output = $(1:P)$(SLASH)$(UIPREFIX)$(1:B).h ;
+	
+	uiHeader $(_output) : $(1) ;
+	Depends $(_output) : $(1) ;
+	
+	NotFile ui ;
+	Depends ui : $(_output) ;
+
+	Clean clean : $(_output) ;
+	
+	return $(_output) ;
+}
+
+rule uiFiles
+{
+	local _result = ;
+	local _i = ;
+	for _i in $(1) 
+	{
+		_result += [ uiFile $(_i) ] ;
+	}
+	return $(_result) ;
+}
+
+rule qrcFile
+{
+	local _output = $(1:P)$(SLASH)$(QRCPREFIX)$(1:B).cpp ;
+	
+	qrcCppFile $(_output) : $(1) ;
+	Depends $(_output) : $(1) ;
+	Includes $(1) : $(2) ;
+	
+	NotFile qrc ;
+	Depends qrc : $(_output) ;
+	Clean clean : $(_output) ;
+	return $(_output) ;
+}
+
 rule AddFilesToTag
 {
     if $(TAG_FILES)
@@ -162,6 +298,18 @@ rule SetDependantOf
 	else
 	{
 		$(1)_dependant_of = $(2) ;
+	}
+}
+
+rule SetExtDependantOf
+{
+	if $($(1)_ext_dependant_of) 
+	{
+		$(1)_ext_dependant_of += $(2) ;
+	}
+	else
+	{
+		$(1)_ext_dependant_of = $(2) ;
 	}
 }
 
@@ -256,7 +404,7 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
-		Includes $(_i) : config$(SLASH)Jamrules ;
+		#Includes $(_i) : config$(SLASH)Jamrules ;
 
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
@@ -301,6 +449,18 @@ rule SetExtraCompileFlags
 	}
 }
 
+rule SetExtraLinkFlags
+{
+	if $($(1)_extra_link_flags)
+	{
+		$(1)_extra_link_flags = $($(1)_extra_link_flags) $(2) ;
+	}
+	else
+	{
+		$(1)_extra_link_flags = $(2) ;
+	}
+}
+
 rule SetVariablesOnObjects
 {
 	local _objects = $($(1)_object_files) ;
@@ -312,6 +472,19 @@ rule SetVariablesOnObjects
 			CCHDRS on $(_objects) += [ GetSearchPaths $(_i) ] ;	
 		}
 	}	
+
+	for _i in $($(1)_ext_dependant_of)
+	{
+		if $($(_i)_ext_include_search_paths)
+		{
+			CCHDRS on $(_objects) += [ FIncludes $($(_i)_ext_include_search_paths) ] ;
+		}
+		if $($(_i)_ext_defines)
+		{
+			CCDEFS on $(_objects) += [ FDefines $($(_i)_ext_defines) ] ;
+		}
+	}
+
 	if $($(1)_include_search_paths)
 	{
 		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
@@ -327,15 +500,64 @@ rule SetVariablesOnObjects
     return $(_objects) ;
 }
 
+if $(NT)
+{
+	rule FLibrarySearchPaths
+	{
+		return /LIBPATH:$(1) ;
+	}
+	
+	rule FLibrary
+	{
+		return $(1)$(SUFLIB) ;
+	}
+}
+else
+{
+	rule FLibrarySearchPaths
+	{
+		return -L$(1) ;
+	}
+	
+	rule FLibrary
+	{
+		return -l$(1) ;
+	}
+}
 
 rule SetNeededLibraries
 {
     local _i = ;
+ 	LINKFLAGS on $(2) = $(LINKFLAGS) ;
+ 	LINKFLAGS on $(2) += [ FLibrarySearchPaths $(BUILD_LIB_DIR) ] ;
     for _i in $($(1)_dependant_of)
     {
         local _library = [ GetLinkLibraries $(_i) ] ;
-        NEEDLIBS on $(2) += $(_library) ;
-        Depends $(2) : $(_library) ;
+        if $(NT)
+        {
+        	LINKLIBS on $(2) += $(_library)$(SUFLIB) ;
+        }
+        else
+        {
+        	LINKLIBS on $(2) += $(_library) ;
+        }
+        
+        Depends $(2) : $(BUILD_LIB_DIR)$(PRELIB)$(_library)$(SUFLIB) ;
+    }
+    for _i in $($(1)_ext_dependant_of)
+    {
+        if $($(_i)_ext_link_search_paths)
+        {
+            LINKFLAGS on $(2) += [ FLibrarySearchPaths $($(_i)_ext_link_search_paths) ] ;
+        }
+        if $($(_i)_ext_library_files)
+        {
+            LINKLIBS on $(2) += [ FLibrary $($(_i)_ext_library_files) ] ;
+        }
+    }
+    if $($(1)_extra_link_flags)
+    {
+    	LINKFLAGS on $(2) += $($(1)_extra_link_flags) ;
     }
 }
 
@@ -349,7 +571,7 @@ rule InvokeLibraryDeclarations
 
 	include [ GLOB [ FDirName $(2) ] : lib.jam ] ;
 
-	SetLinkLibraries $(_libname) : $(_libfile) ;
+	SetLinkLibraries $(_libname) : $(_libname) ;
 }
 
 rule InvokeLibraryDependencies
@@ -365,7 +587,7 @@ rule InvokeLibraryDependencies
 	SetObjectFiles $(_libname) ;
     SetObjectFiles $(_testname) ;
 
-	local _libfile     = [ GetLinkLibraries $(_libname) ] ;
+	local _libfile     = $(BUILD_LIB_DIR)$(PRELIB)$(_libname)$(SUFLIB) ;
     local _testfile    = $(BUILD_TST_DIR)$(_testname)$(SUFEXE) ;
     local _objects     = [ SetVariablesOnObjects $(_libname) ] ;
     local _testobjects = [ SetVariablesOnObjects $(_testname) ] ;
@@ -407,6 +629,7 @@ rule InvokeLibraryDependencies
 	if $(NT)
 	{
 		Clean clean : $(_testfile:S=.pdb) ;
+		Clean clean : $(_testfile).manifest ;
 	}
 
     NotFile $(_libname) $(_testname) $(_testrun) test ;
@@ -416,7 +639,7 @@ rule InvokeApplication
 {
 	local _appname			 = $(1) ;
 	local _apppath			 = $(2) ;
-	local _appfile			 = $(BUILD_BIN_DIR)$(_appname)$(SUFEXE) ;
+	local _appfile			 = $(BUILD_BIN_DIR)$(1)$(SUFEXE) ;
 	
 	include [ GLOB [ FDirName $(2) ] : app.jam ] ;
 
@@ -439,6 +662,7 @@ rule InvokeApplication
 	if $(NT)
 	{
 		Clean clean : $(_appfile:S=.pdb) ;
+		Clean clean : $(_appfile).manifest ;
 	}
 	
     NotFile $(_appname) ;
@@ -456,7 +680,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
+			#Includes config$(SLASH)Jamrules : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -480,7 +704,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_app_file) ;
+			#Includes config$(SLASH)Jamrules : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;
