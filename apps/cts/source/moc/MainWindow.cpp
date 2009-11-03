@@ -12,7 +12,7 @@
 #include "BehaviorTreeView.h"
 
 #include <QtGui/QtGui>
-#include <QtOpenGL/QtOpenGL>
+
 
 MainWindow::MainWindow()
 	: m_BTreeView( 0x0 )
@@ -22,17 +22,6 @@ MainWindow::MainWindow()
 
 	m_BTreeScene = new BehaviorTreeScene;
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
-
-	QGLFormat format( QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers | QGL::StencilBuffer );
-	QGLWidget* gl_widget = new QGLWidget( format );
-
-	if( gl_widget->isValid() )
-	{
-		m_BTreeView->setViewport( gl_widget );
-		m_BTreeView->setRenderHint(QPainter::Antialiasing, true);
-	}
-	else
-		delete gl_widget;
 
 	setCentralWidget( m_BTreeView );
 
@@ -78,13 +67,20 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::readSettings()
 {
 	QSettings settings("calltree", "Call Tree Studio");
-	restoreGeometry(settings.value("geometry").toByteArray());
+
+	settings.beginGroup( "main window" );
+	restoreState( settings.value("state").toByteArray() );
+	restoreGeometry( settings.value("geometry").toByteArray() );
+	settings.endGroup();
 }
 
 void MainWindow::writeSettings()
 {
 	QSettings settings("calltree", "Call Tree Studio");
-	settings.setValue("geometry", saveGeometry());
+	settings.beginGroup( "main window" );
+	settings.setValue( "state", saveState() );
+	settings.setValue( "geometry", saveGeometry() );
+	settings.endGroup();
 }
 
 bool MainWindow::loadFile(const QString& fileName)
