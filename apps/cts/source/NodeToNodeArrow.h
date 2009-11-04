@@ -12,6 +12,8 @@
 
 #include <QtGui/QGraphicsLineItem>
 
+#include "GraphicsItemTypes.h"
+
 // Qt Forward declares
 class QGraphicsPolygonItem;
 class QGraphicsLineItem;
@@ -28,7 +30,7 @@ class NodeToNodeArrow: public QGraphicsLineItem
 public:
 	enum
 	{
-		Type = UserType + 4
+		Type = NodeToNodeArrowType
 	};
 
 	NodeToNodeArrow(
@@ -51,6 +53,9 @@ public:
 	{
 		return m_End;
 	}
+
+	void setStartAndEnd( BehaviorTreeNode *start, BehaviorTreeNode *end );
+	void setDashed( bool dashed );
 
 public slots:
 

@@ -1,19 +1,11 @@
 
- * Add instructions for building the code... It's the obvious things that get you in the end isent it?
- * Add some documentation
- * More tests would be good...
- * fix layout algorithm for xgml files
- * The "instructions.h" in callback really shouldent be there.
- * Remove the separate instructions for construction/exceution/destruction in callback... (maybe?)
- * Refactor the Behaviour Tree parser (and AST) into a library, leave code-generation stuff in btcomp
- * Add support for c-style enums to the parser and AST.
- * Break the pre-processor out into it's own parser, currently it's a &(%"#/"%¤"()#"& hack.
- * Optimize
- * Optimize
- * Optimize
- * Optimize
- * Optimize
- * Optimize
- * Optimize
- * Optimize
- * And then? OPTIMIZE!
+ * Allow drag-and-drop linking of node's in cts
+ * Add a widget to edit arguments and such to action & decorator node's in cts
+ * Save of tree's in cts
+ * Cut/Copy/Paste...
+ * Editing include's in cts, need's refactor in btree...
+ * Gray-out everything but the selected sub-tree "tool"
+ * Move things with ctrl+arrow-keys (left and right anyway)
+ * Only re-connect while dragging if ctrl is pressed.
+ * Some way to "disconnect" and make a new root.
+ * Order children by angle's instead of x-axis when dragging.

@@ -17,18 +17,42 @@ NodeToNodeArrow::NodeToNodeArrow(
 		BehaviorTreeNode* end,
 		QGraphicsScene* scene
 	)
-	: QGraphicsLineItem( start, scene)
+	: QGraphicsLineItem( start, scene )
 	, m_Start( start )
 	, m_End( end )
 {
 	setFlag(QGraphicsItem::ItemIsSelectable, false );
 	setFlag(QGraphicsItem::ItemStacksBehindParent, true );
-	setPen(QPen(Qt::black, 6.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+	setPen(QPen(Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 	setZValue( -1000.0 );
+}
+
+void NodeToNodeArrow::setStartAndEnd( BehaviorTreeNode *start, BehaviorTreeNode *end )
+{
+	m_Start	= start;
+	m_End	= end;
+
+	if( m_Start )
+		setParentItem( m_Start );
+	else
+		setParentItem( 0x0 );
+
+	update();
+}
+
+void NodeToNodeArrow::setDashed( bool dashed )
+{
+	if( dashed )
+		setPen(QPen(Qt::black, 16.0, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin));
+	else
+		setPen(QPen(Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
 void NodeToNodeArrow::updatePosition()
 {
+	if( !m_Start || !m_End )
+		return;
+
 	QPointF s,e;
 	QRectF sr( m_Start->boundingRect() );
 	QRectF er( m_End->boundingRect() );
@@ -43,6 +67,9 @@ void NodeToNodeArrow::paint(
 		QWidget *
 	)
 {
+	if( !m_Start || !m_End )
+		return;
+
 	if (m_Start->collidesWithItem(m_End))
 		return;
 	updatePosition();

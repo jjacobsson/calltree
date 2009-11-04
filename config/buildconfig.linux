@@ -1,5 +1,7 @@
+	
 DEFINES_COMMON = LINUX ;
 PRELIB  = lib ;
+SUFLIB	= .a ;
 SLASH	= / ;
 
 CCFLAGS   += -m32 ;

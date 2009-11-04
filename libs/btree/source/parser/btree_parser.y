@@ -569,6 +569,7 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 		n->m_Grist = grist;
 		n->m_Declared = true;
 		ctx->m_Tree->RegisterNode( n );
+		n->m_Tree = ctx->m_Tree;
 		SetParentOnChildren( n );
 	}
 	else if( n && !n->m_Declared )

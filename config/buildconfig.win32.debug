@@ -1,3 +1,8 @@
+
+DEFINES_COMMON += DEBUG ;
+DEFINES_COMMON += _DEBUG ;
+
+
 CCFLAGS += /Z7 ;
 CCFLAGS += /MDd ;
 CCFLAGS += /Od ;

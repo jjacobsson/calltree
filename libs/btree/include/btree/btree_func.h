@@ -16,6 +16,7 @@ struct Action;
 struct Decorator;
 struct Node;
 struct NodeGrist;
+class BehaviorTree;
 
 /*
  * Identifier Functions
@@ -53,6 +54,8 @@ const char* ValueAsString( const Variable& );
 
 bool ValueAsBool( const Variable& );
 
+const char* GetVariableListAsString( BehaviorTree* tree, Variable* start );
+
 /*
  * Action Functions
  */
@@ -77,11 +80,15 @@ void SetParentOnChildren( Node* s );
 
 Node* GetFirstChild( Node* n );
 
+void SetFirstChild( Node* p, Node* c );
+
 void UnlinkFromSiblings( Node *n );
 
 void UnlinkNodeFromParentAndSiblings( Node* n );
 
 int CountChildNodes( Node* n );
+
+bool AcceptsMoreChildren( Node* n );
 
 /*
  * Node Grist Functions

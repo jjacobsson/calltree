@@ -42,6 +42,8 @@ if $(QT_PATH)
 	Includes $(_btreescene_cpp)  : $(_nodetonode_h) ;
 	Includes $(_nodetonode_cpp)  : $(_nodetonode_h) ;
 	Includes $(_btreenode_cpp)   : $(_nodetonode_h) ;
+	Includes $(_btreenode_h)     : [ FDirName $(_apppath) source GraphicsItemTypes.h ] ;
+	Includes $(_nodetonode_h)    : [ FDirName $(_apppath) source GraphicsItemTypes.h ] ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
 	

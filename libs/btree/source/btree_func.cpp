@@ -10,8 +10,10 @@
 
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
+#include <btree/btree.h>
 
 #include <string.h> // for memset....
+#include <stdlib.h>
 
 /*
  * Identifier Functions
@@ -201,6 +203,81 @@ bool ValueAsBool( const Variable& v )
 	return r;
 }
 
+int max( int a, int b )
+{
+	if( a > b )
+		return a;
+	return b;
+}
+
+const char* GetVariableListAsString( BehaviorTree* tree, Variable* v )
+{
+	const char* ret = "";
+	int space	= 0;
+	int written = 0;
+	char* str	= 0x0;
+	char* s;
+	while( v )
+	{
+		char tmp[1024];
+		int n = sprintf( tmp, "%s = ", v->m_Id.m_Text );
+
+
+		if( space - (n + written+1) < 0 )
+		{
+			space	= max( space * 2, n+written+1 );
+			str		= (char*)realloc( str, space );
+		}
+
+		s = str + written;
+		memcpy( s, tmp, n + 1 );
+		written += n;
+
+		switch( v->m_Type )
+		{
+		case E_VART_INTEGER:
+			n = sprintf( tmp, "%d", ValueAsInteger( *v ) );
+			break;
+		case E_VART_FLOAT:
+			n = sprintf( tmp, "%f", ValueAsFloat( *v ) );
+			break;
+		case E_VART_STRING:
+			n = sprintf( tmp, "\"%s\"", ValueAsString( *v ) );
+			break;
+		case E_VART_BOOL:
+			n = sprintf( tmp, "%s", ValueAsBool( *v )?"true":"false" );
+			break;
+		}
+		v = v->m_Next;
+		if( v )
+		{
+			tmp[++n] = ',';
+			tmp[++n] = ' ';
+			tmp[n+1] = 0;
+		}
+
+		if( space - (n + written+1) < 0 )
+		{
+			space	= max( space * 2, n+written+1 );
+			str		= (char*)realloc( str, space );
+		}
+
+		s = str + written;
+		memcpy( s, tmp, n + 1 );
+		written += n;
+	}
+
+	if( str )
+	{
+		if( tree )
+			ret = tree->RegisterString( str );
+
+		free( str );
+		str = 0x0;
+	}
+	return ret;
+}
+
 /*
  * Action functions
  */
@@ -248,7 +325,10 @@ void AppendToEndOfList( Node* s, Node* e )
 	while( s && s->m_Next )
 		s = s->m_Next;
 	if( s )
+	{
 		s->m_Next = e;
+		e->m_Prev = s;
+	}
 }
 
 void SetParentOnChildren( Node* n )
@@ -263,6 +343,9 @@ void SetParentOnChildren( Node* n )
 
 Node* GetFirstChild( Node* n )
 {
+	if( !n )
+		return 0x0;
+
 	Node* r = 0x0;
 	switch( n->m_Grist.m_Type )
 	{
@@ -289,6 +372,9 @@ Node* GetFirstChild( Node* n )
 
 void SetFirstChild( Node* n, Node* c )
 {
+	if( !n )
+		return;
+
 	switch( n->m_Grist.m_Type )
 	{
 	case E_GRIST_SEQUENCE:
@@ -325,14 +411,12 @@ void UnlinkNodeFromParentAndSiblings( Node* n )
 {
 	if( n->m_Pare )
 	{
-		Node* fc = GetFirstChild( n );
+		Node* fc = GetFirstChild( n->m_Pare );
 		if( fc == n )
 			SetFirstChild( n->m_Pare, n->m_Next );
-		UnlinkFromSiblings( n );
 	}
-	else
-		UnlinkFromSiblings( n );
 
+	UnlinkFromSiblings( n );
 	n->m_Pare = 0x0;
 }
 
@@ -347,6 +431,29 @@ int CountChildNodes( Node* n )
 	}
 	return retval;
 }
+
+bool AcceptsMoreChildren( Node* n )
+{
+	if( !n )
+		return false;
+	switch( n->m_Grist.m_Type )
+	{
+	case E_GRIST_SEQUENCE:
+	case E_GRIST_SELECTOR:
+	case E_GRIST_PARALLEL:
+	case E_GRIST_DYN_SELECTOR:
+		return true;
+		break;
+	case E_GRIST_DECORATOR:
+		return n->m_Grist.m_Decorator.m_Child == 0x0;
+		break;
+	case E_GRIST_ACTION:
+		return false;
+		break;
+	}
+	return false;
+}
+
 /*
  * Node Grist functions
  */
