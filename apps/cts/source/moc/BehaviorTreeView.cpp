@@ -15,15 +15,13 @@
 BehaviorTreeView::BehaviorTreeView()
 	: QGraphicsView()
 {
-	QGLFormat format( QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers );
+	QGLFormat format( QGL::SampleBuffers );
 	QGLWidget* gl_widget = new QGLWidget( format );
-
-	setRenderHint( QPainter::Antialiasing, true );
 
 	if( gl_widget->isValid() )
 	{
-		setViewport( gl_widget );
-		setRenderHint( QPainter::HighQualityAntialiasing, true );
+		this->setViewport( gl_widget );
+		this->setRenderHint(QPainter::Antialiasing, true);
 	}
 	else
 		delete gl_widget;

@@ -67,7 +67,6 @@ void MainWindow::closeEvent(QCloseEvent* event)
 void MainWindow::readSettings()
 {
 	QSettings settings("calltree", "Call Tree Studio");
-
 	settings.beginGroup( "main window" );
 	restoreState( settings.value("state").toByteArray() );
 	restoreGeometry( settings.value("geometry").toByteArray() );
