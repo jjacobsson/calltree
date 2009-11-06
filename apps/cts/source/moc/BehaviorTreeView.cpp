@@ -30,6 +30,16 @@ BehaviorTreeView::BehaviorTreeView()
 BehaviorTreeView::BehaviorTreeView( QGraphicsScene* scene )
 	: QGraphicsView( scene )
 {
+	QGLFormat format( QGL::SampleBuffers );
+	QGLWidget* gl_widget = new QGLWidget( format );
+
+	if( gl_widget->isValid() )
+	{
+		this->setViewport( gl_widget );
+		this->setRenderHint(QPainter::Antialiasing, true);
+	}
+	else
+		delete gl_widget;
 }
 
 void BehaviorTreeView::wheelEvent( QWheelEvent* event )

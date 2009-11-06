@@ -13,7 +13,6 @@
 
 #include <QtGui/QtGui>
 
-
 MainWindow::MainWindow()
 	: m_BTreeView( 0x0 )
 	, m_BTreeScene( 0x0 )
