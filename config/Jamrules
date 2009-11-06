@@ -181,17 +181,17 @@ if $(QT_PATH)
 {
 	actions mocFile
 	{
-		moc -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
+		$(TOOL_QT_MOC) -I$(qt_ext_include_search_paths) -D$(qt_ext_defines) -D_MSC_VER=1400 -DWIN32 $(2) -o $(1)
 	}
 
 	actions uiHeader
 	{
-		uic $(2) -o $(1)
+		$(TOOL_QT_UIC) $(2) -o $(1)
 	}
 	
 	actions qrcCppFile
 	{
-		rcc -name $(2:B) $(2) -o $(1) 
+		$(TOOL_QT_RCC) -name $(2:B) $(2) -o $(1) 
 	}
 }
 else

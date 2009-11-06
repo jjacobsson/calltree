@@ -31,4 +31,8 @@ if $(QT_PATH)
 		qt_ext_library_files = QtMain QtGui4 QtCore4 QtSvg4 QtOpenGL4 ;
 	}
 	
+	TOOL_QT_MOC = $(QT_PATH)$(SLASH)bin$(SLASH)moc$(SUFEXE) ;
+	TOOL_QT_UIC = $(QT_PATH)$(SLASH)bin$(SLASH)uic$(SUFEXE) ;
+	TOOL_QT_RCC = $(QT_PATH)$(SLASH)bin$(SLASH)rcc$(SUFEXE) ;
+
 }
