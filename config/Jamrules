@@ -533,14 +533,7 @@ rule SetNeededLibraries
     for _i in $($(1)_dependant_of)
     {
         local _library = [ GetLinkLibraries $(_i) ] ;
-        if $(NT)
-        {
-        	LINKLIBS on $(2) += $(_library)$(SUFLIB) ;
-        }
-        else
-        {
-        	LINKLIBS on $(2) += $(_library) ;
-        }
+      	LINKLIBS on $(2) += [ FLibrary $(_library) ] ;
         
         Depends $(2) : $(BUILD_LIB_DIR)$(PRELIB)$(_library)$(SUFLIB) ;
     }
