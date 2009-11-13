@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 
 #include <common/types.h>
 #include <common/timing.h>
@@ -346,8 +347,9 @@ int main(int argc, char** argv)
 
         uint64 start, frame_start, end, frame_end, freq;
 
-        char bss[8 * 1024];
-        memset( bss, 0, 8*1024 );
+        int bss_size = ((ProgramHeader*)program)->m_BS;
+        char* bss = (char*)alloca( bss_size );
+        memset( bss, 0, bss_size );
 
         CallbackProgram cp;
         cp.m_Program  = program;
