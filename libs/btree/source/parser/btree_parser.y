@@ -11,6 +11,7 @@
 %parse-param { ParserContext* ctx }
 %parse-param { void* scanner }
 %lex-param   { yyscan_t* scanner }
+%error-verbose 
 
 %start nt_behaviour_tree
 
@@ -48,6 +49,7 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 %token<m_Float>   T_FLOAT_VALUE  /* a float value */
 %token<m_String>  T_STRING_VALUE /* a string value */
 %token            T_END_OF_FILE  /* end of file token */
+%token            T_INCLUDE      /* include another file */
 
 %union {
     NodeGrist      m_NodeGrist;
@@ -124,36 +126,40 @@ nt_node_dec
 |
 nt_root_dec
 |
+T_INCLUDE T_STRING_VALUE T_SEMICOLON
+{
+}
+|
 T_SEMICOLON
 
 ;
 
 nt_action_dec
 :
-T_ACTION T_COLON nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
+T_ACTION nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
 {
-	if( !DeclareAction( ctx, $3, $5, $7 ) )
+	if( !DeclareAction( ctx, $2, $4, $6 ) )
 		YYERROR;
 }
 |
-T_ACTION T_COLON nt_id T_COLON nt_variable_list T_SEMICOLON
+T_ACTION nt_id T_COLON nt_variable_list T_SEMICOLON
 {
-	if( !DeclareAction( ctx, $3, $5, 0x0 ) )
+	if( !DeclareAction( ctx, $2, $4, 0x0 ) )
 		YYERROR;
 }
 ;
 
 nt_decorator_dec
 :
-T_DECORATOR T_COLON nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
+T_DECORATOR nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
 {
-	if( !DeclareDecorator( ctx, $3, $5, $7 ) )
+	if( !DeclareDecorator( ctx, $2, $4, $6 ) )
 		YYERROR;
 }
 |
-T_DECORATOR T_COLON nt_id T_COLON nt_variable_list T_SEMICOLON
+T_DECORATOR nt_id T_COLON nt_variable_list T_SEMICOLON
 {
-	if( !DeclareDecorator( ctx, $3, $5, 0x0 ) )
+	if( !DeclareDecorator( ctx, $2, $4, 0x0 ) )
 		YYERROR;
 }
 ;

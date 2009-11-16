@@ -1,4 +1,4 @@
-#include "cbrun.h"
+include "cbrun.h";
 
 node : start_goto_chest_1
 	: action : print : str = "...going to the chest to upgrade weapons. *shuffle* *shuffle*" ;
@@ -151,4 +151,3 @@ node : wait_for_enemies
 	: sequence : setup_health_counter, enemies_present_1, enemies_arrived_dialog, handle_defeat, exit_tree_lost ;
 	
 root : wait_for_enemies ;
-
