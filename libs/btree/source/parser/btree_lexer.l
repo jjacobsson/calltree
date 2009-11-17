@@ -63,6 +63,8 @@ FLOAT           ({dfc}|{hfc})
 ";"             { return T_SEMICOLON; }
 ","             { return T_COMMA; }
 "="             { return T_ASSIGNMENT; }
+"("				{ return T_LPARE; }
+")"				{ return T_RPARE; }
 root            { return T_ROOT; }
 node            { return T_NODE; }
 sequence        { return T_SEQUENCE; }

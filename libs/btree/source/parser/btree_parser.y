@@ -34,6 +34,8 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 %token            T_SEMICOLON    /* ';' */
 %token            T_COMMA        /* ',' */
 %token            T_ASSIGNMENT   /* '=' */
+%token            T_LPARE        /* '(' */
+%token            T_RPARE        /* ')' */
 %token            T_SEQUENCE     /* literal string "sequence" */
 %token            T_SELECTOR     /* literal string "selector" */
 %token            T_DSELECTOR    /* literal string "dyn_selector" */
