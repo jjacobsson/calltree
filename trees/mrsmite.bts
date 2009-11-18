@@ -1,5 +1,7 @@
 include "cbrun.h";
 
+
+
 node : start_goto_chest_1
 	: action : print : str = "...going to the chest to upgrade weapons. *shuffle* *shuffle*" ;
 

@@ -12,6 +12,7 @@
 %parse-param { void* scanner }
 %lex-param   { yyscan_t* scanner }
 %error-verbose 
+%verbose 
 
 %start btree
 
@@ -111,26 +112,6 @@ nt_declaration_list T_END_OF_FILE
 }
 ;
 
-slist: slist sexpr
-     | sexpr
-     ;
-
-sexpr: atom  { printf( "matched sexpr\n" ); }
-     | list
-     ;
-
-list: T_LPARE members T_RPARE { printf( "list\n" ); }
-    | T_LPARE T_RPARE         { printf( "empty list\n" ); }
-    ;
-
-members: sexpr          { printf( "matched members 1\n" ); }
-       | sexpr members  { printf( "matched members 1\n" ); }
-       ;
-
-atom: T_ID                     { printf("id: %s\n", $1.m_Text ); }
-    | T_INCLUDE T_STRING_VALUE { printf("(include %s)\n", $2 ); }
-    ;
-
 nt_declaration_list
 :
 nt_declaration_list nt_declaration
@@ -140,7 +121,7 @@ nt_declaration
 
 nt_declaration
 :
-slist
+nt_include
 |
 nt_action_dec
 |
@@ -150,13 +131,14 @@ nt_node_dec
 |
 nt_root_dec
 |
+T_SEMICOLON
+;
+
+nt_include
+: 
 T_INCLUDE T_STRING_VALUE T_SEMICOLON
 {
 }
-|
-T_SEMICOLON
-
-;
 
 nt_action_dec
 :
