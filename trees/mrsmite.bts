@@ -1,6 +1,7 @@
+
+/*
+
 include "cbrun.h";
-
-
 
 node : start_goto_chest_1
 	: action : print : str = "...going to the chest to upgrade weapons. *shuffle* *shuffle*" ;
@@ -56,11 +57,11 @@ node : cutscene_1
 node : cutscene_2
 	: sequence : stomp_2, dialog_2, goto_chest_2 ;
 
-/* returns success as long as the global counter is above 66666 */	
+// returns success as long as the global counter is above 66666
 node : health_over_66
 	: action : check_gc_grtr : value = 66666;
 
-/* returns success as long as the global counter is above 33333 */
+// returns success as long as the global counter is above 33333
 node : health_over_33
 	: action : check_gc_grtr : value = 33333;
 	
@@ -74,11 +75,11 @@ node : fight_3
 	: action : dec_gc ;
 
 	
-/* change the check to report running on success and running, and report fail on fail */
+// change the check to report running on success and running, and report fail on fail
 node : mod_health_66
 	: decorator : modify_return : health_over_66 : s = 2, r = 2, f = 0;
 	
-/* change the check to report running on success and running, and report fail on fail */
+// change the check to report running on success and running, and report fail on fail
 node : mod_health_33
 	: decorator : modify_return : health_over_33 : s = 2, r = 2, f = 0;	
 	
@@ -109,7 +110,7 @@ node : enemies_present_2
 node : health_above_zero
 	: action : check_gc_grtr : value = 0;
 	
-/* Always succeeds */
+// Always succeeds
 node : fight_sequence_nocare
 	: decorator : modify_return : fight_sequence : s = 1, r = 1, f = 1 ;
 
@@ -153,3 +154,21 @@ node : wait_for_enemies
 	: sequence : setup_health_counter, enemies_present_1, enemies_arrived_dialog, handle_defeat, exit_tree_lost ;
 	
 root : wait_for_enemies ;
+
+*/
+
+(include "cbrun.h")
+(btree main 
+ '(sequence 
+  (
+   '(action 'set_qc ('(value 100000)))
+   '(action 'count_to_zero ('(value 1000)))
+   '(action 'print ('(str "We're under attack! A vast, ye swabs! Repel the invaders!")))
+   '(decorator 'modify_return ('(s 1) '(r 2) '(f 0)) 
+    '(action 'count_to_zero ())
+   )
+  ) 
+ )
+)
+(banan (17 18 19 20 21 23))
+

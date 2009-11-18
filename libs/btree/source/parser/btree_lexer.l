@@ -57,27 +57,23 @@ FLOAT           ({dfc}|{hfc})
 
 %%
 
-<<EOF>>         { return T_END_OF_FILE; }
-
-":"             { return T_COLON; }
-";"             { return T_SEMICOLON; }
-","             { return T_COMMA; }
-"="             { return T_ASSIGNMENT; }
-"("				{ return T_LPARE; }
-")"				{ return T_RPARE; }
-root            { return T_ROOT; }
-node            { return T_NODE; }
+"("             { return T_LPARE; }
+")"             { return T_RPARE; }
+"'"             { return T_QUOTE; }
+btree           { return T_BTREE; }
 sequence        { return T_SEQUENCE; }
 selector        { return T_SELECTOR; }
 dyn_selector    { return T_DSELECTOR; }
 parallel        { return T_PARALLEL; }
 action          { return T_ACTION; }
+defact          { return T_DEFACT; }
 decorator       { return T_DECORATOR; }
+defdec          { return T_DEFDEC; }
 int32           { return T_INT32; }
 bool            { return T_BOOL; }
 float           { return T_FLOAT; }
 string          { return T_STRING; }
-include			{ return T_INCLUDE; }
+include         { return T_INCLUDE; }
 true            { yylval->m_Bool = true; return T_BOOL_VALUE; }
 false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 {ID}            {

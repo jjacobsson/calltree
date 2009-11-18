@@ -26,6 +26,9 @@ XGMLPrinter::~XGMLPrinter()
 
 void XGMLPrinter::Visit( Node* n, Node* parent )
 {
+	if( !n )
+		return;
+
 	InternalVisit( n, parent );
 
 	switch( n->m_Grist.m_Type )

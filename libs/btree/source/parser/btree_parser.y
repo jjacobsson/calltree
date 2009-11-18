@@ -14,7 +14,7 @@
 %error-verbose 
 %verbose 
 
-%start btree
+%start expressions
 
 %{
 #include "common.h"
@@ -28,31 +28,31 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 
 %}
 
-%token            T_ROOT         /* literal string "root" */
-%token            T_NODE         /* literal string "node" */
-%token<m_Id>      T_ID           /* a legal identifier string */
-%token            T_COLON        /* ':' */
-%token            T_SEMICOLON    /* ';' */
-%token            T_COMMA        /* ',' */
-%token            T_ASSIGNMENT   /* '=' */
 %token            T_LPARE        /* '(' */
 %token            T_RPARE        /* ')' */
+%token            T_QUOTE        /* ''' */
+%token            T_BTREE        /* literal string "btree" */
+%token            T_INCLUDE      /* literal string "include" */
 %token            T_SEQUENCE     /* literal string "sequence" */
 %token            T_SELECTOR     /* literal string "selector" */
 %token            T_DSELECTOR    /* literal string "dyn_selector" */
 %token            T_PARALLEL     /* literal string "parallel" */
 %token            T_ACTION       /* literal string "action" */
+%token            T_DEFACT       /* literal string "defact" */
+%token            T_DEFDEC       /* literal string "defdec" */
 %token            T_DECORATOR    /* literal string "decorator" */
 %token            T_INT32        /* literal string "int32" */
 %token            T_BOOL         /* literal string "bool" */
 %token            T_FLOAT        /* literal string "float" */
 %token            T_STRING       /* literal string "string" */
+%token            T_END_OF_FILE  /* end of file token */
+
 %token<m_Integer> T_INT32_VALUE  /* a integer value */
 %token<m_Bool>    T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
 %token<m_Float>   T_FLOAT_VALUE  /* a float value */
 %token<m_String>  T_STRING_VALUE /* a string value */
-%token            T_END_OF_FILE  /* end of file token */
-%token            T_INCLUDE      /* include another file */
+%token<m_Id>      T_ID           /* a legal identifier string */
+
 
 %union {
     NodeGrist      m_NodeGrist;
@@ -67,440 +67,143 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
     bool           m_Bool;
 }
 
-%type<m_Id>			  nt_id
-%type<m_Node>		  nt_node_ref
-%type<m_Action>		  nt_action_ref
-%type<m_Decorator>	  nt_decorator_ref
-%type<m_NodeGrist>	  nt_node_grist
-%type<m_NodeGrist>	  nt_selector_node_grist
-%type<m_NodeGrist>	  nt_dyn_selector_node_grist
-%type<m_NodeGrist>	  nt_sequence_node_grist
-%type<m_NodeGrist>	  nt_parallel_node_grist
-%type<m_NodeGrist>	  nt_decorator_node_grist
-%type<m_NodeGrist>	  nt_action_node_grist
-%type<m_Node>         nt_node_list
-%type<m_Variable>	  nt_variable_dec
-%type<m_Variable>	  nt_variable
-%type<m_Variable>     nt_variable_dec_list
-%type<m_Variable>     nt_variable_list
-
-%destructor { /* do nothing */ }          nt_id
-%destructor { /* do nothing */ }          T_ID
-%destructor { /* do nothing */ }          nt_node_ref
-%destructor { /* do nothing */ }          nt_action_ref
-%destructor { /* do nothing */ }          nt_decorator_ref
-%destructor { /* do nothing */ }          nt_node_list
-%destructor { /* do nothing */ }          nt_node_grist
-%destructor { /* do nothing */ }          nt_selector_node_grist
-%destructor { /* do nothing */ }          nt_dyn_selector_node_grist
-%destructor { /* do nothing */ }          nt_sequence_node_grist
-%destructor { /* do nothing */ }          nt_parallel_node_grist
-%destructor { /* do nothing */ }          nt_decorator_node_grist
-%destructor { /* do nothing */ }          nt_action_node_grist
-%destructor { DeleteVariableList( $$ ); } nt_variable_dec
-%destructor { DeleteVariableList( $$ ); } nt_variable
-%destructor { DeleteVariableList( $$ ); } nt_variable_dec_list
-%destructor { DeleteVariableList( $$ ); } nt_variable_list
-
 %%
 
-btree
-:
-nt_declaration_list T_END_OF_FILE
-{
-    YYACCEPT;
-}
-;
+expressions: sexpr
+           | sexpr expressions
+           ;
 
-nt_declaration_list
-:
-nt_declaration_list nt_declaration
-|
-nt_declaration
-;
+sexpr: atom
+     | T_QUOTE atom
+     | list
+     | T_QUOTE list
+     ;
+    
+list: T_LPARE members T_RPARE
+    | T_LPARE T_RPARE
+    ;
 
-nt_declaration
-:
-nt_include
-|
-nt_action_dec
-|
-nt_decorator_dec
-|
-nt_node_dec
-|
-nt_root_dec
-|
-T_SEMICOLON
-;
+members: btree
+       | include
+       | defact
+       | defdec
+       | sexpr
+       | sexpr members
+       ;
 
-nt_include
-: 
-T_INCLUDE T_STRING_VALUE T_SEMICOLON
-{
-}
+atom: T_ID                    {printf("id %s\n", $1.m_Text);}
+    | T_INT32_VALUE           {printf("int32 %d\n", $1);}
+    | T_STRING_VALUE          {printf("string %s\n", $1);}
+    ;
 
-nt_action_dec
-:
-T_ACTION nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
-{
-	if( !DeclareAction( ctx, $2, $4, $6 ) )
-		YYERROR;
-}
-|
-T_ACTION nt_id T_COLON nt_variable_list T_SEMICOLON
-{
-	if( !DeclareAction( ctx, $2, $4, 0x0 ) )
-		YYERROR;
-}
-;
+btree: T_BTREE T_ID T_QUOTE node
+     {
+     	printf( "btree %s\n", $2.m_Text );
+     }
+     ;
 
-nt_decorator_dec
-:
-T_DECORATOR nt_id T_COLON nt_variable_list T_COLON nt_variable_dec_list T_SEMICOLON
-{
-	if( !DeclareDecorator( ctx, $2, $4, $6 ) )
-		YYERROR;
-}
-|
-T_DECORATOR nt_id T_COLON nt_variable_list T_SEMICOLON
-{
-	if( !DeclareDecorator( ctx, $2, $4, 0x0 ) )
-		YYERROR;
-}
-;
+include: T_INCLUDE T_STRING_VALUE
+       {
+       	printf( "include %s\n", $2 );
+       }
+       ;
 
-nt_node_dec
-:
-T_NODE T_COLON nt_id T_COLON nt_node_grist
-{
-	if( !DeclareNode( ctx, $3, $5 ) )
-		YYERROR;
-}
-;
+defact: T_DEFACT T_ID vlist vdlist
+	  {
+	  	printf( "defact %s\n", $2.m_Text );
+	  }
+      ;
+      
+defdec: T_DEFDEC T_ID vlist vdlist
+      {
+      	printf( "defdec %s\n", $2.m_Text );
+      }
+      ;
 
-nt_root_dec
-:
-T_ROOT T_COLON nt_node_ref T_SEMICOLON
-{
-    ctx->m_Tree->SetRootNode( $3 );
-}
-;
+node: T_LPARE sequence T_RPARE
+    | T_LPARE selector T_RPARE
+    | T_LPARE parallel T_RPARE
+    | T_LPARE dselector T_RPARE
+    | T_LPARE decorator T_RPARE
+    | T_LPARE action T_RPARE
+    ;
+    
+nlist: T_LPARE nmembers T_RPARE {printf("matched node list\n");}
+     | T_LPARE T_RPARE          {printf("matched empty node list\n");}
+     ;
 
-nt_node_grist
-:
-nt_selector_node_grist
-{
-    $$ = $1;
-}
-|
-nt_dyn_selector_node_grist
-{
-    $$ = $1;
-}
-|
-nt_sequence_node_grist
-{
-    $$ = $1;
-}
-|
-nt_parallel_node_grist
-{
-    $$ = $1;
-}
-|
-nt_decorator_node_grist
-{
-    $$ = $1;
-}
-|
-nt_action_node_grist
-{
-    $$ = $1;
-}
-;
+nmembers: T_QUOTE node
+        | T_QUOTE node nmembers
+        ;
 
-nt_selector_node_grist
-:
-T_SELECTOR T_COLON nt_node_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-    $$.m_Type = E_GRIST_SELECTOR;
-    $$.m_Selector.m_FirstChild = $3;
-}
-;
+sequence: T_SEQUENCE nlist 
+        {
+        	printf("matched sequnce\n");
+        }
+        ;
+        
+selector: T_SELECTOR nlist 
+        {
+        	printf("matched selector\n");
+        }
+        ;
+        
+parallel: T_PARALLEL nlist 
+        {
+        	printf("matched parallel\n");
+        }
+        ;
+        
+dselector: T_DSELECTOR nlist
+         {
+         	printf("matched dynamic selector\n");
+         }
+         ;
+         
+decorator: T_DECORATOR T_QUOTE T_ID vlist T_QUOTE node 
+         {
+         	printf("matched decorator\n");
+         }
+         ;
+         
+action: T_ACTION T_QUOTE T_ID vlist 
+      {
+      	printf("matched action %s\n", $3.m_Text );
+      }
+      ;
 
-nt_dyn_selector_node_grist
-:
-T_DSELECTOR T_COLON nt_node_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_DYN_SELECTOR;
-	$$.m_DynSelector.m_FirstChild = $3;
-}
-;
+vlist: T_LPARE vmember T_RPARE {printf("matched variable list\n");}
+     | T_LPARE T_RPARE         {printf("matched empty variable list\n");}
+     ;
 
-nt_sequence_node_grist
-:
-T_SEQUENCE T_COLON nt_node_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_SEQUENCE;
-	$$.m_Sequence.m_FirstChild = $3;
-}
-;
+vmember: variable
+       | variable vmember
+       ;
+       
+variable: T_QUOTE T_LPARE vtypes T_RPARE
+        ;
 
-nt_parallel_node_grist
-:
-T_PARALLEL T_COLON nt_node_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_PARALLEL;
-	$$.m_Parallel.m_FirstChild = $3;
-}
-;
+vtypes: T_ID T_INT32_VALUE  {printf("matched int32 variable (%s %d)\n", $1.m_Text, $2 );}
+      | T_ID T_STRING_VALUE {printf("matched string variable (%s %s)\n", $1.m_Text, $2 );}
+      | T_ID T_BOOL_VALUE   {printf("matched bool variable (%s %f)\n", $1.m_Text, $2 );}
+      | T_ID T_FLOAT_VALUE  {printf("matched float variable (%s %s)\n", $1.m_Text, $2?"true":"false" );}
+      ;
 
-nt_decorator_node_grist
-:
-T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_DECORATOR;
-	$$.m_Decorator.m_Decorator = $3;
-	$$.m_Decorator.m_Child = $5;
-}
-|
-T_DECORATOR T_COLON nt_decorator_ref T_COLON nt_node_ref T_COLON nt_variable_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_DECORATOR;
-	$$.m_Decorator.m_Decorator = $3;
-	$$.m_Decorator.m_Child = $5;
-	$$.m_Decorator.m_Arguments = $7;
-}
-;
+vdlist: T_LPARE vdmember T_RPARE {printf("matched variable definition list\n");}
+      | T_LPARE T_RPARE          {printf("matched empty variable definition list\n");}
 
-nt_action_node_grist
-:
-T_ACTION T_COLON nt_action_ref T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_ACTION;
-	$$.m_Action.m_Action = $3;
-}
-|
-T_ACTION T_COLON nt_action_ref T_COLON nt_variable_list T_SEMICOLON
-{
-	InitGrist( &$$ );
-	$$.m_Type = E_GRIST_ACTION;
-	$$.m_Action.m_Action = $3;
-	$$.m_Action.m_Arguments = $5;
-}
-;
+vdmember: vardec
+        | vardec vdmember
+        ;
 
-nt_node_list
-:
-/* empty */
-{
-    $$ = 0x0;
-}
-|
-nt_node_list T_COMMA nt_node_ref
-{
-	$$ = $1;
-	AppendToEndOfList( $1, $3 );
-}
-|
-nt_node_ref
-{
-	// TODO
-	$$ = $1;
-}
-;
+vardec: T_QUOTE T_LPARE vdtypes T_RPARE
+      ;
 
-
-nt_node_ref
-:
-nt_id
-{
-    Node* n = ctx->m_Tree->LookupNode( $1 );
-    if( n == 0x0 )
-    {
-        char tmp[2048];
-        sprintf( tmp, "node \"%s\" has not been declared.\n", $1.m_Text );
-        yyerror( ctx, scanner, tmp );
-        YYERROR;
-    }
-    $$ = n;
-}
-;
-
-nt_action_ref
-:
-nt_id
-{
-    Action* a = ctx->m_Tree->LookupAction( $1 );
-    if( !a )
-    {
-    	a = new Action;
-    	InitAction( a );
-    	a->m_Id = $1;
-    	ctx->m_Tree->RegisterAction( a );
-    }
-    $$ = a;
-}
-;
-
-nt_decorator_ref
-:
-nt_id
-{
-    Decorator* d = ctx->m_Tree->LookupDecorator( $1 );
-    if( !d )
-    {
-    	d = new Decorator;
-    	InitDecorator( d );
-    	d->m_Id = $1;
-    	ctx->m_Tree->RegisterDecorator( d );
-    }
-    $$ = d;
-}
-;
-
-nt_id
-:
-T_ID
-{
-    $$ = $1;
-}
-;
-
-nt_variable_dec_list
-:
-/* empty */
-{
-    $$ = 0x0;
-}
-|
-nt_variable_dec_list T_COMMA nt_variable_dec
-{
-	if( $1 )
-	{
-		AppendToEndOfList( $1, $3 );
-		$$ = $1;
-	}	
-	else
-	{
-		$$ = $3;
-	}
-}
-|
-nt_variable_dec
-{
-	$$ = $1;
-}
-;
-
-nt_variable_dec
-:
-T_STRING T_ID
-{
-    $$ = new Variable;
-	InitVariable( $$ );
-    $$->m_Type = E_VART_STRING;
-    $$->m_Id = $2;
-}
-|
-T_INT32 T_ID
-{
-    $$ = new Variable;
-   	InitVariable( $$ );
-    $$->m_Type = E_VART_INTEGER;
-    $$->m_Id = $2;
-}
-|
-T_FLOAT T_ID
-{
-    $$ = new Variable;
-	InitVariable( $$ );
-    $$->m_Type = E_VART_FLOAT;
-    $$->m_Id = $2;
-}
-|
-T_BOOL T_ID
-{
-    $$ = new Variable;
-	InitVariable( $$ );
-    $$->m_Type = E_VART_BOOL;
-    $$->m_Id = $2;
-}
-;
-
-nt_variable_list
-:
-/* empty */
-{
-    $$ = 0x0;
-}
-|
-nt_variable_list T_COMMA nt_variable
-{
-	if( $1 )
-	{
-		AppendToEndOfList( $1, $3 );
-		$$ = $1;
-	}	
-	else
-	{
-		$$ = $3;
-	}
-}
-|
-nt_variable
-{
-	$$ = $1;
-}
-;
-
-nt_variable
-:
-T_ID T_ASSIGNMENT T_STRING_VALUE
-{
-    $$ = new Variable;
-    InitVariable( $$ );
-    $$->m_Type = E_VART_STRING;
-    $$->m_Id = $1;
-    $$->m_Data.m_String = $3;
-}
-|
-T_ID T_ASSIGNMENT T_INT32_VALUE
-{
-    $$ = new Variable;
-    InitVariable( $$ );
-    $$->m_Type = E_VART_INTEGER;
-    $$->m_Id = $1;
-    $$->m_Data.m_Integer = $3;
-}
-|
-T_ID T_ASSIGNMENT T_FLOAT_VALUE
-{
-    $$ = new Variable;
-    InitVariable( $$ );
-    $$->m_Type = E_VART_FLOAT;
-    $$->m_Id = $1;
-    $$->m_Data.m_Float = $3;
-}
-|
-T_ID T_ASSIGNMENT T_BOOL_VALUE
-{
-    $$ = new Variable;
-    InitVariable( $$ );
-    $$->m_Type = E_VART_BOOL;
-    $$->m_Id = $1;
-    $$->m_Data.m_Integer = $3;
-}
-;
-
+vdtypes: T_INT32 T_ID
+       | T_STRING T_ID
+       | T_BOOL T_ID
+       | T_FLOAT T_ID
+       ;
 
 %%
 
