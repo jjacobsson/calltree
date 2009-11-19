@@ -101,6 +101,7 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 
 "//".*          { /* eat single line comments */ }
 #.*             { /* eat single line comments */ }
+;.*				{ /* eat single line comments */ }
 
 \"              { BEGIN(string); }
 "/*"            { BEGIN(ml_comment); }

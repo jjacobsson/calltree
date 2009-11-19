@@ -1,0 +1,49 @@
+(define r_working 0)
+(define r_success 1)
+(define r_failure 2)
+
+(define p_con 0)
+(define p_exe 1)
+(define p_des 2)
+(define p_mod 3)  
+
+(define (deftree id root)
+ (print "A behaviour tree named " id)
+ (eval root)
+)
+
+(define (defact id settings arguments)
+ (print "An action named " id)
+)
+
+(define (defdec id settings arguments)
+ (print "A decorator named " id)
+)
+
+(define (sequence children)
+ (print "A sequence")
+)
+
+(define (selector children)
+ (print "A selector")
+)
+
+(define (parallel children)
+ (print "A sequence")
+)
+
+(define (dynselector children)
+ (print "A sequence")
+)
+
+(define (decorator children)
+ (print "A sequence")
+)
+
+(define (action children)
+ (print "A sequence")
+)
+
+(define (tree id)
+ (print "A btree reference to " id)
+)
