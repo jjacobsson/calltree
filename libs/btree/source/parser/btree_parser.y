@@ -31,15 +31,16 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 %token            T_LPARE        /* '(' */
 %token            T_RPARE        /* ')' */
 %token            T_QUOTE        /* ''' */
-%token            T_BTREE        /* literal string "btree" */
+%token            T_DEFTREE      /* literal string "deftree" */
+%token            T_DEFACT       /* literal string "defact" */
+%token            T_DEFDEC       /* literal string "defdec" */
+%token            T_TREE         /* literal string "tree" */
 %token            T_INCLUDE      /* literal string "include" */
 %token            T_SEQUENCE     /* literal string "sequence" */
 %token            T_SELECTOR     /* literal string "selector" */
 %token            T_DSELECTOR    /* literal string "dyn_selector" */
 %token            T_PARALLEL     /* literal string "parallel" */
 %token            T_ACTION       /* literal string "action" */
-%token            T_DEFACT       /* literal string "defact" */
-%token            T_DEFDEC       /* literal string "defdec" */
 %token            T_DECORATOR    /* literal string "decorator" */
 %token            T_INT32        /* literal string "int32" */
 %token            T_BOOL         /* literal string "bool" */
@@ -83,7 +84,7 @@ list: T_LPARE members T_RPARE
     | T_LPARE T_RPARE
     ;
 
-members: btree
+members: deftree
        | include
        | defact
        | defdec
@@ -96,9 +97,9 @@ atom: T_ID                    {printf("id %s\n", $1.m_Text);}
     | T_STRING_VALUE          {printf("string %s\n", $1);}
     ;
 
-btree: T_BTREE T_ID T_QUOTE node
+deftree: T_DEFTREE T_QUOTE T_ID T_QUOTE node
      {
-     	printf( "btree %s\n", $2.m_Text );
+     	printf( "deftree %s\n", $3.m_Text );
      }
      ;
 
@@ -128,8 +129,9 @@ node: T_LPARE sequence T_RPARE
     | T_LPARE action T_RPARE
     ;
     
-nlist: T_LPARE nmembers T_RPARE {printf("matched node list\n");}
-     | T_LPARE T_RPARE          {printf("matched empty node list\n");}
+nlist: T_LPARE nmembers T_RPARE         {printf("matched node list\n");}
+     | T_QUOTE T_LPARE nmembers T_RPARE {printf("matched quoted node list\n");}
+     | T_LPARE T_RPARE                  {printf("matched empty node list\n");}
      ;
 
 nmembers: T_QUOTE node

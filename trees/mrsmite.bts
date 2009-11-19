@@ -158,9 +158,9 @@ root : wait_for_enemies ;
 */
 
 (include "cbrun.h")
-(btree main 
+(deftree 'main 
  '(sequence 
-  (
+  '(
    '(action 'set_qc ('(value 100000)))
    '(action 'count_to_zero ('(value 1000)))
    '(action 'print ('(str "We're under attack! A vast, ye swabs! Repel the invaders!")))
@@ -170,5 +170,3 @@ root : wait_for_enemies ;
   ) 
  )
 )
-(banan (17 18 19 20 21 23))
-
