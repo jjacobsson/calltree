@@ -96,17 +96,11 @@ public:
     {}
 
     typedef TStringTable< StandardAllocator, hash_t, HashPredicate > StringTable;
-
-    typedef TSymbolTable< int, IntPredicate >                     IntTable;
-    typedef TSymbolTable< Node*, HasIdPredicate<Node> >           NodeTable;
     typedef TSymbolTable< Action*, HasIdPredicate<Action> >       ActionTable;
     typedef TSymbolTable< Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
-
     typedef TObjectPool< ParseFile > ParseFilePool;
 
     StringTable              m_StringTable;
-    IntTable                 m_Defines;
-    NodeTable                m_NodeTable;
     ActionTable              m_ActionTable;
     DecoratorTable           m_DecoratorTable;
     ParseFilePool            m_ParseFilePool;

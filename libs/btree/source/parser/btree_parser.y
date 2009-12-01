@@ -277,6 +277,7 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
 
 bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& grist )
 {
+/*
 	Node* n = ctx->m_Tree->LookupNode( id );
 	if( !n )
 	{
@@ -303,5 +304,7 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 		return false;
 	}
 	return true;
+*/
+	return false;	
 }
 
