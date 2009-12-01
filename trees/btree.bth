@@ -7,43 +7,42 @@
 (define p_des 2)
 (define p_mod 3)  
 
-(define (deftree id root)
- (print "A behaviour tree named " id)
- (eval root)
+(define deftree  
+	(lambda (id root) '()) 
 )
 
-(define (defact id settings arguments)
- (print "An action named " id)
+(define defact
+	(lambda (id settings arguments) '())
 )
 
-(define (defdec id settings arguments)
- (print "A decorator named " id)
+(define defdec
+	(lambda (id settings arguments) '())
 )
 
-(define (sequence children)
- (print "A sequence")
+(define sequence
+	(lambda (children) '())
 )
 
-(define (selector children)
- (print "A selector")
+(define selector
+	(lambda (children) '())
 )
 
-(define (parallel children)
- (print "A sequence")
+(define parallel
+	(lambda (children) '())	 
 )
 
-(define (dynselector children)
- (print "A sequence")
+(define dynselector
+	(lambda (children) '())
 )
 
-(define (decorator children)
- (print "A sequence")
+(define decorator
+	(lambda (decorator_fun arguments child) '())
 )
 
-(define (action children)
- (print "A sequence")
+(define action
+	(lambda (action_fun arguments) '())
 )
 
-(define (tree id)
- (print "A btree reference to " id)
+(define tree
+	(lambda (id) '())
 )

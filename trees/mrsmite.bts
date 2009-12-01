@@ -157,15 +157,13 @@
 (include "cbrun.bth")
 
 (deftree 'main 
- '(sequence 
-  '(
-   '(action 'set_qc ('(value 100000)))
-   '(action 'count_to_zero ('(value 1000)))
-   '(action 'print ('(str "We're under attack! A vast, ye swabs! Repel the invaders!")))
-   '(decorator 'modify_return ('(s 1) '(r 2) '(f 0)) 
-    '(action 'count_to_zero ())
-   )
-  ) 
- )
+	'(sequence 
+ 		'(
+ 		'(action 'set_qc ('(value 100000)))
+		'(action 'count_to_zero ('(value 1000)))
+		'(action 'print ('(str "We're under attack! A vast, ye swabs! Repel the invaders!")))
+		'(decorator 'modify_return ('(s 1) '(r 2) '(f 0)) 
+			'(action 'count_to_zero ()))
+		) 
+	)
 )
-
