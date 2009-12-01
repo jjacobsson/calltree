@@ -92,9 +92,9 @@ members: deftree
        | sexpr members
        ;
 
-atom: T_ID                    {printf("id %s\n", $1.m_Text);}
-    | T_INT32_VALUE           {printf("int32 %d\n", $1);}
-    | T_STRING_VALUE          {printf("string %s\n", $1);}
+atom: T_ID                    {}
+    | T_INT32_VALUE           {}
+    | T_STRING_VALUE          {}
     ;
 
 deftree: T_DEFTREE T_QUOTE T_ID T_QUOTE node

@@ -51,7 +51,6 @@ hfc             (({hpref}{hfrac}{bexp}{fsuff_opt})|({hpref}{hdseq}{bexp}{fsuff_o
 
 FLOAT           ({dfc}|{hfc})
 
-%x ml_comment
 %x string
 
 
@@ -99,12 +98,9 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 {NEWLINE}       { /* eat newlines, or they get echoed to the screen... */ }             
 {WHITESPACE}    { /* eat whitespace */ }
 
-"//".*          { /* eat single line comments */ }
-#.*             { /* eat single line comments */ }
 ;.*				{ /* eat single line comments */ }
 
 \"              { BEGIN(string); }
-"/*"            { BEGIN(ml_comment); }
 
 .               { yyerror( yyget_extra(yyscanner), yyscanner, "unrecognized character." ); }
 
@@ -127,14 +123,6 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 
 ([\n])			{ yyerror( yyget_extra(yyscanner), yyscanner, "new-line in string." ); }
 
-}
-
-<ml_comment>{
-[^*\n]*         { }
-[^*\n]*\n       { }
-"*"+[^*/\n]*    { }
-"*"+[^*/\n]*\n  { }
-"*"+"/"         { BEGIN(INITIAL); }
 }
 
 %%
