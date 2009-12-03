@@ -157,8 +157,12 @@
 (include "cbrun.bth")
 
 (deftree main 
-	(selector (list
-		(sequence (list
+	(parallel '(
+		(sequence '(
 			(action (lambda () (begin (print "Banan") 'success))) 
-			(action (lambda () (begin (print "Apelsin") 'failure)))))
-		(sequence '()))))
+			(action (lambda () (begin (print "Apelsin") 'success)))))
+		(sequence '(
+			(action (lambda () (begin (print "Päron") 'success))))))))
+
+(deftree keps (selector '((action (lambda () 'failure)))))
+

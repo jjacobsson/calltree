@@ -1,4 +1,14 @@
 
+(define (map proc items)
+	(if (null? items)
+		'()
+		(cons (proc (car items))
+			(map proc (cdr items)))))
+
+			
+(define-macro (deftree id root)
+	`(define ,id (make-behaviour-tree ,root 'unknown))) 
+	
 (define (make-behaviour-tree root state)
 	(define construct (lambda ()
 		(begin (root 'construct) (set! state 'working) state)))
@@ -21,123 +31,89 @@
 				((eq? state 'unknown) (begin (construct) (step-tree))))
 			)))
 	step-tree) 
-
-(define-macro (deftree id root)
-	`(define ,id (make-behaviour-tree ,root 'unknown))
-) 
-
-(define (sequence children)
-	(let 
-		((cchild '())
-		(rchild '()))
-		
-		(define step-child (lambda ()
-			(begin
-				(cond
-					((pair? rchild)
-						(begin
-							(set! cchild (car rchild))
-							(set! rchild (cdr rchild))
-							#t))
-					((not (null? rchild))
-						(begin
-							(set! cchild rchild)
-							(set! rchild '())
-							#t))
-					(else 
-						(begin
-							(set! cchild '())
-							#f))))))
-
-		(define exec-child (lambda (func)
-			(begin
-				(if (not (null? cchild)) 
-					(cchild func)
-					'success))))
-					
-		(define construct (lambda () 
-			(begin
-				(print "Constructing a sequence")
-				(set! rchild children)
-				(step-child)
-				(exec-child 'construct))))
+	
+(define-macro (multiple-child-node name proc cons-proc exec-proc dest-proc)
+	`(begin 
+		(define (,name children) (,proc (map (lambda (child) (eval child)) children)))
+		(define (,proc children)
+			(let 
+				((cchild '())
+				(rchild '()))
 				
-		(define execute (lambda ()
-			(begin 
-				(print "Executing a sequence")
-				(internal-execute))))
+				(define step-child (lambda ()
+					(begin
+						(cond
+							((pair? rchild)
+								(begin
+									(set! cchild (car rchild))
+									(set! rchild (cdr rchild))
+									#t))
+							((not (null? rchild))
+								(begin
+									(set! cchild rchild)
+									(set! rchild '())
+									#t))
+							(else 
+								(begin
+									(set! cchild '())
+									#f))))))
 
-		(define internal-execute (lambda ()
+				(define exec-child (lambda (func)
+					(begin
+						(if (not (null? cchild)) 
+							(cchild func)
+							'success))))
+
+				(define dispatch (lambda (m) 
+					(begin
+						(cond
+							((eq? m 'construct) (construct))
+							((eq? m 'execute) (execute))
+							((eq? m 'destruct) (destruct))
+							(else (error "Unkown request on node" m))))))
+
+				(define construct ,cons-proc)
+				(define execute ,exec-proc)
+				(define destruct ,dest-proc)
+
+				dispatch))))
+
+(multiple-child-node sequence make-sequence
+	 (lambda () 
+		(begin
+			(set! rchild children)
+			(step-child)
+			(exec-child 'construct)))
+
+	(lambda ()
+		(define internal (lambda ()
 			(let ((r 'unkown))
 				(set! r (exec-child 'execute))
 				(if	(eq? r 'success) 
 					(begin 
 						(exec-child 'destruct) 
 						(if (step-child) 
-							(begin (exec-child 'construct) (internal-execute)) 
+							(begin 
+								(exec-child 'construct) 
+								(internal))
 							'success))
 					r))))
-						
-		(define destruct (lambda () 
-			(begin 
-				(print "Destructing a sequence")
-				(exec-child 'destruct)
-				(set! cchild '())
-				(set! rchild '()))))
-			
-		(define seq_dispatch (lambda (m) 
-			(begin
-				(cond
-					((eq? m 'construct) (construct))
-					((eq? m 'execute) (execute))
-					((eq? m 'destruct) (destruct))
-					(else (error "Unkown Request on sequence" m))))))
-		seq_dispatch
-	)
-)
-
-(define (selector children)
-	(let 
-		((cchild '())
-		(rchild '()))
+		(internal))
 		
-		(define step-child (lambda ()
-			(begin
-				(cond
-					((pair? rchild)
-						(begin
-							(set! cchild (car rchild))
-							(set! rchild (cdr rchild))
-							#t))
-					((not (null? rchild))
-						(begin
-							(set! cchild rchild)
-							(set! rchild '())
-							#t))
-					(else 
-						(begin
-							(set! cchild '())
-							#f))))))
+	(lambda () 
+		(begin 
+			(exec-child 'destruct)
+			(set! cchild '())
+			(set! rchild '()))))
 
-		(define exec-child (lambda (func)
-			(begin
-				(if (not (null? cchild)) 
-					(cchild func)
-					'success))))
-					
-		(define construct (lambda () 
-			(begin
-				(print "Constructing a selector")
-				(set! rchild children)
-				(step-child)
-				(exec-child 'construct))))
-				
-		(define execute (lambda ()
-			(begin 
-				(print "Executing a selector")
-				(internal-execute))))
-
-		(define internal-execute (lambda ()
+(multiple-child-node selector make-selector
+	(lambda () 
+		(set! rchild children)
+		(step-child)
+		(exec-child 'construct))
+		
+	(lambda ()
+		(define internal (lambda ()
 			(let ((r 'unkown))
 				(set! r (exec-child 'execute))
 				(if (eq? r 'failure)
@@ -146,49 +122,66 @@
 						(if (step-child) 
 							(begin 
 								(exec-child 'construct)
-								(internal-execute))))
+								(internal))
+							'failure))
 					r))))
-						
-		(define destruct (lambda () 
-			(begin
-				(print "Destructing a selector")
-				(exec-child 'destruct)
-				(set! cchild '())
-				(set! rchild '()))))
-			
-		(define sel_dispatch (lambda (m) 
-			(begin 
-				(cond
-					((eq? m 'construct) (construct))
-					((eq? m 'execute) (execute))
-					((eq? m 'destruct) (destruct))
-					(else (error "Unkown Request on selector" m))))))
-		sel_dispatch
-	)
-)
+		(internal))
 
-(define parallel
-	(lambda (children) ('failure))	 
-)
+	(lambda () 
+		(exec-child 'destruct)
+		(set! cchild '())
+		(set! rchild '())))
 
-(define dynselector
-	(lambda (children) ('failure))
-)
+(multiple-child-node parallel make-parallel
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda ()
+			(if (step-child) 
+				(begin 
+					(exec-child 'construct)
+					(internal)))))
+		(internal))
+
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda (s t)
+			(if (step-child)
+				(let ((r (exec-child 'execute)))
+					(cond 
+						((eq? r 'failure) 'failure)
+						((eq? r 'working) (internal s (+ t 1)))
+						((eq? r 'success) (internal (+ s 1) (+ t 1)))))
+				(if (= s t) 'success 'working))))
+		(internal 0 0))
+
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda ()
+			(if (step-child) 
+				(begin 
+					(exec-child 'destruct)
+					(internal)))))
+		(internal)))
+		
+(multiple-child-node dynselector make-dynselector
+	(lambda () 'unknown)
+	(lambda () 'failure)
+	(lambda () 'unknown))
 
 (define decorator
 	(lambda (dec_id arg child) ('failure))
 )
 
-(define (action something)
+(define (action proc)
 	
 	(define construct (lambda () 
-		(begin (print "Constructing an action") 'unknown)))
+		'unknown))
 
 	(define execute (lambda () 
-		(begin (print "Executing an action") (something))))
+		 (proc)))
 
 	(define destruct (lambda () 
-		(begin (print "Destructing an action") 'unknown)))
+		'unknown))
 		
 	(define act_dispatch (lambda (m)
 		(begin 
