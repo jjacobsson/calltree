@@ -160,7 +160,7 @@
 	(parallel '(
 		(sequence '(
 			(action (lambda () (begin (print "Banan") 'success))) 
-			(action (lambda () (begin (print "Apelsin") 'success)))))
+			(action (lambda () (begin (print "Apelsin") 'working)))))
 		(sequence '(
 			(action (lambda () (begin (print "Päron") 'success))))))))
 
