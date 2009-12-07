@@ -157,12 +157,12 @@
 (include "cbrun.bth")
 
 (deftree main 
-	(parallel '(
-		(sequence '(
-			(action (lambda () (begin (print "Banan") 'success))) 
-			(action (lambda () (begin (print "Apelsin") 'working)))))
-		(sequence '(
-			(action (lambda () (begin (print "Päron") 'success))))))))
-
-(deftree keps (selector '((action (lambda () 'failure)))))
+	(sequence '(
+		(action 'set_gc '((value 100000)))
+		(action 'count_to_zero '((value 1000)))
+		(action 'print '((str "We're under attack! A vast, ye swabs! Repel the invaders!")))
+		(selector '(
+			(sequence '(
+				(sequence '(
+					(parallel '()))))))))))
 

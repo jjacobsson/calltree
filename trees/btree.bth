@@ -185,11 +185,13 @@
 	(lambda (dec_id arg child) ('failure))
 )
 
-(define (action proc)
-	(define construct (lambda () 'unknown))
-	(define execute (lambda () (proc)))
-	(define destruct (lambda () 'unknown))
-	(list construct execute destruct))
+(define (action action_id arguments)
+	(let ((method ((eval (string->symbol (string-append "act_" (symbol->string action_id)))))))
+		(list 
+			(lambda () (method 'construct))
+			(lambda () (method 'execute))
+			(lambda () (method 'destruct))
+		)))
 
 (define tree (lambda ()
 	(define construct (lambda () 'unknown))
