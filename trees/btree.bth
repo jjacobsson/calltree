@@ -1,0 +1,209 @@
+
+(define (map proc items)
+	(if (null? items)
+		'()
+		(cons (proc (car items))
+			(map proc (cdr items)))))
+
+(define exec-node-cons (lambda (node)
+	(if (pair? node) 
+		((car node))
+		'success)))
+
+(define exec-node-exec (lambda (node)
+	(if (pair? node) 
+		((car (cdr node)))
+		'success)))
+
+(define exec-node-dest (lambda (node)
+	(if (pair? node) 
+		((car (cddr node)))
+		'success)))
+
+(define-macro (deftree id root)
+	`(define ,id (make-behaviour-tree ,root 'unknown))) 
+	
+	
+(define (make-behaviour-tree root state)
+	
+	(define construct (lambda ()
+		(begin 
+			(exec-node-cons root)
+			(set! state 'working) state)))
+	(define execute (lambda ()
+		(begin 
+			(set! state (exec-node-exec root)) 
+			state)))
+	(define destruct (lambda ()
+		(begin 
+			(exec-node-dest root) 
+			(set! state 'unknown) state)))
+	(define after-execute (lambda ()
+		(cond
+			((eq? state 'success) (begin (destruct) 'success))
+			((eq? state 'failure) (begin (destruct) 'failure))
+			(else state))))
+	(define step-tree (lambda ()
+		(cond
+			((eq? state 'working) (begin (execute) (after-execute)))
+			((eq? state 'success) (destruct))
+			((eq? state 'failure) (destruct))
+			((eq? state 'unknown) (begin (construct) (step-tree))))
+		))
+	step-tree) 
+	
+(define-macro (multiple-child-node name cons-proc exec-proc dest-proc)
+	`(define (,name in_children)
+		(let ((children (map (lambda (child) (eval child)) in_children)) (cchild '()) (rchild '()))
+			(define step-child (lambda ()
+				(cond
+					((pair? rchild)
+						(begin
+							(set! cchild (car rchild))
+							(set! rchild (cdr rchild))
+							#t))
+					((not (null? rchild))
+						(begin
+							(set! cchild rchild)
+							(set! rchild '())
+							#t))
+					(else 
+						(begin
+							(set! cchild '())
+							#f)))))
+
+			(define set-first-child (lambda ()
+				(if (pair? children)
+					(begin 
+						(set! cchild (car children))
+						(set! rchild (cdr children)))
+					(set-no-child))))
+
+			(define set-no-child (lambda ()
+				(set! cchild '())
+				(set! rchild '())))
+
+			(define exec-child-cons (lambda () (exec-node-cons cchild)))
+			(define exec-child-exec (lambda () (exec-node-exec cchild)))
+			(define exec-child-dest (lambda () (exec-node-dest cchild)))
+
+			(define construct ,cons-proc)
+			(define execute ,exec-proc)
+			(define destruct ,dest-proc)
+
+			(list construct execute destruct))))
+
+(multiple-child-node sequence
+	 (lambda () 
+		(set-first-child)
+		(exec-child-cons))
+
+	(lambda ()
+		(define internal (lambda ()
+			(let ((r 'unkown))
+				(set! r (exec-child-exec))
+				(if	(eq? r 'success) 
+					(begin 
+						(exec-child-dest) 
+						(if (step-child) 
+							(begin 
+								(exec-child-cons) 
+								(internal))
+							(begin
+								(set-first-child)
+								'success)))
+					r))))
+		(internal))
+
+	(lambda () 
+		(exec-child-dest)
+		(set-no-child)))
+
+(multiple-child-node selector
+	(lambda () 
+		(set-first-child)
+		(exec-child-cons))
+		
+	(lambda ()
+		(define internal (lambda ()
+			(let ((r 'unkown))
+				(set! r (exec-child-exec))
+				(if (eq? r 'failure)
+					(begin 
+						(exec-child-dest) 
+						(if (step-child) 
+							(begin 
+								(exec-child-cons)
+								(internal))
+							(begin
+								(set-first-child)
+								'failure)))
+					r))))
+		(internal))
+
+	(lambda () 
+		(exec-child-dest)
+		(set-no-child)))
+
+(multiple-child-node parallel
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda ()
+			(if (step-child) 
+				(begin 
+					(exec-child-cons)
+					(internal)))))
+		(internal))
+
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda (s t)
+			(if (step-child)
+				(let ((r (exec-child-exec)))
+					(cond 
+						((eq? r 'failure) 'failure)
+						((eq? r 'working) (internal s (+ t 1)))
+						((eq? r 'success) (internal (+ s 1) (+ t 1)))))
+				(if (= s t) 'success 'working))))
+		(internal 0 0))
+
+	(lambda () 
+		(set! rchild children)
+		(define internal (lambda ()
+			(if (step-child) 
+				(begin 
+					(exec-child-dest)
+					(internal)))))
+		(internal)))
+		
+(multiple-child-node dynselector
+	(lambda () 'unknown)
+	(lambda () 'failure)
+	(lambda () 'unknown))
+
+(define decorator
+	(lambda (dec_id arg child) ('failure))
+)
+
+(define (action action_id arguments)
+	(let ((method ((eval (string->symbol (string-append "act_" (symbol->string action_id)))))))
+		(list 
+			(lambda () (method 'construct))
+			(lambda () (method 'execute))
+			(lambda () (method 'destruct))
+		)))
+
+(define tree (lambda ()
+	(define construct (lambda () 'unknown))
+	(define execute (lambda () 'failure))
+	(define destruct (lambda () 'unknown))
+	(list construct execute destruct)))
+
+(define defact
+	(lambda (id settings arguments) '())
+)
+
+(define defdec
+	(lambda (id settings arguments) '())
+)
+

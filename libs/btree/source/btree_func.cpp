@@ -231,7 +231,6 @@ void InitDecorator( Decorator* d )
 
 void InitNode( Node* n )
 {
-	InitIdentifier( &n->m_Id );
 	InitGrist( &n->m_Grist );
 
 	n->m_Tree		= 0x0;

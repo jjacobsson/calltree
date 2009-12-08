@@ -131,7 +131,6 @@ struct NodeGrist
 
 struct Node
 {
-    Identifier      m_Id;
     NodeGrist       m_Grist;
 	BehaviorTree*   m_Tree;
     Node*			m_Pare;

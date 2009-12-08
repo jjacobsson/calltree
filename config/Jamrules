@@ -335,7 +335,11 @@ rule SetNeededLibraries
     {
         local _library = [ GetLinkLibraries $(_i) ] ;
         NEEDLIBS on $(2) += $(_library) ;
-        Depends $(2) : $(_library) ;
+		if $(3) != $(_i)
+		{
+			Depends $(2) : $(_i) ;
+        }
+        Depends $(2) : $(_library) ;        
     }
 }
 
@@ -380,21 +384,24 @@ rule InvokeLibraryDependencies
     Clean       clean            : $(_libfile) ;
     Clean       clean            : $(_testfile) ;
 
-    SetNeededLibraries $(_testname) : $(_testfile) ;
+    SetNeededLibraries $(_testname) : $(_testfile) : $(_libname) ;
 
     # Setup dependency chains.
     if $(_testobjects)
     {
-        Depends $(_libfile)  	: $(_libfile:P) ;
-        Depends $(_libfile)		: $(_objects) ;
         Depends $(_testfile)	: $(_testfile:P) ;
         Depends $(_testfile) 	: $(_testobjects) ;
         Depends $(_testrun)  	: $(_testfile) ;
         Depends $(_testname)	: $(_testrun) ;
+
+        Depends $(_libfile)  	: $(_libfile:P) ;
+        Depends $(_libfile)		: $(_objects) ;
+
         Depends $(_libname)		: $(_libfile) ;
         Depends $(_libname)		: $(_testname) ;
+
         Depends lib				: $(_libname) ;
-        Depends test			: $(_testrun) ;
+        Depends test			: $(_testname) ;
 	}
     else
     {
@@ -424,7 +431,7 @@ rule InvokeApplication
 
 	local _objects = [ SetVariablesOnObjects $(_appname) ] ;
 
-    SetNeededLibraries $(_appname) : $(_appfile) ;    
+    SetNeededLibraries $(_appname) : $(_appfile) : $(_appname) ;    
 
     # Actions
 	MkDir $(_appfile:P) ;
