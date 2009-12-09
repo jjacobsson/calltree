@@ -110,10 +110,15 @@
 								(exec-child-cons) 
 								(internal))
 							(begin
-								(set-first-child)
+								(set-no-child)
 								'success)))
 					r))))
-		(internal))
+		(begin
+			(if (null? cchild)
+				(begin
+					(set-first-child)
+					(exec-child-cons)))
+			(internal)))
 
 	(lambda () 
 		(exec-child-dest)
@@ -136,10 +141,16 @@
 								(exec-child-cons)
 								(internal))
 							(begin
-								(set-first-child)
+								(set-no-child)
 								'failure)))
 					r))))
-		(internal))
+		(begin
+			(if (null? cchild)
+				(begin
+					(set-first-child)
+					(exec-child-cons)))
+			(internal)))
+
 
 	(lambda () 
 		(exec-child-dest)
@@ -199,11 +210,30 @@
 	(define destruct (lambda () 'unknown))
 	(list construct execute destruct)))
 
-(define defact
-	(lambda (id settings arguments) '())
-)
+(define-macro defact 
+	(lambda (action_id settings arguments)
+		(let ((method (string->symbol (string-append "act_" (symbol->string action_id)))))
+			`(define ,method (make-action ,settings ,arguments)))))
 
-(define defdec
-	(lambda (id settings arguments) '())
-)
+(define (make-action settings arguments)
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) 'unknown)
+			((eq? m 'execute) 'failure)
+			((eq? m 'destruct) 'unknown))))
+	dispatch)
+
+(define-macro defdec 
+	(lambda (decorator_id settings arguments)
+		(let ((method (string->symbol (string-append "dec_" (symbol->string decorator_id)))))
+			`(define ,method (make-decorator ,settings ,arguments)))))
+	
+(define (make-decorator settings arguments)
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) 'unknown)
+			((eq? m 'execute) 'failure)
+			((eq? m 'destruct) 'unknown))))
+	dispatch)
+	
 
