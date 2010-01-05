@@ -8,7 +8,7 @@
  */
 
 %pure-parser
-%parse-param { ParserContext* ctx }
+%parse-param { SParserContext* ctx }
 %parse-param { void* scanner }
 %lex-param   { yyscan_t* scanner }
 %error-verbose 
@@ -18,13 +18,14 @@
 
 %{
 #include "common.h"
+#include <stdio.h>
 
-#define YYMALLOC malloc
-#define YYFREE free
+#define YYMALLOC ctx->m_Alloc
+#define YYFREE ctx->m_Free
 
-bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
-bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
-bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& grist );
+bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
+bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
+bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& grist );
 
 %}
 
@@ -46,7 +47,6 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 %token            T_BOOL         /* literal string "bool" */
 %token            T_FLOAT        /* literal string "float" */
 %token            T_STRING       /* literal string "string" */
-%token            T_END_OF_FILE  /* end of file token */
 
 %token<m_Integer> T_INT32_VALUE  /* a integer value */
 %token<m_Bool>    T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
@@ -70,36 +70,23 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 
 %%
 
-expressions: sexpr
-           | sexpr expressions
+expressions: list
+           | list expressions
            ;
 
-sexpr: atom
-     | T_QUOTE atom
-     | list
-     | T_QUOTE list
-     ;
-    
-list: T_LPARE members T_RPARE
+list: T_LPARE atom T_RPARE
     | T_LPARE T_RPARE
     ;
 
-members: deftree
-       | include
-       | defact
-       | defdec
-       | sexpr
-       | sexpr members
-       ;
-
-atom: T_ID                    {}
-    | T_INT32_VALUE           {}
-    | T_STRING_VALUE          {}
+atom: deftree
+    | include
+    | defact
+    | defdec
     ;
 
-deftree: T_DEFTREE T_QUOTE T_ID T_QUOTE node
+deftree: T_DEFTREE T_ID node
      {
-     	printf( "deftree %s\n", $3.m_Text );
+     	printf( "deftree %s\n", $2.m_Text );
      }
      ;
 
@@ -131,11 +118,11 @@ node: T_LPARE sequence T_RPARE
     
 nlist: T_LPARE nmembers T_RPARE         {printf("matched node list\n");}
      | T_QUOTE T_LPARE nmembers T_RPARE {printf("matched quoted node list\n");}
-     | T_LPARE T_RPARE                  {printf("matched empty node list\n");}
+     | T_QUOTE T_LPARE T_RPARE          {printf("matched empty node list\n");}
      ;
 
-nmembers: T_QUOTE node
-        | T_QUOTE node nmembers
+nmembers: node
+        | node nmembers
         ;
 
 sequence: T_SEQUENCE nlist 
@@ -174,15 +161,15 @@ action: T_ACTION T_QUOTE T_ID vlist
       }
       ;
 
-vlist: T_LPARE vmember T_RPARE {printf("matched variable list\n");}
-     | T_LPARE T_RPARE         {printf("matched empty variable list\n");}
+vlist: T_QUOTE T_LPARE vmember T_RPARE {printf("matched variable list\n");}
+     | T_QUOTE T_LPARE T_RPARE         {printf("matched empty variable list\n");}
      ;
 
 vmember: variable
        | variable vmember
        ;
        
-variable: T_QUOTE T_LPARE vtypes T_RPARE
+variable: T_LPARE vtypes T_RPARE
         ;
 
 vtypes: T_ID T_INT32_VALUE  {printf("matched int32 variable (%s %d)\n", $1.m_Text, $2 );}
@@ -209,8 +196,9 @@ vdtypes: T_INT32 T_ID
 
 %%
 
-bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
+bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
 {
+/*
     Action* a = ctx->m_Tree->LookupAction( id );
 	if( !a )
 	{
@@ -236,14 +224,17 @@ bool DeclareAction( ParserContext* ctx, const Identifier& id, Variable* vars, Va
     	
         char tmp[2048];
         sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", id.m_Text, a->m_Id.m_Line );
-        yyerror( ctx, ctx->yyscanner, tmp );
+        yyerror( ctx, tmp );
         return false;
     }
     return true;
+    */
+    return false;
 }
 
-bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
+bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args )
 {
+/*
     Decorator* d = ctx->m_Tree->LookupDecorator( id );
 	if( !d )
 	{
@@ -269,13 +260,15 @@ bool DeclareDecorator( ParserContext* ctx, const Identifier& id, Variable* vars,
     	
         char tmp[2048];
         sprintf( tmp, "Decorator \"%s\" was previously declared on line %d.\n", id.m_Text, d->m_Id.m_Line );
-        yyerror( ctx, ctx->yyscanner, tmp );
+        yyerror( ctx, tmp );
         return false;
     }
     return true;
+    */
+    return false;
 }
 
-bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& grist )
+bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& grist )
 {
 /*
 	Node* n = ctx->m_Tree->LookupNode( id );
@@ -300,7 +293,7 @@ bool DeclareNode( ParserContext* ctx, const Identifier& id, const NodeGrist& gri
 	{
 		char tmp[2048];
 		sprintf( tmp, "Node \"%s\" was previously declared on line %d.\n", id.m_Text, n->m_Id.m_Line );
-		yyerror( ctx, ctx->yyscanner, tmp );
+		yyerror( ctx, tmp );
 		return false;
 	}
 	return true;

@@ -11,21 +11,11 @@
 
 #include <other/lookup3.h>
 
-#include <callback/callback.h>
-#include <callback/instructions.h>
-
-#include "btree_impl.h"
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
-
 #include "../parser/common.h"
 
-//#include "endian.h"
-
-#include <stdio.h>
-
-using namespace callback;
-
+/*
 BehaviorTree::BehaviorTree()
     : m_Root( 0x0 )
     , m_Impl( new BehaviorTreeImpl )
@@ -101,46 +91,164 @@ void BehaviorTree::FreeParseFile( ParseFile* pf )
 int BehaviorTree::Parse( const char* filename )
 {
 
-    ParserContext ctx;
 
-    yylex_init(&ctx.yyscanner);
-    yyset_extra(&ctx, ctx.yyscanner);
-
-    ctx.m_Tree      = this;
-
-    if( !push_parse_file( &ctx, filename ) )
-        return -1;
-
-    int r = yyparse(&ctx, ctx.yyscanner);
-
-    yylex_destroy(ctx.yyscanner);
-
-
-    return r;
 }
+*/
 
+#include "sym_table.h"
+#include "object_pool.h"
+#include "string_table.h"
 
-void BehaviorTree::Error( ParserContext* ctx, int lineno, const char* msg )
+struct StandardAllocator
 {
-    if( ctx->m_File  )
+    static void* Alloc( size_t size )
     {
-        fprintf( stdout, "%s(%d) : error : %s\n", ctx->m_File->m_Name, lineno, msg );
+        return malloc( size );
     }
-    else
-    {
-        fprintf( stdout, "<no file>(%d) : error : %s\n", lineno, msg );
-    }
-}
 
-void BehaviorTree::Warning( ParserContext* ctx, int lineno, const char* msg )
+    static void Free( void* ptr )
+    {
+        return free( ptr );
+    }
+};
+
+struct HashPredicate
 {
-    if( ctx->m_File  )
+    inline bool operator() ( const hash_t l, const hash_t r ) const
     {
-        fprintf( stdout, "%s(%d) : warning : %s\n", ctx->m_File->m_Name, lineno, msg );
+        return l < r;
     }
-    else
+};
+
+struct IntPredicate
+{
+    inline bool operator() ( int l, int r ) const
     {
-        fprintf( stdout, "<no file>(%d) : warning : %s\n", lineno, msg );
+        return l < r;
     }
+    inline bool Equals( int l, int r ) const
+    {
+        return l == r;
+    }
+};
+
+template< typename T >
+struct HasIdPredicate
+{
+    inline bool operator() ( const T* l, const hash_t r ) const
+    {
+        return l->m_Id.m_Hash < r;
+    }
+    inline bool operator() ( const hash_t l, const T* r ) const
+    {
+        return l < r->m_Id.m_Hash;
+    }
+    inline bool operator() ( const T* l, const Identifier& r ) const
+    {
+        return l->m_Id.m_Hash < r.m_Hash;
+    }
+    inline bool operator() ( const Identifier& l, const T* r ) const
+    {
+        return l.m_Hash < r->m_Id.m_Hash;
+    }
+    inline bool operator() ( const T* l, const T* r ) const
+    {
+        return l->m_Id.m_Hash < r->m_Id.m_Hash;
+    }
+
+    inline bool Equals( const T* l, const Identifier& r ) const
+    {
+        return l->m_Id.m_Hash == r.m_Hash;
+    }
+
+    inline bool Equals( const T* l, const T* r ) const
+    {
+        return l == r;
+    }
+
+};
+
+typedef TStringTable<StandardAllocator, hash_t, HashPredicate> StringTable;
+typedef TSymbolTable<Action*, HasIdPredicate<Action> > ActionTable;
+typedef TSymbolTable<Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
+
+struct SBehaviorTreeContext
+{
+  BehaviorTree*             m_Trees;
+  ObjectPool*               m_Pool;
+  StringTable*              m_StringTable;
+  ActionTable*              m_ActionTable;
+  DecoratorTable*           m_DecoratorTable;
+  BehaviorTreeContextSetup  m_Setup;
+};
+
+union ObjectFootPrint
+{
+  Variable              m_Variable;
+  Action                m_Action;
+  Decorator             m_Decorator;
+  Node                  m_Node;
+  BehaviorTree          m_Tree;
+  SBehaviorTreeContext  m_BTContext;
+  SParserContext        m_ParserContext;
+};
+
+BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
+{
+  ObjectPoolSetup ops;
+  ops.m_Alloc       = btcs->m_Alloc;
+  ops.m_Free        = btcs->m_Free;
+  ops.m_BlockSize   = 4096;
+  ops.m_TypeSize    = (mem_size_t)sizeof(ObjectFootPrint);
+  ObjectPool* op    = CreateObjectPool( &ops );
+
+  SBehaviorTreeContext* btc =
+      &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
+  btc->m_Trees          = 0x0;
+  btc->m_Pool           = op;
+  btc->m_StringTable    = new StringTable( 4096, 256 );
+  btc->m_ActionTable    = new ActionTable;
+  btc->m_DecoratorTable = new DecoratorTable;
+  btc->m_Setup          = *btcs;
+  return btc;
 }
 
+void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
+{
+  delete btc->m_StringTable;
+  delete btc->m_ActionTable;
+  delete btc->m_DecoratorTable;
+  DestroyObjectPool( btc->m_Pool );
+}
+
+const char* RegisterString( BehaviorTreeContext btc, const char* str )
+{
+    return btc->m_StringTable->PutString( hashlittle( str ), str );
+}
+
+const char* RegisterString( BehaviorTreeContext btc, const char* str, hash_t hash )
+{
+    return btc->m_StringTable->PutString( hash, str );
+}
+
+ParserContext ParserContextCreate( BehaviorTreeContext btc )
+{
+  SParserContext* pc = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_ParserContext);
+
+  pc->m_Tree    = btc;
+  pc->m_LineNo  = 0;
+  pc->m_Error   = 0x0;
+  pc->m_Warning = 0x0;
+  pc->m_Read    = 0x0;
+  pc->m_Extra   = 0x0;
+  pc->m_Alloc   = btc->m_Setup.m_Alloc;
+  pc->m_Free    = btc->m_Setup.m_Free;
+  StringBufferInit( pc, &pc->m_StringBuffer );
+  return pc;
+}
+
+void ParserContextDestroy( ParserContext pc )
+{
+  StringBufferDestroy( pc, &pc->m_StringBuffer );
+  FreeObject( pc->m_Tree->m_Pool, pc );
+}

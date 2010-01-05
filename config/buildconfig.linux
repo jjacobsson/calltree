@@ -1,10 +1,5 @@
-	
-DEFINES_COMMON = LINUX ;
-PRELIB  = lib ;
-SLASH	= / ;
+SLASH		= / ;
+SUFEXE		= "" ;
+NULL_OUT	= ">/dev/null 2>&1" ;
 
-CCFLAGS   += -m32 ;
-LINKFLAGS += -m32 ;
-
-CC      = g++ ;
-LINK    = g++ ;
+DEFINES_COMMON += LINUX ;

@@ -233,7 +233,6 @@ void InitNode( Node* n )
 {
 	InitGrist( &n->m_Grist );
 
-	n->m_Tree		= 0x0;
 	n->m_Pare		= 0x0;
 	n->m_Next		= 0x0;
 	n->m_Prev		= 0x0;
