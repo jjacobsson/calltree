@@ -10,6 +10,17 @@
 #ifndef PARSER_COMMON_H_
 #define PARSER_COMMON_H_
 
+#ifndef STRINGPASS_DECLARED
+
+struct StringPass
+{
+  const char* m_Parsed;
+  const char* m_Original;
+};
+
+#define STRINGPASS_DECLARED
+#endif
+
 #include <btree/btree_parse.h>
 #include <btree/btree_mem.h>
 #include <btree/btree.h>
@@ -24,7 +35,8 @@ struct StringBuffer
 
 struct SParserContext
 {
-  StringBuffer              m_StringBuffer;
+  StringBuffer              m_Parsed;
+  StringBuffer              m_Original;
   int                       m_LineNo;
   BehaviorTreeContext       m_Tree;
   ParserErrorFunction       m_Error;
@@ -34,6 +46,8 @@ struct SParserContext
   AllocateMemoryFunc        m_Alloc;
   FreeMemoryFunc            m_Free;
 };
+
+
 
 #define YY_EXTRA_TYPE ParserContext
 

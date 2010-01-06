@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include <string.h>
+//#include <stdio.h>
 
 void yyerror( ParserContext ctx, const char* msg )
 {
@@ -66,17 +67,22 @@ void StringBufferAppend( ParserContext pc, StringBuffer* sb, char c)
 {
   if( sb->m_Size >= sb->m_Capacity - 1 )
     StringBufferGrow( pc, sb, 128 );
-
+  //printf( "sb is (%d) \"%s\" appending '%c' l is 1 ", sb->m_Size, sb->m_Str, c );
   sb->m_Str[sb->m_Size++]   = c;
   sb->m_Str[sb->m_Size]     = 0;
+  //printf( "result is \"%s\" (%d)\n", sb->m_Str, sb->m_Size );
 }
 
 void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char* str )
 {
+  //printf( "sb is (%d) \"%s\" appending \"%s\" ", sb->m_Size, sb->m_Str, str );
   int l = strlen( str );
+  //printf( "l is %d ", l );
   if( sb->m_Size >= sb->m_Capacity - (l + 1) )
     StringBufferGrow( pc, sb, l + 1 );
   memcpy( sb->m_Str + sb->m_Size, str, l + 1 );
+  sb->m_Size += l;
+  //printf( "result is \"%s\" (%d)\n", sb->m_Str, sb->m_Size );
 }
 
 void StringBufferClear( ParserContext pc, StringBuffer* sb )

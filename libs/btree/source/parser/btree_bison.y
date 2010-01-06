@@ -17,6 +17,7 @@
 %start expressions
 
 %{
+
 #include "common.h"
 #include <stdio.h>
 
@@ -26,6 +27,17 @@
 bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& grist );
+
+#ifndef STRINGPASS_DECLARED
+
+struct StringPass
+{
+  const char* m_Parsed;
+  const char* m_Original;
+};
+
+#define STRINGPASS_DECLARED
+#endif
 
 %}
 
@@ -62,7 +74,7 @@ bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& gr
     Action*        m_Action;
     Decorator*     m_Decorator;
     Variable*      m_Variable;
-    const char*    m_String;
+    StringPass     m_String;
     int            m_Integer;
     float          m_Float;
     bool           m_Bool;
@@ -173,7 +185,7 @@ variable: T_LPARE vtypes T_RPARE
         ;
 
 vtypes: T_ID T_INT32_VALUE  {printf("matched int32 variable (%s %d)\n", $1.m_Text, $2 );}
-      | T_ID T_STRING_VALUE {printf("matched string variable (%s %s)\n", $1.m_Text, $2 );}
+      | T_ID T_STRING_VALUE {printf("matched string variable (%s %s %s)\n", $1.m_Text, $2.m_Parsed, $2.m_Original );}
       | T_ID T_BOOL_VALUE   {printf("matched bool variable (%s %f)\n", $1.m_Text, $2 );}
       | T_ID T_FLOAT_VALUE  {printf("matched float variable (%s %s)\n", $1.m_Text, $2?"true":"false" );}
       ;

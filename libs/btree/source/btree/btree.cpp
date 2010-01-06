@@ -15,86 +15,6 @@
 #include <btree/btree_func.h>
 #include "../parser/common.h"
 
-/*
-BehaviorTree::BehaviorTree()
-    : m_Root( 0x0 )
-    , m_Impl( new BehaviorTreeImpl )
-{
-}
-
-BehaviorTree::~BehaviorTree()
-{
-    delete m_Impl;
-}
-
-void BehaviorTree::SetRootNode( Node* n )
-{
-    m_Root = n;
-}
-
-const char* BehaviorTree::RegisterString( const char* str )
-{
-    return m_Impl->m_StringTable.PutString( hashlittle( str ), str );
-}
-
-const char* BehaviorTree::RegisterString( const char* str, hash_t hash )
-{
-    return m_Impl->m_StringTable.PutString( hash, str );
-}
-
-Action* BehaviorTree::LookupAction( const Identifier& id )
-{
-    return m_Impl->m_ActionTable.Find( id );
-}
-
-bool BehaviorTree::RegisterAction( Action* a )
-{
-    if( m_Impl->m_ActionTable.Find( a->m_Id ) != 0x0 )
-        return false;
-    m_Impl->m_ActionTable.Insert( a );
-    return true;
-}
-
-void BehaviorTree::UnregisterAction( const Identifier& id )
-{
-	m_Impl->m_ActionTable.Erase( id );
-}
-
-Decorator* BehaviorTree::LookupDecorator( const Identifier& id )
-{
-    return m_Impl->m_DecoratorTable.Find( id );
-}
-
-bool BehaviorTree::RegisterDecorator( Decorator* d )
-{
-	if( m_Impl->m_DecoratorTable.Find( d->m_Id ) != 0x0 )
-		return false;
-	m_Impl->m_DecoratorTable.Insert( d );
-	return true;
-}
-
-void BehaviorTree::UnregisterDecorator( const Identifier& id )
-{
-	m_Impl->m_DecoratorTable.Erase( id );
-}
-
-ParseFile* BehaviorTree::CreateParseFile()
-{
-    return m_Impl->m_ParseFilePool.Alloc();
-}
-
-void BehaviorTree::FreeParseFile( ParseFile* pf )
-{
-    m_Impl->m_ParseFilePool.Free( pf );
-}
-
-int BehaviorTree::Parse( const char* filename )
-{
-
-
-}
-*/
-
 #include "sym_table.h"
 #include "object_pool.h"
 #include "string_table.h"
@@ -246,12 +166,14 @@ ParserContext ParserContextCreate( BehaviorTreeContext btc )
   pc->m_Extra   = 0x0;
   pc->m_Alloc   = btc->m_Setup.m_Alloc;
   pc->m_Free    = btc->m_Setup.m_Free;
-  StringBufferInit( pc, &pc->m_StringBuffer );
+  StringBufferInit( pc, &pc->m_Parsed );
+  StringBufferInit( pc, &pc->m_Original );
   return pc;
 }
 
 void ParserContextDestroy( ParserContext pc )
 {
-  StringBufferDestroy( pc, &pc->m_StringBuffer );
+  StringBufferDestroy( pc, &pc->m_Parsed );
+  StringBufferDestroy( pc, &pc->m_Original );
   FreeObject( pc->m_Tree->m_Pool, pc );
 }

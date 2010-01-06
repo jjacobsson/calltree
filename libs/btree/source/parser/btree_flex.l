@@ -24,7 +24,23 @@
 #include <stdio.h>
 #include <string.h> // <- for memcpy.... yuck.
 #define YY_INPUT(inBuffer, outResult, inMaxSize) ((outResult) = yyget_extra(yyscanner)->m_Read( yyget_extra(yyscanner), (inBuffer), (inMaxSize)) )
-#define STRINGBUFFERAPPEND( STR ) StringBufferAppend( yyget_extra(yyscanner), &(yyget_extra(yyscanner)->m_StringBuffer), (STR) )
+#define STRINGBUFFERAPPEND( STR1, STR2 ) \
+	{ \
+		ParserContext ctx = yyget_extra(yyscanner); \
+		StringBufferAppend( ctx, &(ctx->m_Parsed), (STR1) ); \
+		StringBufferAppend( ctx, &(ctx->m_Original), (STR2) ); \
+	} \
+		
+#ifndef STRINGPASS_DECLARED
+
+struct StringPass
+{
+  const char* m_Parsed;
+  const char* m_Original;
+};
+
+#define STRINGPASS_DECLARED
+#endif		
 		
 %}
 
@@ -117,17 +133,23 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \"              {   /*closing quote*/
                     BEGIN(INITIAL);
                     SParserContext* ctx = yyget_extra( yyscanner );
-                    (*yylval).m_String  = RegisterString( ctx->m_Tree, ctx->m_StringBuffer.m_Str );
-                    StringBufferClear( ctx, &ctx->m_StringBuffer );
+                    (*yylval).m_String.m_Parsed = RegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
+                    (*yylval).m_String.m_Original = RegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
+                    StringBufferClear( ctx, &ctx->m_Parsed );
+                    StringBufferClear( ctx, &ctx->m_Original );
                     return T_STRING_VALUE;
                 }
-\\n             { STRINGBUFFERAPPEND( '\n' ); }
-\\t             { STRINGBUFFERAPPEND( '\t' ); }
-\\r             { STRINGBUFFERAPPEND( '\r' ); }
-\\b             { STRINGBUFFERAPPEND( '\b' ); }
-\\f             { STRINGBUFFERAPPEND( '\f' ); }
-\\(.|\n)        { STRINGBUFFERAPPEND( yytext[1] ); }
-[^\\\n\"]+      { STRINGBUFFERAPPEND( yytext ); }
+\\n             { STRINGBUFFERAPPEND( '\n', yytext ); }
+\\t             { STRINGBUFFERAPPEND( '\t', yytext ); }
+\\r             { STRINGBUFFERAPPEND( '\r', yytext ); }
+\\b             { STRINGBUFFERAPPEND( '\b', yytext ); }
+\\f             { STRINGBUFFERAPPEND( '\f', yytext ); }
+\\(.|\n)        { 
+	ParserContext ctx = yyget_extra(yyscanner);
+	StringBufferAppend( ctx, &(ctx->m_Parsed), yytext[1] );
+	StringBufferAppend( ctx, &(ctx->m_Original), yytext );
+}
+[^\\\n\"]+      { STRINGBUFFERAPPEND( yytext, yytext ); }
 
 ([\n])			{ yyerror( yyget_extra(yyscanner), "new-line in string." ); }
 
