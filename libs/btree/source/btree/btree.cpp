@@ -168,18 +168,17 @@ struct HasIdPredicate
 
 };
 
-typedef TStringTable<StandardAllocator, hash_t, HashPredicate> StringTable;
 typedef TSymbolTable<Action*, HasIdPredicate<Action> > ActionTable;
 typedef TSymbolTable<Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
 
 struct SBehaviorTreeContext
 {
+  BehaviorTreeContextSetup  m_Setup;
+  StringTable               m_StringTable;
   BehaviorTree*             m_Trees;
   ObjectPool*               m_Pool;
-  StringTable*              m_StringTable;
   ActionTable*              m_ActionTable;
   DecoratorTable*           m_DecoratorTable;
-  BehaviorTreeContextSetup  m_Setup;
 };
 
 union ObjectFootPrint
@@ -206,29 +205,33 @@ BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
       &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
   btc->m_Trees          = 0x0;
   btc->m_Pool           = op;
-  btc->m_StringTable    = new StringTable( 4096, 256 );
   btc->m_ActionTable    = new ActionTable;
   btc->m_DecoratorTable = new DecoratorTable;
   btc->m_Setup          = *btcs;
+
+  StringTableInit( &btc->m_StringTable );
+  btc->m_StringTable.m_Alloc    = btcs->m_Alloc;
+  btc->m_StringTable.m_Free     = btcs->m_Free;
+
   return btc;
 }
 
 void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
 {
-  delete btc->m_StringTable;
   delete btc->m_ActionTable;
   delete btc->m_DecoratorTable;
   DestroyObjectPool( btc->m_Pool );
+  StringTableDestroy( &btc->m_StringTable );
 }
 
 const char* RegisterString( BehaviorTreeContext btc, const char* str )
 {
-    return btc->m_StringTable->PutString( hashlittle( str ), str );
+    return StringTableRegisterString( &btc->m_StringTable, str, hashlittle( str ) );
 }
 
 const char* RegisterString( BehaviorTreeContext btc, const char* str, hash_t hash )
 {
-    return btc->m_StringTable->PutString( hash, str );
+    return StringTableRegisterString( &btc->m_StringTable, str, hash );
 }
 
 ParserContext ParserContextCreate( BehaviorTreeContext btc )
