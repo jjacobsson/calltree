@@ -1,0 +1,22 @@
+
+SUFOBJ	= .o ;
+PRELIB	= lib ;
+SUFLIB	= .a ;
+
+DEFINES_COMMON += GCC ;
+
+CCFLAGS   += -m32 ;
+LINKFLAGS += -m32 ;
+
+CC      = g++ ;
+LINK    = g++ ;
+
+actions piecemeal Compile
+{
+    $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+}
+
+actions piecemeal Archive
+{
+    $(AR) $(<) $(>) $(NULL_OUT)
+}

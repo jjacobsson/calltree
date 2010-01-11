@@ -1,99 +1,105 @@
-include "cbrun.h";
+(include "cbrun.h")
 
-// A single line comment that the compiler wont see...
+(deftree keps 
+	(action 'banan 
+		'((a "\\keps") (b "\\n") (c "\n"))
+	)
+)
 
-/*
- * A multi line comment that the compiler wont see
- */ 
+;// A single line comment that the compiler wont see...
 
-node : do_exit_1 
-	: action : exit ;
-
-node : do_exit_2 
-	: action : exit ;
-
-node : force_fail_1
-	: action : act_fail ;
-
-node : force_fail_2
-	: action : act_fail ;
-
-node : you_cant_type
-	: action : print : str = "You can't even type properly? What's wrong with you? I'm leaving!" ;
-
-node : what_are_you_talking_about
-	: action : print : str = "I ain't listening to that #/¤&, try \"help\" if you dont know wtf you are doing." ; 
-
-node : print_onion_str_response
-	: action : print : str = "Carefull mother-#%/#%, I know where you live." ;
-
-node : print_exit_str_response
-	: action : print : str = "Yeah, get the /&¤# out of here!" ;
-
-node : print_hej_str_response
-	: action : print : str = "Shut the $(#/ up, idiot." ;
-
-node : print_help_str_response
-	: action : print : str = "lol!" ;
-
-node : print_lol_str_response
-	: action : print : str = "lol!" ;
-
-node : check_onion_str
-	: action : strcmp : str = "mupp" ;
-
-node : check_exit_str
-	: action : strcmp : str = "exit" ;
-
-node : check_hej_str
-	: action : strcmp : str = "hej" ;
-
-node : check_help_str
-	: action : strcmp : str = "help" ;
-
-node : check_lol_str
-	: action : strcmp : str = "lol!" ;
-
-node : check_onion_seq				
-	: sequence : check_onion_str, print_onion_str_response ;
-
-node : check_exit_seq
-	: sequence : check_exit_str, print_exit_str_response, do_exit_2 ;
-
-node : check_hej_seq
-	: sequence : check_hej_str, print_hej_str_response ;
-
-node : check_help_seq
-	: sequence : check_help_str, print_help_str_response ;
-
-node : check_lol_seq
-	: sequence : check_lol_str, print_lol_str_response ;
-
-node : process_input
-	: selector : check_exit_seq, check_lol_seq, check_help_seq, check_hej_seq , check_onion_seq, what_are_you_talking_about ;
-
-node : get_input
-	: action : getline ;
-
-node : check_exit_cond
-	: action : check_exit;
-
-node : talk_to_user
-	: sequence : get_input, process_input, force_fail_2 ;
-
-node : talk_and_check_exit
-	: dyn_selector : talk_to_user, check_exit_cond ;
-
-node : print_greeting
-	: action : print : str = "What the &/¤# do you want?" ;
-
-node : greeting
-	: sequence : print_greeting, force_fail_1 ;
-
-node : user_managed_to_break_something
-	: sequence : do_exit_1, you_cant_type ;
-
-node : entry_point
-	: selector : greeting, talk_and_check_exit, user_managed_to_break_something ;
-
-root : entry_point ;
+;/*
+; * A multi line comment that the compiler wont see
+; */ 
+;
+;node : do_exit_1 
+;	: action : exit ;
+;
+;node : do_exit_2 
+;	: action : exit ;
+;
+;node : force_fail_1
+;	: action : act_fail ;
+;
+;node : force_fail_2
+;	: action : act_fail ;
+;
+;node : you_cant_type
+;	: action : print : str = "You can't even type properly? What's wrong with you? I'm leaving!" ;
+;
+;node : what_are_you_talking_about
+;	: action : print : str = "I ain't listening to that #/¤&, try \"help\" if you dont know wtf you are doing." ; 
+;
+;node : print_onion_str_response
+;	: action : print : str = "Carefull mother-#%/#%, I know where you live." ;
+;
+;node : print_exit_str_response
+;	: action : print : str = "Yeah, get the /&¤# out of here!" ;
+;
+;node : print_hej_str_response
+;	: action : print : str = "Shut the $(#/ up, idiot." ;
+;
+;node : print_help_str_response
+;	: action : print : str = "lol!" ;
+;
+;node : print_lol_str_response
+;	: action : print : str = "lol!" ;
+;
+;node : check_onion_str
+;	: action : strcmp : str = "mupp" ;
+;
+;node : check_exit_str
+;	: action : strcmp : str = "exit" ;
+;
+;node : check_hej_str
+;	: action : strcmp : str = "hej" ;
+;
+;node : check_help_str
+;	: action : strcmp : str = "help" ;
+;
+;node : check_lol_str
+;	: action : strcmp : str = "lol!" ;
+;
+;node : check_onion_seq				
+;	: sequence : check_onion_str, print_onion_str_response ;
+;
+;node : check_exit_seq
+;	: sequence : check_exit_str, print_exit_str_response, do_exit_2 ;
+;
+;node : check_hej_seq
+;	: sequence : check_hej_str, print_hej_str_response ;
+;
+;node : check_help_seq
+;	: sequence : check_help_str, print_help_str_response ;
+;
+;node : check_lol_seq
+;	: sequence : check_lol_str, print_lol_str_response ;
+;
+;node : process_input
+;	: selector : check_exit_seq, check_lol_seq, check_help_seq, check_hej_seq , check_onion_seq, what_are_you_talking_about ;
+;
+;node : get_input
+;	: action : getline ;
+;
+;node : check_exit_cond
+;	: action : check_exit;
+;
+;node : talk_to_user
+;	: sequence : get_input, process_input, force_fail_2 ;
+;
+;node : talk_and_check_exit
+;	: dyn_selector : talk_to_user, check_exit_cond ;
+;
+;node : print_greeting
+;	: action : print : str = "What the &/¤# do you want?" ;
+;
+;node : greeting
+;	: sequence : print_greeting, force_fail_1 ;
+;
+;node : user_managed_to_break_something
+;	: sequence : do_exit_1, you_cant_type ;
+;
+;node : entry_point
+;	: selector : greeting, talk_and_check_exit, user_managed_to_break_something ;
+;
+;root : entry_point ;

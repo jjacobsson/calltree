@@ -14,7 +14,8 @@ if $(_pass) = Declarations
     }
     SetSourceFiles $(_libname) : $(_src_files) ;
     SetSourceFiles $(_testname) : [ RecursiveDirList $(_libpath) src tests : *.cpp *.c ] ;
-	if $(NT)
+	
+	if $(TOOLSET) = msvc
 	{
 		SetExtraCompileFlags $(_libname) : /EHa ;
 		SetExtraCompileFlags $(_testname) : /EHa ;
