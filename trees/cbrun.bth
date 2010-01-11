@@ -1,20 +1,20 @@
-(defact exit
+(defact act_exit
 	'('(id 0)) 
 	'()
 )
-(defact check_exit
+(defact act_check_exit
 	'('(id 1))
 	'()
 )
-(defact getline
+(defact act_getline
 	'('(id 2))
 	'()
 )
-(defact strcmp
+(defact act_strcmp
 	'('(id 3))
 	'('(string str))
 )
-(defact print
+(defact act_print
 	'('(id 4))
 	'('(string str))
 )
@@ -26,36 +26,36 @@
 	'('(id 6))
 	'()
 )
-(defact count_to_zero
+(defact act_count_to_zero
 	'('(id 7) '(construct true) '(bss 4))
 	'('(int32 start))
 )
-(defact set_gc
+(defact act_set_gc
 	'('(id 8))
 	'('(int32 value))
 )
-(defact dec_gc
+(defact act_dec_gc
 	'('(id 9))
 	'()
 )
-(defact inc_gc
+(defact act_inc_gc
 	'('(id 10))
 	'()
 )
-(defact check_gc_smlr
+(defact act_check_gc_smlr
 	'('(id 11))
 	'('(int32 value))
 )
-(defact check_gc_grtr
+(defact act_check_gc_grtr
 	'('(id 12))
 	'('(int32 value))
 )
-(defact time_delay
+(defact act_time_delay
 	'('(id 13) '(construct true) '(bss 8))
 	'('(float seconds))
 )
 
-(defdec modify_return
+(defdec dec_modify_return
 	'('(id 100) '(modify true))
 	'('(int32 f) '(int32 s) '(int32 r))
 )
@@ -90,7 +90,6 @@
 
 	(define dispatch (lambda (m)
 		(cond 
-			((eq? m 'construct) (construct))
 			((eq? m 'execute) (execute))
 			((eq? m 'destruct) (destruct)))))
 	dispatch))
@@ -110,4 +109,20 @@
 			((eq? m 'execute) (execute))
 			((eq? m 'destruct) (destruct)))))
 	dispatch))
-	
+
+(define act_check_gc_grtr (lambda ()
+	(define construct (lambda () 
+		(print "act_check_gc_grtr construct")))
+	(define execute (lambda () 
+		(begin
+			(print "act_check_gc_grtr execute")
+			'success)))
+	(define destruct (lambda () 
+		(print "act_check_gc_grtr destruct")))
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) (construct))
+			((eq? m 'execute) (execute))
+			((eq? m 'destruct) (destruct)))))
+	dispatch))
+

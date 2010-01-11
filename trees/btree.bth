@@ -193,47 +193,58 @@
 	(lambda () 'unknown))
 
 (define decorator
-	(lambda (dec_id arg child) ('failure))
-)
+	(lambda (dec_id arg child) 
+		(let ((method ((eval dec_id))))
+			(list 
+				(lambda () (method 'construct))
+				(lambda () (method 'execute))
+				(lambda () (method 'destruct))))))
 
-(define (action action_id arguments)
-	(let ((method ((eval (string->symbol (string-append "act_" (symbol->string action_id)))))))
+(define action 
+	(lambda (act_id arguments)
+		(let ((method ((eval act_id))))
+			(list 
+				(lambda () (method 'construct))
+				(lambda () (method 'execute))
+				(lambda () (method 'destruct))))))
+
+(define tree 
+	(lambda ()
 		(list 
-			(lambda () (method 'construct))
-			(lambda () (method 'execute))
-			(lambda () (method 'destruct))
-		)))
-
-(define tree (lambda ()
-	(define construct (lambda () 'unknown))
-	(define execute (lambda () 'failure))
-	(define destruct (lambda () 'unknown))
-	(list construct execute destruct)))
+			(lambda () 'unknown) 
+			(lambda () 'failure)
+			(lambda () 'unknown))))
 
 (define-macro defact 
-	(lambda (action_id settings arguments)
-		(let ((method (string->symbol (string-append "act_" (symbol->string action_id)))))
-			`(define ,method (make-action ,settings ,arguments)))))
+	(lambda (act_id settings arguments)
+		(print "defact " act_id)
+		`(define ,act_id (make-action ,settings ,arguments))))
 
-(define (make-action settings arguments)
-	(define dispatch (lambda (m)
-		(cond 
-			((eq? m 'construct) 'unknown)
-			((eq? m 'execute) 'failure)
-			((eq? m 'destruct) 'unknown))))
-	dispatch)
+(define make-action
+	(lambda (settings arguments)
+		(lambda ()
+			(print "make-action")
+			(define dispatch (lambda (m)
+				(cond 
+					((eq? m 'construct) 'unknown)
+					((eq? m 'execute) 'failure)
+					((eq? m 'destruct) 'unknown))))
+			dispatch)))
 
 (define-macro defdec 
-	(lambda (decorator_id settings arguments)
-		(let ((method (string->symbol (string-append "dec_" (symbol->string decorator_id)))))
-			`(define ,method (make-decorator ,settings ,arguments)))))
+	(lambda (dec_id settings arguments)
+		(print "defdec " dec_id)
+		`(define ,dec_id (make-decorator ,settings ,arguments))))
 	
-(define (make-decorator settings arguments)
-	(define dispatch (lambda (m)
-		(cond 
-			((eq? m 'construct) 'unknown)
-			((eq? m 'execute) 'failure)
-			((eq? m 'destruct) 'unknown))))
-	dispatch)
+(define make-decorator 
+	(lambda (settings arguments)
+		(lambda ()
+			(print "make-decorator")
+			(define dispatch (lambda (m)
+				(cond 
+					((eq? m 'construct) 'unknown)
+					((eq? m 'execute) 'failure)
+					((eq? m 'destruct) 'unknown))))
+			dispatch)))
 	
 

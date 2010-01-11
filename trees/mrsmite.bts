@@ -158,11 +158,59 @@
 
 (deftree main 
 	(sequence '(
-		(action 'set_gc '((value 100000)))
-		(action 'count_to_zero '((value 1000)))
-		(action 'print '((str "We're under attack! A vast, ye swabs! Repel the invaders!")))
+		(action 'act_set_gc '((value 100000)))
+		(action 'act_count_to_zero '((start 1000)))
+		(action 'act_print '((str "We're under attack! A vast, ye swabs! Repel the invaders!")))
 		(selector '(
 			(sequence '(
 				(sequence '(
-					(parallel '()))))))))))
+					(parallel '(
+						(action 'act_count_to_zero '((start 1000000)))
+						(action 'act_check_gc_grtr '((value 0)))
+						(decorator 'dec_modify_return '((s 1)(r 1)(f 1)) 
+							(sequence '(
+								(selector '(
+									(decorator 'dec_modify_return '((s 2)(r 2)(f 0)) 
+										(action 'act_check_gc_grtr '((value 66666)))
+									)
+									(action 'act_dec_gc '(()))
+								))
+								(sequence '(
+									(action 'act_succeed '(()))
+									(sequence '(
+										(action 'act_print '((str "You landlubbers are tougher than i thought. I'll have to improvise!")))
+										(action 'act_count_to_zero '((start 1000)))
+									))
+									(sequence '(
+										(action 'act_print '((str "...going to the chest to upgrade weapons. *shuffle* *shuffle*")))
+										(action 'act_count_to_zero '((start 150000)))
+										(action 'act_print '((str "...and resumes the fight.")))
+									))
+								))
+								(selector '(
+									(decorator 'dec_modify_return '((s 2)(r 2)(f 0))
+										(action 'act_check_gc_grtr '((value 33333)))
+									)
+									(action 'act_dec_gc '(()))
+								))
+								(sequence '(
+									(action 'act_succeed '(()))
+									(sequence '(
+										(action 'act_print '((str "D'ah! Now you're making me angry!")))
+										(action 'act_count_to_zero '((start 1000)))
+									))
+									(sequence '(
+										(action 'act_print '((str "...going to the chest to upgrade weapons even more. *shuffle* *shuffle*")))
+										(action 'act_count_to_zero '((start 150000)))
+										(action 'act_print '((str "...and resumes the fight AGAIN.")))
+									))
+								))
+							)
+						))
+					))
+				))
+			))
+		))
+	))
+)
 
