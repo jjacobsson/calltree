@@ -32,6 +32,5 @@ void StringTableInit( StringTable* );
 void StringTableDestroy( StringTable* );
 
 const char* StringTableRegisterString( StringTable*, const char*, hash_t );
-const char* StringTableLookupString( StringTable*, hash_t );
 
 #endif /*STRING_TABLE_H_*/

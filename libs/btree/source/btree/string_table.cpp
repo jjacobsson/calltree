@@ -146,8 +146,3 @@ const char* StringTableRegisterString( StringTable* st, const char* str,
   return hl.m_Str;
 }
 
-const char* StringTableLookupString( hash_t )
-{
-
-}
-
