@@ -58,6 +58,7 @@ void DestroyObjectPool( ObjectPool* op )
       op->m_Setup.m_Free( b );
     b = op->m_FirstBlock;
   }
+  op->m_Setup.m_Free( op );
 }
 
 void* AllocateObject( ObjectPool* op )
