@@ -11,8 +11,6 @@
 #include <other/getopt.h>
 
 #include <btree/btree.h>
-#include <btree/btree_parse.h>
-#include <btree/btree_mem.h>
 #include "generate/program.h"
 #include "xgml_printer.h"
 
