@@ -140,8 +140,11 @@ void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
     return;
   delete btc->m_ActionTable;
   delete btc->m_DecoratorTable;
-  DestroyObjectPool( btc->m_Pool );
   StringTableDestroy( &btc->m_StringTable );
+
+  ObjectPool* op = btc->m_Pool;
+  FreeObject( op, btc );
+  DestroyObjectPool( op );
 }
 
 const char* RegisterString( BehaviorTreeContext btc, const char* str )
@@ -180,10 +183,10 @@ void ParserContextDestroy( ParserContext pc )
 
 void* AllocateObject( BehaviorTreeContext btc )
 {
-  return AllocateObject( btc );
+  return AllocateObject( btc->m_Pool );
 }
 
-void FreeObject( BehaviorTreeContext btc )
+void FreeObject( BehaviorTreeContext btc, void* object )
 {
-  FreeObject( btc );
+  FreeObject( btc->m_Pool, object );
 }

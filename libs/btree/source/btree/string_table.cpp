@@ -138,10 +138,11 @@ const char* StringTableRegisterString( StringTable* st, const char* str,
   }
 
   hl.m_Str = &(st->m_FirstBlock->m_Text[st->m_FirstBlock->m_Used]);
-  StringTableHashInsert( st, hl );
-
   memcpy( hl.m_Str, str, l + 1 );
   st->m_FirstBlock->m_Used += l + 1;
+
+  StringTableHashInsert( st, hl );
+
 
   return hl.m_Str;
 }
