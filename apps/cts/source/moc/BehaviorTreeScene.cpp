@@ -11,7 +11,9 @@
 #include "BehaviorTreeNode.h"
 #include "../NodeToNodeArrow.h"
 #include <btree/btree.h>
+#include <btree/btree_parse.h>
 #include <stdio.h>
+#include <malloc.h>
 
 #include <QtGui/QtGui>
 
@@ -20,22 +22,79 @@ const float g_NodeHeight = 256.0f;
 const float g_HoriSpace  = 64.0f;
 const float g_VertSpace  = 128.0f;
 
-BehaviorTreeScene::BehaviorTreeScene()
-	: m_Tree( 0x0 )
+struct ParsingInfo
 {
+  FILE*         m_File;
+  const char*   m_Name;
+};
+
+int read_file( ParserContext pc, char* buffer, int maxsize )
+{
+  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  if( !pi )
+    return 0;
+  if( feof( pi->m_File ) )
+    return 0;
+  return (int)fread( buffer, 1, maxsize, pi->m_File );
+}
+
+void parser_error( ParserContext pc, const char* msg )
+{
+  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  if( pi )
+  {
+     fprintf( stdout, "%s(%d) : error : %s\n", pi->m_Name, ParserContextGetLineNo( pc ), msg );
+  }
+  else
+  {
+     fprintf( stdout, "<no file>(%d) : error : %s\n", ParserContextGetLineNo( pc ), msg );
+  }
+}
+
+void parser_warning( ParserContext pc, const char* msg )
+{
+  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  if( pi )
+  {
+     fprintf( stdout, "%s(%d) : warning : %s\n", pi->m_Name, ParserContextGetLineNo( pc ), msg );
+  }
+  else
+  {
+     fprintf( stdout, "<no file>(%d) : warning : %s\n", ParserContextGetLineNo( pc ), msg );
+  }
+}
+
+void* allocate_memory( mem_size_t size )
+{
+  return malloc( size );
+}
+
+void free_memory( void* ptr )
+{
+  if( ptr )
+    free( ptr );
+}
+
+BehaviorTreeScene::BehaviorTreeScene()
+	: m_TreeContext( 0x0 )
+{
+
 }
 
 BehaviorTreeScene::~BehaviorTreeScene()
 {
-	delete m_Tree;
+	BehaviorTreeContextDestroy( m_TreeContext );
 }
 
 bool BehaviorTreeScene::readFile( const QString& filename )
 {
-	if( m_Tree )
-		delete m_Tree;
-	m_Tree = new BehaviorTree;
+  BehaviorTreeContextDestroy( m_TreeContext );
 
+  BehaviorTreeContextSetup btcs;
+  btcs.m_Alloc = &allocate_memory;
+  btcs.m_Free = &free_memory;
+  m_TreeContext = BehaviorTreeContextCreate( &btcs );
+/*
 	int returnCode = m_Tree->Parse( filename.toAscii() );
 	if( returnCode != 0 )
 		return false;
@@ -44,17 +103,19 @@ bool BehaviorTreeScene::readFile( const QString& filename )
 
 	createGraphics( m_Tree->m_Root, 0x0 );
 	layoutNode( m_Tree->m_Root );
-
+*/
 	return true;
 }
 
 void BehaviorTreeScene::layoutNodes()
 {
+/*
 	if( m_Tree )
 	{
 		layoutNode( m_Tree->m_Root );
 		setSceneRect( itemsBoundingRect() );
 	}
+*/
 }
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )

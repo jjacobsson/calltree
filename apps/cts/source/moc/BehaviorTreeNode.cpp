@@ -14,7 +14,7 @@
 #include <QtGui/QtGui>
 #include <QtSvg/QSvgRenderer>
 
-const char* const g_NodeResourcePaths[_E_MAX_GRIST_TYPES_] = {
+const char* const g_NodeResourcePaths[E_MAX_GRIST_TYPES] = {
 	":/nodes/unknown.svg",
 	":/nodes/sequence.svg",
 	":/nodes/selector.svg",
@@ -183,12 +183,14 @@ void BehaviorTreeNode::draggingEnded()
 
 void BehaviorTreeNode::setupLabel()
 {
+/*
 	QGraphicsTextItem* gti = new QGraphicsTextItem( m_Node->m_Id.m_Text, this );
 	QPointF p;
 	QRectF r( gti->boundingRect() );
 	p.rx() = 128.0 - (r.width() / 2.0);
 	p.ry() = 128.0 - (r.height() / 2.0);
 	gti->setPos( p );
+*/
 }
 
 void BehaviorTreeNode::setupTooltip()
@@ -215,6 +217,7 @@ void BehaviorTreeNode::setupTooltip()
 		str += tr( "Decorator, " );
 		str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
 		{
+			/*
 			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Decorator.m_Arguments ) );
 			if( t.isEmpty() )
 				str += "()";
@@ -224,12 +227,14 @@ void BehaviorTreeNode::setupTooltip()
 				str += t;
 				str += " )";
 			}
+			*/
 		}
 		break;
 	case E_GRIST_ACTION:
 		str += tr( "Action, " );
 		str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
 		{
+			/*
 			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Action.m_Arguments ) );
 			if( t.isEmpty() )
 				str += "()";
@@ -239,11 +244,12 @@ void BehaviorTreeNode::setupTooltip()
 				str += t;
 				str += " )";
 			}
+			*/
 		}
 		break;
 	}
-	str += "\n";
-	str += m_Node->m_Id.m_Text;
+	//str += "\n";
+	//str += m_Node->m_Id.m_Text;
 	setToolTip( str );
 }
 

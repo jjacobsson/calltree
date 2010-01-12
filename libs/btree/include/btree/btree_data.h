@@ -11,7 +11,6 @@
 #define BTREE_DATA_H_INCLUDED
 
 #include <common/types.h>
-
 #include <btree/btree_func.h> // <- TODO: KILL KILL KILL!
 
 typedef uint32 hash_t;
@@ -26,43 +25,41 @@ struct Identifier
 
 enum VariableType
 {
-    E_VART_UNDEFINED,
-    E_VART_INTEGER,
-    E_VART_FLOAT,
-    E_VART_STRING,
-    E_VART_BOOL
+  E_VART_UNDEFINED,
+  E_VART_INTEGER,
+  E_VART_FLOAT,
+  E_VART_STRING,
+  E_VART_BOOL,
+  E_MAX_VARIABLE_TYPE
 };
 
 union VariableData
 {
-    int         m_Integer;
-	float       m_Float;
-    const char* m_String;
-    bool		m_Bool;
+  int         m_Integer;
+  float       m_Float;
+  const char* m_String;
+  bool		m_Bool;
 };
 
 struct Variable
 {
-	VariableType  m_Type;
-    Identifier    m_Id;
-    VariableData  m_Data;
-    Variable*     m_Next;
+  Identifier    m_Id;
+  VariableType  m_Type;
+  VariableData  m_Data;
+  Variable*     m_Next;
 };
 
 enum NodeGristType
 {
-	E_GRIST_UNKOWN,
-	E_GRIST_SEQUENCE,
-	E_GRIST_SELECTOR,
-	E_GRIST_PARALLEL,
-	E_GRIST_DYN_SELECTOR,
-	E_GRIST_DECORATOR,
-	E_GRIST_ACTION,
-
-	_E_MAX_GRIST_TYPES_
+  E_GRIST_UNKOWN,
+  E_GRIST_SEQUENCE,
+  E_GRIST_SELECTOR,
+  E_GRIST_PARALLEL,
+  E_GRIST_DYN_SELECTOR,
+  E_GRIST_DECORATOR,
+  E_GRIST_ACTION,
+  E_MAX_GRIST_TYPES
 };
-
-class BehaviorTree;
 
 struct Action
 {
@@ -131,14 +128,20 @@ struct NodeGrist
 
 struct Node
 {
-    Identifier      m_Id;
     NodeGrist       m_Grist;
-	BehaviorTree*   m_Tree;
     Node*			m_Pare;
 	Node*			m_Next;
 	Node*			m_Prev;
 	void*			m_UserData;
     bool			m_Declared;
+};
+
+struct BehaviorTree
+{
+  Identifier    m_Id;
+  Node*         m_Root;
+  BehaviorTree* m_Next;
+  bool          m_Declared;
 };
 
 #endif /* BTREE_DATA_H_INCLUDED */

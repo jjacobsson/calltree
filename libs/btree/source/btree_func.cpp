@@ -14,6 +14,7 @@
 
 #include <string.h> // for memset....
 #include <stdlib.h>
+#include <stdio.h>
 
 /*
  * Identifier Functions
@@ -210,7 +211,7 @@ int max( int a, int b )
 	return b;
 }
 
-const char* GetVariableListAsString( BehaviorTree* tree, Variable* v )
+const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
 {
 	const char* ret = "";
 	int space	= 0;
@@ -270,7 +271,7 @@ const char* GetVariableListAsString( BehaviorTree* tree, Variable* v )
 	if( str )
 	{
 		if( tree )
-			ret = tree->RegisterString( str );
+			ret = RegisterString( tree, str );
 
 		free( str );
 		str = 0x0;
@@ -308,10 +309,8 @@ void InitDecorator( Decorator* d )
 
 void InitNode( Node* n )
 {
-	InitIdentifier( &n->m_Id );
 	InitGrist( &n->m_Grist );
 
-	n->m_Tree		= 0x0;
 	n->m_Pare		= 0x0;
 	n->m_Next		= 0x0;
 	n->m_Prev		= 0x0;
@@ -416,7 +415,7 @@ void UnlinkNodeFromParentAndSiblings( Node* n )
 			SetFirstChild( n->m_Pare, n->m_Next );
 	}
 
-	UnlinkFromSiblings( n );
+		UnlinkFromSiblings( n );
 	n->m_Pare = 0x0;
 }
 

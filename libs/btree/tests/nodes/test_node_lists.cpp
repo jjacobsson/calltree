@@ -19,10 +19,6 @@ TEST( TestUnlinkParentAndSiblingsDoesNotBreakList )
 	InitNode( &n2 );
 	InitNode( &n3 );
 
-	n1.m_Id.m_Hash = 1;
-	n2.m_Id.m_Hash = 2;
-	n3.m_Id.m_Hash = 3;
-
 	AppendToEndOfList( &n1, &n2 );
 	AppendToEndOfList( &n1, &n3 );
 
@@ -34,7 +30,6 @@ TEST( TestUnlinkParentAndSiblingsDoesNotBreakList )
 	CHECK( n3.m_Prev == &n2 );
 
 	UnlinkNodeFromParentAndSiblings( &n2 );
-
 
 	CHECK( n1.m_Next == &n3 );
 	CHECK( n1.m_Prev == 0x0 );

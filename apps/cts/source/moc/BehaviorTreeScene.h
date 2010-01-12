@@ -20,8 +20,8 @@ class QGraphicsItem;
 
 // BT Forward declares
 struct Node;
-class BehaviorTree;
 class BehaviorTreeNode;
+typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 class BehaviorTreeScene : public QGraphicsScene
 {
@@ -65,9 +65,9 @@ protected:
 		QWidget* widget = 0
     );
 
-	QGraphicsView*  m_View;
-	QGraphicsScene* m_Scene;
-	BehaviorTree*	m_Tree;
+	QGraphicsView*  	m_View;
+	QGraphicsScene* 	m_Scene;
+	BehaviorTreeContext	m_TreeContext;
 };
 
 #endif

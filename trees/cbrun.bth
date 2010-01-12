@@ -1,0 +1,128 @@
+(defact act_exit
+	'('(id 0)) 
+	'()
+)
+(defact act_check_exit
+	'('(id 1))
+	'()
+)
+(defact act_getline
+	'('(id 2))
+	'()
+)
+(defact act_strcmp
+	'('(id 3))
+	'('(string str))
+)
+(defact act_print
+	'('(id 4))
+	'('(string str))
+)
+(defact act_fail
+	'('(id 5)) 
+	'()
+)
+(defact act_succeed
+	'('(id 6))
+	'()
+)
+(defact act_count_to_zero
+	'('(id 7) '(construct true) '(bss 4))
+	'('(int32 start))
+)
+(defact act_set_gc
+	'('(id 8))
+	'('(int32 value))
+)
+(defact act_dec_gc
+	'('(id 9))
+	'()
+)
+(defact act_inc_gc
+	'('(id 10))
+	'()
+)
+(defact act_check_gc_smlr
+	'('(id 11))
+	'('(int32 value))
+)
+(defact act_check_gc_grtr
+	'('(id 12))
+	'('(int32 value))
+)
+(defact act_time_delay
+	'('(id 13) '(construct true) '(bss 8))
+	'('(float seconds))
+)
+
+(defdec dec_modify_return
+	'('(id 100) '(modify true))
+	'('(int32 f) '(int32 s) '(int32 r))
+)
+
+(define act_set_gc (lambda ()
+	(define construct (lambda () 
+		(print "act_set_gc construct")))
+	(define execute (lambda () 
+		(begin
+			(print "act_set_gc execute")
+			'success)))
+	(define destruct (lambda () 
+		(print "act_set_gc destruct")))
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) (construct))
+			((eq? m 'execute) (execute))
+			((eq? m 'destruct) (destruct)))))
+	dispatch))
+
+(define act_count_to_zero (lambda ()
+	(define construct (lambda () 
+		(print "act_count_to_zero construct")))
+
+	(define execute (lambda () 
+		(begin
+			(print "act_count_to_zero execute")
+			'success)))
+
+	(define destruct (lambda () 
+		(print "act_count_to_zero destruct")))
+
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'execute) (execute))
+			((eq? m 'destruct) (destruct)))))
+	dispatch))
+
+(define act_print (lambda ()
+	(define construct (lambda () 
+		(print "act_print construct")))
+	(define execute (lambda () 
+		(begin
+			(print "act_print execute")
+			'success)))
+	(define destruct (lambda () 
+		(print "act_print destruct")))
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) (construct))
+			((eq? m 'execute) (execute))
+			((eq? m 'destruct) (destruct)))))
+	dispatch))
+
+(define act_check_gc_grtr (lambda ()
+	(define construct (lambda () 
+		(print "act_check_gc_grtr construct")))
+	(define execute (lambda () 
+		(begin
+			(print "act_check_gc_grtr execute")
+			'success)))
+	(define destruct (lambda () 
+		(print "act_check_gc_grtr destruct")))
+	(define dispatch (lambda (m)
+		(cond 
+			((eq? m 'construct) (construct))
+			((eq? m 'execute) (execute))
+			((eq? m 'destruct) (destruct)))))
+	dispatch))
+

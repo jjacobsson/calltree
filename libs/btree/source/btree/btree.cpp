@@ -11,282 +11,171 @@
 
 #include <other/lookup3.h>
 
-#include <callback/callback.h>
-#include <callback/instructions.h>
-
-#include "btree_impl.h"
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
-
 #include "../parser/common.h"
 
-//#include "endian.h"
+#include "sym_table.h"
+#include "object_pool.h"
+#include "string_table.h"
 
-#include <stdio.h>
-
-using namespace callback;
-
-BehaviorTree::BehaviorTree()
-    : m_Root( 0x0 )
-    , m_Impl( new BehaviorTreeImpl )
+struct StandardAllocator
 {
+    static void* Alloc( size_t size )
+{
+        return malloc( size );
 }
 
-BehaviorTree::~BehaviorTree()
+    static void Free( void* ptr )
 {
-    delete m_Impl;
+        return free( ptr );
+}
+};
+
+struct HashPredicate
+{
+    inline bool operator() ( const hash_t l, const hash_t r ) const
+{
+        return l < r;
+}
+};
+
+struct IntPredicate
+{
+    inline bool operator() ( int l, int r ) const
+{
+        return l < r;
+}
+    inline bool Equals( int l, int r ) const
+{
+        return l == r;
+}
+};
+
+template< typename T >
+struct HasIdPredicate
+{
+    inline bool operator() ( const T* l, const hash_t r ) const
+{
+        return l->m_Id.m_Hash < r;
+}
+    inline bool operator() ( const hash_t l, const T* r ) const
+{
+        return l < r->m_Id.m_Hash;
+}
+    inline bool operator() ( const T* l, const Identifier& r ) const
+{
+        return l->m_Id.m_Hash < r.m_Hash;
+}
+    inline bool operator() ( const Identifier& l, const T* r ) const
+{
+        return l.m_Hash < r->m_Id.m_Hash;
+}
+    inline bool operator() ( const T* l, const T* r ) const
+{
+        return l->m_Id.m_Hash < r->m_Id.m_Hash;
 }
 
-BehaviorTree::const_node_iterator BehaviorTree::NodeBegin() const
+    inline bool Equals( const T* l, const Identifier& r ) const
 {
-    return m_Impl->m_NodeTable.begin();
+        return l->m_Id.m_Hash == r.m_Hash;
 }
 
-BehaviorTree::const_node_iterator BehaviorTree::NodeEnd() const
+    inline bool Equals( const T* l, const T* r ) const
 {
-    return m_Impl->m_NodeTable.end();
+        return l == r;
 }
 
-BehaviorTree::const_action_iterator BehaviorTree::ActionBegin() const
+};
+
+typedef TSymbolTable<Action*, HasIdPredicate<Action> > ActionTable;
+typedef TSymbolTable<Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
+
+struct SBehaviorTreeContext
 {
-    return m_Impl->m_ActionTable.begin();
+  BehaviorTreeContextSetup  m_Setup;
+  StringTable               m_StringTable;
+  BehaviorTree*             m_Trees;
+  ObjectPool*               m_Pool;
+  ActionTable*              m_ActionTable;
+  DecoratorTable*           m_DecoratorTable;
+};
+
+union ObjectFootPrint
+{
+  Variable              m_Variable;
+  Action                m_Action;
+  Decorator             m_Decorator;
+  Node                  m_Node;
+  BehaviorTree          m_Tree;
+  SBehaviorTreeContext  m_BTContext;
+  SParserContext        m_ParserContext;
+};
+
+BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
+{
+  ObjectPoolSetup ops;
+  ops.m_Alloc       = btcs->m_Alloc;
+  ops.m_Free        = btcs->m_Free;
+  ops.m_BlockSize   = 4096;
+  ops.m_TypeSize    = (mem_size_t)sizeof(ObjectFootPrint);
+  ObjectPool* op    = CreateObjectPool( &ops );
+
+  SBehaviorTreeContext* btc =
+      &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
+  btc->m_Trees          = 0x0;
+  btc->m_Pool           = op;
+  btc->m_ActionTable    = new ActionTable;
+  btc->m_DecoratorTable = new DecoratorTable;
+  btc->m_Setup          = *btcs;
+
+  StringTableInit( &btc->m_StringTable );
+  btc->m_StringTable.m_Alloc    = btcs->m_Alloc;
+  btc->m_StringTable.m_Free     = btcs->m_Free;
+
+  return btc;
 }
 
-BehaviorTree::const_action_iterator BehaviorTree::ActionEnd() const
+void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
 {
-    return m_Impl->m_ActionTable.end();
+  if( !btc )
+    return;
+  delete btc->m_ActionTable;
+  delete btc->m_DecoratorTable;
+  DestroyObjectPool( btc->m_Pool );
+  StringTableDestroy( &btc->m_StringTable );
 }
 
-BehaviorTree::const_decorator_iterator BehaviorTree::DecoratorBegin() const
+const char* RegisterString( BehaviorTreeContext btc, const char* str )
 {
-    return m_Impl->m_DecoratorTable.begin();
+    return StringTableRegisterString( &btc->m_StringTable, str, hashlittle( str ) );
 }
 
-BehaviorTree::const_decorator_iterator BehaviorTree::DecoratorEnd() const
+const char* RegisterString( BehaviorTreeContext btc, const char* str, hash_t hash )
 {
-    return m_Impl->m_DecoratorTable.end();
+    return StringTableRegisterString( &btc->m_StringTable, str, hash );
 }
 
-void BehaviorTree::SetRootNode( Node* n )
+ParserContext ParserContextCreate( BehaviorTreeContext btc )
 {
-    m_Root = n;
+  SParserContext* pc = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_ParserContext);
+
+  pc->m_Tree    = btc;
+  pc->m_LineNo  = 0;
+  pc->m_Error   = 0x0;
+  pc->m_Warning = 0x0;
+  pc->m_Read    = 0x0;
+  pc->m_Extra   = 0x0;
+  pc->m_Alloc   = btc->m_Setup.m_Alloc;
+  pc->m_Free    = btc->m_Setup.m_Free;
+  StringBufferInit( pc, &pc->m_Parsed );
+  StringBufferInit( pc, &pc->m_Original );
+  return pc;
 }
 
-const char* BehaviorTree::RegisterString( const char* str )
-{
-    return m_Impl->m_StringTable.PutString( hashlittle( str ), str );
-}
-
-const char* BehaviorTree::RegisterString( const char* str, hash_t hash )
-{
-    return m_Impl->m_StringTable.PutString( hash, str );
-}
-
-Node* BehaviorTree::LookupNode( const Identifier& id )
-{
-    return m_Impl->m_NodeTable.Find( id );
-}
-
-bool BehaviorTree::RegisterNode( Node* n )
-{
-    if( m_Impl->m_NodeTable.Find( n->m_Id ) != 0x0 )
-        return false;
-    m_Impl->m_NodeTable.Insert( n );
-    return true;
-}
-
-void BehaviorTree::UnregisterNode( const Identifier& id )
-{
-    m_Impl->m_NodeTable.Erase( id );
-}
-
-Action* BehaviorTree::LookupAction( const Identifier& id )
-{
-    return m_Impl->m_ActionTable.Find( id );
-}
-
-bool BehaviorTree::RegisterAction( Action* a )
-{
-    if( m_Impl->m_ActionTable.Find( a->m_Id ) != 0x0 )
-        return false;
-    m_Impl->m_ActionTable.Insert( a );
-    return true;
-}
-
-void BehaviorTree::UnregisterAction( const Identifier& id )
-{
-	m_Impl->m_ActionTable.Erase( id );
-}
-
-Decorator* BehaviorTree::LookupDecorator( const Identifier& id )
-{
-    return m_Impl->m_DecoratorTable.Find( id );
-}
-
-bool BehaviorTree::RegisterDecorator( Decorator* d )
-{
-	if( m_Impl->m_DecoratorTable.Find( d->m_Id ) != 0x0 )
-		return false;
-	m_Impl->m_DecoratorTable.Insert( d );
-	return true;
-}
-
-void BehaviorTree::UnregisterDecorator( const Identifier& id )
-{
-	m_Impl->m_DecoratorTable.Erase( id );
-}
-
-ParseFile* BehaviorTree::CreateParseFile()
-{
-    return m_Impl->m_ParseFilePool.Alloc();
-}
-
-void BehaviorTree::FreeParseFile( ParseFile* pf )
-{
-    m_Impl->m_ParseFilePool.Free( pf );
-}
-
-bool BehaviorTree::IsDefined( const char* str )
-{
-    hash_t hash = hashlittle( str );
-    if( m_Impl->m_Defines.Exists( hash ) )
-        return true;
-    return false;
-}
-
-void BehaviorTree::Define( const char* str )
-{
-    hash_t hash = hashlittle( str );
-    m_Impl->m_Defines.Insert( hash );
-}
-
-void BehaviorTree::Undefine( const char* str )
-{
-    hash_t hash = hashlittle( str );
-    m_Impl->m_Defines.Erase( hash );
-}
-
-void BehaviorTree::SetGenerateDebugInfo( bool debug_info_on )
-{
-    //m_Impl->m_I.SetGenerateDebugInfo( debug_info_on );
-}
-
-void BehaviorTree::Generate()
-{
-/*
-    //Alloc storage area for bss header
-    int bss_header  = m_Impl->m_B.Push( sizeof(BssHeader), 4 );
-    //Alloc storage area for child-node return value.
-    int bss_Return  = m_Impl->m_B.Push( sizeof(NodeReturns), 4 );
-
-    //Jump past construction code if tree is already running
-    m_Impl->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_RUNNING, bss_Return );
-
-    //Generate tree construction code
-    m_Root->m_Grist->GenerateConstructionCode( this );
-
-    //Patch jump past construction code instruction
-    m_Impl->m_I.SetA1( 0, m_Impl->m_I.Count() );
-
-    //Generate tree execution code
-    m_Root->m_Grist->GenerateExecutionCode( this );
-
-    //Store return value in bss.
-    m_Impl->m_I.Push( INST__STORE_R_IN_B, bss_Return, 0, 0 );
-
-    //Jump past destruciton code if tree is running
-    int patch_jump_out = m_Impl->m_I.Count();
-    m_Impl->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_RUNNING, 0 );
-
-    //Generate destruction code
-    m_Root->m_Grist->GenerateDestructionCode( this );
-
-    //Patch jump past destruction code instruction
-    m_Impl->m_I.SetA1( patch_jump_out, m_Impl->m_I.Count() );
-
-    //Suspend execution
-    m_Impl->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
-*/
-}
-
-void BehaviorTree::Print( FILE* outFile )
-{
-/*
-    m_Impl->m_I.Print( outFile );
-    m_Impl->m_B.Print( outFile );
-    m_Impl->m_D.Print( outFile );
-*/
-}
-
-bool BehaviorTree::Save( FILE* outFile, bool swapEndian ) const
-{
-/*
-    ProgramHeader h;
-    h.m_IC  = m_Impl->m_I.Count();
-    h.m_DS  = 0;
-    h.m_BS  = m_Impl->m_B.Size();
-
-    if( swapEndian )
+void ParserContextDestroy( ParserContext pc )
     {
-        EndianSwap( h.m_IC );
-        EndianSwap( h.m_DS );
-        EndianSwap( h.m_BS );
+  StringBufferDestroy( pc, &pc->m_Parsed );
+  StringBufferDestroy( pc, &pc->m_Original );
+  FreeObject( pc->m_Tree->m_Pool, pc );
     }
-    size_t write  = sizeof( ProgramHeader );
-    size_t written  = fwrite( &h, 1, write, outFile );
-    if( written != write )
-        return false;
-    if( !m_Impl->m_I.Save( outFile, swapEndian ) )
-        return false;
-    if( !m_Impl->m_D.Save( outFile, swapEndian ) )
-        return false;
-*/
-	return true;
-}
-
-int BehaviorTree::Parse( const char* filename )
-{
-
-    ParserContext ctx;
-
-    yylex_init(&ctx.yyscanner);
-    yyset_extra(&ctx, ctx.yyscanner);
-
-    ctx.m_Tree      = this;
-
-    if( !push_parse_file( &ctx, filename ) )
-        return -1;
-
-    int r = yyparse(&ctx, ctx.yyscanner);
-
-    yylex_destroy(ctx.yyscanner);
-
-
-    return r;
-}
-
-
-void BehaviorTree::Error( ParserContext* ctx, int lineno, const char* msg )
-{
-    if( ctx->m_File  )
-    {
-        fprintf( stdout, "%s(%d) : error : %s\n", ctx->m_File->m_Name, lineno, msg );
-    }
-    else
-    {
-        fprintf( stdout, "<no file>(%d) : error : %s\n", lineno, msg );
-    }
-}
-
-void BehaviorTree::Warning( ParserContext* ctx, int lineno, const char* msg )
-{
-    if( ctx->m_File  )
-    {
-        fprintf( stdout, "%s(%d) : warning : %s\n", ctx->m_File->m_Name, lineno, msg );
-    }
-    else
-    {
-        fprintf( stdout, "<no file>(%d) : warning : %s\n", lineno, msg );
-    }
-}
-

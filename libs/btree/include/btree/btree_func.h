@@ -16,7 +16,8 @@ struct Action;
 struct Decorator;
 struct Node;
 struct NodeGrist;
-class BehaviorTree;
+
+typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 /*
  * Identifier Functions
@@ -54,7 +55,7 @@ const char* ValueAsString( const Variable& );
 
 bool ValueAsBool( const Variable& );
 
-const char* GetVariableListAsString( BehaviorTree* tree, Variable* start );
+const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* start );
 
 /*
  * Action Functions

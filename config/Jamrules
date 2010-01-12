@@ -6,38 +6,6 @@ actions quietly MkDir1
 	$(MKDIR) $(<)
 }
 
-if $(NT) 
-{
-    actions piecemeal quietly Compile
-    {
-        $(CC) /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
-    }
-   
-    actions piecemeal Archive
-    {
-        $(AR) /NOLOGO /OUT:$(<) $(>)
-    }
-    
-	actions Link bind NEEDLIBS
-	{
-		$(LINK) $(LINKFLAGS) /out:$(<) $(UNDEFS) $(>) $(NEEDLIBS) $(LINKLIBS)
-	}
-	
-}
-else
-{
-    actions piecemeal Compile
-    {
-        $(CC) -c -o $(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
-    }
-	
-    actions piecemeal Archive
-    {
-        $(AR) $(<) $(>) >/dev/null 2>&1
-    }
-
-}
-
 actions quietly piecemeal RunUnitTest
 {
     $(>)
@@ -56,7 +24,7 @@ actions Bison
 
 actions Flex 
 {
-    flex -o $(1:B)$(1:S) $(2)
+    flex -L -o $(1:B)$(1:S) $(2)
     $(MV) $(1:B)$(1:S) $(1) ;
 }
 
@@ -167,7 +135,6 @@ rule RecursiveDir
 	{
 		_results += [ RecursiveDir $(_subdir) : $(2) ] ;
 	}
-
 	return $(_results) ;
 }
 
@@ -404,7 +371,7 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
-		#Includes $(_i) : config$(SLASH)Jamrules ;
+		Includes $(_i) : config$(SLASH)Jamrules ;
 
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
@@ -500,31 +467,6 @@ rule SetVariablesOnObjects
     return $(_objects) ;
 }
 
-if $(NT)
-{
-	rule FLibrarySearchPaths
-	{
-		return /LIBPATH:$(1) ;
-	}
-	
-	rule FLibrary
-	{
-		return $(1)$(SUFLIB) ;
-	}
-}
-else
-{
-	rule FLibrarySearchPaths
-	{
-		return -L$(1) ;
-	}
-	
-	rule FLibrary
-	{
-		return -l$(1) ;
-	}
-}
-
 rule SetNeededLibraries
 {
     local _i = ;
@@ -534,8 +476,10 @@ rule SetNeededLibraries
     {
         local _library = [ GetLinkLibraries $(_i) ] ;
       	LINKLIBS on $(2) += [ FLibrary $(_library) ] ;
-        
-        Depends $(2) : $(BUILD_LIB_DIR)$(PRELIB)$(_library)$(SUFLIB) ;
+		if $(3) != $(_i)
+		{
+	        Depends $(2) : $(BUILD_LIB_DIR)$(PRELIB)$(_library)$(SUFLIB) ;
+		}
     }
     for _i in $($(1)_ext_dependant_of)
     {
@@ -595,7 +539,7 @@ rule InvokeLibraryDependencies
     Clean       clean            : $(_libfile) ;
     Clean       clean            : $(_testfile) ;
 
-    SetNeededLibraries $(_testname) : $(_testfile) ;
+    SetNeededLibraries $(_testname) : $(_testfile) : $(_libname) ;
 
     # Setup dependency chains.
     if $(_testobjects)
@@ -640,7 +584,7 @@ rule InvokeApplication
 
 	local _objects = [ SetVariablesOnObjects $(_appname) ] ;
 
-    SetNeededLibraries $(_appname) : $(_appfile) ;    
+    SetNeededLibraries $(_appname) : $(_appfile) : $(_appname) ;    
 
     # Actions
 	MkDir $(_appfile:P) ;
@@ -673,7 +617,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
-			#Includes config$(SLASH)Jamrules : $(_lib_file) ;		
+			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -697,7 +641,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
-			#Includes config$(SLASH)Jamrules : $(_app_file) ;
+			Includes config$(SLASH)Jamrules : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;

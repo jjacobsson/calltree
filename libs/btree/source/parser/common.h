@@ -10,68 +10,63 @@
 #ifndef PARSER_COMMON_H_
 #define PARSER_COMMON_H_
 
-#include <btree/btree.h>
-#include "btree_parser.h"
-#include <string>
+#ifndef STRINGPASS_DECLARED
 
-#ifndef YY_TYPEDEF_YY_BUFFER_STATE
-#define YY_TYPEDEF_YY_BUFFER_STATE
-typedef struct yy_buffer_state *YY_BUFFER_STATE;
+struct StringPass
+{
+  const char* m_Parsed;
+  const char* m_Original;
+};
+
+#define STRINGPASS_DECLARED
 #endif
 
-struct ParseFile
+#include <btree/btree_parse.h>
+#include <btree/btree_mem.h>
+#include <btree/btree.h>
+#include "btree_bison.h"
+
+struct StringBuffer
 {
-    char            m_Name[2048];
-    FILE*           m_File;
-    ParseFile*      m_Next;
-    YY_BUFFER_STATE m_Buffer;
+  char* m_Str;
+  int   m_Size;
+  int   m_Capacity;
 };
 
-struct ParserContext
+struct SParserContext
 {
-    ParserContext();
-
-    void*          yyscanner;
-    std::string    m_TmpString; // TODO: KILL KILL KILL!
-    int            m_NewLines;
-    BehaviorTree*  m_Tree;
-    ParseFile*     m_File;
-    int            m_PPCurrScope;
-    int            m_PPUntilScope;
+  StringBuffer              m_Parsed;
+  StringBuffer              m_Original;
+  int                       m_LineNo;
+  BehaviorTreeContext       m_Tree;
+  ParserErrorFunction       m_Error;
+  ParserWarningFunction     m_Warning;
+  ParserFillBufferFunction  m_Read;
+  void*                     m_Extra;
+  AllocateMemoryFunc        m_Alloc;
+  FreeMemoryFunc            m_Free;
 };
 
-#define YY_EXTRA_TYPE ParserContext*
+
+
+#define YY_EXTRA_TYPE ParserContext
 
 int  yylex( YYSTYPE*, void* );
 int  yylex_init( void** );
+int yylex_init_extra( YY_EXTRA_TYPE, void** );
 int  yylex_destroy( void* );
 void yyset_extra( YY_EXTRA_TYPE, void* );
-int  yyparse( ParserContext*, void* );
-int  yyget_lineno( void* );
+int yyparse( YY_EXTRA_TYPE, void* );
 
-int  fill_lex_buffer( ParserContext* ctx, char* buffer, int maxsize );
-bool push_parse_file( ParserContext*, const char* filename );
-bool pop_parse_file( ParserContext* );
+void yyerror( ParserContext ctx, const char* msg );
+void yywarning( ParserContext ctx, const char* msg );
+void yyerror( ParserContext ctx, void*, const char* msg );
+void yywarning( ParserContext ctx, void*, const char* msg );
 
-inline void yyerror( ParserContext* ctx, void* scanner, const char* msg )
-{
-    ctx->m_Tree->Error( ctx, yyget_lineno(scanner), msg );
-}
-
-inline void yyerror( ParserContext* ctx, void* scanner, int lineno, const char* msg )
-{
-    ctx->m_Tree->Error( ctx, lineno, msg );
-}
-
-inline void yywarning( ParserContext* ctx, void* scanner, const char* msg )
-{
-    ctx->m_Tree->Warning( ctx, yyget_lineno(scanner), msg );
-}
-
-inline void yywarning( ParserContext* ctx, void* scanner, int lineno, const char* msg )
-{
-    ctx->m_Tree->Warning( ctx, lineno, msg );
-}
-
+void StringBufferInit( ParserContext, StringBuffer* );
+void StringBufferAppend( ParserContext, StringBuffer*, char );
+void StringBufferAppend( ParserContext, StringBuffer*, const char * );
+void StringBufferClear( ParserContext, StringBuffer* );
+void StringBufferDestroy( ParserContext, StringBuffer* );
 
 #endif /* PARSER_COMMON_H_ */

@@ -2,7 +2,7 @@
 #define COMMON_TYPES_H
 
 
-#if defined(WIN32)
+#if defined(MSVC)
 
 #include <stddef.h>
 
@@ -15,7 +15,7 @@ typedef signed __int32 int32;
 typedef unsigned __int64 uint64;
 typedef signed __int64 int64;
 
-#elif defined(LINUX)
+#elif defined(GCC)
 
 #include <stdint.h>
 #include <unistd.h>

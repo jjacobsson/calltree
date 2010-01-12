@@ -1,17 +1,39 @@
-if $(PLATFORM)
+if $(HOST)
 {
-	PLATFORM = $(PLATFORM:L) ;
+	HOST = $(HOST:L) ;
 }
 else
 {
 	if $(NT)
 	{
-		PLATFORM = win32 ;
-	
+		HOST = win32 ;
 	}
 	else
 	{
-		PLATFORM = linux ;
+		HOST = linux ;
+	}
+}
+
+if $(TOOLSET)
+{
+	TOOLSET = $(TOOLSET:L) ;
+}
+else
+{
+	if $(NT)
+	{
+		if $(JAM_TOOLSET:U) = VISUALC
+		{
+			TOOLSET = msvc ;
+		}
+		else if $(JAM_TOOLSET:U) = MINGW
+		{
+			TOOLSET = gcc ;
+		}
+	}
+	else
+	{
+		TOOLSET = gcc ;
 	}
 }
 
@@ -24,11 +46,15 @@ else
 	CONFIGURATION = release ;
 }
 
-include config/buildconfig.$(PLATFORM) ;
-include config/buildconfig.$(PLATFORM).$(CONFIGURATION) ;
+DEFINES_COMMON = ;
 
-BUILD_ROOT    = build ;
-BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH)$(PLATFORM)$(SLASH)$(CONFIGURATION)$(SLASH) ;
-BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH)$(PLATFORM)$(SLASH)$(CONFIGURATION)$(SLASH) ;
+include config/buildconfig.$(HOST) ;
+include config/buildconfig.$(TOOLSET) ;
+include config/buildconfig.$(TOOLSET).$(CONFIGURATION) ;
+
+BUILD_ROOT    = build$(SLASH)$(TOOLSET) ;
+BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH)$(CONFIGURATION)$(SLASH) ;
+BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH)$(CONFIGURATION)$(SLASH) ;
 BUILD_BIN_DIR = $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
 BUILD_TST_DIR = $(BUILD_ROOT)$(SLASH)tests$(SLASH) ;
+

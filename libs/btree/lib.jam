@@ -3,9 +3,12 @@ if $(_pass) = Declarations
 
 	SetSearchPaths $(_libname) : $(_libpath) include ;
     local _source_files = [ RecursiveDirList $(_libpath) source : *.cpp ] ;
-
-    local _parser_y = [ FDirName $(_libpath) source parser btree_parser.y ] ;
-    local _lexer_l  = [ FDirName $(_libpath) source parser btree_lexer.l ] ;
+	
+	local _common_h = [ FDirName $(_libpath) source parser common.h ] ;
+	local _common_cpp = [ FDirName $(_libpath) source parser common.cpp ] ;
+    
+    local _parser_y = [ FDirName $(_libpath) source parser btree_bison.y ] ;
+    local _lexer_l  = [ FDirName $(_libpath) source parser btree_flex.l ] ;
 
     local _parser_c = $(_parser_y:S=.c) ;
 	local _parser_h = $(_parser_y:S=.h) ;
@@ -13,6 +16,10 @@ if $(_pass) = Declarations
 
     Bison $(_parser_c)	: $(_parser_y) ;
     Flex $(_lexer_c)	: $(_lexer_l) ;
+
+	Includes $(_parser_c) : $(_common_h) ;
+	Includes $(_lexer_c) : $(_common_h) ;
+	Includes $(_common_cpp) : $(_common_h) ;
 
     SetSourceFiles $(_libname)  : $(_parser_c) ;
     SetSourceFiles $(_libname)  : $(_lexer_c) ;

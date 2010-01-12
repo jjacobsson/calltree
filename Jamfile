@@ -16,7 +16,7 @@ Depends apps : libs ;
 SUFBTC = .btc ;
 
 BTCOMP_EXE      = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
-BUILD_TREES_DIR = $(BUILD_ROOT)$(SLASH)trees$(SLASH) ;
+BUILD_TREES_DIR = build$(SLASH)trees$(SLASH) ;
 
 
 #actions btcomp
@@ -66,6 +66,5 @@ rule CompileBehaviourTrees
 }
 
 CompileBehaviourTrees trees ;
-
 
 Depends all : trees ;

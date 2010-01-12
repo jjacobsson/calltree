@@ -1,0 +1,38 @@
+
+SUFOBJ	= .obj ;
+PRELIB	= "" ;
+SUFLIB	= .lib ;
+
+DEFINES_COMMON += MSVC ;
+DEFINES_COMMON += _CONSOLE ;
+DEFINES_COMMON += _CRT_SECURE_NO_WARNINGS ;
+DEFINES_COMMON += _UNICODE ;
+DEFINES_COMMON += UNICODE ;
+
+CCFLAGS += /c ;
+CCFLAGS += /errorReport:prompt ;
+CCFLAGS += /wd4530 ;
+CCFLAGS	+= /W3 ;
+CCFLAGS += /TP ;
+
+LINKFLAGS += /INCREMENTAL:NO ;
+
+actions piecemeal quietly Compile
+{
+	$(CC) /Fo$(<) $(CCFLAGS) $(CCDEFS) $(CCHDRS) $(>)
+}
+   
+actions piecemeal Archive
+{
+	$(AR) /NOLOGO /OUT:$(<) $(>)
+}
+
+rule FLibrarySearchPaths
+{
+	return /LIBPATH:$(1) ;
+}
+
+rule FLibrary
+{
+	return $(1)$(SUFLIB) ;
+}
