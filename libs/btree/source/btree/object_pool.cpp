@@ -22,6 +22,7 @@ struct SBlock
 struct ObjectPool
 {
   ObjectPoolSetup m_Setup;
+  SBlock*         m_JoinedBlock;
   SBlock*         m_FirstBlock;
   SObject*        m_FirstFree;
 };
@@ -41,8 +42,9 @@ ObjectPool* CreateObjectPool( ObjectPoolSetup* ops )
   op->m_FirstBlock  = 0x0;
   op->m_FirstFree   = 0x0;
   op->m_Setup.m_TypeSize = type_size;
-  SBlock* block = (SBlock*)(((char*)op) + sizeof( ObjectPool ));
-  SetupBlock( op, block );
+  op->m_JoinedBlock = (SBlock*)(((char*)op) + sizeof( ObjectPool ));
+  SetupBlock( op, op->m_JoinedBlock );
+
   return op;
 }
 
@@ -52,7 +54,8 @@ void DestroyObjectPool( ObjectPool* op )
   while( b )
   {
     op->m_FirstBlock = b->m_Next;
-    op->m_Setup.m_Free( b );
+    if( b != op->m_JoinedBlock )
+      op->m_Setup.m_Free( b );
     b = op->m_FirstBlock;
   }
 }
