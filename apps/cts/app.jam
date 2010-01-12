@@ -46,9 +46,16 @@ if $(QT_PATH)
 	Includes $(_nodetonode_h)    : [ FDirName $(_apppath) source GraphicsItemTypes.h ] ;
 
 	SetSourceFiles $(_appname) : $(_source_files) ;
-	
-	if $(PLATFORM) = win32
-	{
-		SetExtraLinkFlags $(_appname) : "/SUBSYSTEM:WINDOWS" ;
+
+	if $(HOST) = win32
+	{	
+		if $(TOOLSET) = msvc
+		{
+			SetExtraLinkFlags $(_appname) : "/SUBSYSTEM:WINDOWS" ;
+		}
+		else if $(TOOLSET) = gcc
+		{
+			SetExtraLinkFlags $(_appname) : -Wl,-subsystem,windows ;
+		}
 	}
 }

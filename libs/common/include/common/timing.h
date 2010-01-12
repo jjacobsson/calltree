@@ -6,7 +6,7 @@
 inline uint64 get_cpu_counter();
 inline uint64 get_cpu_frequency();
 
-#if defined(WIN32)
+#if defined(MSVC)
 
 #include <windows.h>
 
@@ -24,7 +24,7 @@ inline uint64 get_cpu_counter()
     return (uint64)t.QuadPart;
 }
 
-#elif defined(LINUX)
+#elif defined(GCC)
 
 #include <sys/time.h>
 #include <time.h>
