@@ -10,14 +10,7 @@
 #ifndef BTREE_FUNCTIONS_H_INCLUDED
 #define BTREE_FUNCTIONS_H_INCLUDED
 
-struct Identifier;
-struct Variable;
-struct Action;
-struct Decorator;
-struct Node;
-struct NodeGrist;
-
-typedef struct SBehaviorTreeContext* BehaviorTreeContext;
+#include "btree_data.h"
 
 /*
  * Identifier Functions
@@ -51,7 +44,7 @@ int ValueAsInteger( const Variable& );
 
 float ValueAsFloat( const Variable& );
 
-const char* ValueAsString( const Variable& );
+const StringData* ValueAsString( const Variable& );
 
 bool ValueAsBool( const Variable& );
 
@@ -97,4 +90,17 @@ bool AcceptsMoreChildren( Node* n );
 
 void InitGrist( NodeGrist* );
 
+/*
+ * BehaviorTreeContext stuff
+ */
+
+BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* );
+
+void BehaviorTreeContextDestroy( BehaviorTreeContext );
+
+const char* RegisterString( BehaviorTreeContext, const char* );
+
+const char* RegisterString( BehaviorTreeContext, const char*, hash_t );
+
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
+

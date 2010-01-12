@@ -11,7 +11,6 @@
 #define BTREE_DATA_H_INCLUDED
 
 #include <common/types.h>
-#include <btree/btree_func.h> // <- TODO: KILL KILL KILL!
 
 typedef uint32 hash_t;
 const hash_t INVALID_ID = 0xffffffff;
@@ -33,12 +32,18 @@ enum VariableType
   E_MAX_VARIABLE_TYPE
 };
 
+struct StringData
+{
+  const char* m_Parsed;
+  const char* m_Raw;
+};
+
 union VariableData
 {
-  int         m_Integer;
-  float       m_Float;
-  const char* m_String;
-  bool		m_Bool;
+  int        m_Integer;
+  float      m_Float;
+  StringData m_String;
+  bool		 m_Bool;
 };
 
 struct Variable
@@ -142,6 +147,18 @@ struct BehaviorTree
   Node*         m_Root;
   BehaviorTree* m_Next;
   bool          m_Declared;
+};
+
+typedef unsigned int mem_size_t;
+typedef void* (*AllocateMemoryFunc)( const mem_size_t size );
+typedef void (*FreeMemoryFunc)( void* object_pointer );
+
+typedef struct SBehaviorTreeContext* BehaviorTreeContext;
+
+struct BehaviorTreeContextSetup
+{
+  AllocateMemoryFunc    m_Alloc; // The function that will be used for all memory allocations
+  FreeMemoryFunc        m_Free;  // The function that will be used to free all allocated memory
 };
 
 #endif /* BTREE_DATA_H_INCLUDED */

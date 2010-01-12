@@ -12,7 +12,7 @@
 #include "endian.h"
 #include "inst_text.h"
 
-#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 #include <other/lookup3.h>
 
 #include <stdio.h>

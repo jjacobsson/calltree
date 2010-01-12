@@ -7,14 +7,12 @@
  *
  */
 
-#include <btree/btree.h>
-
 #include <other/lookup3.h>
 
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
-#include "../parser/common.h"
 
+#include "../parser/common.h"
 #include "sym_table.h"
 #include "object_pool.h"
 #include "string_table.h"
@@ -174,8 +172,8 @@ ParserContext ParserContextCreate( BehaviorTreeContext btc )
 }
 
 void ParserContextDestroy( ParserContext pc )
-    {
+{
   StringBufferDestroy( pc, &pc->m_Parsed );
   StringBufferDestroy( pc, &pc->m_Original );
   FreeObject( pc->m_Tree->m_Pool, pc );
-    }
+}

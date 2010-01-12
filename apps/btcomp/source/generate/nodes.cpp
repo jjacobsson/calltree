@@ -1177,7 +1177,7 @@ int store_variables_in_data_section(
         	vd->m_Data.push_back( d.PushFloat( ValueAsFloat(*v) ) );
             break;
         case E_VART_STRING:
-        	vd->m_Data.push_back( d.PushString( ValueAsString(*v) ) );
+        	vd->m_Data.push_back( d.PushString( ValueAsString(*v)->m_Parsed ) );
             break;
         case E_VART_BOOL:
         	vd->m_Data.push_back( d.PushInteger( ValueAsInteger(*v) ) );

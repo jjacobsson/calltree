@@ -26,7 +26,8 @@ TEST_FIXTURE( TestVariablesFixture, InitVariableInitsDataToZero )
 {
 	CHECK( v.m_Data.m_Integer == 0x0 );
 	CHECK( v.m_Data.m_Float == 0.0f );
-	CHECK( v.m_Data.m_String == 0x0 );
+	CHECK( v.m_Data.m_String.m_Parsed == 0x0 );
+	CHECK( v.m_Data.m_String.m_Raw == 0x0 );
 	CHECK( v.m_Data.m_Bool == false );
 }
 

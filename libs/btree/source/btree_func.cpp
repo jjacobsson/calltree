@@ -34,7 +34,8 @@ void InitIdentifier( Identifier* id )
 void InitVariable( Variable* v )
 {
 	v->m_Type = E_VART_UNDEFINED;
-	v->m_Data.m_Integer = 0;
+	v->m_Data.m_String.m_Parsed = 0x0;
+	v->m_Data.m_String.m_Raw = 0x0;
 	v->m_Next = 0x0;
 
 	InitIdentifier( &v->m_Id );
@@ -176,10 +177,10 @@ float ValueAsFloat( const Variable& v )
 	return r;
 }
 
-const char* ValueAsString( const Variable& v )
+const StringData* ValueAsString( const Variable& v )
 {
     if( v.m_Type == E_VART_STRING )
-        return v.m_Data.m_String;
+        return &v.m_Data.m_String;
     return 0x0;
 }
 
@@ -461,3 +462,5 @@ void InitGrist( NodeGrist* g )
 {
 	memset( g, 0, sizeof( NodeGrist ) );
 }
+
+

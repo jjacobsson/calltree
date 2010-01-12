@@ -219,7 +219,7 @@ public:
 	VariableTypeStringFixture()
 	{
 		v.m_Type = E_VART_STRING;
-		v.m_Data.m_String = g_TestString;
+		v.m_Data.m_String.m_Parsed = g_TestString;
 	}
 };
 
@@ -260,7 +260,7 @@ TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroFloat )
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToString )
 {
-	CHECK( g_TestString == ValueAsString( v ) );
+	CHECK( g_TestString == ValueAsString( v )->m_Parsed );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToBool )

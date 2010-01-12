@@ -10,7 +10,7 @@
 #ifndef OBJECTPOOL_H_
 #define OBJECTPOOL_H_
 
-#include <btree/btree_mem.h>
+#include <btree/btree_data.h>
 
 struct ObjectPoolSetup
 {
