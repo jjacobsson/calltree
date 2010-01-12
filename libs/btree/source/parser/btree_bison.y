@@ -26,7 +26,7 @@
 
 bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
-bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& grist );
+Node* AllocateNode( BehaviorTreeContext ctx, const NodeGrist& grist );
 
 %}
 
@@ -55,6 +55,14 @@ bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& gr
 %token<m_String>  T_STRING_VALUE /* a string value */
 %token<m_Id>      T_ID           /* a legal identifier string */
 
+%type<m_Node> node
+%type<m_Node> sequence
+%type<m_Node> selector
+%type<m_Node> parallel
+%type<m_Node> dselector
+%type<m_Node> decorator
+%type<m_Node> action
+%type<m_Node> nlist
 
 %union {
     NodeGrist      m_NodeGrist;
@@ -86,10 +94,10 @@ atom: deftree
     ;
 
 deftree: T_DEFTREE T_ID node
-     {
-     	printf( "deftree %s\n", $2.m_Text );
-     }
-     ;
+       {
+		printf( "deftree %s\n", $2.m_Text );
+       }
+       ;
 
 include: T_INCLUDE T_STRING_VALUE
        {
@@ -109,12 +117,12 @@ defdec: T_DEFDEC T_ID vlist vdlist
       }
       ;
 
-node: T_LPARE sequence T_RPARE
-    | T_LPARE selector T_RPARE
-    | T_LPARE parallel T_RPARE
-    | T_LPARE dselector T_RPARE
-    | T_LPARE decorator T_RPARE
-    | T_LPARE action T_RPARE
+node: T_LPARE sequence T_RPARE { $$ = $2; }
+    | T_LPARE selector T_RPARE { $$ = $2; }
+    | T_LPARE parallel T_RPARE { $$ = $2; }
+    | T_LPARE dselector T_RPARE { $$ = $2; }
+    | T_LPARE decorator T_RPARE { $$ = $2; }
+    | T_LPARE action T_RPARE { $$ = $2; }
     ;
     
 nlist: T_LPARE nmembers T_RPARE         {printf("matched node list\n");}
@@ -128,37 +136,51 @@ nmembers: node
 
 sequence: T_SEQUENCE nlist 
         {
-        	printf("matched sequnce\n");
+        	NodeGrist grist;
+        	InitGrist( &grist );
+        	grist.m_Type = E_GRIST_SEQUENCE;
+        	grist.m_Sequence.m_FirstChild = $2;
+        	Node* n = AllocateNode( ctx->m_Tree, grist );
+        	$$ = n;
         }
         ;
         
 selector: T_SELECTOR nlist 
         {
-        	printf("matched selector\n");
+        	NodeGrist grist;
+        	InitGrist( &grist );
+        	grist.m_Type = E_GRIST_SELECTOR;
+        	grist.m_Selector.m_FirstChild = $2;
+        	Node* n = AllocateNode( ctx->m_Tree, grist );
+        	$$ = n;
         }
         ;
         
 parallel: T_PARALLEL nlist 
         {
         	printf("matched parallel\n");
+        	$$ = 0x0;
         }
         ;
         
 dselector: T_DSELECTOR nlist
          {
          	printf("matched dynamic selector\n");
+         	$$ = 0x0;
          }
          ;
          
 decorator: T_DECORATOR T_QUOTE T_ID vlist node 
          {
          	printf("matched decorator\n");
+         	$$ = 0x0;
          }
          ;
          
 action: T_ACTION T_QUOTE T_ID vlist 
       {
       	printf("matched action %s\n", $3.m_Text );
+      	$$ = 0x0;
       }
       ;
 
@@ -269,36 +291,14 @@ bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars
     return false;
 }
 
-bool DeclareNode( SParserContext* ctx, const Identifier& id, const NodeGrist& grist )
+Node* AllocateNode( BehaviorTreeContext ctx, const NodeGrist& grist )
 {
-/*
-	Node* n = ctx->m_Tree->LookupNode( id );
-	if( !n )
+	Node* n = (Node*)AllocateObject( ctx );
+	if( n )
 	{
-		n = new Node;
 		InitNode( n );
-		n->m_Id = id;
 		n->m_Grist = grist;
-		n->m_Declared = true;
-		ctx->m_Tree->RegisterNode( n );
-		SetParentOnChildren( n );
 	}
-	else if( n && !n->m_Declared )
-	{
-		n->m_Id = id;
-		n->m_Grist = grist;
-		n->m_Declared = true;
-		SetParentOnChildren( n );
-	}
-	else if( n && n->m_Declared )
-	{
-		char tmp[2048];
-		sprintf( tmp, "Node \"%s\" was previously declared on line %d.\n", id.m_Text, n->m_Id.m_Line );
-		yyerror( ctx, tmp );
-		return false;
-	}
-	return true;
-*/
-	return false;	
+	return n;
 }
 

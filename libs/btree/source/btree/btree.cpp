@@ -177,3 +177,13 @@ void ParserContextDestroy( ParserContext pc )
   StringBufferDestroy( pc, &pc->m_Original );
   FreeObject( pc->m_Tree->m_Pool, pc );
 }
+
+void* AllocateObject( BehaviorTreeContext btc )
+{
+  return AllocateObject( btc );
+}
+
+void FreeObject( BehaviorTreeContext btc )
+{
+  FreeObject( btc );
+}

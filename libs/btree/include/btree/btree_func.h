@@ -102,5 +102,9 @@ const char* RegisterString( BehaviorTreeContext, const char* );
 
 const char* RegisterString( BehaviorTreeContext, const char*, hash_t );
 
+void* AllocateObject( BehaviorTreeContext );
+
+void FreeObject( BehaviorTreeContext );
+
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 
