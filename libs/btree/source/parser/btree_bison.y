@@ -26,7 +26,7 @@
 
 bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
-Node* AllocateNode( BehaviorTreeContext ctx, const NodeGrist& grist );
+Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child );
 
 %}
 
@@ -56,6 +56,7 @@ Node* AllocateNode( BehaviorTreeContext ctx, const NodeGrist& grist );
 %token<m_Id>      T_ID           /* a legal identifier string */
 
 %type<m_Node> node
+%type<m_Node> nmembers
 %type<m_Node> sequence
 %type<m_Node> selector
 %type<m_Node> parallel
@@ -101,7 +102,7 @@ deftree: T_DEFTREE T_ID node
 
 include: T_INCLUDE T_STRING_VALUE
        {
-       	printf( "include %s\n", $2 );
+       	printf( "include %s\n", $2.m_Parsed );
        }
        ;
 
@@ -125,62 +126,54 @@ node: T_LPARE sequence T_RPARE { $$ = $2; }
     | T_LPARE action T_RPARE { $$ = $2; }
     ;
     
-nlist: T_LPARE nmembers T_RPARE         {printf("matched node list\n");}
-     | T_QUOTE T_LPARE nmembers T_RPARE {printf("matched quoted node list\n");}
-     | T_QUOTE T_LPARE T_RPARE          {printf("matched empty node list\n");}
+nlist: T_LPARE nmembers T_RPARE         { $$ = $2; }
+     | T_QUOTE T_LPARE nmembers T_RPARE { $$ = $3; }
+     | T_QUOTE T_LPARE T_RPARE          { $$ = 0x0;}
      ;
 
-nmembers: node
-        | node nmembers
+nmembers: node	{ $$ = $1; }
+        | node nmembers { $$ = $1; AppendToEndOfList( $1, $2 ); }
         ;
 
 sequence: T_SEQUENCE nlist 
         {
-        	NodeGrist grist;
-        	InitGrist( &grist );
-        	grist.m_Type = E_GRIST_SEQUENCE;
-        	grist.m_Sequence.m_FirstChild = $2;
-        	Node* n = AllocateNode( ctx->m_Tree, grist );
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_SEQUENCE, $2 );
         	$$ = n;
         }
         ;
         
 selector: T_SELECTOR nlist 
         {
-        	NodeGrist grist;
-        	InitGrist( &grist );
-        	grist.m_Type = E_GRIST_SELECTOR;
-        	grist.m_Selector.m_FirstChild = $2;
-        	Node* n = AllocateNode( ctx->m_Tree, grist );
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_SELECTOR, $2 );
         	$$ = n;
         }
         ;
         
 parallel: T_PARALLEL nlist 
         {
-        	printf("matched parallel\n");
-        	$$ = 0x0;
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_PARALLEL, $2 );
+        	$$ = n;
         }
         ;
         
 dselector: T_DSELECTOR nlist
          {
-         	printf("matched dynamic selector\n");
-         	$$ = 0x0;
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_DYN_SELECTOR, $2 );
+        	$$ = n;
          }
          ;
          
 decorator: T_DECORATOR T_QUOTE T_ID vlist node 
          {
-         	printf("matched decorator\n");
-         	$$ = 0x0;
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_DECORATOR, 0x0 );
+        	$$ = n;
          }
          ;
          
 action: T_ACTION T_QUOTE T_ID vlist 
       {
-      	printf("matched action %s\n", $3.m_Text );
-      	$$ = 0x0;
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_ACTION, 0x0 );
+        	$$ = n;
       }
       ;
 
@@ -291,13 +284,15 @@ bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars
     return false;
 }
 
-Node* AllocateNode( BehaviorTreeContext ctx, const NodeGrist& grist )
+Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child )
 {
 	Node* n = (Node*)AllocateObject( ctx );
 	if( n )
 	{
 		InitNode( n );
-		n->m_Grist = grist;
+		n->m_Grist.m_Type = type;
+		SetFirstChild( n, child );
+		SetParentOnChildren( n );
 	}
 	return n;
 }
