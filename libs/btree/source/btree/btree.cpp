@@ -24,6 +24,7 @@ struct SBehaviorTreeContext
   BehaviorTreeContextSetup  m_Setup;
   BehaviorTree*             m_Trees;
   ObjectPool*               m_Pool;
+  Include*                  m_Includes;
 };
 
 union ObjectFootPrint
@@ -35,6 +36,7 @@ union ObjectFootPrint
   BehaviorTree          m_Tree;
   SBehaviorTreeContext  m_BTContext;
   SParserContext        m_ParserContext;
+  Include               m_Include;
 };
 
 BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
@@ -51,6 +53,7 @@ BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
   btc->m_Trees          = 0x0;
   btc->m_Pool           = op;
   btc->m_Setup          = *btcs;
+  btc->m_Includes       = 0x0;
 
   StringTableInit( &btc->m_StringTable, btcs->m_Alloc, btcs->m_Free );
   SymbolTableInit( &btc->m_SymbolTable, btcs->m_Alloc, btcs->m_Free );
@@ -85,14 +88,15 @@ ParserContext ParserContextCreate( BehaviorTreeContext btc )
 {
   SParserContext* pc = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_ParserContext);
 
-  pc->m_Tree    = btc;
-  pc->m_LineNo  = 0;
-  pc->m_Error   = 0x0;
-  pc->m_Warning = 0x0;
-  pc->m_Read    = 0x0;
-  pc->m_Extra   = 0x0;
-  pc->m_Alloc   = btc->m_Setup.m_Alloc;
-  pc->m_Free    = btc->m_Setup.m_Free;
+  pc->m_Tree        = btc;
+  pc->m_LineNo      = 0;
+  pc->m_Error       = 0x0;
+  pc->m_Warning     = 0x0;
+  pc->m_Read        = 0x0;
+  pc->m_Extra       = 0x0;
+  pc->m_Translate   = 0x0;
+  pc->m_Alloc       = btc->m_Setup.m_Alloc;
+  pc->m_Free        = btc->m_Setup.m_Free;
   StringBufferInit( pc, &pc->m_Parsed );
   StringBufferInit( pc, &pc->m_Original );
   return pc;
@@ -115,12 +119,36 @@ void FreeObject( BehaviorTreeContext btc, void* object )
   FreeObject( btc->m_Pool, object );
 }
 
-void RegisterSymbol( BehaviorTreeContext ctx, const NamedSymbol& s )
+void RegisterSymbol( BehaviorTreeContext btc, const NamedSymbol& s )
 {
-  SymbolTableInsert( &ctx->m_SymbolTable, s );
+  SymbolTableInsert( &btc->m_SymbolTable, s );
 }
 
-NamedSymbol* FindSymbol( BehaviorTreeContext ctx, hash_t hash )
+NamedSymbol* FindSymbol( BehaviorTreeContext btc, hash_t hash )
 {
-  return SymbolTableFind( &ctx->m_SymbolTable, hash );
+  return SymbolTableFind( &btc->m_SymbolTable, hash );
+}
+
+void AddInclude( BehaviorTreeContext btc, const char* name )
+{
+  hash_t h = hashlittle( name );
+  Include* t = btc->m_Includes;
+  Include* l = 0x0;
+  while( t )
+  {
+    if( t->m_Hash == h )
+      return;
+    l = t;
+    t = t->m_Next;
+  }
+
+  Include* i = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_Include);
+  i->m_Hash = h;
+  i->m_Name = name;
+  i->m_Next = 0x0;
+
+  if( l )
+    l->m_Next = i;
+  else
+    btc->m_Includes = i;
 }

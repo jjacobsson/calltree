@@ -28,10 +28,11 @@ int ParserContextGetLineNo( ParserContext pc )
 
 int Parse( ParserContext pc, ParserContextFunctions* pcf )
 {
-  pc->m_LineNo   = 1;
-  pc->m_Error    = pcf->m_Error;
-  pc->m_Warning  = pcf->m_Warning;
-  pc->m_Read     = pcf->m_Read;
+  pc->m_LineNo      = 1;
+  pc->m_Error       = pcf->m_Error;
+  pc->m_Warning     = pcf->m_Warning;
+  pc->m_Read        = pcf->m_Read;
+  pc->m_Translate   = pcf->m_Translate;
 
   void* yyscanner = 0x0;
   yylex_init_extra( pc, &yyscanner );

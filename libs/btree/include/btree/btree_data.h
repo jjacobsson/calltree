@@ -181,4 +181,11 @@ struct NamedSymbol
   SymbolTypeData    m_Symbol;
 };
 
+struct Include
+{
+  hash_t        m_Hash;
+  const char*   m_Name;
+  Include*      m_Next;
+};
+
 #endif /* BTREE_DATA_H_INCLUDED */

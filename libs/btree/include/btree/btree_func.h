@@ -116,5 +116,7 @@ void RegisterSymbol( BehaviorTreeContext, const NamedSymbol& );
 
 NamedSymbol* FindSymbol( BehaviorTreeContext, hash_t );
 
+void AddInclude( BehaviorTreeContext, const char* );
+
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

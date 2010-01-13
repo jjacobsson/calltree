@@ -16,12 +16,14 @@ typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 typedef void (*ParserErrorFunction)( ParserContext, const char* msg );
 typedef void (*ParserWarningFunction)( ParserContext, const char* msg );
 typedef int (*ParserFillBufferFunction)( ParserContext, char* buffer, int maxsize );
+typedef const char* (*ParserTranslateIncludeFunction)( ParserContext, const char* );
 
 struct ParserContextFunctions
 {
-  ParserErrorFunction       m_Error;
-  ParserWarningFunction     m_Warning;
-  ParserFillBufferFunction  m_Read;
+  ParserErrorFunction               m_Error;
+  ParserWarningFunction             m_Warning;
+  ParserFillBufferFunction          m_Read;
+  ParserTranslateIncludeFunction    m_Translate;
 };
 
 ParserContext ParserContextCreate( BehaviorTreeContext );

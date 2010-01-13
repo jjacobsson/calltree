@@ -1,6 +1,6 @@
 (include "cbrun.h")
 
-(deftree keps 
+(deftree main 
 	(action 'banan 
 		'((a "\\keps") (b "\\n") (c "\n"))
 	)

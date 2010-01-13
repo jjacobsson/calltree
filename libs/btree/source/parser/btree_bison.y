@@ -31,6 +31,7 @@ Variable* AllocateVariable( BehaviorTreeContext ctx, VariableType type, const Id
 BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id );
 Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id );
 Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id );
+void AddInclude( BehaviorTreeContext ctx, const char* filename );
 
 %}
 
@@ -101,7 +102,7 @@ deftree: T_DEFTREE T_ID node
 
 include: T_INCLUDE T_STRING_VALUE
        {
-       	printf( "include %s\n", $2.m_Parsed );
+       	AddInclude( ctx->m_Tree, ctx->m_Translate( ctx, $2.m_Raw ) );
        }
        ;
 
@@ -317,3 +318,5 @@ Variable* AllocateVariable( BehaviorTreeContext ctx, VariableType type, const Id
 	}
 	return v;
 } 
+
+

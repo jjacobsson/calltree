@@ -23,16 +23,17 @@ struct StringBuffer
 
 struct SParserContext
 {
-  StringBuffer              m_Parsed;
-  StringBuffer              m_Original;
-  int                       m_LineNo;
-  BehaviorTreeContext       m_Tree;
-  ParserErrorFunction       m_Error;
-  ParserWarningFunction     m_Warning;
-  ParserFillBufferFunction  m_Read;
-  void*                     m_Extra;
-  AllocateMemoryFunc        m_Alloc;
-  FreeMemoryFunc            m_Free;
+  StringBuffer                      m_Parsed;
+  StringBuffer                      m_Original;
+  int                               m_LineNo;
+  BehaviorTreeContext               m_Tree;
+  ParserErrorFunction               m_Error;
+  ParserWarningFunction             m_Warning;
+  ParserFillBufferFunction          m_Read;
+  ParserTranslateIncludeFunction    m_Translate;
+  void*                             m_Extra;
+  AllocateMemoryFunc                m_Alloc;
+  FreeMemoryFunc                    m_Free;
 };
 
 
