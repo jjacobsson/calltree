@@ -88,7 +88,7 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                     SParserContext* ctx = yyget_extra(yyscanner);
                     (*yylval).m_Id.m_Hash = hashlittle( yytext );
                     (*yylval).m_Id.m_Line = ctx->m_LineNo;
-                    (*yylval).m_Id.m_Text = RegisterString( ctx->m_Tree, yytext, (*yylval).m_Id.m_Hash );
+                    (*yylval).m_Id.m_Text = BehaviorTreeContextRegisterString( ctx->m_Tree, yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }
 {INTEGER}       {
@@ -122,8 +122,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \"              {   /*closing quote*/
                     BEGIN(INITIAL);
                     SParserContext* ctx = yyget_extra( yyscanner );
-                    (*yylval).m_String.m_Parsed = RegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
-                    (*yylval).m_String.m_Raw = RegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
+                    (*yylval).m_String.m_Parsed = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
+                    (*yylval).m_String.m_Raw = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
                     StringBufferClear( ctx, &ctx->m_Parsed );
                     StringBufferClear( ctx, &ctx->m_Original );
                     return T_STRING_VALUE;

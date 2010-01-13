@@ -102,7 +102,11 @@ deftree: T_DEFTREE T_ID node
 
 include: T_INCLUDE T_STRING_VALUE
        {
-       	AddInclude( ctx->m_Tree, ctx->m_Translate( ctx, $2.m_Raw ) );
+       	Include inc;
+       	inc.m_Name		= ctx->m_Translate( ctx, $2.m_Raw );
+       	inc.m_Parent	= ctx->m_Current;
+       	inc.m_LineNo	= ctx->m_LineNo;
+       	BehaviorTreeContextAddInclude( ctx->m_Tree, inc );
        }
        ;
 
@@ -204,14 +208,14 @@ vtypes: T_ID T_INT32_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER
       | T_ID T_FLOAT_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; }
       ;
 
-vdlist: T_LPARE vdmember T_RPARE { $$ = $2; }
-      | T_LPARE T_RPARE          { $$ = 0x0; }
+vdlist: T_QUOTE T_LPARE vdmember T_RPARE { $$ = $3; }
+      | T_QUOTE T_LPARE T_RPARE          { $$ = 0x0; }
 
 vdmember: vardec          { $$ = $1; }
         | vardec vdmember { $$ = $1; AppendToEndOfList( $$, $2 ); }
         ;
 
-vardec: T_QUOTE T_LPARE vdtypes T_RPARE { $$ = $3; }
+vardec: T_LPARE vdtypes T_RPARE { $$ = $2; }
       ;
 
 vdtypes: T_INT32 T_ID  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER, $2 ); }
@@ -225,7 +229,7 @@ vdtypes: T_INT32 T_ID  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER, $2 
 BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id )
 {
 	{
-		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		NamedSymbol* s = BehaviorTreeContextFindSymbol( ctx, id.m_Hash );
 		if( s )
 		{
 			if( s->m_Type != E_ST_TREE )
@@ -233,7 +237,7 @@ BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id 
 			return s->m_Symbol.m_Tree;
 		}
 	}
-	BehaviorTree* t = (BehaviorTree*)AllocateObject( ctx );
+	BehaviorTree* t = (BehaviorTree*)BehaviorTreeContextAllocateObject( ctx );
 	InitBehaviorTree( t );
 	t->m_Id = id;
 
@@ -241,7 +245,7 @@ BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id 
 	s.m_Type = E_ST_TREE;
 	s.m_Symbol.m_Tree = t;
 	
-	RegisterSymbol( ctx, s );
+	BehaviorTreeContextRegisterSymbol( ctx, s );
 	
 	return t;
 }
@@ -249,7 +253,7 @@ BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id 
 Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id )
 {
 	{
-		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		NamedSymbol* s = BehaviorTreeContextFindSymbol( ctx, id.m_Hash );
 		if( s )
 		{
 			if( s->m_Type != E_ST_DECORATOR )
@@ -257,7 +261,7 @@ Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id )
 			return s->m_Symbol.m_Decorator;
 		}
 	}
-	Decorator* d = (Decorator*)AllocateObject( ctx );
+	Decorator* d = (Decorator*)BehaviorTreeContextAllocateObject( ctx );
 	InitDecorator( d );
 	d->m_Id = id;
 
@@ -265,7 +269,7 @@ Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id )
 	s.m_Type = E_ST_DECORATOR;
 	s.m_Symbol.m_Decorator = d;
 	
-	RegisterSymbol( ctx, s );
+	BehaviorTreeContextRegisterSymbol( ctx, s );
 	
 	return d;
 }
@@ -273,7 +277,7 @@ Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id )
 Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id )
 {
 	{
-		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		NamedSymbol* s = BehaviorTreeContextFindSymbol( ctx, id.m_Hash );
 		if( s )
 		{
 			if( s->m_Type != E_ST_ACTION )
@@ -281,7 +285,7 @@ Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id )
 			return s->m_Symbol.m_Action;
 		}
 	}
-	Action* a = (Action*)AllocateObject( ctx );
+	Action* a = (Action*)BehaviorTreeContextAllocateObject( ctx );
 	InitAction( a );
 	a->m_Id = id;
 
@@ -289,14 +293,14 @@ Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id )
 	s.m_Type = E_ST_ACTION;
 	s.m_Symbol.m_Action = a;
 	
-	RegisterSymbol( ctx, s );
+	BehaviorTreeContextRegisterSymbol( ctx, s );
 	
 	return a;
 }
 
 Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child )
 {
-	Node* n = (Node*)AllocateObject( ctx );
+	Node* n = (Node*)BehaviorTreeContextAllocateObject( ctx );
 	if( n )
 	{
 		InitNode( n );
@@ -309,7 +313,7 @@ Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child )
 
 Variable* AllocateVariable( BehaviorTreeContext ctx, VariableType type, const Identifier& id )
 {
-	Variable* v = (Variable*)AllocateObject( ctx );
+	Variable* v = (Variable*)BehaviorTreeContextAllocateObject( ctx );
 	if( v )
 	{
 		InitVariable( v );

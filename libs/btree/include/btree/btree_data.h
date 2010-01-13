@@ -185,7 +185,32 @@ struct Include
 {
   hash_t        m_Hash;
   const char*   m_Name;
+  const char*   m_Parent;
+  int           m_LineNo;
   Include*      m_Next;
+};
+
+struct StringBuffer
+{
+  char* m_Str;
+  int   m_Size;
+  int   m_Capacity;
+};
+
+typedef struct SParserContext* ParserContext;
+typedef struct SBehaviorTreeContext* BehaviorTreeContext;
+
+typedef void (*ParserErrorFunction)( ParserContext, const char* msg );
+typedef void (*ParserWarningFunction)( ParserContext, const char* msg );
+typedef int (*ParserFillBufferFunction)( ParserContext, char* buffer, int maxsize );
+typedef const char* (*ParserTranslateIncludeFunction)( ParserContext, const char* );
+
+struct ParserContextFunctions
+{
+  ParserErrorFunction               m_Error;
+  ParserWarningFunction             m_Warning;
+  ParserFillBufferFunction          m_Read;
+  ParserTranslateIncludeFunction    m_Translate;
 };
 
 #endif /* BTREE_DATA_H_INCLUDED */

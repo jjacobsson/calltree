@@ -14,12 +14,6 @@
 #include <btree/btree.h>
 #include "btree_bison.h"
 
-struct StringBuffer
-{
-  char* m_Str;
-  int   m_Size;
-  int   m_Capacity;
-};
 
 struct SParserContext
 {
@@ -32,11 +26,10 @@ struct SParserContext
   ParserFillBufferFunction          m_Read;
   ParserTranslateIncludeFunction    m_Translate;
   void*                             m_Extra;
+  const char*                       m_Current;
   AllocateMemoryFunc                m_Alloc;
   FreeMemoryFunc                    m_Free;
 };
-
-
 
 #define YY_EXTRA_TYPE ParserContext
 
@@ -52,10 +45,6 @@ void yywarning( ParserContext ctx, const char* msg );
 void yyerror( ParserContext ctx, void*, const char* msg );
 void yywarning( ParserContext ctx, void*, const char* msg );
 
-void StringBufferInit( ParserContext, StringBuffer* );
-void StringBufferAppend( ParserContext, StringBuffer*, char );
-void StringBufferAppend( ParserContext, StringBuffer*, const char * );
-void StringBufferClear( ParserContext, StringBuffer* );
-void StringBufferDestroy( ParserContext, StringBuffer* );
+
 
 #endif /* PARSER_COMMON_H_ */

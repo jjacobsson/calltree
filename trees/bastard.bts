@@ -1,4 +1,4 @@
-(include "cbrun.h")
+(include "cbrun.bth")
 
 (deftree main 
 	(action 'banan 

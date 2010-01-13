@@ -21,6 +21,16 @@ void ParserContextSetExtra( ParserContext pc, void* extra )
   pc->m_Extra = extra;
 }
 
+void ParserContextSetCurrent( ParserContext pc, const char* curr )
+{
+  pc->m_Current = curr;
+}
+
+const char* ParserContextGetCurrent( ParserContext pc )
+{
+  return pc->m_Current;
+}
+
 int ParserContextGetLineNo( ParserContext pc )
 {
   return pc->m_LineNo;
@@ -45,4 +55,9 @@ int Parse( ParserContext pc, ParserContextFunctions* pcf )
   pc->m_Read    = 0x0;
 
   return r;
+}
+
+BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext pc )
+{
+  return pc->m_Tree;
 }

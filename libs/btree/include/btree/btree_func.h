@@ -97,26 +97,63 @@ bool AcceptsMoreChildren( Node* n );
 void InitGrist( NodeGrist* );
 
 /*
- * BehaviorTreeContext stuff
+ * BehaviorTreeContext Functions
  */
 
 BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* );
 
 void BehaviorTreeContextDestroy( BehaviorTreeContext );
 
-const char* RegisterString( BehaviorTreeContext, const char* );
+const char* BehaviorTreeContextRegisterString( BehaviorTreeContext, const char* );
 
-const char* RegisterString( BehaviorTreeContext, const char*, hash_t );
+const char* BehaviorTreeContextRegisterString( BehaviorTreeContext, const char*, hash_t );
 
-void* AllocateObject( BehaviorTreeContext );
+void* BehaviorTreeContextAllocateObject( BehaviorTreeContext );
 
-void FreeObject( BehaviorTreeContext, void* );
+void BehaviorTreeContextFreeObject( BehaviorTreeContext, void* );
 
-void RegisterSymbol( BehaviorTreeContext, const NamedSymbol& );
+void BehaviorTreeContextRegisterSymbol( BehaviorTreeContext, const NamedSymbol& );
 
-NamedSymbol* FindSymbol( BehaviorTreeContext, hash_t );
+NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext, hash_t );
 
-void AddInclude( BehaviorTreeContext, const char* );
+void BehaviorTreeContextAddInclude( BehaviorTreeContext, const Include& );
+
+Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
+
+/*
+ * String Buffer Functions
+ */
+
+void StringBufferInit( ParserContext, StringBuffer* );
+void StringBufferDestroy( ParserContext, StringBuffer* );
+
+void StringBufferAppend( ParserContext, StringBuffer*, char );
+void StringBufferAppend( ParserContext, StringBuffer*, const char * );
+void StringBufferAppend( ParserContext, StringBuffer*, const char *, int );
+
+void StringBufferClear( ParserContext, StringBuffer* );
+
+void StringBufferGrow( ParserContext, StringBuffer* sb, int min );
+
+/*
+ * Parser Functions
+ */
+
+ParserContext ParserContextCreate( BehaviorTreeContext );
+
+void ParserContextDestroy( ParserContext );
+
+void* ParserContextGetExtra( ParserContext );
+void ParserContextSetExtra( ParserContext, void* );
+
+void ParserContextSetCurrent( ParserContext, const char* );
+const char* ParserContextGetCurrent( ParserContext );
+
+int ParserContextGetLineNo( ParserContext );
+
+BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext );
+
+int Parse( ParserContext, ParserContextFunctions* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

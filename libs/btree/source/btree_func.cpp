@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "parser/common.h"
+
 /*
  * Identifier Functions
  */
@@ -273,7 +275,7 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
   if( str )
   {
     if( tree )
-      ret = RegisterString( tree, str );
+      ret = BehaviorTreeContextRegisterString( tree, str );
 
     free( str );
     str = 0x0;
@@ -473,5 +475,107 @@ bool AcceptsMoreChildren( Node* n )
 void InitGrist( NodeGrist* g )
 {
   memset( g, 0, sizeof(NodeGrist) );
+}
+
+/*
+ * String Buffer Functions
+ */
+
+
+void StringBufferInit( ParserContext pc, StringBuffer* sb )
+{
+  sb->m_Size        = 0;
+  sb->m_Capacity    = 0;
+  sb->m_Str         = 0x0;
+  StringBufferGrow( pc, sb, 1024 );
+  sb->m_Str[0]      = 0;
+
+}
+
+void StringBufferDestroy( ParserContext pc, StringBuffer* sb )
+{
+  pc->m_Free( sb->m_Str );
+  sb->m_Str         = 0x0;
+  sb->m_Size        = 0;
+  sb->m_Capacity    = 0;
+  memset( sb, 0xdeadbeef, sizeof(StringBuffer) );
+}
+
+void StringBufferAppend( ParserContext pc, StringBuffer* sb, char c)
+{
+  if( sb->m_Size >= sb->m_Capacity - 1 )
+    StringBufferGrow( pc, sb, 128 );
+  sb->m_Str[sb->m_Size++]   = c;
+  sb->m_Str[sb->m_Size]     = 0;
+}
+
+void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char* str )
+{
+  int l = strlen( str );
+  StringBufferAppend( pc, sb, str, l );
+}
+
+void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char * str, int l )
+{
+  if( sb->m_Size >= sb->m_Capacity - (l + 1) )
+    StringBufferGrow( pc, sb, l + 1 );
+  memcpy( sb->m_Str + sb->m_Size, str, l );
+  sb->m_Size += l;
+  sb->m_Str[sb->m_Size+1] = 0;
+}
+
+void StringBufferClear( ParserContext pc, StringBuffer* sb )
+{
+  if( sb->m_Capacity <= 0 )
+    return;
+  sb->m_Size    = 0;
+  sb->m_Str[0]  = 0;
+}
+
+void StringBufferGrow( ParserContext pc, StringBuffer* sb, int min )
+{
+  int ns = sb->m_Capacity + (128>min?128:min);
+  char* t = (char*)pc->m_Alloc( ns );
+  if( sb->m_Str )
+  {
+    if( sb->m_Size > 0 )
+      memcpy( t, sb->m_Str, sb->m_Size + 1 );
+
+    pc->m_Free( sb->m_Str );
+
+    sb->m_Str       = t;
+    sb->m_Capacity  = ns;
+  }
+  else
+  {
+    sb->m_Capacity  = ns;
+    sb->m_Str       = t;
+  }
+}
+
+/*
+ * Parser extra functions.
+ */
+
+void yyerror( ParserContext ctx, const char* msg )
+{
+  if( ctx->m_Error )
+    ctx->m_Error( ctx, msg );
+}
+
+void yywarning( ParserContext ctx, const char* msg )
+{
+  if( ctx->m_Warning )
+    ctx->m_Warning( ctx, msg );
+}
+
+void yyerror( SParserContext* ctx, void*, const char* msg )
+{
+  yyerror( ctx, msg );
+}
+
+void yywarning( SParserContext* ctx, void*, const char* msg )
+{
+  yywarning( ctx, msg );
 }
 

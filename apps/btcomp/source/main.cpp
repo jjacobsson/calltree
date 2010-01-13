@@ -72,7 +72,35 @@ void parser_warning( ParserContext pc, const char* msg )
 
 const char* parser_translate_include( ParserContext pc, const char* include )
 {
-  return include;
+  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
+
+  StringBuffer sb;
+  StringBufferInit( pc, &sb );
+
+  if( pi->m_Name )
+  {
+    char backslash  = '\\';
+    char frontslash = '/';
+
+    int s = 0, last = -1;
+    const char* p = pi->m_Name;
+    while( p && *p )
+    {
+      if( *p == backslash || *p == frontslash )
+        last = s;
+      ++p;
+      ++s;
+    }
+    if( last != -1 )
+      StringBufferAppend( pc, &sb, pi->m_Name, last + 1 );
+  }
+
+  StringBufferAppend( pc, &sb, include );
+  const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
+  StringBufferDestroy( pc, &sb );
+
+  return ret;
 }
 
 void* allocate_memory( mem_size_t size )
@@ -162,8 +190,8 @@ int main( int argc, char** argv )
     if( !pi.m_File )
     {
       printf(
-        "<no file>(0): error : unable to open input file \"%s\" for reading.\n",
-        pi.m_Name );
+        "%s(0): error : unable to open input file \"%s\" for reading.\n",
+        g_inputFileName, pi.m_Name );
       returnCode = -1;
     }
 
@@ -171,10 +199,44 @@ int main( int argc, char** argv )
     {
       ParserContext pc = ParserContextCreate( btc );
       ParserContextSetExtra( pc, &pi );
+      ParserContextSetCurrent( pc, pi.m_Name );
       returnCode = Parse( pc, &pcf );
       ParserContextDestroy( pc );
     }
-    NamedSymbol* main = FindSymbol( btc, hashlittle( "main" ) );
+
+    if( pi.m_File )
+      fclose( pi.m_File );
+
+    Include* include = BehaviorTreeContextGetFirstInclude( btc );
+    while( include )
+    {
+      pi.m_Name = include->m_Name;
+      pi.m_File = fopen( pi.m_Name, "r" );
+      if( !pi.m_File )
+      {
+        printf(
+          "%s(%d): error : unable to open include file \"%s\" for reading.\n",
+          include->m_Parent, include->m_LineNo, pi.m_Name );
+        returnCode = -1;
+        break;
+      }
+
+      ParserContext pc = ParserContextCreate( btc );
+      ParserContextSetExtra( pc, &pi );
+      ParserContextSetCurrent( pc, pi.m_Name );
+      returnCode = Parse( pc, &pcf );
+      ParserContextDestroy( pc );
+
+      if( pi.m_File )
+        fclose( pi.m_File );
+
+      if( returnCode != 0 )
+        break;
+
+      include = include->m_Next;
+    }
+
+    NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle( "main" ) );
     if( !main || main->m_Type != E_ST_TREE
         || !main->m_Symbol.m_Tree->m_Declared )
     {
@@ -198,23 +260,6 @@ int main( int argc, char** argv )
       }
     }
     /*
-     BehaviorTree bt;
-     returnCode = bt.Parse( inputFileName );
-
-     if( returnCode == 0 )
-     {
-     Program p;
-     p.m_I.SetGenerateDebugInfo( debug );
-
-     setup_before_generate( bt.m_Root, &p );
-     returnCode = generate_program( bt.m_Root, &p );
-     teardown_after_generate( bt.m_Root, &p );
-
-     if( returnCode != 0 )
-     {
-     fprintf( stderr, "error: Internal compiler error.\n" );
-     }
-
      if( returnCode == 0 && asmFileName )
      {
      FILE* asmFile = fopen( asmFileName, "w" );
