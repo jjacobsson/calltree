@@ -28,6 +28,7 @@ bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, V
 bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child );
 Variable* AllocateVariable( BehaviorTreeContext ctx, VariableType type, const Identifier& id );
+BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id );
 Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id );
 Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id );
 
@@ -92,7 +93,9 @@ atom: deftree
 
 deftree: T_DEFTREE T_ID node
        {
-		printf( "deftree %s\n", $2.m_Text );
+		BehaviorTree* t = LookUpBehaviorTree( ctx->m_Tree, $2 );
+		t->m_Root = $3;
+		t->m_Declared = true;
        }
        ;
 
@@ -104,13 +107,19 @@ include: T_INCLUDE T_STRING_VALUE
 
 defact: T_DEFACT T_ID vlist vdlist
 	  {
-	  	printf( "defact %s\n", $2.m_Text );
+		Action* a = LookUpAction( ctx->m_Tree, $2 );
+		a->m_Vars = $3;
+		a->m_Args = $4;
+		a->m_Declared = true;
 	  }
       ;
       
 defdec: T_DEFDEC T_ID vlist vdlist
       {
-      	printf( "defdec %s\n", $2.m_Text );
+      	Decorator* d = LookUpDecorator( ctx->m_Tree, $2 );
+      	d->m_Vars = $3;
+      	d->m_Args = $4;
+      	d->m_Declared = true;
       }
       ;
 
@@ -212,76 +221,76 @@ vdtypes: T_INT32 T_ID  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER, $2 
 
 %%
 
+BehaviorTree* LookUpBehaviorTree( BehaviorTreeContext ctx, const Identifier& id )
+{
+	{
+		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		if( s )
+		{
+			if( s->m_Type != E_ST_TREE )
+				return 0x0;
+			return s->m_Symbol.m_Tree;
+		}
+	}
+	BehaviorTree* t = (BehaviorTree*)AllocateObject( ctx );
+	InitBehaviorTree( t );
+	t->m_Id = id;
+
+	NamedSymbol s;
+	s.m_Type = E_ST_TREE;
+	s.m_Symbol.m_Tree = t;
+	
+	RegisterSymbol( ctx, s );
+	
+	return t;
+}
+
 Decorator* LookUpDecorator( BehaviorTreeContext ctx, const Identifier& id )
 {
-/*
-    Decorator* d = ctx->m_Tree->LookupDecorator( id );
-	if( !d )
 	{
-    	d = new Decorator;
-    	InitDecorator( d );
-    	d->m_Id = id;
-		d->m_Args = args;
-		d->m_Vars = vars;	
-	    d->m_Declared = true;
-	    ctx->m_Tree->RegisterDecorator( d );
-    }
-	else if( d && !d->m_Declared )
-    {
-    	d->m_Id = id;
-    	d->m_Args = args;
-    	d->m_Vars = vars;
-    	d->m_Declared = true;
+		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		if( s )
+		{
+			if( s->m_Type != E_ST_DECORATOR )
+				return 0x0;
+			return s->m_Symbol.m_Decorator;
+		}
 	}
-    else if( d && d->m_Declared )
-    {
-    	DeleteVariableList( vars );
-    	DeleteVariableList( args );
-    	
-        char tmp[2048];
-        sprintf( tmp, "Decorator \"%s\" was previously declared on line %d.\n", id.m_Text, d->m_Id.m_Line );
-        yyerror( ctx, tmp );
-        return false;
-    }
-    return true;
-    */
-    return 0x0;
+	Decorator* d = (Decorator*)AllocateObject( ctx );
+	InitDecorator( d );
+	d->m_Id = id;
+
+	NamedSymbol s;
+	s.m_Type = E_ST_DECORATOR;
+	s.m_Symbol.m_Decorator = d;
+	
+	RegisterSymbol( ctx, s );
+	
+	return d;
 }
 
 Action* LookUpAction( BehaviorTreeContext ctx, const Identifier& id )
 {
-/*
-    Action* a = ctx->m_Tree->LookupAction( id );
-	if( !a )
 	{
-    	a = new Action;
-    	InitAction( a );
-    	a->m_Id = id;
-		a->m_Args = args;
-		a->m_Vars = vars;	
-	    a->m_Declared = true;
-	    ctx->m_Tree->RegisterAction( a );
-    }
-	else if( a && !a->m_Declared )
-    {
-    	a->m_Id = id;
-    	a->m_Args = args;
-    	a->m_Vars = vars;
-    	a->m_Declared = true;
+		NamedSymbol* s = FindSymbol( ctx, id.m_Hash );
+		if( s )
+		{
+			if( s->m_Type != E_ST_ACTION )
+				return 0x0;
+			return s->m_Symbol.m_Action;
+		}
 	}
-    else if( a && a->m_Declared )
-    {
-    	DeleteVariableList( vars );
-    	DeleteVariableList( args );
-    	
-        char tmp[2048];
-        sprintf( tmp, "action \"%s\" was previously declared on line %d.\n", id.m_Text, a->m_Id.m_Line );
-        yyerror( ctx, tmp );
-        return false;
-    }
-    return true;
-    */
-    return 0x0;
+	Action* a = (Action*)AllocateObject( ctx );
+	InitAction( a );
+	a->m_Id = id;
+
+	NamedSymbol s;
+	s.m_Type = E_ST_ACTION;
+	s.m_Symbol.m_Action = a;
+	
+	RegisterSymbol( ctx, s );
+	
+	return a;
 }
 
 Node* AllocateNode( BehaviorTreeContext ctx, NodeGristType type, Node* child )

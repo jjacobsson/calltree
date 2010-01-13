@@ -51,6 +51,12 @@ bool ValueAsBool( const Variable& );
 const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* start );
 
 /*
+ * BehaviorTree Functions
+ */
+
+void InitBehaviorTree( BehaviorTree* );
+
+/*
  * Action Functions
  */
 

@@ -145,7 +145,6 @@ struct BehaviorTree
 {
   Identifier    m_Id;
   Node*         m_Root;
-  BehaviorTree* m_Next;
   bool          m_Declared;
 };
 

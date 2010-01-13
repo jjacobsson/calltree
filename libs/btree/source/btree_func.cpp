@@ -282,6 +282,17 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
 }
 
 /*
+ * BehaviorTree Functions
+ */
+
+void InitBehaviorTree( BehaviorTree* t )
+{
+  InitIdentifier( &t->m_Id );
+  t->m_Root = 0x0;
+  t->m_Declared = false;
+}
+
+/*
  * Action functions
  */
 
