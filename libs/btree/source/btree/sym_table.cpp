@@ -18,26 +18,32 @@ struct NamedSymbolPredicate
     hash_t r = 0x00000000;
     switch( s.m_Type )
     {
-    case E_ST_TREE: r = s.m_Symbol.m_Tree->m_Id.m_Hash; break;
-    case E_ST_ACTION: r = s.m_Symbol.m_Action->m_Id.m_Hash; break;
-    case E_ST_DECORATOR: r = s.m_Symbol.m_Decorator->m_Id.m_Hash; break;
+    case E_ST_TREE:
+      r = s.m_Symbol.m_Tree->m_Id.m_Hash;
+      break;
+    case E_ST_ACTION:
+      r = s.m_Symbol.m_Action->m_Id.m_Hash;
+      break;
+    case E_ST_DECORATOR:
+      r = s.m_Symbol.m_Decorator->m_Id.m_Hash;
+      break;
     }
     return r;
   }
 
-  bool operator() ( const NamedSymbol& l, const NamedSymbol& r ) const
+  bool operator()( const NamedSymbol& l, const NamedSymbol& r ) const
   {
     hash_t lh = GetId( l ), rh = GetId( r );
     return lh < rh;
   }
 
-  bool operator() ( const hash_t& lh, const NamedSymbol& r ) const
+  bool operator()( const hash_t& lh, const NamedSymbol& r ) const
   {
     hash_t rh = GetId( r );
     return lh < rh;
   }
 
-  bool operator() ( const NamedSymbol& l, const hash_t& rh ) const
+  bool operator()( const NamedSymbol& l, const hash_t& rh ) const
   {
     hash_t lh = GetId( l );
     return lh < rh;

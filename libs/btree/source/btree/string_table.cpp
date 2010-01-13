@@ -108,6 +108,7 @@ void StringTableDestroy( StringTable* st )
     st->m_Free( st->m_FirstBlock );
     st->m_FirstBlock = t;
   }
+  memset( st, 0xdeadbeef, sizeof(StringTable) );
 }
 
 const char* StringTableRegisterString( StringTable* st, const char* str,
