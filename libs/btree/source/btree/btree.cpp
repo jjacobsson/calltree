@@ -17,86 +17,13 @@
 #include "object_pool.h"
 #include "string_table.h"
 
-struct StandardAllocator
-{
-    static void* Alloc( size_t size )
-{
-        return malloc( size );
-}
-
-    static void Free( void* ptr )
-{
-        return free( ptr );
-}
-};
-
-struct HashPredicate
-{
-    inline bool operator() ( const hash_t l, const hash_t r ) const
-{
-        return l < r;
-}
-};
-
-struct IntPredicate
-{
-    inline bool operator() ( int l, int r ) const
-{
-        return l < r;
-}
-    inline bool Equals( int l, int r ) const
-{
-        return l == r;
-}
-};
-
-template< typename T >
-struct HasIdPredicate
-{
-    inline bool operator() ( const T* l, const hash_t r ) const
-{
-        return l->m_Id.m_Hash < r;
-}
-    inline bool operator() ( const hash_t l, const T* r ) const
-{
-        return l < r->m_Id.m_Hash;
-}
-    inline bool operator() ( const T* l, const Identifier& r ) const
-{
-        return l->m_Id.m_Hash < r.m_Hash;
-}
-    inline bool operator() ( const Identifier& l, const T* r ) const
-{
-        return l.m_Hash < r->m_Id.m_Hash;
-}
-    inline bool operator() ( const T* l, const T* r ) const
-{
-        return l->m_Id.m_Hash < r->m_Id.m_Hash;
-}
-
-    inline bool Equals( const T* l, const Identifier& r ) const
-{
-        return l->m_Id.m_Hash == r.m_Hash;
-}
-
-    inline bool Equals( const T* l, const T* r ) const
-{
-        return l == r;
-}
-
-};
-
-typedef TSymbolTable<Action*, HasIdPredicate<Action> > ActionTable;
-typedef TSymbolTable<Decorator*, HasIdPredicate<Decorator> > DecoratorTable;
-
 struct SBehaviorTreeContext
 {
-  BehaviorTreeContextSetup  m_Setup;
   StringTable               m_StringTable;
+  SymbolTable               m_SymbolTable;
+  BehaviorTreeContextSetup  m_Setup;
   BehaviorTree*             m_Trees;
   ObjectPool*               m_Pool;
-  ActionTable*              m_ActionTable;
-  DecoratorTable*           m_DecoratorTable;
 };
 
 union ObjectFootPrint
@@ -123,13 +50,10 @@ BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
       &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
   btc->m_Trees          = 0x0;
   btc->m_Pool           = op;
-  btc->m_ActionTable    = new ActionTable;
-  btc->m_DecoratorTable = new DecoratorTable;
   btc->m_Setup          = *btcs;
 
-  StringTableInit( &btc->m_StringTable );
-  btc->m_StringTable.m_Alloc    = btcs->m_Alloc;
-  btc->m_StringTable.m_Free     = btcs->m_Free;
+  StringTableInit( &btc->m_StringTable, btcs->m_Alloc, btcs->m_Free );
+  SymbolTableInit( &btc->m_SymbolTable, btcs->m_Alloc, btcs->m_Free );
 
   return btc;
 }
@@ -138,9 +62,9 @@ void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
 {
   if( !btc )
     return;
-  delete btc->m_ActionTable;
-  delete btc->m_DecoratorTable;
+
   StringTableDestroy( &btc->m_StringTable );
+  SymbolTableDestroy( &btc->m_SymbolTable );
 
   ObjectPool* op = btc->m_Pool;
   FreeObject( op, btc );
@@ -189,4 +113,14 @@ void* AllocateObject( BehaviorTreeContext btc )
 void FreeObject( BehaviorTreeContext btc, void* object )
 {
   FreeObject( btc->m_Pool, object );
+}
+
+void RegisterSymbol( BehaviorTreeContext ctx, const NamedSymbol& s )
+{
+  SymbolTableInsert( &ctx->m_SymbolTable, s );
+}
+
+NamedSymbol* FindSymbol( BehaviorTreeContext ctx, hash_t hash )
+{
+  return SymbolTableFind( &ctx->m_SymbolTable, hash );
 }

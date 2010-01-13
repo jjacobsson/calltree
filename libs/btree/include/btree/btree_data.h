@@ -161,4 +161,25 @@ struct BehaviorTreeContextSetup
   FreeMemoryFunc        m_Free;  // The function that will be used to free all allocated memory
 };
 
+enum SymbolTypes
+{
+  E_ST_TREE,
+  E_ST_ACTION,
+  E_ST_DECORATOR,
+  E_ST_MAX_TYPES
+};
+
+union SymbolTypeData
+{
+  BehaviorTree* m_Tree;
+  Action*       m_Action;
+  Decorator*    m_Decorator;
+};
+
+struct NamedSymbol
+{
+  SymbolTypes       m_Type;
+  SymbolTypeData    m_Symbol;
+};
+
 #endif /* BTREE_DATA_H_INCLUDED */

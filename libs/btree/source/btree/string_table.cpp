@@ -87,7 +87,7 @@ StringTableBlock* StringTableAllocateBlock( StringTable* st, int minimum = 0 )
   return c;
 }
 
-void StringTableInit( StringTable* st )
+void StringTableInit( StringTable* st, AllocateMemoryFunc alloc, FreeMemoryFunc free )
 {
   st->m_BlockSize = 4096;
   st->m_LookupCapacity = 0;
@@ -95,8 +95,8 @@ void StringTableInit( StringTable* st )
   st->m_LookupSize = 0;
   st->m_LookupTable = 0x0;
   st->m_FirstBlock = 0x0;
-  st->m_Alloc = 0x0;
-  st->m_Free = 0x0;
+  st->m_Alloc = alloc;
+  st->m_Free = free;
 }
 
 void StringTableDestroy( StringTable* st )

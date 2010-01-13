@@ -27,7 +27,7 @@ struct StringTable
   FreeMemoryFunc        m_Free;
 };
 
-void StringTableInit( StringTable* );
+void StringTableInit( StringTable*, AllocateMemoryFunc alloc, FreeMemoryFunc free );
 void StringTableDestroy( StringTable* );
 
 const char* StringTableRegisterString( StringTable*, const char*, hash_t );
