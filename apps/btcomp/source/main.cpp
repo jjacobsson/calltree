@@ -52,7 +52,7 @@ void parser_error( ParserContext pc, const char* msg )
   }
   else
   {
-    printf( "<no file>(%d) : error : %s\n", ParserContextGetLineNo( pc ), msg );
+    printf( "%s: error : %s\n", g_inputFileName, msg );
   }
 }
 
@@ -61,12 +61,12 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-    printf( "%s(%d) : warning : %s\n", pi->m_Name,
+    printf( "%s(%d): warning : %s\n", pi->m_Name,
       ParserContextGetLineNo( pc ), msg );
   }
   else
   {
-    printf( "<no file>(%d) : warning : %s\n", ParserContextGetLineNo( pc ), msg );
+    printf( "%s: warning : %s\n", g_inputFileName, msg );
   }
 }
 
