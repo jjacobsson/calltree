@@ -330,8 +330,6 @@ void InitNode( Node* n )
   n->m_Next = 0x0;
   n->m_Prev = 0x0;
   n->m_UserData = 0x0;
-
-  n->m_Declared = false;
 }
 
 void AppendToEndOfList( Node* s, Node* e )

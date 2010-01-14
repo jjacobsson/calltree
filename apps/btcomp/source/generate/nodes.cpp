@@ -33,9 +33,6 @@ int setup_variable_registry( VariableGenerateData* vd, Variable* vars, Program* 
 
 int gen_con( Node* n, Program* p )
 {
-	if( !n->m_Declared )
-		return -1;
-
 	switch( n->m_Grist.m_Type )
 	{
 	case E_GRIST_SEQUENCE:
@@ -62,9 +59,6 @@ int gen_con( Node* n, Program* p )
 
 int gen_exe( Node* n, Program* p )
 {
-	if( !n->m_Declared )
-		return -1;
-
 	switch( n->m_Grist.m_Type )
 	{
 	case E_GRIST_SEQUENCE:
@@ -91,9 +85,6 @@ int gen_exe( Node* n, Program* p )
 
 int gen_des( Node* n, Program* p )
 {
-	if( !n->m_Declared )
-		return -1;
-
 	switch( n->m_Grist.m_Type )
 	{
 	case E_GRIST_SEQUENCE:

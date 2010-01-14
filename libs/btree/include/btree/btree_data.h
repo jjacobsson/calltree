@@ -138,7 +138,6 @@ struct Node
 	Node*			m_Next;
 	Node*			m_Prev;
 	void*			m_UserData;
-    bool			m_Declared;
 };
 
 struct BehaviorTree

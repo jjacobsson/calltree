@@ -258,37 +258,42 @@ int main( int argc, char** argv )
       {
         printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
       }
+      else
+      {
+        g_outputFile = fopen( g_outputFileName, "wb" );
+        if( !g_outputFile )
+        {
+          printf( "error: Unable to open output file %s for writing.\n",
+            g_outputFileName );
+          returnCode = -2;
+        }
+
+        if( returnCode == 0 )
+          returnCode = save_program( g_outputFile, g_swapEndian, &p );
+        if( returnCode != 0 )
+        {
+          printf( "error: Failed to write output file %s.\n", g_outputFileName );
+          returnCode = -5;
+        }
+      }
+
+      if( returnCode == 0 && g_asmFileName )
+      {
+        FILE* asmFile = fopen( g_asmFileName, "w" );
+        if( !asmFile )
+        {
+          printf( "warning: Unable to open assembly file %s for writing.\n",
+            asmFile );
+        }
+        else
+        {
+          print_program( asmFile, &p );
+          fclose( asmFile );
+        }
+      }
+
     }
     /*
-     if( returnCode == 0 && asmFileName )
-     {
-     FILE* asmFile = fopen( asmFileName, "w" );
-     if( !asmFile )
-     {
-     fprintf( stderr, "warning: Unable to open assembly file %s for writing.\n", asmFile );
-     }
-     else
-     {
-     print_program( asmFile, &p );
-     fclose( asmFile );
-     }
-     }
-
-     outputFile = fopen( outputFileName, "wb" );
-     if( !outputFile )
-     {
-     fprintf( stderr, "error: Unable to open output file %s for writing.\n", outputFileName );
-     returnCode = -2;
-     }
-
-     if( returnCode == 0 )
-     returnCode = save_program( outputFile, swapEndian, &p );
-     if( returnCode != 0 )
-     {
-     fprintf( stderr, "error: Failed to write output file %s.\n", outputFileName );
-     returnCode = -5;
-     }
-
      if( xgmlFileName )
      {
 
