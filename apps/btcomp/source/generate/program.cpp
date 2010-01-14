@@ -121,6 +121,7 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
+    buff[0] = 0;
 //    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
     int data = p->m_D.PushString( buff );
     Push( INST_CALL_DEBUG_FN, data, 0, 0 );
@@ -131,6 +132,7 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
     if( !m_DebugInfo )
         return;
     char buff[ 2048 ];
+    buff[0] = 0;
 //    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
     int data = p->m_D.PushString( buff );
     Push( INST_CALL_DEBUG_FN, data, 0, 0 );

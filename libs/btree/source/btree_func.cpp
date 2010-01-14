@@ -519,7 +519,7 @@ void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char * str, i
     StringBufferGrow( pc, sb, l + 1 );
   memcpy( sb->m_Str + sb->m_Size, str, l );
   sb->m_Size += l;
-  sb->m_Str[sb->m_Size+1] = 0;
+  sb->m_Str[sb->m_Size] = 0;
 }
 
 void StringBufferClear( ParserContext pc, StringBuffer* sb )
