@@ -50,9 +50,10 @@ int Parse( ParserContext pc, ParserContextFunctions* pcf )
   int r = yyparse( pc, yyscanner );
   yylex_destroy( yyscanner );
 
-  pc->m_Error   = 0x0;
-  pc->m_Warning = 0x0;
-  pc->m_Read    = 0x0;
+  pc->m_Error       = 0x0;
+  pc->m_Warning     = 0x0;
+  pc->m_Read        = 0x0;
+  pc->m_Translate   = 0x0;
 
   return r;
 }
