@@ -104,6 +104,13 @@ NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext btc, hash_t hash
   return SymbolTableFind( &btc->m_SymbolTable, hash );
 }
 
+NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext btc, int* count )
+{
+  *count = btc->m_SymbolTable.m_Size;
+  return btc->m_SymbolTable.m_Symbols;
+}
+
+
 void BehaviorTreeContextAddInclude( BehaviorTreeContext btc, const Include& include )
 {
   hash_t h = hashlittle( include.m_Name );

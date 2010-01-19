@@ -64,6 +64,39 @@ void parser_warning( ParserContext pc, const char* msg )
   }
 }
 
+const char* parser_translate_include( ParserContext pc, const char* include )
+{
+  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
+
+  StringBuffer sb;
+  StringBufferInit( pc, &sb );
+
+  if( pi->m_Name )
+  {
+    char backslash  = '\\';
+    char frontslash = '/';
+
+    int s = 0, last = -1;
+    const char* p = pi->m_Name;
+    while( p && *p )
+    {
+      if( *p == backslash || *p == frontslash )
+        last = s;
+      ++p;
+      ++s;
+    }
+    if( last != -1 )
+      StringBufferAppend( pc, &sb, pi->m_Name, last + 1 );
+  }
+
+  StringBufferAppend( pc, &sb, include );
+  const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
+  StringBufferDestroy( pc, &sb );
+
+  return ret;
+}
+
 void* allocate_memory( mem_size_t size )
 {
   return malloc( size );
@@ -84,16 +117,53 @@ BehaviorTreeScene::BehaviorTreeScene()
 BehaviorTreeScene::~BehaviorTreeScene()
 {
 	BehaviorTreeContextDestroy( m_TreeContext );
+	m_TreeContext = 0xdeadbeef;
 }
 
 bool BehaviorTreeScene::readFile( const QString& filename )
 {
   BehaviorTreeContextDestroy( m_TreeContext );
+  m_TreeContext = 0xdeadbeef;
 
   BehaviorTreeContextSetup btcs;
   btcs.m_Alloc = &allocate_memory;
   btcs.m_Free = &free_memory;
   m_TreeContext = BehaviorTreeContextCreate( &btcs );
+
+  ParsingInfo pi;
+  pi.m_Name = filename.toAscii();
+  pi.m_File = fopen( pi.m_Name, "r" );
+  if( !pi.m_File )
+    return false;
+
+  ParserContextFunctions pcf;
+  pcf.m_Read = &read_file;
+  pcf.m_Error = &parser_error;
+  pcf.m_Warning = &parser_warning;
+  pcf.m_Translate = &parser_translate_include;
+
+  ParserContext pc = ParserContextCreate( m_TreeContext );
+  ParserContextSetExtra( pc, &pi );
+  ParserContextSetCurrent( pc, pi.m_Name );
+  int returnCode = Parse( pc, &pcf );
+  ParserContextDestroy( pc );
+
+  if( returnCode != 0 )
+    return false;
+
+  clear();
+
+
+  int i, c;
+  NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
+  for( i = 0; i < c; ++i )
+  {
+    if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
+      continue;
+    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
+    layoutNode( s[i].m_Symbol.m_Tree->m_Root );
+  }
+
 /*
 	int returnCode = m_Tree->Parse( filename.toAscii() );
 	if( returnCode != 0 )
@@ -109,13 +179,19 @@ bool BehaviorTreeScene::readFile( const QString& filename )
 
 void BehaviorTreeScene::layoutNodes()
 {
-/*
-	if( m_Tree )
-	{
-		layoutNode( m_Tree->m_Root );
-		setSceneRect( itemsBoundingRect() );
-	}
-*/
+  if( !m_TreeContext )
+    return;
+
+  int i, c;
+  NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
+  for( i = 0; i < c; ++i )
+  {
+    if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
+      continue;
+    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
+    layoutNode( s[i].m_Symbol.m_Tree->m_Root );
+  }
+  setSceneRect( itemsBoundingRect() );
 }
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )

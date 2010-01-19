@@ -116,6 +116,8 @@ void BehaviorTreeContextRegisterSymbol( BehaviorTreeContext, const NamedSymbol& 
 
 NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext, hash_t );
 
+NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext, int* );
+
 void BehaviorTreeContextAddInclude( BehaviorTreeContext, const Include& );
 
 Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
