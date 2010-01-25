@@ -50,7 +50,7 @@ protected:
     typedef std::vector<Extents> ExtentsList;
 
 	void createGraphics( Node*, BehaviorTreeNode* );
-	void layoutNode( Node* );
+	void layoutNode( Node*, ExtentsList& );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );

@@ -154,6 +154,7 @@ bool BehaviorTreeScene::readFile( const QString& filename )
   clear();
 
 
+  ExtentsList el;
   int i, c;
   NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
   for( i = 0; i < c; ++i )
@@ -161,7 +162,7 @@ bool BehaviorTreeScene::readFile( const QString& filename )
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
-    layoutNode( s[i].m_Symbol.m_Tree->m_Root );
+    layoutNode( s[i].m_Symbol.m_Tree->m_Root, el );
   }
 
 /*
@@ -182,14 +183,14 @@ void BehaviorTreeScene::layoutNodes()
   if( !m_TreeContext )
     return;
 
+  ExtentsList el;
   int i, c;
   NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
   for( i = 0; i < c; ++i )
   {
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
-    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
-    layoutNode( s[i].m_Symbol.m_Tree->m_Root );
+    layoutNode( s[i].m_Symbol.m_Tree->m_Root, el );
   }
   setSceneRect( itemsBoundingRect() );
 }
@@ -218,9 +219,9 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 	}
 }
 
-void BehaviorTreeScene::layoutNode( Node* n )
+void BehaviorTreeScene::layoutNode( Node* n, ExtentsList& el )
 {
-	ExtentsList el;
+
 	while( n )
 	{
         ExtentsList t;
