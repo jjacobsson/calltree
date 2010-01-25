@@ -117,13 +117,13 @@ BehaviorTreeScene::BehaviorTreeScene()
 BehaviorTreeScene::~BehaviorTreeScene()
 {
 	BehaviorTreeContextDestroy( m_TreeContext );
-	m_TreeContext = 0xdeadbeef;
+	m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
 }
 
 bool BehaviorTreeScene::readFile( const QString& filename )
 {
   BehaviorTreeContextDestroy( m_TreeContext );
-  m_TreeContext = 0xdeadbeef;
+  m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
 
   BehaviorTreeContextSetup btcs;
   btcs.m_Alloc = &allocate_memory;
