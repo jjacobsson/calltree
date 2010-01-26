@@ -14,6 +14,7 @@
 #include <btree/btree_parse.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <float.h>
 
 #include <QtGui/QtGui>
 
@@ -153,29 +154,10 @@ bool BehaviorTreeScene::readFile( const QString& filename )
 
   clear();
 
+  createGraphics();
+  layoutNodes();
 
-  ExtentsList el;
-  int i, c;
-  NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
-  for( i = 0; i < c; ++i )
-  {
-    if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
-      continue;
-    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
-    layoutNode( s[i].m_Symbol.m_Tree->m_Root, el );
-  }
-
-/*
-	int returnCode = m_Tree->Parse( filename.toAscii() );
-	if( returnCode != 0 )
-		return false;
-
-	clear();
-
-	createGraphics( m_Tree->m_Root, 0x0 );
-	layoutNode( m_Tree->m_Root );
-*/
-	return true;
+  return true;
 }
 
 void BehaviorTreeScene::layoutNodes()
@@ -193,6 +175,18 @@ void BehaviorTreeScene::layoutNodes()
     layoutNode( s[i].m_Symbol.m_Tree->m_Root, el );
   }
   setSceneRect( itemsBoundingRect() );
+}
+
+void BehaviorTreeScene::createGraphics()
+{
+  int i, c;
+  NamedSymbol* s = BehaviorTreeContextAccessSymbols( m_TreeContext, &c );
+  for( i = 0; i < c; ++i )
+  {
+    if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
+      continue;
+    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
+  }
 }
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
@@ -221,20 +215,19 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 
 void BehaviorTreeScene::layoutNode( Node* n, ExtentsList& el )
 {
-
-	while( n )
-	{
-        ExtentsList t;
-        depthFirstPlace( n, t );
-        double slide = minimumRootDistance( el, t );
-        BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
-        svg_item->moveBy( slide, 0 );
-        moveExtents( t, slide );
-        mergeExtents( el, el, t );
-		//transformToWorld( n, 0x0 );
-        n = n->m_Next;
-	}
- }
+  while( n )
+  {
+    ExtentsList t;
+    depthFirstPlace( n, t );
+    padExtents( el, t );
+    double slide = minimumRootDistance( el, t );
+    BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
+    svg_item->moveBy( slide, 0 );
+    moveExtents( t, slide );
+    mergeExtents( el, el, t );
+    n = n->m_Next;
+  }
+}
 
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
@@ -306,7 +299,6 @@ double BehaviorTreeScene::minimumRootDistance( const ExtentsList& lel, const Ext
         const Extents& l = lel[i];
         const Extents& r = rel[i];
         double d = l.r - r.l;
-
         if( d > ret )
             ret = d;
     }
@@ -350,6 +342,18 @@ void BehaviorTreeScene::mergeExtents( ExtentsList& r, const ExtentsList& lel, co
         else if( i < rs )
             r[i] = rel[i];
     }
+}
+void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
+{
+  int ls = (int)l.size();
+  int rs = (int)r.size();
+
+  if( ls > 0 && rs > ls )
+  {
+    l.resize( rs );
+    for( int i = ls; i < rs; ++i )
+      l[i] = l[0];
+  }
 }
 
 void BehaviorTreeScene::transformToWorld( Node* n, Node* p )

@@ -42,7 +42,7 @@ inline uint64 get_cpu_counter()
 }
 
 #else
-#error Unknown platform!
+#error "Compiler not supported."
 #endif
 
 #endif // COMMON_TIMING_H_

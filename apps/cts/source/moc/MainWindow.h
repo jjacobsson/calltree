@@ -17,6 +17,7 @@
 // Internal Forward declares
 class BehaviorTreeScene;
 class BehaviorTreeView;
+class BehaviorTreeList;
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -44,6 +45,7 @@ private:
 	void setCurrentFile( const QString& fileName );
 	QString strippedName( const QString& fullFileName );
 
+	BehaviorTreeList*   m_List;
 	BehaviorTreeView*	m_BTreeView;
 	BehaviorTreeScene*	m_BTreeScene;
 };

@@ -49,12 +49,14 @@ protected:
 
     typedef std::vector<Extents> ExtentsList;
 
+    void createGraphics();
 	void createGraphics( Node*, BehaviorTreeNode* );
-	void layoutNode( Node*, ExtentsList& );
+	void layoutNode( Node*, ExtentsList& el );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
+    void padExtents( ExtentsList& l, const ExtentsList& r );
     void transformToWorld( Node* n, Node* p );
 
     void drawItems(

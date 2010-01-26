@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeView.h"
+#include "BehaviorTreeList.h"
 
 #include <QtGui/QtGui>
 
@@ -21,6 +22,9 @@ MainWindow::MainWindow()
 
 	m_BTreeScene = new BehaviorTreeScene;
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
+	m_List = new BehaviorTreeList;
+
+	m_Dock->setWidget( m_List );
 
 	setCentralWidget( m_BTreeView );
 

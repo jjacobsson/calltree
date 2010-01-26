@@ -30,7 +30,7 @@ typedef int64_t int64;
 typedef uint64_t uint64;
 
 #else
-#error "Platform not supported!"
+#error "Compiler not supported!"
 #endif
 
 #endif // COMMON_TYPES_H
