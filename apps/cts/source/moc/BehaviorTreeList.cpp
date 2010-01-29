@@ -11,80 +11,85 @@
 
 #include "BehaviorTreeList.h"
 
-BehaviorTreeList::BehaviorTreeList(QWidget *parent)
-     : QListWidget(parent)
- {
-     setDragEnabled(true);
-     setViewMode(QListView::IconMode);
-     setIconSize(QSize(60, 60));
-     setSpacing(10);
-     setAcceptDrops(true);
-     setDropIndicatorShown(true);
- }
+BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
+  QListWidget( parent )
+{
+  setDragEnabled( true );
+  setViewMode( QListView::ListMode );
+  setIconSize( QSize( 32, 32 ) );
+  setSpacing( 2 );
+  setAcceptDrops( true );
+  setDropIndicatorShown( true );
+}
 
- void BehaviorTreeList::dragEnterEvent(QDragEnterEvent *event)
- {
-     if (event->mimeData()->hasFormat("image/x-puzzle-piece"))
-         event->accept();
-     else
-         event->ignore();
- }
+void BehaviorTreeList::dragEnterEvent( QDragEnterEvent *event )
+{
+  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
+    event->accept();
+  else
+    event->ignore();
+}
 
- void BehaviorTreeList::dragMoveEvent(QDragMoveEvent *event)
- {
-     if (event->mimeData()->hasFormat("image/x-puzzle-piece")) {
-         event->setDropAction(Qt::MoveAction);
-         event->accept();
-     } else
-         event->ignore();
- }
+void BehaviorTreeList::dragMoveEvent( QDragMoveEvent *event )
+{
+  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
+  {
+    event->setDropAction( Qt::MoveAction );
+    event->accept();
+  }
+  else
+    event->ignore();
+}
 
- void BehaviorTreeList::dropEvent(QDropEvent *event)
- {
-     if (event->mimeData()->hasFormat("image/x-puzzle-piece")) {
-         QByteArray pieceData = event->mimeData()->data("image/x-puzzle-piece");
-         QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
-         QPixmap pixmap;
-         QPoint location;
-         dataStream >> pixmap >> location;
+void BehaviorTreeList::dropEvent( QDropEvent *event )
+{
+  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
+  {
+    QByteArray pieceData = event->mimeData()->data( "image/x-puzzle-piece" );
+    QDataStream dataStream( &pieceData, QIODevice::ReadOnly );
+    QPixmap pixmap;
+    QPoint location;
+    dataStream >> pixmap >> location;
 
-         addPiece(pixmap, location);
+    addPiece( pixmap, location );
 
-         event->setDropAction(Qt::MoveAction);
-         event->accept();
-     } else
-         event->ignore();
- }
+    event->setDropAction( Qt::MoveAction );
+    event->accept();
+  }
+  else
+    event->ignore();
+}
 
- void BehaviorTreeList::addPiece(QPixmap pixmap, QPoint location)
- {
-     QListWidgetItem *pieceItem = new QListWidgetItem(this);
-     pieceItem->setIcon(QIcon(pixmap));
-     pieceItem->setData(Qt::UserRole, QVariant(pixmap));
-     pieceItem->setData(Qt::UserRole+1, location);
-     pieceItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable
-                         | Qt::ItemIsDragEnabled);
- }
+void BehaviorTreeList::addPiece( QPixmap pixmap, QPoint location )
+{
+  QListWidgetItem *pieceItem = new QListWidgetItem( this );
+  pieceItem->setIcon( QIcon( pixmap ) );
+  pieceItem->setData( Qt::UserRole, QVariant( pixmap ) );
+  pieceItem->setData( Qt::UserRole + 1, location );
+  pieceItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
+      | Qt::ItemIsDragEnabled );
+  pieceItem->setText( "Banan" );
+}
 
- void BehaviorTreeList::startDrag(Qt::DropActions /*supportedActions*/)
- {
-     QListWidgetItem *item = currentItem();
+void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/)
+{
+  QListWidgetItem *item = currentItem();
 
-     QByteArray itemData;
-     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-     QPixmap pixmap = qVariantValue<QPixmap>(item->data(Qt::UserRole));
-     QPoint location = item->data(Qt::UserRole+1).toPoint();
+  QByteArray itemData;
+  QDataStream dataStream( &itemData, QIODevice::WriteOnly );
+  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole ) );
+  QPoint location = item->data( Qt::UserRole + 1 ).toPoint();
 
-     dataStream << pixmap << location;
+  dataStream << pixmap << location;
 
-     QMimeData *mimeData = new QMimeData;
-     mimeData->setData("image/x-puzzle-piece", itemData);
+  QMimeData *mimeData = new QMimeData;
+  mimeData->setData( "image/x-puzzle-piece", itemData );
 
-     QDrag *drag = new QDrag(this);
-     drag->setMimeData(mimeData);
-     drag->setHotSpot(QPoint(pixmap.width()/2, pixmap.height()/2));
-     drag->setPixmap(pixmap);
+  QDrag *drag = new QDrag( this );
+  drag->setMimeData( mimeData );
+  drag->setHotSpot( QPoint( pixmap.width() / 2, pixmap.height() / 2 ) );
+  drag->setPixmap( pixmap );
 
-     if (drag->exec(Qt::MoveAction) == Qt::MoveAction)
-         delete takeItem(row(item));
- }
+  if( drag->exec( Qt::MoveAction ) == Qt::MoveAction )
+    delete takeItem( row( item ) );
+}

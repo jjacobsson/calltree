@@ -293,26 +293,25 @@ int main( int argc, char** argv )
       }
 
     }
-    /*
-     if( xgmlFileName )
-     {
+    if( returnCode == 0 && g_xgmlFileName )
+    {
 
-     XGMLPrinter xgml_printer;
-     xgml_printer.Visit( bt.m_Root );
-     xgml_printer.Layout();
-     FILE* xgml_file = fopen( xgmlFileName, "w" );
-     if( xgml_file )
-     {
-     xgml_printer.Print( xgml_file );
-     fclose( xgml_file );
-     }
-     else
-     {
-     fprintf( stderr, "warning: Unable to open xgml file \"%s\" for writing.\n", xgmlFileName );
-     }
-     }
-     }
-     */
+      XGMLPrinter xgml_printer;
+      xgml_printer.Visit( main->m_Symbol.m_Tree->m_Root );
+      xgml_printer.Layout();
+      FILE* xgml_file = fopen( g_xgmlFileName, "w" );
+      if( xgml_file )
+      {
+        xgml_printer.Print( xgml_file );
+        fclose( xgml_file );
+      }
+      else
+      {
+        printf( "warning: Unable to open xgml file \"%s\" for writing.\n",
+          g_xgmlFileName );
+      }
+    }
+
     BehaviorTreeContextDestroy( btc );
     if( g_allocs - g_frees != 0 )
       printf( "Allocs: %d\nFrees:  %d\nDelta:  %d\n", g_allocs, g_frees,
