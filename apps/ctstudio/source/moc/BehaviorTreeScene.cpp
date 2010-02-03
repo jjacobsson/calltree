@@ -14,6 +14,7 @@
 #include "../NodeToNodeArrow.h"
 #include <btree/btree.h>
 #include <btree/btree_parse.h>
+#include <other/lookup3.h>
 #include <stdio.h>
 #include <malloc.h>
 #include <float.h>
@@ -115,10 +116,13 @@ void free_memory( void* ptr )
     free( ptr );
 }
 
-BehaviorTreeScene::BehaviorTreeScene() :
-  m_TreeContext( 0x0 )
+BehaviorTreeScene::BehaviorTreeScene()
+  : m_TreeContext( 0x0 )
 {
-
+  BehaviorTreeContextSetup btcs;
+  btcs.m_Alloc = &allocate_memory;
+  btcs.m_Free = &free_memory;
+  m_TreeContext = BehaviorTreeContextCreate( &btcs );
 }
 
 BehaviorTreeScene::~BehaviorTreeScene()
@@ -130,9 +134,7 @@ BehaviorTreeScene::~BehaviorTreeScene()
 void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
 {
   if( event->mimeData()->hasFormat("ctstudio/x-node") )
-  {
     event->accept();
-  }
   else
     event->ignore();
 }
@@ -145,9 +147,7 @@ void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
 void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
 {
   if( event->mimeData()->hasFormat("ctstudio/x-node") )
-  {
     event->accept();
-  }
   else
     event->ignore();
 }
@@ -157,6 +157,78 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
   if( event->mimeData()->hasFormat("ctstudio/x-node") )
   {
     event->accept();
+
+    hash_t h = hashlittle( "main" );
+    NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, h );
+    BehaviorTree* bt = 0x0;
+    if( !ns )
+    {
+      bt = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
+      InitBehaviorTree( bt );
+      bt->m_Id.m_Hash = h;
+      bt->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, "main" );
+      bt->m_Declared = true;
+
+      NamedSymbol reg;
+      reg.m_Type = E_ST_TREE;
+      reg.m_Symbol.m_Tree = bt;
+      BehaviorTreeContextRegisterSymbol( m_TreeContext, reg );
+    }
+    else if( ns->m_Type != E_ST_TREE )
+    {
+      // FAIL!
+    }
+    else if( !ns->m_Symbol.m_Tree->m_Declared )
+    {
+      bt = ns->m_Symbol.m_Tree;
+      bt->m_Declared = true;
+    }
+    else
+    {
+      bt = ns->m_Symbol.m_Tree;
+    }
+
+    if( !bt )
+      return;
+
+    QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
+    QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
+    int grist_type, act_dec_id;
+    dataStream >> grist_type >> act_dec_id;
+
+    Node* n = (Node*)BehaviorTreeContextAllocateObject( m_TreeContext );
+    InitNode( n );
+    switch( grist_type )
+    {
+    case E_GRIST_SEQUENCE: n->m_Grist.m_Type = E_GRIST_SEQUENCE; break;
+    case E_GRIST_SELECTOR: n->m_Grist.m_Type = E_GRIST_SELECTOR; break;
+    case E_GRIST_PARALLEL: n->m_Grist.m_Type = E_GRIST_PARALLEL; break;
+    case E_GRIST_DYN_SELECTOR: n->m_Grist.m_Type = E_GRIST_DYN_SELECTOR; break;
+    default:
+      // FAIL!
+      break;
+    }
+
+    createGraphics( n, 0x0 );
+
+    if( bt->m_Root )
+    {
+      BehaviorTreeNode* p_btn = (BehaviorTreeNode*)n->m_UserData;
+      BehaviorTreeNode* c_btn = (BehaviorTreeNode*)bt->m_Root->m_UserData;
+
+      c_btn->setParentItem( p_btn );
+
+      NodeToNodeArrow* a = new NodeToNodeArrow( p_btn, c_btn, this );
+      p_btn->addArrow( a );
+      c_btn->addArrow( a );
+
+      SetFirstChild( n, bt->m_Root );
+      SetParentOnChildren( n );
+    }
+
+    bt->m_Root = n;
+
+    layoutNodes();
   }
   else
     event->ignore();
