@@ -15,27 +15,21 @@ Depends apps : libs ;
 
 SUFBTC = .btc ;
 
-BTCOMP_EXE      = $(BUILD_BIN_DIR)btcomp$(SUFEXE) ;
+CTC_EXE         = $(BUILD_BIN_DIR)ctc$(SUFEXE) ;
 BUILD_TREES_DIR = build$(SLASH)trees$(SLASH) ;
-
-
-#actions btcomp
-#{
-#	$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm)
-#}
 
 if $(CONFIGURATION) = debug
 {
-	actions btcomp
+	actions ctc
 	{
-		$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml) -d
+		$(CTC_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml) -d
 	}
 }
 else
 {
-	actions btcomp
+	actions ctc
 	{
-		$(BTCOMP_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
+		$(CTC_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
 	}
 }
 
@@ -51,7 +45,7 @@ rule CompileBehaviourTrees
 		local _btc = $(BUILD_TREES_DIR)$(_source:S=$(SUFBTC)) ;
 		local _path = $(_btc:P) ;
 		
-		btcomp $(_btc) : $(_source) ;
+		ctc $(_btc) : $(_source) ;
 		
 		Depends $(_btc) : $(BTCOMP_EXE) ;
 		Depends $(_btc) : $(_path) ;
