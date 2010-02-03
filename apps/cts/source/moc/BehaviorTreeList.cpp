@@ -11,55 +11,35 @@
 
 #include "BehaviorTreeList.h"
 
+#include "../standard_resources.h"
+
 BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   QListWidget( parent )
 {
   setDragEnabled( true );
   setViewMode( QListView::ListMode );
-  setIconSize( QSize( 32, 32 ) );
+  setIconSize( QSize( 16, 16 ) );
   setSpacing( 2 );
-  setAcceptDrops( true );
-  setDropIndicatorShown( true );
-}
+  setAcceptDrops( false );
+  setDropIndicatorShown( false );
 
-void BehaviorTreeList::dragEnterEvent( QDragEnterEvent *event )
-{
-  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
-    event->accept();
-  else
-    event->ignore();
-}
-
-void BehaviorTreeList::dragMoveEvent( QDragMoveEvent *event )
-{
-  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
+  for( int i = 1; i < E_GRIST_DECORATOR; ++i )
   {
-    event->setDropAction( Qt::MoveAction );
-    event->accept();
+    QListWidgetItem *nodeItem = new QListWidgetItem( this );
+    QPixmap pixmap(32,32);
+    pixmap = QPixmap(g_NodeSVGResourcePaths[i]).scaled( 32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+    nodeItem->setIcon( QIcon(pixmap) );
+    nodeItem->setData( Qt::UserRole + 0, pixmap );
+    nodeItem->setData( Qt::UserRole + 1, i );
+    nodeItem->setData( Qt::UserRole + 2, -1 );
+    nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
+        | Qt::ItemIsDragEnabled );
+    nodeItem->setText( g_NodeNames[i] );
   }
-  else
-    event->ignore();
+
 }
 
-void BehaviorTreeList::dropEvent( QDropEvent *event )
-{
-  if( event->mimeData()->hasFormat( "image/x-puzzle-piece" ) )
-  {
-    QByteArray pieceData = event->mimeData()->data( "image/x-puzzle-piece" );
-    QDataStream dataStream( &pieceData, QIODevice::ReadOnly );
-    QPixmap pixmap;
-    QPoint location;
-    dataStream >> pixmap >> location;
-
-    addPiece( pixmap, location );
-
-    event->setDropAction( Qt::MoveAction );
-    event->accept();
-  }
-  else
-    event->ignore();
-}
-
+/*
 void BehaviorTreeList::addPiece( QPixmap pixmap, QPoint location )
 {
   QListWidgetItem *pieceItem = new QListWidgetItem( this );
@@ -70,26 +50,24 @@ void BehaviorTreeList::addPiece( QPixmap pixmap, QPoint location )
       | Qt::ItemIsDragEnabled );
   pieceItem->setText( "Banan" );
 }
+*/
 
-void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/)
+void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )
 {
   QListWidgetItem *item = currentItem();
 
   QByteArray itemData;
   QDataStream dataStream( &itemData, QIODevice::WriteOnly );
-  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole ) );
-  QPoint location = item->data( Qt::UserRole + 1 ).toPoint();
 
-  dataStream << pixmap << location;
+  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole ) );
 
   QMimeData *mimeData = new QMimeData;
-  mimeData->setData( "image/x-puzzle-piece", itemData );
+  mimeData->setData( "ctstudio/x-node", itemData );
 
   QDrag *drag = new QDrag( this );
   drag->setMimeData( mimeData );
-  drag->setHotSpot( QPoint( pixmap.width() / 2, pixmap.height() / 2 ) );
+  drag->setHotSpot( QPoint( pixmap.width(), pixmap.height() ) );
   drag->setPixmap( pixmap );
 
-  if( drag->exec( Qt::MoveAction ) == Qt::MoveAction )
-    delete takeItem( row( item ) );
+  drag->exec( Qt::CopyAction );
 }

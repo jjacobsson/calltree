@@ -377,6 +377,26 @@ void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 	}
 }
 
+void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
+{
+  event->ignore();
+}
+
+void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
+{
+  event->ignore();
+}
+
+void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
+{
+  event->ignore();
+}
+
+void BehaviorTreeScene::dropEvent( QDropEvent* event )
+{
+  event->ignore();
+}
+
 void BehaviorTreeScene::drawItems(
 		QPainter* painter,
 		int numItems,

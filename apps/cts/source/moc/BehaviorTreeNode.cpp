@@ -9,23 +9,15 @@
 
 #include "BehaviorTreeNode.h"
 #include "../NodeToNodeArrow.h"
+#include "../standard_resources.h"
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
 #include <QtSvg/QSvgRenderer>
 
-const char* const g_NodeResourcePaths[E_MAX_GRIST_TYPES] = {
-	":/nodes/unknown.svg",
-	":/nodes/sequence.svg",
-	":/nodes/selector.svg",
-	":/nodes/parallel.svg",
-	":/nodes/dyn_selector.svg",
-	":/nodes/decorator.svg",
-	":/nodes/action.svg"
-};
 
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
-	: QGraphicsSvgItem( g_NodeResourcePaths[n->m_Grist.m_Type], parent )
+	: QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
 	, m_Node( n )
 	, m_MouseState( E_MS_NONE )
 	, m_DraggingArrow( 0x0 )

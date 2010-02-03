@@ -17,6 +17,10 @@
 // Qt Forward declares
 class QString;
 class QGraphicsItem;
+class QDragEnterEvent;
+class QDragLeaveEvent;
+class QDragMoveEvent;
+class QDropEvent;
 
 // BT Forward declares
 struct Node;
@@ -58,6 +62,11 @@ protected:
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void padExtents( ExtentsList& l, const ExtentsList& r );
     void transformToWorld( Node* n, Node* p );
+
+    void dragEnterEvent( QDragEnterEvent *event );
+    void dragLeaveEvent( QDragLeaveEvent *event );
+    void dragMoveEvent( QDragMoveEvent *event );
+    void dropEvent( QDropEvent *event );
 
     void drawItems(
 		QPainter* painter,
