@@ -14,6 +14,8 @@
 
 #include <vector>
 
+#include "../GraphicsItemTypes.h"
+
 // Qt Forward declares
 class QString;
 class QGraphicsItem;
@@ -35,6 +37,11 @@ public:
 	~BehaviorTreeScene();
 
 	bool readFile( const QString& fileName );
+
+    void dragEnterEvent( QDragEnterEvent *event );
+    void dragLeaveEvent( QDragLeaveEvent *event );
+    void dragMoveEvent( QDragMoveEvent *event );
+    void dropEvent( QDropEvent *event );
 
 public slots:
 	void layoutNodes();
@@ -63,10 +70,6 @@ protected:
     void padExtents( ExtentsList& l, const ExtentsList& r );
     void transformToWorld( Node* n, Node* p );
 
-    void dragEnterEvent( QDragEnterEvent *event );
-    void dragLeaveEvent( QDragLeaveEvent *event );
-    void dragMoveEvent( QDragMoveEvent *event );
-    void dropEvent( QDropEvent *event );
 
     void drawItems(
 		QPainter* painter,

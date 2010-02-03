@@ -8,6 +8,7 @@
  */
 
 #include "BehaviorTreeView.h"
+#include "BehaviorTreeScene.h"
 
 #include <QtGui/QtGui>
 #include <QtOpenGL/QtOpenGL>
@@ -92,4 +93,40 @@ void BehaviorTreeView::keyReleaseEvent( QKeyEvent* e )
 		setDragMode( QGraphicsView::NoDrag );
 	}
 	QGraphicsView::keyReleaseEvent( e );
+}
+
+void BehaviorTreeView::dragEnterEvent( QDragEnterEvent *event )
+{
+  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*>(scene());
+  if( s )
+    s->dragEnterEvent( event );
+  else
+    event->ignore();
+}
+
+void BehaviorTreeView::dragLeaveEvent( QDragLeaveEvent *event )
+{
+  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*>(scene());
+  if( s )
+    s->dragLeaveEvent( event );
+  else
+    event->ignore();
+}
+
+void BehaviorTreeView::dragMoveEvent( QDragMoveEvent *event )
+{
+  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*>(scene());
+  if( s )
+    s->dragMoveEvent( event );
+  else
+    event->ignore();
+}
+
+void BehaviorTreeView::dropEvent( QDropEvent* event )
+{
+  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*>(scene());
+  if( s )
+    s->dropEvent( event );
+  else
+    event->ignore();
 }

@@ -18,15 +18,15 @@
 
 #include <QtGui/QtGui>
 
-const float g_NodeWidth  = 256.0f;
+const float g_NodeWidth = 256.0f;
 const float g_NodeHeight = 256.0f;
-const float g_HoriSpace  = 64.0f;
-const float g_VertSpace  = 128.0f;
+const float g_HoriSpace = 64.0f;
+const float g_VertSpace = 128.0f;
 
 struct ParsingInfo
 {
-  FILE*         m_File;
-  const char*   m_Name;
+  FILE* m_File;
+  const char* m_Name;
 };
 
 int read_file( ParserContext pc, char* buffer, int maxsize )
@@ -44,11 +44,13 @@ void parser_error( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-     fprintf( stdout, "%s(%d) : error : %s\n", pi->m_Name, ParserContextGetLineNo( pc ), msg );
+    fprintf( stdout, "%s(%d) : error : %s\n", pi->m_Name,
+      ParserContextGetLineNo( pc ), msg );
   }
   else
   {
-     fprintf( stdout, "<no file>(%d) : error : %s\n", ParserContextGetLineNo( pc ), msg );
+    fprintf( stdout, "<no file>(%d) : error : %s\n",
+      ParserContextGetLineNo( pc ), msg );
   }
 }
 
@@ -57,11 +59,13 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-     fprintf( stdout, "%s(%d) : warning : %s\n", pi->m_Name, ParserContextGetLineNo( pc ), msg );
+    fprintf( stdout, "%s(%d) : warning : %s\n", pi->m_Name,
+      ParserContextGetLineNo( pc ), msg );
   }
   else
   {
-     fprintf( stdout, "<no file>(%d) : warning : %s\n", ParserContextGetLineNo( pc ), msg );
+    fprintf( stdout, "<no file>(%d) : warning : %s\n", ParserContextGetLineNo(
+      pc ), msg );
   }
 }
 
@@ -75,7 +79,7 @@ const char* parser_translate_include( ParserContext pc, const char* include )
 
   if( pi->m_Name )
   {
-    char backslash  = '\\';
+    char backslash = '\\';
     char frontslash = '/';
 
     int s = 0, last = -1;
@@ -109,16 +113,51 @@ void free_memory( void* ptr )
     free( ptr );
 }
 
-BehaviorTreeScene::BehaviorTreeScene()
-	: m_TreeContext( 0x0 )
+BehaviorTreeScene::BehaviorTreeScene() :
+  m_TreeContext( 0x0 )
 {
 
 }
 
 BehaviorTreeScene::~BehaviorTreeScene()
 {
-	BehaviorTreeContextDestroy( m_TreeContext );
-	m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
+  BehaviorTreeContextDestroy( m_TreeContext );
+  m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
+}
+
+void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
+{
+  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  {
+    event->accept();
+  }
+  else
+    event->ignore();
+}
+
+void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
+{
+   event->accept();
+}
+
+void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
+{
+  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  {
+    event->accept();
+  }
+  else
+    event->ignore();
+}
+
+void BehaviorTreeScene::dropEvent( QDropEvent* event )
+{
+  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  {
+    event->accept();
+  }
+  else
+    event->ignore();
 }
 
 bool BehaviorTreeScene::readFile( const QString& filename )
@@ -191,26 +230,26 @@ void BehaviorTreeScene::createGraphics()
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
 {
-	while( n )
-	{
-		BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
+  while( n )
+  {
+    BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
-		connect( svg_item, SIGNAL( nodeDragged() ), this, SLOT( layoutNodes() ) );
+    connect( svg_item, SIGNAL( nodeDragged() ), this, SLOT( layoutNodes() ) );
 
-		if( !parent )
-			addItem( svg_item );
+    if( !parent )
+      addItem( svg_item );
 
-		if( parent )
-		{
-			NodeToNodeArrow* a = new NodeToNodeArrow( parent, svg_item, this );
-			parent->addArrow( a );
-			svg_item->addArrow( a );
-		}
+    if( parent )
+    {
+      NodeToNodeArrow* a = new NodeToNodeArrow( parent, svg_item, this );
+      parent->addArrow( a );
+      svg_item->addArrow( a );
+    }
 
-		n->m_UserData = (void*)svg_item;
-		createGraphics( GetFirstChild( n ), svg_item );
-		n = n->m_Next;
-	}
+    n->m_UserData = (void*)svg_item;
+    createGraphics( GetFirstChild( n ), svg_item );
+    n = n->m_Next;
+  }
 }
 
 void BehaviorTreeScene::layoutNode( Node* n, ExtentsList& el )
@@ -231,117 +270,118 @@ void BehaviorTreeScene::layoutNode( Node* n, ExtentsList& el )
 
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
-    ExtentsList el;
-    Node* it = GetFirstChild( n );
-    double lx = 0.0f;
+  ExtentsList el;
+  Node* it = GetFirstChild( n );
+  double lx = 0.0f;
 
-    BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
-    svg_item->setPos( 0.0f, 0.0f );
+  BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
+  svg_item->setPos( 0.0f, 0.0f );
 
-    if( svg_item->parentItem() )
-    	svg_item->moveBy( 0.0f, g_NodeHeight + g_VertSpace );
+  if( svg_item->parentItem() )
+    svg_item->moveBy( 0.0f, g_NodeHeight + g_VertSpace );
+
+  while( it )
+  {
+    ExtentsList t;
+    depthFirstPlace( it, t );
+    double slide = minimumRootDistance( el, t );
+
+    svg_item = (BehaviorTreeNode*)(it->m_UserData);
+    QPointF pos( svg_item->pos() );
+    pos.rx() = slide;
+    svg_item->setPos( pos );
+
+    lx = slide;
+    moveExtents( t, slide );
+    mergeExtents( el, el, t );
+
+    it = it->m_Next;
+  }
+
+  it = GetFirstChild( n );
+  if( it )
+  {
+    svg_item = (BehaviorTreeNode*)(it->m_UserData);
+    QPointF pos( svg_item->pos() );
+    double fx = pos.x();
+    double slide = (lx - fx) / 2.0;
 
     while( it )
     {
-        ExtentsList t;
-        depthFirstPlace( it, t );
-        double slide = minimumRootDistance( el, t );
-
-        svg_item = (BehaviorTreeNode*)(it->m_UserData);
-        QPointF pos( svg_item->pos() );
-        pos.rx() = slide;
-        svg_item->setPos( pos );
-
-        lx = slide;
-        moveExtents( t, slide );
-        mergeExtents( el, el, t );
-
-        it = it->m_Next;
+      svg_item = (BehaviorTreeNode*)(it->m_UserData);
+      svg_item->moveBy( -slide, 0.0 );
+      it = it->m_Next;
     }
 
-    it = GetFirstChild( n );
-    if( it )
-    {
-    	svg_item = (BehaviorTreeNode*)(it->m_UserData);
-        QPointF pos( svg_item->pos() );
-        double fx = pos.x();
-        double slide = (lx - fx) / 2.0;
+    moveExtents( el, -slide );
+  }
 
-        while( it )
-        {
-        	svg_item = (BehaviorTreeNode*)(it->m_UserData);
-			svg_item->moveBy( -slide, 0.0 );
-            it = it->m_Next;
-        }
-
-        moveExtents( el, -slide );
-    }
-
-    Extents e;
-    e.l = 0;
-    e.r = g_NodeWidth + g_HoriSpace ;
-    pel.push_back( e );
-    if( !el.empty() )
-        pel.insert( pel.end(), el.begin(), el.end() );
+  Extents e;
+  e.l = 0;
+  e.r = g_NodeWidth + g_HoriSpace;
+  pel.push_back( e );
+  if( !el.empty() )
+    pel.insert( pel.end(), el.begin(), el.end() );
 
 }
 
-
-double BehaviorTreeScene::minimumRootDistance( const ExtentsList& lel, const ExtentsList& rel )
+double BehaviorTreeScene::minimumRootDistance( const ExtentsList& lel,
+  const ExtentsList& rel )
 {
-    double ret = 0.0;
-    size_t s = lel.size();
-    if( s > rel.size() )
-        s = rel.size();
+  double ret = 0.0;
+  size_t s = lel.size();
+  if( s > rel.size() )
+    s = rel.size();
 
-    for( size_t i = 0; i < s; ++i )
-    {
-        const Extents& l = lel[i];
-        const Extents& r = rel[i];
-        double d = l.r - r.l;
-        if( d > ret )
-            ret = d;
-    }
+  for( size_t i = 0; i < s; ++i )
+  {
+    const Extents& l = lel[i];
+    const Extents& r = rel[i];
+    double d = l.r - r.l;
+    if( d > ret )
+      ret = d;
+  }
 
-    return ret;
+  return ret;
 }
 
 void BehaviorTreeScene::moveExtents( ExtentsList& el, double dist )
 {
-    size_t s = el.size();
-    for( size_t i = 0; i < s; ++i )
-    {
-        el[i].l += dist;
-        el[i].r += dist;
-    }
+  size_t s = el.size();
+  for( size_t i = 0; i < s; ++i )
+  {
+    el[i].l += dist;
+    el[i].r += dist;
+  }
 }
 
-void BehaviorTreeScene::mergeExtents( ExtentsList& r, const ExtentsList& lel, const ExtentsList& rel )
+void BehaviorTreeScene::mergeExtents( ExtentsList& r, const ExtentsList& lel,
+  const ExtentsList& rel )
 {
-    size_t ls = lel.size();
-    size_t rs = rel.size();
+  size_t ls = lel.size();
+  size_t rs = rel.size();
 
-    if( ls < rs )
-        r.resize( rs );
-    else
-        r.resize( ls );
+  if( ls < rs )
+    r.resize( rs );
+  else
+    r.resize( ls );
 
-    size_t s = r.size();
+  size_t s = r.size();
 
-    for( size_t i = 0; i < s; ++i )
+  for( size_t i = 0; i < s; ++i )
+  {
+    if( i < ls && i < rs )
     {
-        if( i < ls && i < rs )
-        {
-            const Extents& le = lel[i];
-            const Extents& re = rel[i];
-            r[i].l = le.l;
-            r[i].r = re.r;
-        }
-        else if( i < ls )
-            r[i] = lel[i];
-        else if( i < rs )
-            r[i] = rel[i];
+      const Extents& le = lel[i];
+      const Extents& re = rel[i];
+      r[i].l = le.l;
+      r[i].r = re.r;
     }
+    else if( i < ls )
+      r[i] = lel[i];
+    else if( i < rs )
+      r[i] = rel[i];
+  }
 }
 void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
 {
@@ -358,79 +398,56 @@ void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
 
 void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
 {
-	QGraphicsSvgItem* p_svg_item = 0x0;
-	if( p )
-		p_svg_item = (BehaviorTreeNode*)(p->m_UserData);
-	while( n )
-	{
-		if( p_svg_item )
-		{
-			BehaviorTreeNode* n_svg_item = (BehaviorTreeNode*)(n->m_UserData);
-			n_svg_item->moveBy( p_svg_item->x(), p_svg_item->y() + g_NodeHeight + g_VertSpace );
-		}
-		Node* c = GetFirstChild( n );
+  QGraphicsSvgItem* p_svg_item = 0x0;
+  if( p )
+    p_svg_item = (BehaviorTreeNode*)(p->m_UserData);
+  while( n )
+  {
+    if( p_svg_item )
+    {
+      BehaviorTreeNode* n_svg_item = (BehaviorTreeNode*)(n->m_UserData);
+      n_svg_item->moveBy( p_svg_item->x(), p_svg_item->y() + g_NodeHeight
+          + g_VertSpace );
+    }
+    Node* c = GetFirstChild( n );
 
-		if( c )
-			transformToWorld( c, n );
+    if( c )
+      transformToWorld( c, n );
 
-		n = n->m_Next;
-	}
+    n = n->m_Next;
+  }
 }
 
-void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
+void BehaviorTreeScene::drawItems( QPainter* painter, int numItems,
+  QGraphicsItem* items[], const QStyleOptionGraphicsItem options[],
+  QWidget* widget )
 {
-  event->ignore();
-}
+  int c = 0;
+  QGraphicsItem** tItems =
+      (QGraphicsItem**)alloca( sizeof(QGraphicsItem*) * numItems );
+  QStyleOptionGraphicsItem* tOptions = new QStyleOptionGraphicsItem[numItems];
 
-void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
-{
-  event->ignore();
-}
+  for( int i = 0; i < numItems; ++i )
+  {
+    if( items[i]->type() == NodeToNodeArrow::Type )
+    {
+      tItems[c] = items[i];
+      tOptions[c] = options[i];
+      ++c;
+    }
+  }
+  for( int i = 0; i < numItems; ++i )
+  {
+    if( items[i]->type() != NodeToNodeArrow::Type )
+    {
+      tItems[c] = items[i];
+      tOptions[c] = options[i];
+      ++c;
+    }
+  }
 
-void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
-{
-  event->ignore();
-}
+  QGraphicsScene::drawItems( painter, numItems, tItems, tOptions, widget );
 
-void BehaviorTreeScene::dropEvent( QDropEvent* event )
-{
-  event->ignore();
-}
-
-void BehaviorTreeScene::drawItems(
-		QPainter* painter,
-		int numItems,
-		QGraphicsItem* items[],
-		const QStyleOptionGraphicsItem options[],
-		QWidget* widget
-	)
-{
-	int c = 0;
-	QGraphicsItem** tItems = (QGraphicsItem**)alloca( sizeof(QGraphicsItem*) * numItems );
-	QStyleOptionGraphicsItem* tOptions = new QStyleOptionGraphicsItem[numItems];
-
-
-	for( int i = 0; i < numItems; ++i )
-	{
-		if( items[i]->type() == NodeToNodeArrow::Type )
-		{
-			tItems[c]	= items[i];
-			tOptions[c]	= options[i];
-			++c;
-		}
-	}
-	for( int i = 0; i < numItems; ++i )
-	{
-		if( items[i]->type() != NodeToNodeArrow::Type )
-		{
-			tItems[c]	= items[i];
-			tOptions[c]	= options[i];
-			++c;
-		}
-	}
-
-	QGraphicsScene::drawItems( painter, numItems, tItems, tOptions, widget );
-
-	delete [] tOptions;
+  delete[] tOptions;
 }
 

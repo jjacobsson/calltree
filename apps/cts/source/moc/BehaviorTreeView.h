@@ -12,6 +12,8 @@
 
 #include <QtGui/QGraphicsView>
 
+#include "../GraphicsItemTypes.h"
+
 // Qt Forward declares
 class QGraphicsScene;
 
@@ -30,6 +32,12 @@ protected:
 	void mouseReleaseEvent( QMouseEvent* e );
 	void keyPressEvent( QKeyEvent* e );
 	void keyReleaseEvent( QKeyEvent* e );
+
+    void dragEnterEvent( QDragEnterEvent *event );
+    void dragLeaveEvent( QDragLeaveEvent *event );
+    void dragMoveEvent( QDragMoveEvent *event );
+    void dropEvent( QDropEvent *event );
+
 };
 
 #endif

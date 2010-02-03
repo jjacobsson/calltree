@@ -28,7 +28,7 @@ public:
 
 	enum
 	{
-		Type = BehaviourTreeNodeType
+		Type = BehaviorTreeNodeType
 	};
 
 	BehaviorTreeNode( Node* n, BehaviorTreeNode* parent = 0x0 );
