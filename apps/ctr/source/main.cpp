@@ -292,7 +292,7 @@ int main(int argc, char** argv)
             silent = true;
             break;
         case '?':
-            printf("callback testing application version 0.1\n\n");
+            printf("calltree testing application version 0.1\n\n");
             printf("Options:\n");
             printf("\t-i\tInput file\n");
             printf("\t-s\tSilent mode. Prevents the \"print\" action from echoing to the screen.\n" );

@@ -148,7 +148,7 @@ int main( int argc, char** argv )
       g_xgmlFileName = ctx.optarg;
       break;
     case '?':
-      fprintf( stdout, "Behaviour Tree Compiler Version 0.1\n\n" );
+      fprintf( stdout, "calltree compiler Version 0.1\n\n" );
       fprintf( stdout, "Options:\n" );
       fprintf( stdout, "\t-i\tInput file\n" );
       fprintf( stdout, "\t-o\tOutput file (defaults to \"a.out\")\n" );
