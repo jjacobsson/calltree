@@ -8,5 +8,6 @@
 	<file>nodes/dyn_selector.svg</file>
 	<file>nodes/decorator.svg</file>
 	<file>nodes/action.svg</file>     
+	<file>nodes/tree.svg</file>
  </qresource>
  </RCC>
