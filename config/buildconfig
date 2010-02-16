@@ -52,7 +52,7 @@ include config/buildconfig.$(HOST) ;
 include config/buildconfig.$(TOOLSET) ;
 include config/buildconfig.$(TOOLSET).$(CONFIGURATION) ;
 
-BUILD_ROOT    = build$(SLASH)$(TOOLSET) ;
+BUILD_ROOT    = build ;
 BUILD_OBJ_DIR = $(BUILD_ROOT)$(SLASH)obj$(SLASH)$(CONFIGURATION)$(SLASH) ;
 BUILD_LIB_DIR = $(BUILD_ROOT)$(SLASH)lib$(SLASH)$(CONFIGURATION)$(SLASH) ;
 BUILD_BIN_DIR = $(BUILD_ROOT)$(SLASH)bin$(SLASH) ;
