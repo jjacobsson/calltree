@@ -118,8 +118,9 @@ void free_memory( void* ptr )
     free( ptr );
 }
 
-BehaviorTreeScene::BehaviorTreeScene()
+BehaviorTreeScene::BehaviorTreeScene( QMainWindow* mw )
   : m_TreeContext( 0x0 )
+  , m_MainWindow( mw )
 {
   BehaviorTreeContextSetup btcs;
   btcs.m_Alloc = &allocate_memory;
@@ -319,6 +320,13 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
     BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
     connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
+
+    connect(
+      svg_item,
+      SIGNAL( relinkTargetMessage( QString, int ) ),
+      m_MainWindow->statusBar(),
+      SLOT( showMessage( QString, int ) )
+    );
 
     if( !parent )
       addItem( svg_item );

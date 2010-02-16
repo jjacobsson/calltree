@@ -22,7 +22,7 @@ MainWindow::MainWindow()
 {
 	setupUi(this);
 
-	m_BTreeScene = new BehaviorTreeScene;
+	m_BTreeScene = new BehaviorTreeScene( this );
 	m_BTreeView  = new BehaviorTreeView( m_BTreeScene );
 	m_List = new BehaviorTreeList;
 

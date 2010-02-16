@@ -225,6 +225,17 @@ void BehaviorTreeNode::executeRelinkage()
     m_Node->m_Prev = 0x0;
     SetFirstChild( m_Node->m_Pare, m_Node );
   }
+
+
+  Node* it = GetFirstChild( m_Node->m_Pare );
+  qreal zValue = 0.01;
+  while( it )
+  {
+    BehaviorTreeNode* btn = (BehaviorTreeNode*)it->m_UserData;
+    btn->setZValue( zValue );
+    zValue += 0.01;
+    it = it->m_Next;
+  }
 }
 
 void BehaviorTreeNode::lookForRelinkTarget()
@@ -314,5 +325,10 @@ void BehaviorTreeNode::lookForRelinkTarget()
     }
     n = n->m_Next;
   }
+
+  QString s = QString( "Drag X: %1 Sibling X: %2 Before: %3").arg(x).arg(tx).arg(m_Relinkage.m_BeforeSibling);
+
+  emit relinkTargetMessage( s, 2000 );
+
 }
 

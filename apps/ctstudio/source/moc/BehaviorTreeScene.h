@@ -25,6 +25,7 @@ class QDragEnterEvent;
 class QDragLeaveEvent;
 class QDragMoveEvent;
 class QDropEvent;
+class QMainWindow;
 
 // BT Forward declares
 struct Node;
@@ -36,7 +37,7 @@ class BehaviorTreeScene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
-	BehaviorTreeScene();
+	BehaviorTreeScene( QMainWindow* );
 	~BehaviorTreeScene();
 
 	bool readFile( const QString& fileName );
@@ -87,6 +88,7 @@ protected:
 	QGraphicsView*  	m_View;
 	QGraphicsScene* 	m_Scene;
 	BehaviorTreeContext	m_TreeContext;
+	QMainWindow*        m_MainWindow;
 };
 
 #endif

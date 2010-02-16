@@ -48,6 +48,10 @@ protected:
   void setupLabel();
   void setupTooltip();
 
+signals:
+
+  void relinkTargetMessage( QString s, int timeout );
+
 private:
 
   void setupRelinkage();
