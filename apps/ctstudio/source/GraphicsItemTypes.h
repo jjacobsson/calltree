@@ -19,7 +19,7 @@ enum CustomGraphicsItemTypes
   NodeToNodeArrowType = QGraphicsItem::UserType + 1,
   BehaviorTreeSceneItemType,
   BehaviorTreeNodeType,
-  BehaviorTreeTreeType,
+  BehaviorTreeTreeType
 };
 
 #endif /*GRAPHICSITEMTYPES_H_INCLUDED*/

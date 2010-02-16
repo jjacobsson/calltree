@@ -230,12 +230,16 @@ void BehaviorTreeNode::executeRelinkage()
 void BehaviorTreeNode::lookForRelinkTarget()
 {
   QList<QGraphicsItem*> coll( collidingItems() );
-  foreach( QGraphicsItem* uknown_item, coll )
+  QList<QGraphicsItem*>::iterator it, it_e( coll.end() );
+  for( it = coll.begin(); it != it_e; ++it )
   {
-    int type = uknown_item->type();
-    if( type == BehaviorTreeNodeType )
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    if( !btsi )
+      continue;
+
+    if( btsi->isType( BehaviorTreeNode::Type ) )
     {
-      BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
+      BehaviorTreeNode* item = (BehaviorTreeNode*)btsi;
       Node* p = item->m_Node;
 
       if( !AcceptsMoreChildren( p ) )
@@ -256,9 +260,9 @@ void BehaviorTreeNode::lookForRelinkTarget()
         m_DraggingArrow->setStartAndEnd( this, item );
       m_Relinkage = t;
     }
-    else if( type == BehaviorTreeTreeType )
+    else if( btsi->isType( BehaviorTreeTree::Type ) )
     {
-      BehaviorTreeTree* item = (BehaviorTreeTree*)uknown_item;
+      BehaviorTreeTree* item = (BehaviorTreeTree*)btsi;
       BehaviorTree* p = item->GetTree();
 
       if( p == m_Relinkage.m_Parent.m_Tree )

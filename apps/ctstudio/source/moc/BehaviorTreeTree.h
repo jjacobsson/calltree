@@ -12,8 +12,8 @@
 #ifndef BEHAVOIRTREETREE_H_INCLUDED
 #define BEHAVOIRTREETREE_H_INCLUDED
 
-#include "../GraphicsItemTypes.h"
 #include "BehaviorTreeSceneItem.h"
+#include "../GraphicsItemTypes.h"
 
 struct BehaviorTree;
 
@@ -22,16 +22,18 @@ class BehaviorTreeTree: public BehaviorTreeSceneItem
   Q_OBJECT
 public:
 
+
+  BehaviorTreeTree( BehaviorTree* tree );
+
   enum
   {
     Type = BehaviorTreeTreeType
   };
 
-  BehaviorTreeTree( BehaviorTree* tree );
-
-  int type() const
-  {
-    return Type;
+  bool isType( int type ) const {
+    if( Type == type )
+      return true;
+    return BehaviorTreeSceneItem::isType( type );
   }
 
   BehaviorTree* GetTree() { return m_Tree; }

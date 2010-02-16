@@ -12,11 +12,11 @@
 #ifndef BEHAVOIRTREENODE_H_INCLUDED
 #define BEHAVOIRTREENODE_H_INCLUDED
 
-#include "../GraphicsItemTypes.h"
-
 #include "BehaviorTreeSceneItem.h"
 
 #include <btree/btree_data.h>
+
+#include "../GraphicsItemTypes.h"
 
 // Internal Forward declares
 class NodeToNodeArrow;
@@ -26,16 +26,17 @@ class BehaviorTreeNode: public BehaviorTreeSceneItem
 Q_OBJECT
 public:
 
+  BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent = 0x0 );
+
   enum
   {
     Type = BehaviorTreeNodeType
   };
 
-  BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent = 0x0 );
-
-  int type() const
-  {
-    return Type;
+  bool isType( int type ) const {
+    if( Type == type )
+      return true;
+    return BehaviorTreeSceneItem::isType( type );
   }
 
 protected:

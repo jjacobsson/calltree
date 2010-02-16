@@ -30,11 +30,18 @@ public:
     Type = BehaviorTreeSceneItemType
   };
 
-  BehaviorTreeSceneItem( const char* gfx_path, BehaviorTreeSceneItem* parent = 0x0 );
-
   int type() const
   {
     return Type;
+  }
+
+  BehaviorTreeSceneItem( const char* gfx_path, BehaviorTreeSceneItem* parent = 0x0 );
+
+  virtual bool isType( int type ) const
+  {
+    if( Type == type )
+      return true;
+    return false;
   }
 
   void removeArrow( NodeToNodeArrow* arrow );

@@ -65,13 +65,15 @@ protected:
 
     void createGraphics();
 	void createGraphics( Node*, BehaviorTreeSceneItem* );
-	void layoutTree( BehaviorTree*, ExtentsList& el );
-	void depthFirstPlace( Node* n, ExtentsList& pel );
-    double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
+
+	void layoutRoot( BehaviorTreeSceneItem* n, ExtentsList& el );
+	void depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& pel );
+
+	double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void padExtents( ExtentsList& l, const ExtentsList& r );
-    void transformToWorld( Node* n, Node* p );
+    //void transformToWorld( Node* n, Node* p );
 
 
     void drawItems(
