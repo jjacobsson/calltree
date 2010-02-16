@@ -17,11 +17,26 @@
 typedef uint32 hash_t;
 const hash_t INVALID_ID = 0xffffffff;
 
-struct Identifier
+enum NodeGristType
 {
-	const char*	m_Text;
-	hash_t		m_Hash;
-	int			m_Line;
+  E_GRIST_UNKOWN,
+  E_GRIST_SEQUENCE,
+  E_GRIST_SELECTOR,
+  E_GRIST_PARALLEL,
+  E_GRIST_DYN_SELECTOR,
+  E_GRIST_DECORATOR,
+  E_GRIST_ACTION,
+  E_MAX_GRIST_TYPES
+};
+
+enum SymbolTypes
+{
+  E_ST_UNKOWN,
+  E_ST_TREE,
+  E_ST_NODE,
+  E_ST_ACTION,
+  E_ST_DECORATOR,
+  E_ST_MAX_TYPES
 };
 
 enum VariableType
@@ -34,6 +49,13 @@ enum VariableType
   E_MAX_VARIABLE_TYPE
 };
 
+struct Identifier
+{
+	const char*	m_Text;
+	hash_t		m_Hash;
+	int32		m_Line;
+};
+
 struct StringData
 {
   const char* m_Parsed;
@@ -42,7 +64,7 @@ struct StringData
 
 union VariableData
 {
-  int        m_Integer;
+  int32      m_Integer;
   float      m_Float;
   StringData m_String;
   bool		 m_Bool;
@@ -54,18 +76,6 @@ struct Variable
   VariableType  m_Type;
   VariableData  m_Data;
   Variable*     m_Next;
-};
-
-enum NodeGristType
-{
-  E_GRIST_UNKOWN,
-  E_GRIST_SEQUENCE,
-  E_GRIST_SELECTOR,
-  E_GRIST_PARALLEL,
-  E_GRIST_DYN_SELECTOR,
-  E_GRIST_DECORATOR,
-  E_GRIST_ACTION,
-  E_MAX_GRIST_TYPES
 };
 
 struct Action
@@ -85,6 +95,7 @@ struct Decorator
 };
 
 struct Node;
+struct BehaviorTree;
 
 struct SequenceGrist
 {
@@ -133,10 +144,19 @@ struct NodeGrist
 	};
 };
 
+struct NodeParent
+{
+  SymbolTypes m_Type;
+  union {
+    Node*           m_Node;
+    BehaviorTree*   m_Tree;
+  };
+};
+
 struct Node
 {
     NodeGrist       m_Grist;
-    Node*			m_Pare;
+    NodeParent		m_Pare;
 	Node*			m_Next;
 	Node*			m_Prev;
 	void*			m_UserData;
@@ -146,6 +166,7 @@ struct BehaviorTree
 {
   Identifier    m_Id;
   Node*         m_Root;
+  void*         m_UserData;
   bool          m_Declared;
 };
 
@@ -161,13 +182,6 @@ struct BehaviorTreeContextSetup
   FreeMemoryFunc        m_Free;  // The function that will be used to free all allocated memory
 };
 
-enum SymbolTypes
-{
-  E_ST_TREE,
-  E_ST_ACTION,
-  E_ST_DECORATOR,
-  E_ST_MAX_TYPES
-};
 
 union SymbolTypeData
 {
@@ -187,7 +201,7 @@ struct Include
   hash_t        m_Hash;
   const char*   m_Name;
   const char*   m_Parent;
-  int           m_LineNo;
+  int32         m_LineNo;
   Include*      m_Next;
 };
 

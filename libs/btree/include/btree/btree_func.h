@@ -58,6 +58,8 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* start )
 
 void InitBehaviorTree( BehaviorTree* );
 
+void SetParentOnChildren( BehaviorTree* t );
+
 /*
  * Action Functions
  */
@@ -82,7 +84,11 @@ void SetParentOnChildren( Node* s );
 
 Node* GetFirstChild( Node* n );
 
+Node* GetFirstChild( const NodeParent& p );
+
 void SetFirstChild( Node* p, Node* c );
+
+void SetFirstChild( const NodeParent& p, Node* c );
 
 void UnlinkFromSiblings( Node *n );
 

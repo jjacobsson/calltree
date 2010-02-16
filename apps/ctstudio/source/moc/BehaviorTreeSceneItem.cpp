@@ -122,12 +122,10 @@ void BehaviorTreeSceneItem::dragMove()
 
 void BehaviorTreeSceneItem::dragBegin()
 {
-  setZValue( 1.0 );
 }
 
 void BehaviorTreeSceneItem::dragEnd()
 {
-  setZValue( 0.0 );
   emit itemDragged();
 }
 

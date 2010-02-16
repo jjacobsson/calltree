@@ -291,7 +291,19 @@ void InitBehaviorTree( BehaviorTree* t )
 {
   InitIdentifier( &t->m_Id );
   t->m_Root = 0x0;
+  t->m_UserData = 0x0;
   t->m_Declared = false;
+}
+
+void SetParentOnChildren( BehaviorTree* t )
+{
+  Node* c = t->m_Root;
+  while( c )
+  {
+    c->m_Pare.m_Type = E_ST_TREE;
+    c->m_Pare.m_Tree = t;
+    c = c->m_Next;
+  }
 }
 
 /*
@@ -326,7 +338,8 @@ void InitNode( Node* n )
 {
   InitGrist( &n->m_Grist );
 
-  n->m_Pare = 0x0;
+  n->m_Pare.m_Type = E_ST_UNKOWN;
+  n->m_Pare.m_Node = 0x0;
   n->m_Next = 0x0;
   n->m_Prev = 0x0;
   n->m_UserData = 0x0;
@@ -348,7 +361,8 @@ void SetParentOnChildren( Node* n )
   Node* c = GetFirstChild( n );
   while( c )
   {
-    c->m_Pare = n;
+    c->m_Pare.m_Type = E_ST_NODE;
+    c->m_Pare.m_Node = n;
     c = c->m_Next;
   }
 }
@@ -382,6 +396,15 @@ Node* GetFirstChild( Node* n )
   return r;
 }
 
+Node* GetFirstChild( const NodeParent& p )
+{
+  if( p.m_Type == E_ST_NODE )
+    return GetFirstChild( p.m_Node );
+  else if( p.m_Type == E_ST_TREE )
+    return p.m_Tree->m_Root;
+  return 0x0;
+}
+
 void SetFirstChild( Node* n, Node* c )
 {
   if( !n )
@@ -409,6 +432,14 @@ void SetFirstChild( Node* n, Node* c )
   }
 }
 
+void SetFirstChild( const NodeParent& p, Node* c )
+{
+  if( p.m_Type == E_ST_NODE )
+    SetFirstChild( p.m_Node, c );
+  else if( p.m_Type == E_ST_TREE )
+    p.m_Tree->m_Root = c;
+}
+
 void UnlinkFromSiblings( Node* n )
 {
   if( n->m_Prev )
@@ -421,15 +452,21 @@ void UnlinkFromSiblings( Node* n )
 
 void UnlinkNodeFromParentAndSiblings( Node* n )
 {
-  if( n->m_Pare )
+  if( n->m_Pare.m_Type == E_ST_NODE )
   {
-    Node* fc = GetFirstChild( n->m_Pare );
+    Node* fc = GetFirstChild( n->m_Pare.m_Node );
     if( fc == n )
-      SetFirstChild( n->m_Pare, n->m_Next );
+      SetFirstChild( n->m_Pare.m_Node, n->m_Next );
+  }
+  else if( n->m_Pare.m_Type == E_ST_TREE )
+  {
+    if( n->m_Pare.m_Tree->m_Root == n )
+      n->m_Pare.m_Tree->m_Root = n->m_Next;
   }
 
   UnlinkFromSiblings( n );
-  n->m_Pare = 0x0;
+  n->m_Pare.m_Type = E_ST_UNKOWN;
+  n->m_Pare.m_Node = 0x0;
 }
 
 int CountChildNodes( Node* n )

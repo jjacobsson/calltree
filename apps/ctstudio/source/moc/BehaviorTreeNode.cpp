@@ -10,6 +10,7 @@
  *******************************************************************************/
 
 #include "BehaviorTreeNode.h"
+#include "BehaviorTreeTree.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
 #include <btree/btree.h>
@@ -23,8 +24,6 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
 	, m_Node( n )
 	, m_DraggingArrow( 0x0 )
 {
-	setZValue( 0.0 );
-
 	setupLabel();
 	setupTooltip();
 }
@@ -64,9 +63,9 @@ void BehaviorTreeNode::dragBegin()
 
 void BehaviorTreeNode::dragEnd()
 {
-	if( m_Relinkage.m_Parent )
+	if( m_Relinkage.m_Parent.m_Type == E_ST_NODE )
 	{
-		BehaviorTreeNode* p = (BehaviorTreeNode*)m_Relinkage.m_Parent->m_UserData;
+		BehaviorTreeNode* p = (BehaviorTreeNode*)m_Relinkage.m_Parent.m_Node->m_UserData;
 		setPos( p->mapFromScene( scenePos() ) );
 		setParentItem( p );
 
@@ -74,6 +73,18 @@ void BehaviorTreeNode::dragEnd()
 		m_DraggingArrow->setStartAndEnd( p, this );
 		m_DraggingArrow->setDashed( false );
 		m_DraggingArrow = 0x0;
+	}
+	else if( m_Relinkage.m_Parent.m_Type == E_ST_TREE )
+	{
+      BehaviorTreeTree* p = (BehaviorTreeTree*)m_Relinkage.m_Parent.m_Tree->m_UserData;
+      setPos( p->mapFromScene( scenePos() ) );
+      setParentItem( p );
+
+      p->addArrow( m_DraggingArrow );
+      m_DraggingArrow->setStartAndEnd( p, this );
+      m_DraggingArrow->setDashed( false );
+      m_DraggingArrow = 0x0;
+
 	}
 	else
 	{
@@ -162,6 +173,7 @@ void BehaviorTreeNode::setupTooltip()
 void BehaviorTreeNode::setupRelinkage()
 {
   m_Relinkage.m_Parent = m_Node->m_Pare;
+
   if( m_Node->m_Prev )
   {
     m_Relinkage.m_Sibling = m_Node->m_Prev;
@@ -182,8 +194,7 @@ void BehaviorTreeNode::setupRelinkage()
 
 void BehaviorTreeNode::executeRelinkage()
 {
-  if( m_Relinkage.m_Parent )
-    m_Node->m_Pare = m_Relinkage.m_Parent;
+  m_Node->m_Pare = m_Relinkage.m_Parent;
 
   if( m_Relinkage.m_Sibling )
   {
@@ -221,31 +232,53 @@ void BehaviorTreeNode::lookForRelinkTarget()
   QList<QGraphicsItem*> coll( collidingItems() );
   foreach( QGraphicsItem* uknown_item, coll )
   {
-    if( uknown_item->type() != Type )
-      continue;
+    int type = uknown_item->type();
+    if( type == BehaviorTreeNodeType )
+    {
+      BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
+      Node* p = item->m_Node;
 
-    BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
-    Node* p = item->m_Node;
+      if( !AcceptsMoreChildren( p ) )
+        continue;
 
-    if( !AcceptsMoreChildren( p ) )
-      continue;
+      // Current parent does not need evaluation.
+      if( p == m_Relinkage.m_Parent.m_Node )
+        continue;
 
-    // Current parent does not need evaluation.
-    if( p == m_Relinkage.m_Parent )
-      continue;
+      Relinkage t;
 
-    Relinkage t;
+      t.m_Parent.m_Type = E_ST_NODE;
+      t.m_Parent.m_Node = p;
+      t.m_Sibling = GetFirstChild( p );
+      t.m_BeforeSibling = true;
 
-    t.m_Parent = p;
-    t.m_Sibling = GetFirstChild( p );
-    t.m_BeforeSibling = true;
+      if( m_DraggingArrow )
+        m_DraggingArrow->setStartAndEnd( this, item );
+      m_Relinkage = t;
+    }
+    else if( type == BehaviorTreeTreeType )
+    {
+      BehaviorTreeTree* item = (BehaviorTreeTree*)uknown_item;
+      BehaviorTree* p = item->GetTree();
 
-    m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
-    m_Relinkage = t;
+      if( p == m_Relinkage.m_Parent.m_Tree )
+        continue;
+
+      Relinkage t;
+      t.m_Parent.m_Type = E_ST_TREE;
+      t.m_Parent.m_Tree = p;
+      t.m_Sibling = p->m_Root;
+      t.m_BeforeSibling = true;
+
+      if( m_DraggingArrow )
+        m_DraggingArrow->setStartAndEnd( this, item );
+      m_Relinkage = t;
+
+    }
   }
 
   BehaviorTreeNode* item;
-  Node* n = GetFirstChild( m_Relinkage.m_Parent );
+  Node* n = m_Relinkage.m_Sibling;
 
   if( !n )
     return;

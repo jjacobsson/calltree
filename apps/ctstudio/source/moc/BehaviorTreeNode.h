@@ -16,8 +16,7 @@
 
 #include "BehaviorTreeSceneItem.h"
 
-// BT Forward declares
-struct Node;
+#include <btree/btree_data.h>
 
 // Internal Forward declares
 class NodeToNodeArrow;
@@ -58,7 +57,7 @@ private:
 
   struct Relinkage
   {
-    Node* m_Parent; // The new parent node of this item
+    NodeParent m_Parent; // The new parent node of this item
     Node* m_Sibling; // The new sibling node of this item
     bool m_BeforeSibling; // If this is true this node should be linked in before the sibling, otherwise it should be linked after the sibling.
   };

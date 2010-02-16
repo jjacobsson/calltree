@@ -99,6 +99,7 @@ deftree: T_DEFTREE T_ID node
 		BehaviorTree* t = LookUpBehaviorTree( ctx->m_Tree, $2 );
 		t->m_Root = $3;
 		t->m_Declared = true;
+		SetParentOnChildren( t );
        }
        ;
 

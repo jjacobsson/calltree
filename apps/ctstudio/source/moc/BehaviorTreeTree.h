@@ -15,6 +15,8 @@
 #include "../GraphicsItemTypes.h"
 #include "BehaviorTreeSceneItem.h"
 
+struct BehaviorTree;
+
 class BehaviorTreeTree: public BehaviorTreeSceneItem
 {
   Q_OBJECT
@@ -25,14 +27,18 @@ public:
     Type = BehaviorTreeTreeType
   };
 
-  BehaviorTreeTree();
+  BehaviorTreeTree( BehaviorTree* tree );
 
   int type() const
   {
     return Type;
   }
 
+  BehaviorTree* GetTree() { return m_Tree; }
+
 protected:
+
+  BehaviorTree* m_Tree;
 
 };
 

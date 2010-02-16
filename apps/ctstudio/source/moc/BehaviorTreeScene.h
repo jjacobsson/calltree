@@ -28,6 +28,7 @@ class QDropEvent;
 
 // BT Forward declares
 struct Node;
+struct BehaviorTree;
 class BehaviorTreeSceneItem;
 typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
@@ -46,7 +47,7 @@ public:
     void dropEvent( QDropEvent *event );
 
 public slots:
-	void layoutNodes();
+	void layout();
 
 protected:
 
@@ -64,7 +65,7 @@ protected:
 
     void createGraphics();
 	void createGraphics( Node*, BehaviorTreeSceneItem* );
-	void layoutNode( Node*, ExtentsList& el );
+	void layoutTree( BehaviorTree*, ExtentsList& el );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
     void moveExtents( ExtentsList& el, double dist );

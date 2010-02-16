@@ -21,6 +21,7 @@
 #include <float.h>
 
 #include <QtGui/QtGui>
+#include <QtCore/QFile>
 
 const float g_NodeWidth = 256.0f;
 const float g_NodeHeight = 256.0f;
@@ -29,7 +30,7 @@ const float g_VertSpace = 128.0f;
 
 struct ParsingInfo
 {
-  FILE* m_File;
+  QFile* m_File;
   const char* m_Name;
 };
 
@@ -38,9 +39,9 @@ int read_file( ParserContext pc, char* buffer, int maxsize )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( !pi )
     return 0;
-  if( feof( pi->m_File ) )
+  if( pi->m_File->atEnd() )
     return 0;
-  return (int)fread( buffer, 1, maxsize, pi->m_File );
+  return (int)pi->m_File->read( buffer, maxsize );
 }
 
 void parser_error( ParserContext pc, const char* msg )
@@ -229,7 +230,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
 
     bt->m_Root = n;
 
-    layoutNodes();
+    layout();
   }
   else
     event->ignore();
@@ -245,11 +246,16 @@ bool BehaviorTreeScene::readFile( const QString& filename )
   btcs.m_Free = &free_memory;
   m_TreeContext = BehaviorTreeContextCreate( &btcs );
 
-  ParsingInfo pi;
-  pi.m_Name = filename.toAscii();
-  pi.m_File = fopen( pi.m_Name, "r" );
-  if( !pi.m_File )
+  QFile f( filename );
+
+  if( !f.open( QFile::ReadOnly ) )
     return false;
+
+  std::string argh( filename.toStdString() );
+
+  ParsingInfo pi;
+  pi.m_Name = BehaviorTreeContextRegisterString( m_TreeContext, argh.c_str() );
+  pi.m_File = &f;
 
   ParserContextFunctions pcf;
   pcf.m_Read = &read_file;
@@ -269,12 +275,12 @@ bool BehaviorTreeScene::readFile( const QString& filename )
   clear();
 
   createGraphics();
-  layoutNodes();
+  layout();
 
   return true;
 }
 
-void BehaviorTreeScene::layoutNodes()
+void BehaviorTreeScene::layout()
 {
   if( !m_TreeContext )
     return;
@@ -286,7 +292,7 @@ void BehaviorTreeScene::layoutNodes()
   {
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
-    layoutNode( s[i].m_Symbol.m_Tree->m_Root, el );
+    layoutTree( s[i].m_Symbol.m_Tree, el );
   }
   setSceneRect( itemsBoundingRect() );
 }
@@ -299,7 +305,8 @@ void BehaviorTreeScene::createGraphics()
   {
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
-    BehaviorTreeSceneItem* tree = new BehaviorTreeTree();
+    BehaviorTreeSceneItem* tree = new BehaviorTreeTree( s[i].m_Symbol.m_Tree );
+    s[i].m_Symbol.m_Tree->m_UserData = tree;
     addItem( tree );
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
@@ -311,7 +318,7 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
   {
     BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
-    connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layoutNodes() ) );
+    connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
 
     if( !parent )
       addItem( svg_item );
@@ -329,24 +336,32 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
   }
 }
 
-void BehaviorTreeScene::layoutNode( Node* n, ExtentsList& el )
+void BehaviorTreeScene::layoutTree( BehaviorTree* tree, ExtentsList& el )
 {
+  ExtentsList t;
+  Node* n = tree->m_Root;
   while( n )
   {
-    ExtentsList t;
     depthFirstPlace( n, t );
     padExtents( el, t );
     double slide = minimumRootDistance( el, t );
-    BehaviorTreeNode* svg_item = (BehaviorTreeNode*)(n->m_UserData);
-    svg_item->moveBy( slide, 0 );
+    BehaviorTreeSceneItem* svg_item = (BehaviorTreeSceneItem*)(n->m_UserData);
+    svg_item->moveBy( slide, 0.0f );
     moveExtents( t, slide );
     mergeExtents( el, el, t );
     n = n->m_Next;
   }
+
+  double slide = minimumRootDistance( el, t );
+  BehaviorTreeSceneItem* svg_item = (BehaviorTreeSceneItem*)(n->m_UserData);
+  svg_item->moveBy( slide, 0.0f );
 }
 
 void BehaviorTreeScene::depthFirstPlace( Node* n, ExtentsList& pel )
 {
+  if( !n )
+    return;
+
   ExtentsList el;
   Node* it = GetFirstChild( n );
   double lx = 0.0f;
