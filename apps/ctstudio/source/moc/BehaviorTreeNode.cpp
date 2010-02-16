@@ -18,111 +18,25 @@
 #include <QtSvg/QSvgRenderer>
 
 
-BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeNode* parent )
-	: QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
+BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
+	: BehaviorTreeSceneItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
 	, m_Node( n )
-	, m_MouseState( E_MS_NONE )
 	, m_DraggingArrow( 0x0 )
 {
-	setFlag( QGraphicsItem::ItemIsMovable, true );
-	setFlag( QGraphicsItem::ItemIsSelectable, true );
-	setFlag( QGraphicsItem::ItemStacksBehindParent, false );
-
-
 	setZValue( 0.0 );
 
 	setupLabel();
 	setupTooltip();
 }
 
-void BehaviorTreeNode::removeArrow(NodeToNodeArrow *arrow)
-{
-	int index = m_Arrows.indexOf(arrow);
 
-	if (index != -1)
-		m_Arrows.removeAt(index);
+void BehaviorTreeNode::dragMove()
+{
+  lookForRelinkTarget();
+  BehaviorTreeSceneItem::dragMove();
 }
 
-void BehaviorTreeNode::removeArrows()
-{
-	foreach( NodeToNodeArrow *arrow, m_Arrows )
-	{
-		arrow->startItem()->removeArrow(arrow);
-		arrow->endItem()->removeArrow(arrow);
-		scene()->removeItem(arrow);
-		delete arrow;
-	}
-}
-
-void BehaviorTreeNode::addArrow(NodeToNodeArrow *arrow)
-{
-	m_Arrows.append(arrow);
-}
-
-NodeToNodeArrow* BehaviorTreeNode::findArrowTo( BehaviorTreeNode* other )
-{
-	foreach( NodeToNodeArrow *arrow, m_Arrows )
-	{
-		if( arrow->startItem() == this && arrow->endItem() == other )
-			return arrow;
-		if( arrow->startItem() == other && arrow->endItem() == this )
-			return arrow;
-	}
-	return 0x0;
-}
-
-QVariant BehaviorTreeNode::itemChange( GraphicsItemChange change, const QVariant &value )
-{
-	switch( change )
-	{
-	case ItemSelectedChange:
-		update();
-		break;
-	case ItemPositionChange:
-		break;
-	}
-	return QGraphicsSvgItem::itemChange( change, value );
-}
-
-void BehaviorTreeNode::mousePressEvent( QGraphicsSceneMouseEvent* event )
-{
-	if( event->button() == Qt::LeftButton )
-	{
-		m_MouseState = E_MS_LB_DOWN;
-		m_StartPos = event->screenPos();
-	}
-	QGraphicsSvgItem::mousePressEvent( event );
-}
-
-void BehaviorTreeNode::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
-{
-	if( event->button() == Qt::LeftButton )
-	{
-		if( m_MouseState == E_MS_DRAGGING )
-			draggingEnded();
-
-		m_MouseState = E_MS_NONE;
-	}
-	QGraphicsSvgItem::mouseReleaseEvent( event );
-}
-
-void BehaviorTreeNode::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
-{
-	if( m_MouseState == E_MS_LB_DOWN )
-	{
-		if( m_StartPos != event->screenPos() )
-		{
-			draggingStarted();
-			m_MouseState = E_MS_DRAGGING;
-		}
-	}
-	if( m_MouseState == E_MS_DRAGGING )
-		lookForRelinkTarget();
-
-	QGraphicsSvgItem::mouseMoveEvent( event );
-}
-
-void BehaviorTreeNode::draggingStarted()
+void BehaviorTreeNode::dragBegin()
 {
 	if( parentItem() )
 	{
@@ -145,10 +59,10 @@ void BehaviorTreeNode::draggingStarted()
 
 	setupRelinkage();
 
-	setZValue( 1.0 );
+	BehaviorTreeSceneItem::dragBegin();
 }
 
-void BehaviorTreeNode::draggingEnded()
+void BehaviorTreeNode::dragEnd()
 {
 	if( m_Relinkage.m_Parent )
 	{
@@ -170,9 +84,7 @@ void BehaviorTreeNode::draggingEnded()
 
 	executeRelinkage();
 
-	setZValue( 0.0 );
-
-	emit nodeDragged();
+	BehaviorTreeSceneItem::dragEnd();
 }
 
 void BehaviorTreeNode::setupLabel()
@@ -189,181 +101,181 @@ void BehaviorTreeNode::setupLabel()
 
 void BehaviorTreeNode::setupTooltip()
 {
-	QString str;
-	switch( m_Node->m_Grist.m_Type )
-	{
-	case E_GRIST_UNKOWN:
-		str += tr("Unknown");
-		break;
-	case E_GRIST_SEQUENCE:
-		str += tr( "Sequence" );
-		break;
-	case E_GRIST_SELECTOR:
-		str += tr( "Selector" );
-		break;
-	case E_GRIST_PARALLEL:
-		str += tr( "Parallel" );
-		break;
-	case E_GRIST_DYN_SELECTOR:
-		str += tr( "Dynamic Selector" );
-		break;
-	case E_GRIST_DECORATOR:
-		str += tr( "Decorator, " );
-		str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
-		{
-			/*
-			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Decorator.m_Arguments ) );
-			if( t.isEmpty() )
-				str += "()";
-			else
-			{
-				str += "( ";
-				str += t;
-				str += " )";
-			}
-			*/
-		}
-		break;
-	case E_GRIST_ACTION:
-		str += tr( "Action, " );
-		str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
-		{
-			/*
-			QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Action.m_Arguments ) );
-			if( t.isEmpty() )
-				str += "()";
-			else
-			{
-				str += "( ";
-				str += t;
-				str += " )";
-			}
-			*/
-		}
-		break;
-	}
-	//str += "\n";
-	//str += m_Node->m_Id.m_Text;
-	setToolTip( str );
+  QString str;
+  switch( m_Node->m_Grist.m_Type )
+  {
+  case E_GRIST_UNKOWN:
+    str += tr( "Unknown" );
+    break;
+  case E_GRIST_SEQUENCE:
+    str += tr( "Sequence" );
+    break;
+  case E_GRIST_SELECTOR:
+    str += tr( "Selector" );
+    break;
+  case E_GRIST_PARALLEL:
+    str += tr( "Parallel" );
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    str += tr( "Dynamic Selector" );
+    break;
+  case E_GRIST_DECORATOR:
+    str += tr( "Decorator, " );
+    str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
+    {
+      /*
+       QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Decorator.m_Arguments ) );
+       if( t.isEmpty() )
+       str += "()";
+       else
+       {
+       str += "( ";
+       str += t;
+       str += " )";
+       }
+       */
+    }
+    break;
+  case E_GRIST_ACTION:
+    str += tr( "Action, " );
+    str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
+    {
+      /*
+       QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Action.m_Arguments ) );
+       if( t.isEmpty() )
+       str += "()";
+       else
+       {
+       str += "( ";
+       str += t;
+       str += " )";
+       }
+       */
+    }
+    break;
+  }
+  //str += "\n";
+  //str += m_Node->m_Id.m_Text;
+  setToolTip( str );
 }
 
 void BehaviorTreeNode::setupRelinkage()
 {
-	m_Relinkage.m_Parent = m_Node->m_Pare;
-	if( m_Node->m_Prev )
-	{
-		m_Relinkage.m_Sibling		= m_Node->m_Prev;
-		m_Relinkage.m_BeforeSibling	= false;
-	}
-	else if( m_Node->m_Next )
-	{
-		m_Relinkage.m_Sibling		= m_Node->m_Next;
-		m_Relinkage.m_BeforeSibling	= true;
-	}
-	else
-	{
-		m_Relinkage.m_Sibling		= 0x0;
-		m_Relinkage.m_BeforeSibling = false;
-	}
-	UnlinkNodeFromParentAndSiblings( m_Node );
+  m_Relinkage.m_Parent = m_Node->m_Pare;
+  if( m_Node->m_Prev )
+  {
+    m_Relinkage.m_Sibling = m_Node->m_Prev;
+    m_Relinkage.m_BeforeSibling = false;
+  }
+  else if( m_Node->m_Next )
+  {
+    m_Relinkage.m_Sibling = m_Node->m_Next;
+    m_Relinkage.m_BeforeSibling = true;
+  }
+  else
+  {
+    m_Relinkage.m_Sibling = 0x0;
+    m_Relinkage.m_BeforeSibling = false;
+  }
+  UnlinkNodeFromParentAndSiblings( m_Node );
 }
 
 void BehaviorTreeNode::executeRelinkage()
 {
-	if( m_Relinkage.m_Parent )
-		m_Node->m_Pare = m_Relinkage.m_Parent;
+  if( m_Relinkage.m_Parent )
+    m_Node->m_Pare = m_Relinkage.m_Parent;
 
-	if( m_Relinkage.m_Sibling )
-	{
-		if( m_Relinkage.m_BeforeSibling )
-		{
-			if( m_Relinkage.m_Sibling->m_Prev )
-				m_Relinkage.m_Sibling->m_Prev->m_Next = m_Node;
-			else
-				SetFirstChild( m_Node->m_Pare, m_Node );
+  if( m_Relinkage.m_Sibling )
+  {
+    if( m_Relinkage.m_BeforeSibling )
+    {
+      if( m_Relinkage.m_Sibling->m_Prev )
+        m_Relinkage.m_Sibling->m_Prev->m_Next = m_Node;
+      else
+        SetFirstChild( m_Node->m_Pare, m_Node );
 
-			m_Node->m_Prev = m_Relinkage.m_Sibling->m_Prev;
+      m_Node->m_Prev = m_Relinkage.m_Sibling->m_Prev;
 
-			m_Relinkage.m_Sibling->m_Prev = m_Node;
-			m_Node->m_Next = m_Relinkage.m_Sibling;
-		}
-		else
-		{
-			if( m_Relinkage.m_Sibling->m_Next )
-				m_Relinkage.m_Sibling->m_Next->m_Prev = m_Node;
-			m_Node->m_Next = m_Relinkage.m_Sibling->m_Next;
-			m_Relinkage.m_Sibling->m_Next = m_Node;
-			m_Node->m_Prev = m_Relinkage.m_Sibling;
-		}
-	}
-	else
-	{
-		m_Node->m_Next = 0x0;
-		m_Node->m_Prev = 0x0;
-		SetFirstChild( m_Node->m_Pare, m_Node );
-	}
+      m_Relinkage.m_Sibling->m_Prev = m_Node;
+      m_Node->m_Next = m_Relinkage.m_Sibling;
+    }
+    else
+    {
+      if( m_Relinkage.m_Sibling->m_Next )
+        m_Relinkage.m_Sibling->m_Next->m_Prev = m_Node;
+      m_Node->m_Next = m_Relinkage.m_Sibling->m_Next;
+      m_Relinkage.m_Sibling->m_Next = m_Node;
+      m_Node->m_Prev = m_Relinkage.m_Sibling;
+    }
+  }
+  else
+  {
+    m_Node->m_Next = 0x0;
+    m_Node->m_Prev = 0x0;
+    SetFirstChild( m_Node->m_Pare, m_Node );
+  }
 }
 
 void BehaviorTreeNode::lookForRelinkTarget()
 {
-	QList<QGraphicsItem*> coll( collidingItems() );
-	foreach( QGraphicsItem* uknown_item, coll )
-	{
-		if( uknown_item->type() != Type )
-			continue;
+  QList<QGraphicsItem*> coll( collidingItems() );
+  foreach( QGraphicsItem* uknown_item, coll )
+  {
+    if( uknown_item->type() != Type )
+      continue;
 
-		BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
-		Node* p = item->m_Node;
+    BehaviorTreeNode* item = (BehaviorTreeNode*)uknown_item;
+    Node* p = item->m_Node;
 
-		if( !AcceptsMoreChildren( p ) )
-			continue;
+    if( !AcceptsMoreChildren( p ) )
+      continue;
 
-		// Current parent does not need evaluation.
-		if( p == m_Relinkage.m_Parent )
-			continue;
+    // Current parent does not need evaluation.
+    if( p == m_Relinkage.m_Parent )
+      continue;
 
-		Relinkage t;
+    Relinkage t;
 
-		t.m_Parent  		= p;
-		t.m_Sibling			= GetFirstChild( p );
-		t.m_BeforeSibling 	= true;
+    t.m_Parent = p;
+    t.m_Sibling = GetFirstChild( p );
+    t.m_BeforeSibling = true;
 
-		m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
-		m_Relinkage = t;
-	}
+    m_DraggingArrow->setStartAndEnd( this, (BehaviorTreeNode*)p->m_UserData );
+    m_Relinkage = t;
+  }
 
-	BehaviorTreeNode* item;
-	Node* n		= GetFirstChild( m_Relinkage.m_Parent );
+  BehaviorTreeNode* item;
+  Node* n = GetFirstChild( m_Relinkage.m_Parent );
 
-	if( !n )
-		return;
+  if( !n )
+    return;
 
-	item		= (BehaviorTreeNode*)n->m_UserData;
-	qreal x		= scenePos().x();
-	qreal tx	= item->scenePos().x();
-	qreal best	= qAbs( x - tx );
+  item = (BehaviorTreeNode*)n->m_UserData;
+  qreal x = scenePos().x();
+  qreal tx = item->scenePos().x();
+  qreal best = qAbs( x - tx );
 
-	m_Relinkage.m_Sibling = n;
-	if( tx < x )
-		m_Relinkage.m_BeforeSibling = false;
-	else
-		m_Relinkage.m_BeforeSibling = true;
+  m_Relinkage.m_Sibling = n;
+  if( tx < x )
+    m_Relinkage.m_BeforeSibling = false;
+  else
+    m_Relinkage.m_BeforeSibling = true;
 
-	while( n )
-	{
-		item	= (BehaviorTreeNode*)n->m_UserData;
-		tx		= item->scenePos().x();
-		qreal d	= qAbs( x - tx );
-		if( d < best )
-		{
-			m_Relinkage.m_Sibling = n;
-			if( tx < x )
-				m_Relinkage.m_BeforeSibling = false;
-			else
-				m_Relinkage.m_BeforeSibling = true;
-			best = d;
-		}
-		n = n->m_Next;
-	}
+  while( n )
+  {
+    item = (BehaviorTreeNode*)n->m_UserData;
+    tx = item->scenePos().x();
+    qreal d = qAbs( x - tx );
+    if( d < best )
+    {
+      m_Relinkage.m_Sibling = n;
+      if( tx < x )
+        m_Relinkage.m_BeforeSibling = false;
+      else
+        m_Relinkage.m_BeforeSibling = true;
+      best = d;
+    }
+    n = n->m_Next;
+  }
 }
 

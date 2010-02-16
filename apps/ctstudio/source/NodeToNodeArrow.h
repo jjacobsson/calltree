@@ -25,52 +25,49 @@ class QGraphicsSceneMouseEvent;
 class QPainterPath;
 
 // BT Forward declares
-class BehaviorTreeNode;
+class BehaviorTreeSceneItem;
 
 class NodeToNodeArrow: public QGraphicsLineItem
 {
 public:
-	enum
-	{
-		Type = NodeToNodeArrowType
-	};
+  enum
+  {
+    Type = NodeToNodeArrowType
+  };
 
-	NodeToNodeArrow(
-		BehaviorTreeNode *start,
-		BehaviorTreeNode *end,
-		QGraphicsScene *scene = 0x0
-	);
+  NodeToNodeArrow( BehaviorTreeSceneItem *start, BehaviorTreeSceneItem *end,
+    QGraphicsScene *scene = 0x0 );
 
-	int type() const
-	{
-		return Type;
-	}
+  int type() const
+  {
+    return Type;
+  }
 
-	BehaviorTreeNode *startItem() const
-	{
-		return m_Start;
-	}
+  BehaviorTreeSceneItem *startItem() const
+  {
+    return m_Start;
+  }
 
-	BehaviorTreeNode *endItem() const
-	{
-		return m_End;
-	}
+  BehaviorTreeSceneItem *endItem() const
+  {
+    return m_End;
+  }
 
-	void setStartAndEnd( BehaviorTreeNode *start, BehaviorTreeNode *end );
-	void setDashed( bool dashed );
+  void setStartAndEnd( BehaviorTreeSceneItem *start, BehaviorTreeSceneItem *end );
+  void setDashed( bool dashed );
 
 public slots:
 
-	void updatePosition();
+  void updatePosition();
 
 protected:
 
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-			QWidget *widget = 0);
+  void paint( QPainter *painter, const QStyleOptionGraphicsItem *option,
+    QWidget *widget = 0 );
 
 private:
-	BehaviorTreeNode *m_Start;
-	BehaviorTreeNode *m_End;
+  BehaviorTreeSceneItem *m_Start;
+  BehaviorTreeSceneItem *m_End;
 };
 
 #endif

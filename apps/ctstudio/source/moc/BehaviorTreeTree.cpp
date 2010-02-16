@@ -9,17 +9,13 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef GRAPHICSITEMTYPES_H_INCLUDED
-#define GRAPHICSITEMTYPES_H_INCLUDED
+#include "BehaviorTreeTree.h"
+#include "../standard_resources.h"
+#include <btree/btree.h>
 
-#include <QtGui/QGraphicsItem>
-
-enum CustomGraphicsItemTypes
+BehaviorTreeTree::BehaviorTreeTree()
+  : BehaviorTreeSceneItem( ":/nodes/tree.svg" )
 {
-  NodeToNodeArrowType = QGraphicsItem::UserType + 1,
-  BehaviorTreeSceneItemType,
-  BehaviorTreeNodeType,
-  BehaviorTreeTreeType,
-};
+  setFlag( QGraphicsItem::ItemIsMovable, false );
+}
 
-#endif /*GRAPHICSITEMTYPES_H_INCLUDED*/

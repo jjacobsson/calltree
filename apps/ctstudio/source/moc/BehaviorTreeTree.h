@@ -9,17 +9,31 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef GRAPHICSITEMTYPES_H_INCLUDED
-#define GRAPHICSITEMTYPES_H_INCLUDED
+#ifndef BEHAVOIRTREETREE_H_INCLUDED
+#define BEHAVOIRTREETREE_H_INCLUDED
 
-#include <QtGui/QGraphicsItem>
+#include "../GraphicsItemTypes.h"
+#include "BehaviorTreeSceneItem.h"
 
-enum CustomGraphicsItemTypes
+class BehaviorTreeTree: public BehaviorTreeSceneItem
 {
-  NodeToNodeArrowType = QGraphicsItem::UserType + 1,
-  BehaviorTreeSceneItemType,
-  BehaviorTreeNodeType,
-  BehaviorTreeTreeType,
+  Q_OBJECT
+public:
+
+  enum
+  {
+    Type = BehaviorTreeTreeType
+  };
+
+  BehaviorTreeTree();
+
+  int type() const
+  {
+    return Type;
+  }
+
+protected:
+
 };
 
-#endif /*GRAPHICSITEMTYPES_H_INCLUDED*/
+#endif

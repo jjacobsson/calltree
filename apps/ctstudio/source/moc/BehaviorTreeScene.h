@@ -28,7 +28,7 @@ class QDropEvent;
 
 // BT Forward declares
 struct Node;
-class BehaviorTreeNode;
+class BehaviorTreeSceneItem;
 typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 class BehaviorTreeScene : public QGraphicsScene
@@ -63,7 +63,7 @@ protected:
     typedef std::vector<Extents> ExtentsList;
 
     void createGraphics();
-	void createGraphics( Node*, BehaviorTreeNode* );
+	void createGraphics( Node*, BehaviorTreeSceneItem* );
 	void layoutNode( Node*, ExtentsList& el );
 	void depthFirstPlace( Node* n, ExtentsList& pel );
     double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );

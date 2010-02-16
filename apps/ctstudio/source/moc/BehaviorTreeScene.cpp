@@ -11,6 +11,7 @@
 
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeNode.h"
+#include "BehaviorTreeTree.h"
 #include "../NodeToNodeArrow.h"
 #include <btree/btree.h>
 #include <btree/btree_parse.h>
@@ -298,17 +299,19 @@ void BehaviorTreeScene::createGraphics()
   {
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
-    createGraphics( s[i].m_Symbol.m_Tree->m_Root, 0x0 );
+    BehaviorTreeSceneItem* tree = new BehaviorTreeTree();
+    addItem( tree );
+    createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
 }
 
-void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeNode* parent )
+void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
 {
   while( n )
   {
     BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
-    connect( svg_item, SIGNAL( nodeDragged() ), this, SLOT( layoutNodes() ) );
+    connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layoutNodes() ) );
 
     if( !parent )
       addItem( svg_item );
