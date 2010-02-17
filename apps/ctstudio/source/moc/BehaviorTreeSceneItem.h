@@ -50,6 +50,9 @@ public:
 
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
+  virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }
+  virtual BehaviorTreeSceneItem* nextSibling() { return 0x0; }
+
 signals:
 
   void itemDragged();

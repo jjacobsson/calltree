@@ -20,3 +20,9 @@ BehaviorTreeTree::BehaviorTreeTree( BehaviorTree* tree )
   setFlag( QGraphicsItem::ItemIsMovable, false );
 }
 
+BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
+{
+  if( m_Tree->m_Root )
+    return (BehaviorTreeSceneItem*)m_Tree->m_Root->m_UserData;
+  return 0x0;
+}

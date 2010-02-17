@@ -39,6 +39,10 @@ public:
     return BehaviorTreeSceneItem::isType( type );
   }
 
+  BehaviorTreeSceneItem* firstChild();
+  BehaviorTreeSceneItem* nextSibling();
+
+
 protected:
 
   void dragMove();

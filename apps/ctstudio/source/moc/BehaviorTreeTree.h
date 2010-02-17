@@ -38,6 +38,8 @@ public:
 
   BehaviorTree* GetTree() { return m_Tree; }
 
+  BehaviorTreeSceneItem* firstChild();
+
 protected:
 
   BehaviorTree* m_Tree;

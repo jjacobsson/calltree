@@ -28,6 +28,20 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
 	setupTooltip();
 }
 
+BehaviorTreeSceneItem* BehaviorTreeNode::firstChild()
+{
+  Node* n = GetFirstChild( m_Node );
+  if( n )
+    return (BehaviorTreeSceneItem*)n->m_UserData;
+  return 0x0;
+}
+
+BehaviorTreeSceneItem* BehaviorTreeNode::nextSibling()
+{
+  if( m_Node->m_Next )
+    return (BehaviorTreeSceneItem*)m_Node->m_Next->m_UserData;
+  return 0x0;
+}
 
 void BehaviorTreeNode::dragMove()
 {
@@ -224,17 +238,6 @@ void BehaviorTreeNode::executeRelinkage()
     m_Node->m_Next = 0x0;
     m_Node->m_Prev = 0x0;
     SetFirstChild( m_Node->m_Pare, m_Node );
-  }
-
-
-  Node* it = GetFirstChild( m_Node->m_Pare );
-  qreal zValue = 0.01;
-  while( it )
-  {
-    BehaviorTreeNode* btn = (BehaviorTreeNode*)it->m_UserData;
-    btn->setZValue( zValue );
-    zValue += 0.01;
-    it = it->m_Next;
   }
 }
 

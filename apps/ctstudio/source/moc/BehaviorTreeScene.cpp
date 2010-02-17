@@ -167,9 +167,11 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     BehaviorTreeSceneItem* tree = 0x0;
     if( !ns )
     {
+      bt = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
+
       tree = new BehaviorTreeTree( bt );
       addItem( tree );
-      bt = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
+
       InitBehaviorTree( bt );
       bt->m_Id.m_Hash = h;
       bt->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, "main" );
@@ -343,22 +345,23 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
 
 void BehaviorTreeScene::layoutRoot( BehaviorTreeSceneItem* n, ExtentsList& el )
 {
-  ExtentsList t;
-  depthFirstPlace( n, t );
-  padExtents( el, t );
-  double slide = minimumRootDistance( el, t );
-  n->moveBy( slide, 0 );
-  moveExtents( t, slide );
-  mergeExtents( el, el, t );
+  while( n )
+  {
+    ExtentsList t;
+    depthFirstPlace( n, t );
+    padExtents( el, t );
+    double slide = minimumRootDistance( el, t );
+    n->moveBy( slide, 0 );
+    moveExtents( t, slide );
+    mergeExtents( el, el, t );
+    n = n->nextSibling();
+  }
 }
 
 void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& pel )
 {
-  typedef QList<QGraphicsItem*> ItemList;
-
   ExtentsList el;
-  ItemList children = n->childItems();
-  ItemList::const_iterator it, it_e = children.end();
+  BehaviorTreeSceneItem* it = n->firstChild();
   double lx = 0.0;
 
   n->setPos( 0.0f, 0.0f );
@@ -366,29 +369,26 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
   if( n->parentItem() )
     n->moveBy( 0.0f, g_NodeHeight + g_VertSpace );
 
-  for( it = children.begin(); it != it_e; ++it )
+  while( it )
   {
-    BehaviorTreeSceneItem* c = qgraphicsitem_cast<BehaviorTreeSceneItem*>(*it);
-
-    if( !c ) continue;
-
     ExtentsList t;
-    depthFirstPlace( c, t );
+    depthFirstPlace( it, t );
     double slide = minimumRootDistance( el, t );
-    c->moveBy( slide, 0 );
+    it->moveBy( slide, 0 );
     lx = slide;
     moveExtents( t, slide );
     mergeExtents( el, el, t );
+    it = it->nextSibling();
   }
 
-  if( !children.empty() )
+  it = n->firstChild();
+  if( it )
   {
     lx /= 2.0;
-    for( it = children.begin(); it != it_e; ++it )
+    while( it )
     {
-      BehaviorTreeSceneItem* c = qgraphicsitem_cast<BehaviorTreeSceneItem*>(*it);
-      if( !c ) continue;
-      c->moveBy( -lx, 0 );
+      it->moveBy( -lx, 0 );
+      it = it->nextSibling();
     }
     moveExtents( el, -lx );
   }
