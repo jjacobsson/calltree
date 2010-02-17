@@ -164,13 +164,17 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     hash_t h = hashlittle( "main" );
     NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, h );
     BehaviorTree* bt = 0x0;
+    BehaviorTreeSceneItem* tree = 0x0;
     if( !ns )
     {
+      tree = new BehaviorTreeTree( bt );
+      addItem( tree );
       bt = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
       InitBehaviorTree( bt );
       bt->m_Id.m_Hash = h;
       bt->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, "main" );
       bt->m_Declared = true;
+      bt->m_UserData = tree;
 
       NamedSymbol reg;
       reg.m_Type = E_ST_TREE;
@@ -194,6 +198,8 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     if( !bt )
       return;
 
+    tree = (BehaviorTreeSceneItem*)bt->m_UserData;
+
     QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
     QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
     int grist_type, act_dec_id;
@@ -212,24 +218,15 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
       break;
     }
 
-    createGraphics( n, 0x0 );
+    createGraphics( n, tree );
+
+    n->m_Pare.m_Type = E_ST_TREE;
+    n->m_Pare.m_Tree = bt;
 
     if( bt->m_Root )
-    {
-      BehaviorTreeNode* p_btn = (BehaviorTreeNode*)n->m_UserData;
-      BehaviorTreeNode* c_btn = (BehaviorTreeNode*)bt->m_Root->m_UserData;
-
-      c_btn->setParentItem( p_btn );
-
-      NodeToNodeArrow* a = new NodeToNodeArrow( p_btn, c_btn, this );
-      p_btn->addArrow( a );
-      c_btn->addArrow( a );
-
-      SetFirstChild( n, bt->m_Root );
-      SetParentOnChildren( n );
-    }
-
-    bt->m_Root = n;
+      AppendToEndOfList( bt->m_Root, n );
+    else
+      bt->m_Root = n;
 
     layout();
   }

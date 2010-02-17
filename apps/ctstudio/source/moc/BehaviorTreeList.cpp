@@ -61,7 +61,7 @@ void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )
   QByteArray itemData;
   QDataStream dataStream( &itemData, QIODevice::WriteOnly );
 
-  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole + 1 ) );
+  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole + 0 ) );
 
   dataStream << item->data( Qt::UserRole + 1 ).toInt();
   dataStream << item->data( Qt::UserRole + 2 ).toInt();

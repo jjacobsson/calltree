@@ -264,7 +264,6 @@ void BehaviorTreeNode::lookForRelinkTarget()
 
       t.m_Parent.m_Type = E_ST_NODE;
       t.m_Parent.m_Node = p;
-      t.m_Sibling = GetFirstChild( p );
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
@@ -282,7 +281,6 @@ void BehaviorTreeNode::lookForRelinkTarget()
       Relinkage t;
       t.m_Parent.m_Type = E_ST_TREE;
       t.m_Parent.m_Tree = p;
-      t.m_Sibling = p->m_Root;
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
@@ -291,6 +289,8 @@ void BehaviorTreeNode::lookForRelinkTarget()
 
     }
   }
+
+  m_Relinkage.m_Sibling = GetFirstChild( m_Relinkage.m_Parent );
 
   BehaviorTreeNode* item;
   Node* n = m_Relinkage.m_Sibling;
@@ -301,7 +301,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
   item = (BehaviorTreeNode*)n->m_UserData;
   qreal x = scenePos().x();
   qreal tx = item->scenePos().x();
-  qreal best = qAbs( x - tx );
+  qreal best = qAbs( tx - x );
 
   m_Relinkage.m_Sibling = n;
   if( tx < x )
@@ -313,11 +313,11 @@ void BehaviorTreeNode::lookForRelinkTarget()
   {
     item = (BehaviorTreeNode*)n->m_UserData;
     tx = item->scenePos().x();
-    qreal d = qAbs( x - tx );
+    qreal d = qAbs( tx - x );
     if( d < best )
     {
       m_Relinkage.m_Sibling = n;
-      if( tx < x )
+      if( tx > x )
         m_Relinkage.m_BeforeSibling = false;
       else
         m_Relinkage.m_BeforeSibling = true;
@@ -326,7 +326,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
     n = n->m_Next;
   }
 
-  QString s = QString( "Drag X: %1 Sibling X: %2 Before: %3").arg(x).arg(tx).arg(m_Relinkage.m_BeforeSibling);
+  QString s = QString( "Drag X: %1 Best X: %2 Before: %3").arg(x).arg(best).arg(m_Relinkage.m_BeforeSibling);
 
   emit relinkTargetMessage( s, 2000 );
 
