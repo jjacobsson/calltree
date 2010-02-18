@@ -51,6 +51,16 @@ void MainWindow::open()
 	}
 }
 
+void MainWindow::save()
+{
+
+}
+
+void MainWindow::saveAs()
+{
+
+}
+
 void MainWindow::setupStatusBar()
 {
 	m_Statusbar->addWidget(m_StatusLabelCurrentFile);

@@ -13,110 +13,18 @@
 #include "BehaviorTreeNode.h"
 #include "BehaviorTreeTree.h"
 #include "../NodeToNodeArrow.h"
+#include "../btree_callbacks.h"
 #include <btree/btree.h>
 #include <btree/btree_parse.h>
 #include <other/lookup3.h>
-#include <stdio.h>
 #include <malloc.h>
-#include <float.h>
 
 #include <QtGui/QtGui>
-#include <QtCore/QFile>
 
 const float g_NodeWidth = 256.0f;
 const float g_NodeHeight = 256.0f;
 const float g_HoriSpace = 64.0f;
 const float g_VertSpace = 128.0f;
-
-struct ParsingInfo
-{
-  QFile* m_File;
-  const char* m_Name;
-};
-
-int read_file( ParserContext pc, char* buffer, int maxsize )
-{
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  if( !pi )
-    return 0;
-  if( pi->m_File->atEnd() )
-    return 0;
-  return (int)pi->m_File->read( buffer, maxsize );
-}
-
-void parser_error( ParserContext pc, const char* msg )
-{
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  if( pi )
-  {
-    fprintf( stdout, "%s(%d) : error : %s\n", pi->m_Name,
-      ParserContextGetLineNo( pc ), msg );
-  }
-  else
-  {
-    fprintf( stdout, "<no file>(%d) : error : %s\n",
-      ParserContextGetLineNo( pc ), msg );
-  }
-}
-
-void parser_warning( ParserContext pc, const char* msg )
-{
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  if( pi )
-  {
-    fprintf( stdout, "%s(%d) : warning : %s\n", pi->m_Name,
-      ParserContextGetLineNo( pc ), msg );
-  }
-  else
-  {
-    fprintf( stdout, "<no file>(%d) : warning : %s\n", ParserContextGetLineNo(
-      pc ), msg );
-  }
-}
-
-const char* parser_translate_include( ParserContext pc, const char* include )
-{
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
-
-  StringBuffer sb;
-  StringBufferInit( pc, &sb );
-
-  if( pi->m_Name )
-  {
-    char backslash = '\\';
-    char frontslash = '/';
-
-    int s = 0, last = -1;
-    const char* p = pi->m_Name;
-    while( p && *p )
-    {
-      if( *p == backslash || *p == frontslash )
-        last = s;
-      ++p;
-      ++s;
-    }
-    if( last != -1 )
-      StringBufferAppend( pc, &sb, pi->m_Name, last + 1 );
-  }
-
-  StringBufferAppend( pc, &sb, include );
-  const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( pc, &sb );
-
-  return ret;
-}
-
-void* allocate_memory( mem_size_t size )
-{
-  return malloc( size );
-}
-
-void free_memory( void* ptr )
-{
-  if( ptr )
-    free( ptr );
-}
 
 BehaviorTreeScene::BehaviorTreeScene( QMainWindow* mw )
   : m_TreeContext( 0x0 )
@@ -236,7 +144,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     event->ignore();
 }
 
-bool BehaviorTreeScene::readFile( const QString& filename )
+bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
   BehaviorTreeContextDestroy( m_TreeContext );
   m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
@@ -246,15 +154,15 @@ bool BehaviorTreeScene::readFile( const QString& filename )
   btcs.m_Free = &free_memory;
   m_TreeContext = BehaviorTreeContextCreate( &btcs );
 
-  QFile f( filename );
+  QFile f( qt_filename );
 
   if( !f.open( QFile::ReadOnly ) )
     return false;
 
-  std::string argh( filename.toStdString() );
+  std::string filename( qt_filename.toStdString() );
 
   ParsingInfo pi;
-  pi.m_Name = BehaviorTreeContextRegisterString( m_TreeContext, argh.c_str() );
+  pi.m_Name = BehaviorTreeContextRegisterString( m_TreeContext, filename.c_str() );
   pi.m_File = &f;
 
   ParserContextFunctions pcf;
@@ -472,29 +380,7 @@ void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
       l[i] = l[0];
   }
 }
-/*
-void BehaviorTreeScene::transformToWorld( Node* n, Node* p )
-{
-  QGraphicsSvgItem* p_svg_item = 0x0;
-  if( p )
-    p_svg_item = (BehaviorTreeNode*)(p->m_UserData);
-  while( n )
-  {
-    if( p_svg_item )
-    {
-      BehaviorTreeNode* n_svg_item = (BehaviorTreeNode*)(n->m_UserData);
-      n_svg_item->moveBy( p_svg_item->x(), p_svg_item->y() + g_NodeHeight
-          + g_VertSpace );
-    }
-    Node* c = GetFirstChild( n );
 
-    if( c )
-      transformToWorld( c, n );
-
-    n = n->m_Next;
-  }
-}
-*/
 void BehaviorTreeScene::drawItems( QPainter* painter, int numItems,
   QGraphicsItem* items[], const QStyleOptionGraphicsItem options[],
   QWidget* widget )

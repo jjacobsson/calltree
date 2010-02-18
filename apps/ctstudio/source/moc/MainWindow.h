@@ -34,6 +34,8 @@ protected:
 private slots:
 
 	void open();
+	void save();
+	void saveAs();
 
 private:
 

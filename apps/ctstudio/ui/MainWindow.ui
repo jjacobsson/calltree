@@ -52,7 +52,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="m_MenuFile">
@@ -60,6 +60,8 @@
      <string>&amp;File</string>
     </property>
     <addaction name="m_ActionOpen"/>
+    <addaction name="m_ActionSave"/>
+    <addaction name="m_ActionSaveAs"/>
    </widget>
    <widget class="QMenu" name="m_MenuHelp">
     <property name="layoutDirection">
@@ -107,6 +109,22 @@
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="m_ActionSave">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="m_ActionSaveAs">
+   <property name="text">
+    <string>&amp;Save As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>
