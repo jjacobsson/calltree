@@ -15,10 +15,11 @@
 #include <malloc.h>
 
 #include <callback/types.h>
-#include <callback/timing.h>
 #include <other/getopt.h>
 #include <callback/callback.h>
 #include <callback/instructions.h>
+
+#include "timing.h"
 
 using namespace callback;
 

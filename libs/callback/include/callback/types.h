@@ -9,8 +9,8 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef COMMON_TYPES_H
-#define COMMON_TYPES_H
+#ifndef CALLBACK_TYPES_H
+#define CALLBACK_TYPES_H
 
 
 #if defined(MSVC)
@@ -44,4 +44,4 @@ typedef uint64_t uint64;
 #error "Compiler not supported!"
 #endif
 
-#endif // COMMON_TYPES_H
+#endif // CALLBACK_TYPES_H

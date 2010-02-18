@@ -9,8 +9,8 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef COMMON_TIMING_H_
-#define COMMON_TIMING_H_
+#ifndef CTR_TIMING_H_
+#define CTR_TIMING_H_
 
 #include <callback/types.h>
 
@@ -56,4 +56,4 @@ inline uint64 get_cpu_counter()
 #error "Compiler not supported."
 #endif
 
-#endif // COMMON_TIMING_H_
+#endif // CTR_TIMING_H_
