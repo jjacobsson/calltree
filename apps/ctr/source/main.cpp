@@ -39,7 +39,7 @@ void cb_debug( const char* info, uint32 RE, uint32 IP )
     const char* const str_RE[MAXIMUM_NODE_RETURN_COUNT] = {
         "E_NODE_FAIL",
         "E_NODE_SUCCESS",
-        "E_NODE_RUNNING",
+        "E_NODE_WORKING",
         "E_NODE_UNDEFINED"
     };
 
@@ -60,7 +60,7 @@ uint32 cb_checkexit(uint32 action, void* bss, void** data, UserData& user_data)
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
 
-    return user_data.m_Exit?E_NODE_SUCCESS:E_NODE_RUNNING;
+    return user_data.m_Exit?E_NODE_SUCCESS:E_NODE_WORKING;
 }
 
 uint32 cb_getline(uint32 action, void* bss, void** data, UserData& ud)
@@ -107,7 +107,7 @@ uint32 cb_count_to_zero(uint32 action, void* bss, void** data, UserData& ud )
     }
     else if( action == ACT_EXECUTE )
     {
-        return (((*(int*)bss)--) <= 0) ? E_NODE_SUCCESS : E_NODE_RUNNING;
+        return (((*(int*)bss)--) <= 0) ? E_NODE_SUCCESS : E_NODE_WORKING;
     }
 
     return E_NODE_UNDEFINED;
@@ -175,7 +175,7 @@ uint32 cb_time_delay( uint32 action, void* bss, void** data, UserData& ud )
     	*t -= ud.m_FrameTime;
         if( *t <= 0.0f )
             return E_NODE_SUCCESS;
-        return E_NODE_RUNNING;
+        return E_NODE_WORKING;
     }
 
     return E_NODE_UNDEFINED;
@@ -199,7 +199,7 @@ uint32 cb_modify_return( uint32 action, void* bss, void** data, UserData& ud )
     case E_NODE_SUCCESS:
         return *(params->m_Success);
         break;
-    case E_NODE_RUNNING:
+    case E_NODE_WORKING:
         return *(params->m_Running);
         break;
     default:

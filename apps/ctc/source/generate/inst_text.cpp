@@ -25,7 +25,7 @@ const char * const g_NodeReturnsNames[MAXIMUM_NODE_RETURN_COUNT] =
 {
     "FAIL",                 /* Node failed                                              */
     "SUCCESS",              /* Node succeded                                            */
-    "RUNNING",              /* Node continues execution                                 */
+    "WORKING",              /* Node continues execution                                 */
     "UNDEFINED"             /* Do not return, used to indicate disabled nodes           */
 };
 

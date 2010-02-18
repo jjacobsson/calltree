@@ -75,8 +75,11 @@ defdec          { return T_DEFDEC; }
 tree            { return T_TREE; }
 sequence        { return T_SEQUENCE; }
 selector        { return T_SELECTOR; }
-dyn_selector    { return T_DSELECTOR; }
 parallel        { return T_PARALLEL; }
+dyn_selector    { return T_DSELECTOR; }
+succeed         { return T_SUCCEED; }
+fail            { return T_FAIL; }
+work            { return T_WORK; }
 action          { return T_ACTION; }
 decorator       { return T_DECORATOR; }
 int32           { return T_INT32; }

@@ -17,6 +17,9 @@ const char* const g_NodeSVGResourcePaths[E_MAX_GRIST_TYPES] = {
     ":/nodes/selector.svg",
     ":/nodes/parallel.svg",
     ":/nodes/dyn_selector.svg",
+    ":/nodes/succeed.svg",
+    ":/nodes/fail.svg",
+    ":/nodes/work.svg",
     ":/nodes/decorator.svg",
     ":/nodes/action.svg"
 };
@@ -27,6 +30,9 @@ const char* const g_NodeNames[E_MAX_GRIST_TYPES] = {
   "Selector",
   "Parallel",
   "Dynamic Selector",
+  "Succeed",
+  "Fail",
+  "Work",
   "Decorator",
   "Action"
 };

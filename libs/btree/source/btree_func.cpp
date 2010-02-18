@@ -390,8 +390,6 @@ Node* GetFirstChild( Node* n )
   case E_GRIST_DECORATOR:
     r = n->m_Grist.m_Decorator.m_Child;
     break;
-  case E_GRIST_ACTION:
-    break;
   }
   return r;
 }
@@ -426,8 +424,6 @@ void SetFirstChild( Node* n, Node* c )
     break;
   case E_GRIST_DECORATOR:
     n->m_Grist.m_Decorator.m_Child = c;
-    break;
-  case E_GRIST_ACTION:
     break;
   }
 }
@@ -492,6 +488,11 @@ bool AcceptsMoreChildren( Node* n )
   case E_GRIST_PARALLEL:
   case E_GRIST_DYN_SELECTOR:
     return true;
+    break;
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    return false;
     break;
   case E_GRIST_DECORATOR:
     return n->m_Grist.m_Decorator.m_Child == 0x0;

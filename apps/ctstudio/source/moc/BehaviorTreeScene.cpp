@@ -123,6 +123,9 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     case E_GRIST_SELECTOR: n->m_Grist.m_Type = E_GRIST_SELECTOR; break;
     case E_GRIST_PARALLEL: n->m_Grist.m_Type = E_GRIST_PARALLEL; break;
     case E_GRIST_DYN_SELECTOR: n->m_Grist.m_Type = E_GRIST_DYN_SELECTOR; break;
+    case E_GRIST_SUCCEED: n->m_Grist.m_Type = E_GRIST_SUCCEED; break;
+    case E_GRIST_FAIL: n->m_Grist.m_Type = E_GRIST_FAIL; break;
+    case E_GRIST_WORK: n->m_Grist.m_Type = E_GRIST_WORK; break;
     default:
       // FAIL!
       break;

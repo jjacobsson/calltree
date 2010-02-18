@@ -6,6 +6,9 @@
 	<file>nodes/selector.svg</file>
 	<file>nodes/parallel.svg</file>
 	<file>nodes/dyn_selector.svg</file>
+	<file>nodes/succeed.svg</file>
+	<file>nodes/fail.svg</file>
+	<file>nodes/work.svg</file>
 	<file>nodes/decorator.svg</file>
 	<file>nodes/action.svg</file>     
 	<file>nodes/tree.svg</file>

@@ -49,6 +49,9 @@ void AddInclude( BehaviorTreeContext ctx, const char* filename );
 %token            T_SELECTOR     /* literal string "selector" */
 %token            T_DSELECTOR    /* literal string "dyn_selector" */
 %token            T_PARALLEL     /* literal string "parallel" */
+%token            T_SUCCEED      /* literal string "succeed" */
+%token            T_FAIL         /* literal string "fail" */
+%token            T_WORK         /* literal string "work" */
 %token            T_ACTION       /* literal string "action" */
 %token            T_DECORATOR    /* literal string "decorator" */
 %token            T_INT32        /* literal string "int32" */
@@ -56,13 +59,14 @@ void AddInclude( BehaviorTreeContext ctx, const char* filename );
 %token            T_FLOAT        /* literal string "float" */
 %token            T_STRING       /* literal string "string" */
 
+
 %token<m_Integer> T_INT32_VALUE  /* a integer value */
 %token<m_Bool>    T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
 %token<m_Float>   T_FLOAT_VALUE  /* a float value */
 %token<m_String>  T_STRING_VALUE /* a string value */
 %token<m_Id>      T_ID           /* a legal identifier string */
 
-%type<m_Node> node nmembers sequence selector parallel dselector decorator action nlist
+%type<m_Node> node nmembers sequence selector parallel dselector succeed fail work decorator action nlist
 %type<m_Variable> vlist vmember variable vtypes vdlist vdmember vardec vdtypes
 
 %union {
@@ -135,6 +139,9 @@ node: T_LPARE sequence T_RPARE  { $$ = $2; }
     | T_LPARE selector T_RPARE  { $$ = $2; }
     | T_LPARE parallel T_RPARE  { $$ = $2; }
     | T_LPARE dselector T_RPARE { $$ = $2; }
+    | T_LPARE succeed T_RPARE   { $$ = $2; }
+    | T_LPARE fail T_RPARE      { $$ = $2; }
+    | T_LPARE work T_RPARE      { $$ = $2; }
     | T_LPARE decorator T_RPARE { $$ = $2; }
     | T_LPARE action T_RPARE    { $$ = $2; }
     ;
@@ -172,6 +179,27 @@ parallel: T_PARALLEL nlist
 dselector: T_DSELECTOR nlist
          {
         	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_DYN_SELECTOR, $2 );
+        	$$ = n;
+         }
+         ;
+         
+succeed: T_SUCCEED
+         {
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_SUCCEED, 0x0 );
+        	$$ = n;
+         }
+         ;
+         
+fail: T_FAIL
+         {
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_FAIL, 0x0 );
+        	$$ = n;
+         }
+         ;
+         
+work: T_WORK
+         {
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_WORK, 0x0 );
         	$$ = n;
          }
          ;

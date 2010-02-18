@@ -79,6 +79,8 @@ public:
     int PushFloat( float value );
     int PushString( const char* str );
 
+    int Size() const;
+
     bool Save( FILE* outFile, bool swapEndian ) const;
 
 private:

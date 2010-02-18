@@ -30,7 +30,7 @@ namespace callback {
     {
         E_NODE_FAIL,                    /* Node failed                                          */
         E_NODE_SUCCESS,                 /* Node succeeded                                       */
-        E_NODE_RUNNING,                 /* Node continues execution                             */
+        E_NODE_WORKING,                 /* Node continues execution                             */
         E_NODE_UNDEFINED,               /* Do not return, used to indicate disabled nodes       */
         MAXIMUM_NODE_RETURN_COUNT
     };

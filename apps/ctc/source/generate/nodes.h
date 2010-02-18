@@ -43,6 +43,24 @@ int gen_con_dynselector( Node* n, Program* p );
 int gen_exe_dynselector( Node* n, Program* p );
 int gen_des_dynselector( Node* n, Program* p );
 
+void gen_setup_succeed( Node* n, Program* p );
+void gen_teardown_succeed( Node* n, Program* p );
+int gen_con_succeed( Node* n, Program* p );
+int gen_exe_succeed( Node* n, Program* p );
+int gen_des_succeed( Node* n, Program* p );
+
+void gen_setup_fail( Node* n, Program* p );
+void gen_teardown_fail( Node* n, Program* p );
+int gen_con_fail( Node* n, Program* p );
+int gen_exe_fail( Node* n, Program* p );
+int gen_des_fail( Node* n, Program* p );
+
+void gen_setup_work( Node* n, Program* p );
+void gen_teardown_work( Node* n, Program* p );
+int gen_con_work( Node* n, Program* p );
+int gen_exe_work( Node* n, Program* p );
+int gen_des_work( Node* n, Program* p );
+
 void gen_setup_decorator( Node* n, Program* p );
 void gen_teardown_decorator( Node* n, Program* p );
 int gen_con_decorator( Node* n, Program* p );

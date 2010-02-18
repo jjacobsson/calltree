@@ -29,14 +29,6 @@
 	'((id 4))
 	'((string str))
 )
-(defact act_fail
-	'((id 5)) 
-	'()
-)
-(defact act_succeed
-	'((id 6))
-	'()
-)
 (defact act_count_to_zero
 	'((id 7) (construct true) (bss 4))
 	'((int32 start))
