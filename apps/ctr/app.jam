@@ -1,4 +1,4 @@
-SetDependantOf $(_appname) : callback common other ;
+SetDependantOf $(_appname) : callback other ;
 
 
 SetSourceFiles $(_appname) : [ RecursiveDirList $(_apppath) source : *.cpp *.c ] ;

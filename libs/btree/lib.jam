@@ -36,6 +36,6 @@ if $(_pass) = Declarations
 }
 else if $(_pass) = Dependencies
 {
-	SetDependantOf $(_libname) : common callback other ;
-	SetDependantOf $(_testname) : $(_libname) UnitTest++ common other ;
+	SetDependantOf $(_libname) : callback other ;
+	SetDependantOf $(_testname) : $(_libname) UnitTest++ other ;
 }

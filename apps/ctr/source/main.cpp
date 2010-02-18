@@ -14,8 +14,8 @@
 #include <string.h>
 #include <malloc.h>
 
-#include <common/types.h>
-#include <common/timing.h>
+#include <callback/types.h>
+#include <callback/timing.h>
 #include <other/getopt.h>
 #include <callback/callback.h>
 #include <callback/instructions.h>

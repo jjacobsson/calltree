@@ -12,9 +12,7 @@
 #ifndef BTREE_DATA_H_INCLUDED
 #define BTREE_DATA_H_INCLUDED
 
-#include <common/types.h>
-
-typedef uint32 hash_t;
+typedef unsigned int hash_t;
 const hash_t INVALID_ID = 0xffffffff;
 
 enum NodeGristType
@@ -53,7 +51,7 @@ struct Identifier
 {
 	const char*	m_Text;
 	hash_t		m_Hash;
-	int32		m_Line;
+	int    		m_Line;
 };
 
 struct StringData
@@ -64,7 +62,7 @@ struct StringData
 
 union VariableData
 {
-  int32      m_Integer;
+  int      m_Integer;
   float      m_Float;
   StringData m_String;
   bool		 m_Bool;
@@ -201,7 +199,7 @@ struct Include
   hash_t        m_Hash;
   const char*   m_Name;
   const char*   m_Parent;
-  int32         m_LineNo;
+  int           m_LineNo;
   Include*      m_Next;
 };
 

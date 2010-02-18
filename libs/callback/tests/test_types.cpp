@@ -10,7 +10,7 @@
  *******************************************************************************/
 
 #include <UnitTest++.h>
-#include <common/types.h>
+#include <callback/types.h>
 
 TEST( uint8_is_one_byte )
 {

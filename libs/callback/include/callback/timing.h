@@ -12,7 +12,7 @@
 #ifndef COMMON_TIMING_H_
 #define COMMON_TIMING_H_
 
-#include <common/types.h>
+#include <callback/types.h>
 
 inline uint64 get_cpu_counter();
 inline uint64 get_cpu_frequency();

@@ -12,7 +12,7 @@
 #ifndef PROGRAM_H_INCLUDED
 #define PROGRAM_H_INCLUDED
 
-#include <common/types.h>
+#include <callback/types.h>
 #include <callback/instructions.h>
 #include <callback/callback.h>
 #include <btree/btree_data.h>

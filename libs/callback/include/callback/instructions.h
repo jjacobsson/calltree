@@ -12,7 +12,7 @@
 #ifndef CALLBACK_INSTRUCTIONS_H_
 #define CALLBACK_INSTRUCTIONS_H_
 
-#include <common/types.h>
+#include <callback/types.h>
 
 namespace callback {
 
