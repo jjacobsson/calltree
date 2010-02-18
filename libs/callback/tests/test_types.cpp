@@ -12,6 +12,8 @@
 #include <UnitTest++.h>
 #include <callback/types.h>
 
+using namespace callback;
+
 TEST( uint8_is_one_byte )
 {
     CHECK( sizeof( uint8 ) == 1 );

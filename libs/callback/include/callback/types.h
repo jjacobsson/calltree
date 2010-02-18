@@ -13,9 +13,12 @@
 #define CALLBACK_TYPES_H
 
 
+
 #if defined(MSVC)
 
 #include <stddef.h>
+
+namespace callback {
 
 typedef unsigned __int8 uint8;
 typedef char int8;
@@ -26,10 +29,14 @@ typedef signed __int32 int32;
 typedef unsigned __int64 uint64;
 typedef signed __int64 int64;
 
+}
+
 #elif defined(GCC)
 
 #include <stdint.h>
 #include <unistd.h>
+
+namespace callback {
 
 typedef uint8_t uint8;
 typedef char int8;
@@ -40,8 +47,12 @@ typedef int32_t int32;
 typedef int64_t int64;
 typedef uint64_t uint64;
 
+}
+
 #else
 #error "Compiler not supported!"
 #endif
+
+
 
 #endif // CALLBACK_TYPES_H

@@ -26,7 +26,7 @@ public:
 
     CodeSection();
 
-    typedef uint32 TIn;
+    typedef callback::uint32 TIn;
 
     void    SetGenerateDebugInfo( bool onoff );
 

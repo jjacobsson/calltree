@@ -11,28 +11,43 @@
 #ifndef ENDIAN_H_
 #define ENDIAN_H_
 
-inline void Swap(uint8* p_byte1, uint8* p_byte2)
+#include <callback/types.h>
+
+inline void Swap( callback::uint8* p_byte1, callback::uint8* p_byte2 )
 {
-    uint8 swap_byte;
-    swap_byte   = *p_byte1;
-    *p_byte1    = *p_byte2;
-    *p_byte2    = swap_byte;
+  callback::uint8 swap_byte;
+  swap_byte = *p_byte1;
+  *p_byte1 = *p_byte2;
+  *p_byte2 = swap_byte;
 }
 
-inline void EndianSwap_2bytes(uint8* data)
+inline void EndianSwap_2bytes( callback::uint8* data )
 {
-    Swap(data, data +1);
+  Swap( data, data + 1 );
 }
-inline void EndianSwap_4bytes(uint8* data)
+inline void EndianSwap_4bytes( callback::uint8* data )
 {
-    unsigned int *ival = (unsigned int *)data;
-    unsigned int val = *ival;
-    *ival = ((val >> 24) & 0x000000ff) | ((val >>  8) & 0x0000ff00) | ((val <<  8) & 0x00ff0000) | ((val << 24) & 0xff000000);
+  unsigned int *ival = (unsigned int *)data;
+  unsigned int val = *ival;
+  *ival = ((val >> 24) & 0x000000ff) | ((val >> 8) & 0x0000ff00) | ((val << 8)
+      & 0x00ff0000) | ((val << 24) & 0xff000000);
 }
 
-inline  void EndianSwap(int16& data)    { EndianSwap_2bytes((uint8*)&data); }
-inline  void EndianSwap(uint16& data)   { EndianSwap_2bytes((uint8*)&data); }
-inline  void EndianSwap(int32& data)    { EndianSwap_4bytes((uint8*)&data); }
-inline  void EndianSwap(uint32& data)   { EndianSwap_4bytes((uint8*)&data); }
+inline void EndianSwap( callback::int16& data )
+{
+  EndianSwap_2bytes( (callback::uint8*)&data );
+}
+inline void EndianSwap( callback::uint16& data )
+{
+  EndianSwap_2bytes( (callback::uint8*)&data );
+}
+inline void EndianSwap( callback::int32& data )
+{
+  EndianSwap_4bytes( (callback::uint8*)&data );
+}
+inline void EndianSwap( callback::uint32& data )
+{
+  EndianSwap_4bytes( (callback::uint8*)&data );
+}
 
 #endif /*ENDIAN_H_*/
