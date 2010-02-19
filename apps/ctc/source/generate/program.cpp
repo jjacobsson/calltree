@@ -287,89 +287,7 @@ int DataSection::PushData( const char* data, int count )
   return start;
 }
 
-int setup_before_generate_internal( Node* n, Program* p )
-{
-  while( n )
-  {
-    switch( n->m_Grist.m_Type )
-    {
-    case E_GRIST_SEQUENCE:
-      gen_setup_sequence( n, p );
-      break;
-    case E_GRIST_SELECTOR:
-      gen_setup_selector( n, p );
-      break;
-    case E_GRIST_PARALLEL:
-      gen_setup_parallel( n, p );
-      break;
-    case E_GRIST_DYN_SELECTOR:
-      gen_setup_dynselector( n, p );
-      break;
-    case E_GRIST_SUCCEED:
-      gen_setup_succeed( n, p );
-      break;
-    case E_GRIST_FAIL:
-      gen_setup_fail( n, p );
-      break;
-    case E_GRIST_WORK:
-      gen_setup_work( n, p );
-      break;
-    case E_GRIST_DECORATOR:
-      gen_setup_decorator( n, p );
-      break;
-    case E_GRIST_ACTION:
-      gen_setup_action( n, p );
-      break;
-    default:
-      return -1;
-    }
-    setup_before_generate( GetFirstChild( n ), p );
-    n = n->m_Next;
-  }
-  return 0;
-}
 
-int teardown_after_generate_internal( Node* n, Program* p )
-{
-  while( n )
-  {
-    switch( n->m_Grist.m_Type )
-    {
-    case E_GRIST_SEQUENCE:
-      gen_teardown_sequence( n, p );
-      break;
-    case E_GRIST_SELECTOR:
-      gen_teardown_selector( n, p );
-      break;
-    case E_GRIST_PARALLEL:
-      gen_teardown_parallel( n, p );
-      break;
-    case E_GRIST_DYN_SELECTOR:
-      gen_teardown_dynselector( n, p );
-      break;
-    case E_GRIST_SUCCEED:
-      gen_teardown_succeed( n, p );
-      break;
-    case E_GRIST_FAIL:
-      gen_teardown_fail( n, p );
-      break;
-    case E_GRIST_WORK:
-      gen_teardown_work( n, p );
-      break;
-    case E_GRIST_DECORATOR:
-      gen_teardown_decorator( n, p );
-      break;
-    case E_GRIST_ACTION:
-      gen_teardown_action( n, p );
-      break;
-    default:
-      return -1;
-    }
-    teardown_after_generate( GetFirstChild( n ), p );
-    n = n->m_Next;
-  }
-  return 0;
-}
 
 int setup_before_generate( Node* n, Program* p )
 {
@@ -377,12 +295,12 @@ int setup_before_generate( Node* n, Program* p )
   p->m_bss_Header = p->m_B.Push( sizeof(BssHeader), 4 );
   //Alloc storage area for child-node return value.
   p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
-  return setup_before_generate_internal( n, p );
+  return setup_gen( n, p );
 }
 
 int teardown_after_generate( Node* n, Program* p )
 {
-  return teardown_after_generate_internal( n, p );
+  return teardown_gen( n, p );
 }
 
 int generate_program( Node* n, Program* p )

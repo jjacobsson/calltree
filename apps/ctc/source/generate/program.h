@@ -142,7 +142,9 @@ struct Program
 	DataSection m_D;
 };
 
+
 int setup_before_generate( Node* n, Program* p );
+
 int teardown_after_generate( Node* n, Program* p );
 
 int generate_program( Node* root, Program* p );

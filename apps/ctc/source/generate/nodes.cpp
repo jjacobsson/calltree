@@ -36,6 +36,84 @@ int generate_variable_instructions( VariableGenerateData* vd, Variable* vars,
 int setup_variable_registry( VariableGenerateData* vd, Variable* vars,
   Program* p );
 
+int setup_gen( Node* n, Program* p )
+{
+  int r = 0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+    r = gen_setup_sequence( n, p );
+    break;
+  case E_GRIST_SELECTOR:
+    r = gen_setup_selector( n, p );
+    break;
+  case E_GRIST_PARALLEL:
+    r = gen_setup_parallel( n, p );
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    r = gen_setup_dynselector( n, p );
+    break;
+  case E_GRIST_SUCCEED:
+    r = gen_setup_succeed( n, p );
+    break;
+  case E_GRIST_FAIL:
+    r = gen_setup_fail( n, p );
+    break;
+  case E_GRIST_WORK:
+    r = gen_setup_work( n, p );
+    break;
+  case E_GRIST_DECORATOR:
+    r = gen_setup_decorator( n, p );
+    break;
+  case E_GRIST_ACTION:
+    r = gen_setup_action( n, p );
+    break;
+  default:
+    r = -1;
+    break;
+  }
+  return r;
+}
+
+int teardown_gen( Node* n, Program* p )
+{
+  int r = 0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+    r = gen_teardown_sequence( n, p );
+    break;
+  case E_GRIST_SELECTOR:
+    r = gen_teardown_selector( n, p );
+    break;
+  case E_GRIST_PARALLEL:
+    r = gen_teardown_parallel( n, p );
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    r = gen_teardown_dynselector( n, p );
+    break;
+  case E_GRIST_SUCCEED:
+    r = gen_teardown_succeed( n, p );
+    break;
+  case E_GRIST_FAIL:
+    r = gen_teardown_fail( n, p );
+    break;
+  case E_GRIST_WORK:
+    r = gen_teardown_work( n, p );
+    break;
+  case E_GRIST_DECORATOR:
+    r = gen_teardown_decorator( n, p );
+    break;
+  case E_GRIST_ACTION:
+    r = gen_teardown_action( n, p );
+    break;
+  default:
+    r = -1;
+    break;
+  }
+  return r;
+}
+
 int gen_con( Node* n, Program* p )
 {
   switch( n->m_Grist.m_Type )
@@ -153,7 +231,7 @@ struct SequenceNodeData
   int m_bss_ReEntry;
 };
 
-void gen_setup_sequence( Node* n, Program* p )
+int gen_setup_sequence( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   SequenceNodeData* nd = new SequenceNodeData;
@@ -164,13 +242,31 @@ void gen_setup_sequence( Node* n, Program* p )
   nd->m_bss_JumpBackTarget = p->m_B.Push( sizeof(int), 4 );
   //Alloc storage area for re-entry instruction
   nd->m_bss_ReEntry = p->m_B.Push( sizeof(int), 4 );
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = setup_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
-void gen_teardown_sequence( Node* n, Program* p )
+int gen_teardown_sequence( Node* n, Program* p )
 {
   //Free the space used when generating code.
   delete ((SequenceNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = teardown_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
 int gen_con_sequence( Node* n, Program* p )
@@ -325,7 +421,7 @@ struct SelectorNodeData
   int m_bss_ReEntry;
 };
 
-void gen_setup_selector( Node* n, Program* p )
+int gen_setup_selector( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   SelectorNodeData* nd = new SelectorNodeData;
@@ -338,13 +434,31 @@ void gen_setup_selector( Node* n, Program* p )
 
   //Alloc storage area for re-entry instruction
   nd->m_bss_ReEntry = p->m_B.Push( sizeof(int), 4 );
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = setup_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
-void gen_teardown_selector( Node* n, Program* p )
+int gen_teardown_selector( Node* n, Program* p )
 {
   //Free the space used when generating code.
   delete ((SelectorNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = teardown_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
 int gen_con_selector( Node* n, Program* p )
@@ -499,7 +613,7 @@ struct ParallelNodeData
   int m_bss_SuccessCounter;
 };
 
-void gen_setup_parallel( Node* n, Program* p )
+int gen_setup_parallel( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   ParallelNodeData* nd = new ParallelNodeData;
@@ -509,13 +623,31 @@ void gen_setup_parallel( Node* n, Program* p )
 
   //Alloc storage space for the success counter
   nd->m_bss_SuccessCounter = p->m_B.Push( sizeof(int), 4 );
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = setup_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
-void gen_teardown_parallel( Node* n, Program* p )
+int gen_teardown_parallel( Node* n, Program* p )
 {
   //Free the space used when generating code.
   delete ((ParallelNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = teardown_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
 int gen_con_parallel( Node* n, Program* p )
@@ -629,7 +761,7 @@ struct DynamicSelectorNodeData
   int m_bss_RunningChild;
 };
 
-void gen_setup_dynselector( Node* n, Program* p )
+int gen_setup_dynselector( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   DynamicSelectorNodeData* nd = new DynamicSelectorNodeData;
@@ -642,13 +774,31 @@ void gen_setup_dynselector( Node* n, Program* p )
   nd->m_bss_OldBranch = p->m_B.Push( sizeof(int), 4 );
   nd->m_bss_JumpBackTarget = p->m_B.Push( sizeof(int), 4 );
   nd->m_bss_RunningChild = p->m_B.Push( sizeof(int) * CountChildNodes( n ), 4 );
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = setup_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
-void gen_teardown_dynselector( Node* n, Program* p )
+int gen_teardown_dynselector( Node* n, Program* p )
 {
   //Free the space used when generating code.
   delete ((DynamicSelectorNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  int r = 0;
+  Node* c = GetFirstChild( n );
+  while( c && r == 0 )
+  {
+    r = teardown_gen( c, p );
+    c = c->m_Next;
+  }
+  return r;
 }
 
 int gen_con_dynselector( Node* n, Program* p )
@@ -835,12 +985,14 @@ int gen_des_dynselector( Node* n, Program* p )
  *
  */
 
-void gen_setup_succeed( Node* n, Program* p )
+int gen_setup_succeed( Node* n, Program* p )
 {
+  return 0;
 }
 
-void gen_teardown_succeed( Node* n, Program* p )
+int gen_teardown_succeed( Node* n, Program* p )
 {
+  return 0;
 }
 
 int gen_con_succeed( Node* n, Program* p )
@@ -865,11 +1017,13 @@ int gen_des_succeed( Node* n, Program* p )
  *
  */
 
-void gen_setup_fail( Node* n, Program* p )
+int gen_setup_fail( Node* n, Program* p )
 {
+  return 0;
 }
-void gen_teardown_fail( Node* n, Program* p )
+int gen_teardown_fail( Node* n, Program* p )
 {
+  return 0;
 }
 int gen_con_fail( Node* n, Program* p )
 {
@@ -891,12 +1045,14 @@ int gen_des_fail( Node* n, Program* p )
  *
  */
 
-void gen_setup_work( Node* n, Program* p )
+int gen_setup_work( Node* n, Program* p )
 {
+  return 0;
 }
 
-void gen_teardown_work( Node* n, Program* p )
+int gen_teardown_work( Node* n, Program* p )
 {
+  return 0;
 }
 
 int gen_con_work( Node* n, Program* p )
@@ -929,11 +1085,11 @@ struct DecoratorNodeData
   VariableGenerateData m_VD;
 };
 
-void gen_setup_decorator( Node* n, Program* p )
+int gen_setup_decorator( Node* n, Program* p )
 {
   Node* c = GetFirstChild( n );
   if( !c )
-    return;
+    return 0;
 
   //Alloc space needed for code generation
   DecoratorNodeData* nd = new DecoratorNodeData;
@@ -959,17 +1115,21 @@ void gen_setup_decorator( Node* n, Program* p )
   //Store the variable values in the data section.
   store_variables_in_data_section( &nd->m_VD,
     n->m_Grist.m_Decorator.m_Arguments, d->m_Args, p );
+
+  return setup_gen( c, p );
 }
 
-void gen_teardown_decorator( Node* n, Program* p )
+int gen_teardown_decorator( Node* n, Program* p )
 {
   Node* c = GetFirstChild( n );
   if( !c )
-    return;
+    return 0;
 
   //Free the space used when generating code.
   delete ((DecoratorNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  return teardown_gen( c, p );
 }
 
 int gen_con_decorator( Node* n, Program* p )
@@ -1162,7 +1322,7 @@ struct ActionNodeData
   VariableGenerateData m_VD;
 };
 
-void gen_setup_action( Node* n, Program* p )
+int gen_setup_action( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   ActionNodeData* nd = new ActionNodeData;
@@ -1181,13 +1341,17 @@ void gen_setup_action( Node* n, Program* p )
   //Store the variable values in the data section.
   store_variables_in_data_section( &nd->m_VD, n->m_Grist.m_Action.m_Arguments,
     a->m_Args, p );
+
+  return 0;
 }
 
-void gen_teardown_action( Node* n, Program* p )
+int gen_teardown_action( Node* n, Program* p )
 {
   //Free the space used when generating code.
   delete ((ActionNodeData*)n->m_UserData);
   n->m_UserData = 0x0;
+
+  return 0;
 }
 
 int gen_con_action( Node* n, Program* p )
