@@ -152,24 +152,39 @@ VMIType CodeSection::SafeConvert( TIn i ) const
   return static_cast<VMIType> ( i );
 }
 
-BSSSection::BSSSection() :
-  m_bss( 0 )
+BSSSection::BSSSection()
+  : m_Max( 0 )
+  , m_Current( 0 )
 {
 }
 
 void BSSSection::Print( FILE* outFile )
 {
-  fprintf( outFile, ".bss:\t%d\n", m_bss );
+  fprintf( outFile, ".bss:\t%d\n", m_Max );
 }
 
 int BSSSection::Push( int size, int align )
 {
-  if( (m_bss % align) != 0 )
-    m_bss += (align - (m_bss % align));
+  if( (m_Current % align) != 0 )
+    m_Current += (align - (m_Current % align));
 
-  int r = m_bss;
-  m_bss += size;
+  int r = m_Current;
+  m_Current += size;
+
+  m_Max = std::max( m_Max, m_Current );
+
   return r;
+}
+
+void BSSSection::PushScope()
+{
+  m_ScopeStack.push_back( m_Current );
+}
+
+void BSSSection::PopScope()
+{
+  m_Current = m_ScopeStack.back();
+  m_ScopeStack.pop_back();
 }
 
 void DataSection::Print( FILE* outFile )

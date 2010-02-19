@@ -62,11 +62,15 @@ public:
     void Print( FILE* outFile );
     int Push( int size, int alignment = 4 );
 
-    int Size() const { return m_bss; }
+    int Size() const { return m_Max; }
+
+    void PushScope();
+    void PopScope();
 
 private:
-
-    int m_bss;
+    int m_Max;
+    int m_Current;
+    std::vector<int> m_ScopeStack;
 };
 
 class DataSection

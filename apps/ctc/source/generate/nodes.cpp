@@ -247,7 +247,9 @@ int gen_setup_sequence( Node* n, Program* p )
   Node* c = GetFirstChild( n );
   while( c && r == 0 )
   {
+    p->m_B.PushScope();
     r = setup_gen( c, p );
+    p->m_B.PopScope();
     c = c->m_Next;
   }
   return r;
@@ -439,7 +441,9 @@ int gen_setup_selector( Node* n, Program* p )
   Node* c = GetFirstChild( n );
   while( c && r == 0 )
   {
+    p->m_B.PushScope();
     r = setup_gen( c, p );
+    p->m_B.PopScope();
     c = c->m_Next;
   }
   return r;
