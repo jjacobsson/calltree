@@ -42,7 +42,7 @@ ObjectPool* CreateObjectPool( ObjectPoolSetup* ops )
       ops->m_TypeSize > (mem_size_t)sizeof(SObject) ? ops->m_TypeSize
         : (mem_size_t)sizeof(SObject);
 
-  ObjectPool* op = (ObjectPool*)OP_ALLOC_MACRO(
+  ObjectPool* op = (ObjectPool*)ops->m_Allocator.m_Alloc(
     (mem_size_t)sizeof(ObjectPool) +
     (type_size * ops->m_BlockSize)
   );

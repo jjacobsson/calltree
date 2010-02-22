@@ -9,9 +9,7 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#include <btree/btree_parse.h>
-#include "parser/common.h"
-
+#include "parser.h"
 
 void* ParserContextGetExtra( ParserContext pc )
 {
@@ -64,3 +62,31 @@ BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext pc )
 {
   return pc->m_Tree;
 }
+
+/*
+ * Parser extra functions.
+ */
+
+void yyerror( ParserContext ctx, const char* msg )
+{
+  if( ctx->m_Error )
+    ctx->m_Error( ctx, msg );
+}
+
+void yywarning( ParserContext ctx, const char* msg )
+{
+  if( ctx->m_Warning )
+    ctx->m_Warning( ctx, msg );
+}
+
+void yyerror( SParserContext* ctx, void*, const char* msg )
+{
+  yyerror( ctx, msg );
+}
+
+void yywarning( SParserContext* ctx, void*, const char* msg )
+{
+  yywarning( ctx, msg );
+}
+
+

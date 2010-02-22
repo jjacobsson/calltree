@@ -21,7 +21,7 @@
 
 %{
 
-#include "common.h"
+#include "parser.h"
 #include <other/lookup3.h>
 #include <stdio.h>
 #include <string.h> // <- for memcpy.... yuck.

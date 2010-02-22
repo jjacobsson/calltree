@@ -15,8 +15,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "parser/common.h"
-
 /*
  * Identifier Functions
  */
@@ -587,31 +585,5 @@ void StringBufferGrow( Allocator& a, StringBuffer* sb, int min )
     sb->m_Capacity  = ns;
     sb->m_Str       = t;
   }
-}
-
-/*
- * Parser extra functions.
- */
-
-void yyerror( ParserContext ctx, const char* msg )
-{
-  if( ctx->m_Error )
-    ctx->m_Error( ctx, msg );
-}
-
-void yywarning( ParserContext ctx, const char* msg )
-{
-  if( ctx->m_Warning )
-    ctx->m_Warning( ctx, msg );
-}
-
-void yyerror( SParserContext* ctx, void*, const char* msg )
-{
-  yyerror( ctx, msg );
-}
-
-void yywarning( SParserContext* ctx, void*, const char* msg )
-{
-  yywarning( ctx, msg );
 }
 

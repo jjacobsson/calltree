@@ -14,7 +14,7 @@
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 
-#include "parser/common.h"
+#include "parser/parser.h"
 #include "saver/saver.h"
 
 #include "sym_table.h"

@@ -12,7 +12,6 @@
 #ifndef PARSER_COMMON_H_
 #define PARSER_COMMON_H_
 
-#include <btree/btree_parse.h>
 #include <btree/btree.h>
 #include "btree_bison.h"
 
@@ -36,10 +35,10 @@ struct SParserContext
 
 int  yylex( YYSTYPE*, void* );
 int  yylex_init( void** );
-int yylex_init_extra( YY_EXTRA_TYPE, void** );
+int  yylex_init_extra( YY_EXTRA_TYPE, void** );
 int  yylex_destroy( void* );
 void yyset_extra( YY_EXTRA_TYPE, void* );
-int yyparse( YY_EXTRA_TYPE, void* );
+int  yyparse( YY_EXTRA_TYPE, void* );
 
 void yyerror( ParserContext ctx, const char* msg );
 void yywarning( ParserContext ctx, const char* msg );

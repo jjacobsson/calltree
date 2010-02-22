@@ -20,7 +20,7 @@
 
 %{
 
-#include "common.h"
+#include "parser.h"
 #include <stdio.h>
 
 #define YYMALLOC ctx->m_Allocator.m_Alloc
