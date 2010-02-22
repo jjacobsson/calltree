@@ -124,18 +124,6 @@ const char* parser_translate_include( ParserContext pc, const char* include )
   return ret;
 }
 
-const char* saver_translate_include( SaverContext sc, const char* include )
-{
-  return include;
-}
-
-FILE* g_stupidOutFile;
-
-void saver_write_callback( SaverContext sc, const char* buff, int size )
-{
-  fwrite( buff, 1, size, g_stupidOutFile );
-}
-
 int main( int argc, char** argv )
 {
   GetOptContext ctx;
@@ -251,18 +239,6 @@ int main( int argc, char** argv )
         break;
 
       include = include->m_Next;
-    }
-
-    if( returnCode == 0 )
-    {
-      g_stupidOutFile = fopen( "saved_file.bts", "w" );
-      SaverContextFunctions scf;
-      scf.m_Translate = &saver_translate_include;
-      scf.m_Write = &saver_write_callback;
-      SaverContext sc = SaverContextCreate( btc );
-      Save( sc, &scf );
-      fclose( g_stupidOutFile );
-      SaverContextDestroy( sc );
     }
 
     NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle( "main" ) );
