@@ -33,7 +33,11 @@ BehaviorTreeContext ParserContextGetBehaviorTreeContext( SaverContext sc )
 
 void Save( SaverContext sc, SaverContextFunctions* funcs )
 {
-
+  sc->m_Funcs = *funcs;
+  SaveIncludes( sc );
+  SaveActions( sc );
+  SaveDecorators( sc );
+  SaveTrees( sc );
 }
 
 void SaveIncludes( SaverContext sc )

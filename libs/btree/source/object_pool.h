@@ -9,8 +9,8 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef OBJECTPOOL_H_
-#define OBJECTPOOL_H_
+#ifndef OBJECTPOOL_H_INCLUDED
+#define OBJECTPOOL_H_INCLUDED
 
 #include <btree/btree_data.h>
 
@@ -31,4 +31,4 @@ void* AllocateObject( ObjectPool* object_pool );
 
 void FreeObject( ObjectPool* object_pool, void* object );
 
-#endif /*OBJECTPOOL_H_*/
+#endif /*OBJECTPOOL_H_INCLUDED*/

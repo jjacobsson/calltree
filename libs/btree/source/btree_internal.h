@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-04-24 Joacim Jacobsson.
+ * Copyright (c) 2010-02-22 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,23 +9,23 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef SYM_TABLE_H_INCLUDED
-#define SYM_TABLE_H_INCLUDED
+#ifndef BTREE_INTERNAL_H_INCLUDED
+#define BTREE_INTERNAL_H_INCLUDED
 
 #include <btree/btree_data.h>
 
-struct SymbolTable
+#include "sym_table.h"
+#include "object_pool.h"
+#include "string_table.h"
+
+struct SBehaviorTreeContext
 {
-  Allocator    m_Allocator;
-  NamedSymbol* m_Symbols;
-  int          m_Size;
-  int          m_Capacity;
+  StringTable   m_StringTable;
+  SymbolTable   m_SymbolTable;
+  Allocator     m_Allocator;
+  BehaviorTree* m_Trees;
+  ObjectPool*   m_Pool;
+  Include*      m_Includes;
 };
 
-void SymbolTableInit( SymbolTable*, Allocator );
-void SymbolTableDestroy( SymbolTable* );
-
-NamedSymbol* SymbolTableFind( SymbolTable*, hash_t );
-void SymbolTableInsert( SymbolTable*, const NamedSymbol& );
-
-#endif /*SYM_TABLE_H_INCLUDED*/
+#endif /*BTREE_INTERNAL_H_INCLUDED*/

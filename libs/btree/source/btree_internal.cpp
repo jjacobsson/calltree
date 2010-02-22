@@ -14,34 +14,22 @@
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 
+#include "btree_internal.h"
+
 #include "parser/parser.h"
 #include "saver/saver.h"
 
-#include "sym_table.h"
-#include "object_pool.h"
-#include "string_table.h"
-
-struct SBehaviorTreeContext
-{
-  StringTable   m_StringTable;
-  SymbolTable   m_SymbolTable;
-  Allocator     m_Allocator;
-  BehaviorTree* m_Trees;
-  ObjectPool*   m_Pool;
-  Include*      m_Includes;
-};
-
 union ObjectFootPrint
 {
-  Variable              m_Variable;
-  Action                m_Action;
-  Decorator             m_Decorator;
-  Node                  m_Node;
-  BehaviorTree          m_Tree;
-  SBehaviorTreeContext  m_BTContext;
-  SParserContext        m_ParserContext;
-  Include               m_Include;
-  SSaverContext         m_SaverContext;
+  Variable             m_Variable;
+  Action               m_Action;
+  Decorator            m_Decorator;
+  Node                 m_Node;
+  BehaviorTree         m_Tree;
+  SBehaviorTreeContext m_BTContext;
+  SParserContext       m_ParserContext;
+  Include              m_Include;
+  SSaverContext        m_SaverContext;
 };
 
 BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )

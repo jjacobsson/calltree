@@ -9,8 +9,8 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef STRING_TABLE_H_
-#define STRING_TABLE_H_
+#ifndef STRING_TABLE_H_INCLUDED
+#define STRING_TABLE_H_INCLUDED
 
 #include <btree/btree_data.h>
 
@@ -33,4 +33,4 @@ void StringTableDestroy( StringTable* );
 
 const char* StringTableRegisterString( StringTable*, const char*, hash_t );
 
-#endif /*STRING_TABLE_H_*/
+#endif /*STRING_TABLE_H_INCLUDED*/
