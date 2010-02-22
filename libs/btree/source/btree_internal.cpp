@@ -162,6 +162,7 @@ SaverContext SaverContextCreate( BehaviorTreeContext btc )
   sc->m_Extra     = 0x0;
   sc->m_Allocator = btc->m_Allocator;
   StringBufferInit( sc->m_Allocator, &sc->m_Buffer, 8 * 1024 );
+  return sc;
 }
 
 void SaverContextDestroy( SaverContext sc )

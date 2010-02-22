@@ -50,6 +50,8 @@ void XGMLPrinter::Visit( Node* n, Node* parent )
 	case E_GRIST_DECORATOR:
 		VisitSiblings( n->m_Grist.m_Decorator.m_Child, n );
 		break;
+	default:
+	  break;
 	}
 }
 
@@ -301,6 +303,8 @@ void XGMLPrinter::Print( FILE* file ) const
             case E_GRIST_ACTION:
                 PrintAction( file, (*it) );
                 break;
+            default:
+              break;
             }
             fprintf( file, "</section>\n" );
         }

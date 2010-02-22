@@ -124,6 +124,18 @@ const char* parser_translate_include( ParserContext pc, const char* include )
   return ret;
 }
 
+const char* saver_translate_include( SaverContext sc, const char* include )
+{
+  return include;
+}
+
+FILE* g_stupidOutFile;
+
+void saver_write_callback( SaverContext sc, const char* buff, int size )
+{
+  fwrite( buff, 1, size, g_stupidOutFile );
+}
+
 int main( int argc, char** argv )
 {
   GetOptContext ctx;
@@ -209,6 +221,18 @@ int main( int argc, char** argv )
       ParserContextDestroy( pc );
     }
 
+    if( returnCode == 0 )
+    {
+      g_stupidOutFile = fopen( "saved_file.bts", "w" );
+      SaverContextFunctions scf;
+      scf.m_Translate = &saver_translate_include;
+      scf.m_Write = &saver_write_callback;
+      SaverContext sc = SaverContextCreate( btc );
+      Save( sc, &scf );
+      fclose( g_stupidOutFile );
+      SaverContextDestroy( sc );
+    }
+
     if( pi.m_File )
       fclose( pi.m_File );
 
@@ -288,7 +312,7 @@ int main( int argc, char** argv )
         if( !asmFile )
         {
           printf( "warning: Unable to open assembly file %s for writing.\n",
-            asmFile );
+            g_asmFileName );
         }
         else
         {

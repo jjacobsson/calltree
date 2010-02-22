@@ -145,6 +145,9 @@ int gen_con( Node* n, Program* p )
   case E_GRIST_ACTION:
     return gen_con_action( n, p );
     break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
   }
   return -1;
 }
@@ -180,6 +183,9 @@ int gen_exe( Node* n, Program* p )
   case E_GRIST_ACTION:
     return gen_exe_action( n, p );
     break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
   }
   return -1;
 }
@@ -214,6 +220,9 @@ int gen_des( Node* n, Program* p )
     break;
   case E_GRIST_ACTION:
     return gen_des_action( n, p );
+    break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
     break;
   }
   return -1;
@@ -656,7 +665,7 @@ int gen_teardown_parallel( Node* n, Program* p )
 
 int gen_con_parallel( Node* n, Program* p )
 {
-  ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
+  //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
 
@@ -731,7 +740,7 @@ int gen_exe_parallel( Node* n, Program* p )
 
 int gen_des_parallel( Node* n, Program* p )
 {
-  ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
+  //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
 

@@ -76,7 +76,7 @@ int CountElementsInList( Variable* s )
   return r;
 }
 
-Variable* FindVariableWithIdHash( Variable* s, int hash )
+Variable* FindVariableWithIdHash( Variable* s, hash_t hash )
 {
   while( s )
   {
@@ -87,7 +87,7 @@ Variable* FindVariableWithIdHash( Variable* s, int hash )
   return 0x0;
 }
 
-int CountOccourancesOfIdHashInList( Variable* s, int hash )
+int CountOccourancesOfIdHashInList( Variable* s, hash_t hash )
 {
   int r = 0;
   while( s )
@@ -133,6 +133,9 @@ bool SafeToConvert( const Variable& v, int to_type )
         == E_VART_BOOL )
       return true;
     break;
+  case E_VART_UNDEFINED:
+  case E_MAX_VARIABLE_TYPE:
+    break;
   }
   return false;
 }
@@ -151,7 +154,9 @@ int ValueAsInteger( const Variable& v )
   case E_VART_BOOL:
     r = v.m_Data.m_Bool ? 1 : 0;
     break;
-  default:
+  case E_VART_UNDEFINED:
+  case E_VART_STRING:
+  case E_MAX_VARIABLE_TYPE:
     r = 0;
     break;
   }
@@ -172,7 +177,9 @@ float ValueAsFloat( const Variable& v )
   case E_VART_BOOL:
     r = v.m_Data.m_Bool ? 1.0f : 0.0f;
     break;
-  default:
+  case E_VART_UNDEFINED:
+  case E_VART_STRING:
+  case E_MAX_VARIABLE_TYPE:
     r = 0.0f;
     break;
   }
@@ -200,8 +207,10 @@ bool ValueAsBool( const Variable& v )
   case E_VART_BOOL:
     r = v.m_Data.m_Bool;
     break;
-  default:
-    r = false;
+  case E_VART_UNDEFINED:
+  case E_VART_STRING:
+  case E_MAX_VARIABLE_TYPE:
+    r = 0.0f;
     break;
   }
   return r;
@@ -245,10 +254,13 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
       n = sprintf( tmp, "%f", ValueAsFloat( *v ) );
       break;
     case E_VART_STRING:
-      n = sprintf( tmp, "\"%s\"", ValueAsString( *v ) );
+      n = sprintf( tmp, "\"%s\"", ValueAsString( *v )->m_Parsed );
       break;
     case E_VART_BOOL:
       n = sprintf( tmp, "%s", ValueAsBool( *v ) ? "true" : "false" );
+      break;
+    case E_VART_UNDEFINED:
+    case E_MAX_VARIABLE_TYPE:
       break;
     }
     v = v->m_Next;
@@ -388,6 +400,13 @@ Node* GetFirstChild( Node* n )
   case E_GRIST_DECORATOR:
     r = n->m_Grist.m_Decorator.m_Child;
     break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_ACTION:
+  case E_GRIST_FAIL:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_WORK:
+  case E_MAX_GRIST_TYPES:
+    break;
   }
   return r;
 }
@@ -423,15 +442,32 @@ void SetFirstChild( Node* n, Node* c )
   case E_GRIST_DECORATOR:
     n->m_Grist.m_Decorator.m_Child = c;
     break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_GRIST_ACTION:
+  case E_MAX_GRIST_TYPES:
+    break;
   }
 }
 
 void SetFirstChild( const NodeParent& p, Node* c )
 {
-  if( p.m_Type == E_ST_NODE )
+  switch( p.m_Type )
+  {
+  case E_ST_NODE:
     SetFirstChild( p.m_Node, c );
-  else if( p.m_Type == E_ST_TREE )
+    break;
+  case E_ST_TREE:
     p.m_Tree->m_Root = c;
+    break;
+  case E_ST_UNKOWN:
+  case E_ST_ACTION:
+  case E_ST_DECORATOR:
+  case E_ST_MAX_TYPES:
+    break;
+  }
 }
 
 void UnlinkFromSiblings( Node* n )
@@ -498,6 +534,10 @@ bool AcceptsMoreChildren( Node* n )
   case E_GRIST_ACTION:
     return false;
     break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    return false;
+    break;
   }
   return false;
 }
@@ -522,7 +562,7 @@ void StringBufferInit( Allocator& a, StringBuffer* sb, int initial_size )
   sb->m_Size        = 0;
   sb->m_Capacity    = 0;
   sb->m_Str         = 0x0;
-  StringBufferGrow( sb, 1024 );
+  StringBufferGrow( sb, initial_size );
   sb->m_Str[0]      = 0;
 }
 

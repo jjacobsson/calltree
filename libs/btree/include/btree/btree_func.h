@@ -34,9 +34,9 @@ void AppendToEndOfList( Variable* start, Variable* v );
 
 int CountElementsInList( Variable* start );
 
-Variable* FindVariableWithIdHash( Variable* start, int hash );
+Variable* FindVariableWithIdHash( Variable* start, hash_t hash );
 
-int CountOccourancesOfIdHashInList( Variable* start, int hash );
+int CountOccourancesOfIdHashInList( Variable* start, hash_t hash );
 
 bool VariableIdsAreUniqueInList( Variable* start );
 

@@ -6,6 +6,7 @@ SUFLIB	= .a ;
 DEFINES_COMMON += GCC ;
 
 CCFLAGS   += -m32 ;
+CCFLAGS   += -Wall ;
 LINKFLAGS += -m32 ;
 
 CC      = g++ ;

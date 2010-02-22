@@ -127,7 +127,7 @@ void BehaviorTreeNode::setupLabel()
 void BehaviorTreeNode::setupTooltip()
 {
   QString str;
-  switch( m_Node->m_Grist.m_Type )
+  switch( (int)m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
     str += tr( "Unknown" );

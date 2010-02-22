@@ -62,6 +62,7 @@ void SaveIncludes( SaverContext sc )
 
     i = i->m_Next;
   }
+  StringBufferAppend( &sc->m_Buffer, '\n' );
 }
 
 void SaveActions( SaverContext sc )
@@ -81,7 +82,8 @@ void SaveTrees( SaverContext sc )
 
 void FlushBuffer( SaverContext sc )
 {
-
+  sc->m_Funcs.m_Write( sc, sc->m_Buffer.m_Str, sc->m_Buffer.m_Size );
+  StringBufferClear( &sc->m_Buffer );
 }
 
 #undef SAVE_BUFFER_FLUSH_LIMIT
