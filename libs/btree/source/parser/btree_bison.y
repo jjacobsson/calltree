@@ -110,7 +110,7 @@ deftree: T_DEFTREE T_ID node
 include: T_INCLUDE T_STRING_VALUE
        {
        	Include inc;
-       	inc.m_Name		= ctx->m_Translate( ctx, $2.m_Raw );
+       	inc.m_Name		= ctx->m_Funcs.m_Translate( ctx, $2.m_Raw );
        	inc.m_Parent	= ctx->m_Current;
        	inc.m_LineNo	= ctx->m_LineNo;
        	BehaviorTreeContextAddInclude( ctx->m_Tree, inc );

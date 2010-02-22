@@ -11,6 +11,8 @@
 
 #include "parser.h"
 
+#include <string.h> // for memset....
+
 void* ParserContextGetExtra( ParserContext pc )
 {
   return pc->m_Extra;
@@ -38,11 +40,8 @@ int ParserContextGetLineNo( ParserContext pc )
 
 int Parse( ParserContext pc, ParserContextFunctions* pcf )
 {
-  pc->m_LineNo      = 1;
-  pc->m_Error       = pcf->m_Error;
-  pc->m_Warning     = pcf->m_Warning;
-  pc->m_Read        = pcf->m_Read;
-  pc->m_Translate   = pcf->m_Translate;
+  pc->m_LineNo = 1;
+  pc->m_Funcs  = *pcf;
 
   void* yyscanner = 0x0;
   yylex_init_extra( pc, &yyscanner );
@@ -50,10 +49,7 @@ int Parse( ParserContext pc, ParserContextFunctions* pcf )
   int r = yyparse( pc, yyscanner );
   yylex_destroy( yyscanner );
 
-  pc->m_Error       = 0x0;
-  pc->m_Warning     = 0x0;
-  pc->m_Read        = 0x0;
-  pc->m_Translate   = 0x0;
+  memset( &pc->m_Funcs, 0, sizeof(ParserContextFunctions) );
 
   return r;
 }
@@ -69,14 +65,14 @@ BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext pc )
 
 void yyerror( ParserContext ctx, const char* msg )
 {
-  if( ctx->m_Error )
-    ctx->m_Error( ctx, msg );
+  if( ctx->m_Funcs.m_Error )
+    ctx->m_Funcs.m_Error( ctx, msg );
 }
 
 void yywarning( ParserContext ctx, const char* msg )
 {
-  if( ctx->m_Warning )
-    ctx->m_Warning( ctx, msg );
+  if( ctx->m_Funcs.m_Warning )
+    ctx->m_Funcs.m_Warning( ctx, msg );
 }
 
 void yyerror( SParserContext* ctx, void*, const char* msg )

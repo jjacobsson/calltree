@@ -10,11 +10,17 @@
  *******************************************************************************/
 
 #include "saver.h"
+#include "../btree_internal.h"
+
+#include <btree/btree_func.h>
 
 void SaveIncludes( SaverContext );
 void SaveActions( SaverContext );
 void SaveDecorators( SaverContext );
 void SaveTrees( SaverContext );
+void FlushBuffer( SaverContext );
+
+#define SAVE_BUFFER_FLUSH_LIMIT (7 * 1024)
 
 void* SaverContextGetExtra( SaverContext sc )
 {
@@ -38,11 +44,24 @@ void Save( SaverContext sc, SaverContextFunctions* funcs )
   SaveActions( sc );
   SaveDecorators( sc );
   SaveTrees( sc );
+  FlushBuffer( sc );
 }
 
 void SaveIncludes( SaverContext sc )
 {
+  Include* i = sc->m_Tree->m_Includes;
+  while( i )
+  {
+    const char* translated = sc->m_Funcs.m_Translate( sc, i->m_Name );
+    StringBufferAppend( &sc->m_Buffer, "(include \"" );
+    StringBufferAppend( &sc->m_Buffer, i->m_Name );
+    StringBufferAppend( &sc->m_Buffer, "\")\n" );
 
+    if( sc->m_Buffer.m_Size >= SAVE_BUFFER_FLUSH_LIMIT )
+      FlushBuffer( sc );
+
+    i = i->m_Next;
+  }
 }
 
 void SaveActions( SaverContext sc )
@@ -59,3 +78,10 @@ void SaveTrees( SaverContext sc )
 {
 
 }
+
+void FlushBuffer( SaverContext sc )
+{
+
+}
+
+#undef SAVE_BUFFER_FLUSH_LIMIT

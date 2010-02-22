@@ -134,16 +134,16 @@ Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
  * String Buffer Functions
  */
 
-void StringBufferInit( Allocator&, StringBuffer* );
-void StringBufferDestroy( Allocator&, StringBuffer* );
+void StringBufferInit( Allocator&, StringBuffer*, int initial_size = 1024 );
+void StringBufferDestroy( StringBuffer* );
 
-void StringBufferAppend( Allocator&, StringBuffer*, char );
-void StringBufferAppend( Allocator&, StringBuffer*, const char * );
-void StringBufferAppend( Allocator&, StringBuffer*, const char *, int );
+void StringBufferAppend( StringBuffer*, char );
+void StringBufferAppend( StringBuffer*, const char * );
+void StringBufferAppend( StringBuffer*, const char *, int );
 
-void StringBufferClear( Allocator&, StringBuffer* );
+void StringBufferClear( StringBuffer* );
 
-void StringBufferGrow( Allocator&, StringBuffer* sb, int min );
+void StringBufferGrow( StringBuffer* sb, int min );
 
 /*
  * Parser Functions

@@ -25,12 +25,12 @@
 #include <other/lookup3.h>
 #include <stdio.h>
 #include <string.h> // <- for memcpy.... yuck.
-#define YY_INPUT(inBuffer, outResult, inMaxSize) ((outResult) = yyget_extra(yyscanner)->m_Read( yyget_extra(yyscanner), (inBuffer), (inMaxSize)) )
+#define YY_INPUT(inBuffer, outResult, inMaxSize) ((outResult) = yyget_extra(yyscanner)->m_Funcs.m_Read( yyget_extra(yyscanner), (inBuffer), (inMaxSize)) )
 #define STRINGBUFFERAPPEND( STR1, STR2 ) \
 	{ \
 		ParserContext ctx = yyget_extra(yyscanner); \
-		StringBufferAppend( ctx->m_Allocator, &(ctx->m_Parsed), (STR1) ); \
-		StringBufferAppend( ctx->m_Allocator, &(ctx->m_Original), (STR2) ); \
+		StringBufferAppend( &(ctx->m_Parsed), (STR1) ); \
+		StringBufferAppend( &(ctx->m_Original), (STR2) ); \
 	} \
 		
 %}
@@ -129,8 +129,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                     SParserContext* ctx = yyget_extra( yyscanner );
                     (*yylval).m_String.m_Parsed = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
                     (*yylval).m_String.m_Raw = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
-                    StringBufferClear( ctx->m_Allocator, &ctx->m_Parsed );
-                    StringBufferClear( ctx->m_Allocator, &ctx->m_Original );
+                    StringBufferClear( &ctx->m_Parsed );
+                    StringBufferClear( &ctx->m_Original );
                     return T_STRING_VALUE;
                 }
 \\n             { STRINGBUFFERAPPEND( '\n', yytext ); }
@@ -140,8 +140,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \\f             { STRINGBUFFERAPPEND( '\f', yytext ); }
 \\(.|\n)        { 
 					ParserContext ctx = yyget_extra(yyscanner);
-					StringBufferAppend( ctx->m_Allocator, &(ctx->m_Parsed), yytext[1] );
-					StringBufferAppend( ctx->m_Allocator, &(ctx->m_Original), yytext );
+					StringBufferAppend( &(ctx->m_Parsed), yytext[1] );
+					StringBufferAppend( &(ctx->m_Original), yytext );
 				}
 [^\\\n\"]+      { STRINGBUFFERAPPEND( yytext, yytext ); }
 

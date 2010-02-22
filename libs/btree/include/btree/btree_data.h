@@ -207,9 +207,10 @@ struct Include
 
 struct StringBuffer
 {
-  char* m_Str;
-  int   m_Size;
-  int   m_Capacity;
+  Allocator m_Allocator;
+  char*     m_Str;
+  int       m_Size;
+  int       m_Capacity;
 };
 
 typedef struct SParserContext* ParserContext;
@@ -218,22 +219,23 @@ typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 typedef void (*ErrorCallback)( ParserContext, const char* msg );
 typedef void (*WarningCallback)( ParserContext, const char* msg );
-typedef const char* (*TranslateIncludeCallback)( ParserContext, const char* );
+typedef const char* (*ParserTranslateIncludeCallback)( ParserContext, const char* );
+typedef const char* (*SaveTranslateIncludeCallback)( SaverContext, const char* );
 typedef int (*FillBufferCallback)( ParserContext, char* buffer, int maxsize );
 typedef void (*FlushBufferCallback)( SaverContext, const char*, int size );
 
 struct ParserContextFunctions
 {
-  ErrorCallback            m_Error;
-  WarningCallback          m_Warning;
-  FillBufferCallback       m_Read;
-  TranslateIncludeCallback m_Translate;
+  ErrorCallback                  m_Error;
+  WarningCallback                m_Warning;
+  FillBufferCallback             m_Read;
+  ParserTranslateIncludeCallback m_Translate;
 };
 
 struct SaverContextFunctions
 {
-  FlushBufferCallback      m_Write;
-  TranslateIncludeCallback m_Translate;
+  FlushBufferCallback          m_Write;
+  SaveTranslateIncludeCallback m_Translate;
 };
 
 

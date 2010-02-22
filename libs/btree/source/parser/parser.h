@@ -20,15 +20,12 @@ struct SParserContext
 {
   StringBuffer             m_Parsed;
   StringBuffer             m_Original;
+  ParserContextFunctions   m_Funcs;
+  Allocator                m_Allocator;
   int                      m_LineNo;
   BehaviorTreeContext      m_Tree;
-  ErrorCallback            m_Error;
-  WarningCallback          m_Warning;
-  FillBufferCallback       m_Read;
-  TranslateIncludeCallback m_Translate;
   void*                    m_Extra;
   const char*              m_Current;
-  Allocator                m_Allocator;
 };
 
 #define YY_EXTRA_TYPE ParserContext

@@ -70,12 +70,12 @@ const char* parser_translate_include( ParserContext pc, const char* include )
       ++s;
     }
     if( last != -1 )
-      StringBufferAppend( a, &sb, pi->m_Name, last + 1 );
+      StringBufferAppend( &sb, pi->m_Name, last + 1 );
   }
 
-  StringBufferAppend( a, &sb, include );
+  StringBufferAppend( &sb, include );
   const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( a, &sb );
+  StringBufferDestroy( &sb );
 
   return ret;
 }

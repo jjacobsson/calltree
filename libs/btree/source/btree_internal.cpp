@@ -19,6 +19,8 @@
 #include "parser/parser.h"
 #include "saver/saver.h"
 
+#include <string.h> // for memset....
+
 union ObjectFootPrint
 {
   Variable             m_Variable;
@@ -102,7 +104,6 @@ NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext btc, int* cou
   return btc->m_SymbolTable.m_Symbols;
 }
 
-
 void BehaviorTreeContextAddInclude( BehaviorTreeContext btc, const Include& include )
 {
   hash_t h = hashlittle( include.m_Name );
@@ -138,22 +139,19 @@ ParserContext ParserContextCreate( BehaviorTreeContext btc )
 
   pc->m_Tree        = btc;
   pc->m_LineNo      = 0;
-  pc->m_Error       = 0x0;
-  pc->m_Warning     = 0x0;
-  pc->m_Read        = 0x0;
   pc->m_Extra       = 0x0;
   pc->m_Current     = 0x0;
-  pc->m_Translate   = 0x0;
   pc->m_Allocator   = btc->m_Allocator;
   StringBufferInit( pc->m_Allocator, &pc->m_Parsed );
   StringBufferInit( pc->m_Allocator, &pc->m_Original );
+  memset( &pc->m_Funcs, 0, sizeof(ParserContextFunctions) );
   return pc;
 }
 
 void ParserContextDestroy( ParserContext pc )
 {
-  StringBufferDestroy( pc->m_Allocator, &pc->m_Parsed );
-  StringBufferDestroy( pc->m_Allocator, &pc->m_Original );
+  StringBufferDestroy( &pc->m_Parsed );
+  StringBufferDestroy( &pc->m_Original );
   FreeObject( pc->m_Tree->m_Pool, pc );
 }
 
@@ -163,12 +161,12 @@ SaverContext SaverContextCreate( BehaviorTreeContext btc )
   sc->m_Tree      = btc;
   sc->m_Extra     = 0x0;
   sc->m_Allocator = btc->m_Allocator;
-  StringBufferInit( sc->m_Allocator, &sc->m_Buffer );
+  StringBufferInit( sc->m_Allocator, &sc->m_Buffer, 8 * 1024 );
 }
 
 void SaverContextDestroy( SaverContext sc )
 {
-  StringBufferDestroy( sc->m_Allocator, &sc->m_Buffer );
+  StringBufferDestroy( &sc->m_Buffer );
   FreeObject( sc->m_Tree->m_Pool, sc );
 }
 
