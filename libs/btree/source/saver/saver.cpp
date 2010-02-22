@@ -216,14 +216,7 @@ void SaveVariableAssignment( SaverContext sc, Variable* v )
 
 void SaveVariableList( SaverContext sc, Variable* v )
 {
-  if( !v )
-  {
-    StringBufferAppend( &sc->m_Buffer, "'()" );
-    return;
-  }
-
   StringBufferAppend( &sc->m_Buffer, "'(" );
-
   while( v )
   {
     StringBufferAppend( &sc->m_Buffer, '(' );
