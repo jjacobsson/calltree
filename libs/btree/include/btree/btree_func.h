@@ -178,7 +178,7 @@ void SaverContextSetExtra( SaverContext, void* );
 
 BehaviorTreeContext ParserContextGetBehaviorTreeContext( SaverContext );
 
-int Save( SaverContext, SaverContextFunctions* );
+void Save( SaverContext, SaverContextFunctions* );
 
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

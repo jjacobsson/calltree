@@ -15,6 +15,8 @@
 #include <btree/btree_func.h>
 
 #include "../parser/common.h"
+#include "../saver/saver.h"
+
 #include "sym_table.h"
 #include "object_pool.h"
 #include "string_table.h"
@@ -29,15 +31,6 @@ struct SBehaviorTreeContext
   Include*      m_Includes;
 };
 
-struct SSaverContext
-{
-  StringBuffer          m_Buffer;
-  BehaviorTreeContext   m_Tree;
-  SaverContextFunctions m_Funcs;
-  void*                 m_Extra;
-  Allocator             m_Allocator;
-};
-
 union ObjectFootPrint
 {
   Variable              m_Variable;
@@ -48,7 +41,7 @@ union ObjectFootPrint
   SBehaviorTreeContext  m_BTContext;
   SParserContext        m_ParserContext;
   Include               m_Include;
-  SSaverContext         m_Saver;
+  SSaverContext         m_SaverContext;
 };
 
 BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
@@ -176,4 +169,18 @@ void ParserContextDestroy( ParserContext pc )
   FreeObject( pc->m_Tree->m_Pool, pc );
 }
 
+SaverContext SaverContextCreate( BehaviorTreeContext btc )
+{
+  SSaverContext* sc = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_SaverContext);
+  sc->m_Tree      = btc;
+  sc->m_Extra     = 0x0;
+  sc->m_Allocator = btc->m_Allocator;
+  StringBufferInit( sc->m_Allocator, &sc->m_Buffer );
+}
+
+void SaverContextDestroy( SaverContext sc )
+{
+  StringBufferDestroy( sc->m_Allocator, &sc->m_Buffer );
+  FreeObject( sc->m_Tree->m_Pool, sc );
+}
 
