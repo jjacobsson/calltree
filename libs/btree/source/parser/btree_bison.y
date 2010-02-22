@@ -23,8 +23,8 @@
 #include "common.h"
 #include <stdio.h>
 
-#define YYMALLOC ctx->m_Alloc
-#define YYFREE ctx->m_Free
+#define YYMALLOC ctx->m_Allocator.m_Alloc
+#define YYFREE ctx->m_Allocator.m_Free
 
 bool DeclareAction( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );
 bool DeclareDecorator( SParserContext* ctx, const Identifier& id, Variable* vars, Variable* args );

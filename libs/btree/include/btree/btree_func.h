@@ -108,7 +108,7 @@ void InitGrist( NodeGrist* );
  * BehaviorTreeContext Functions
  */
 
-BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* );
+BehaviorTreeContext BehaviorTreeContextCreate( Allocator& );
 
 void BehaviorTreeContextDestroy( BehaviorTreeContext );
 
@@ -134,16 +134,16 @@ Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
  * String Buffer Functions
  */
 
-void StringBufferInit( ParserContext, StringBuffer* );
-void StringBufferDestroy( ParserContext, StringBuffer* );
+void StringBufferInit( Allocator&, StringBuffer* );
+void StringBufferDestroy( Allocator&, StringBuffer* );
 
-void StringBufferAppend( ParserContext, StringBuffer*, char );
-void StringBufferAppend( ParserContext, StringBuffer*, const char * );
-void StringBufferAppend( ParserContext, StringBuffer*, const char *, int );
+void StringBufferAppend( Allocator&, StringBuffer*, char );
+void StringBufferAppend( Allocator&, StringBuffer*, const char * );
+void StringBufferAppend( Allocator&, StringBuffer*, const char *, int );
 
-void StringBufferClear( ParserContext, StringBuffer* );
+void StringBufferClear( Allocator&, StringBuffer* );
 
-void StringBufferGrow( ParserContext, StringBuffer* sb, int min );
+void StringBufferGrow( Allocator&, StringBuffer* sb, int min );
 
 /*
  * Parser Functions
@@ -164,6 +164,22 @@ int ParserContextGetLineNo( ParserContext );
 BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext );
 
 int Parse( ParserContext, ParserContextFunctions* );
+
+/*
+ * Saver Functions
+ */
+
+SaverContext SaverContextCreate( BehaviorTreeContext );
+
+void SaverContextDestroy( SaverContext );
+
+void* SaverContextGetExtra( SaverContext );
+void SaverContextSetExtra( SaverContext, void* );
+
+BehaviorTreeContext ParserContextGetBehaviorTreeContext( SaverContext );
+
+int Save( SaverContext, SaverContextFunctions* );
+
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

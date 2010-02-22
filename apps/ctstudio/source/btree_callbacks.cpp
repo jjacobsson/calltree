@@ -48,7 +48,12 @@ const char* parser_translate_include( ParserContext pc, const char* include )
   BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
 
   StringBuffer sb;
-  StringBufferInit( pc, &sb );
+
+  Allocator a;
+  a.m_Alloc = &allocate_memory;
+  a.m_Free = &free_memory;
+
+  StringBufferInit( a, &sb );
 
   if( pi->m_Name )
   {
@@ -65,12 +70,12 @@ const char* parser_translate_include( ParserContext pc, const char* include )
       ++s;
     }
     if( last != -1 )
-      StringBufferAppend( pc, &sb, pi->m_Name, last + 1 );
+      StringBufferAppend( a, &sb, pi->m_Name, last + 1 );
   }
 
-  StringBufferAppend( pc, &sb, include );
+  StringBufferAppend( a, &sb, include );
   const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( pc, &sb );
+  StringBufferDestroy( a, &sb );
 
   return ret;
 }

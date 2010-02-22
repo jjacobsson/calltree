@@ -30,6 +30,9 @@ struct ObjectPool
   SObject*        m_FirstFree;
 };
 
+#define OP_ALLOC_MACRO( _size ) op->m_Setup.m_Allocator.m_Alloc(_size)
+#define OP_FREE_MACRO( _ptr ) op->m_Setup.m_Allocator.m_Free(_ptr)
+
 void AllocateBlock( ObjectPool* op );
 void SetupBlock( ObjectPool* op, SBlock* block );
 
@@ -39,11 +42,13 @@ ObjectPool* CreateObjectPool( ObjectPoolSetup* ops )
       ops->m_TypeSize > (mem_size_t)sizeof(SObject) ? ops->m_TypeSize
         : (mem_size_t)sizeof(SObject);
 
-  ObjectPool* op = (ObjectPool*)ops->m_Alloc( (mem_size_t)sizeof(ObjectPool)
-      + (type_size * ops->m_BlockSize) );
-  op->m_Setup       = *ops;
-  op->m_FirstBlock  = 0x0;
-  op->m_FirstFree   = 0x0;
+  ObjectPool* op = (ObjectPool*)OP_ALLOC_MACRO(
+    (mem_size_t)sizeof(ObjectPool) +
+    (type_size * ops->m_BlockSize)
+  );
+  op->m_Setup = *ops;
+  op->m_FirstBlock = 0x0;
+  op->m_FirstFree = 0x0;
   op->m_Setup.m_TypeSize = type_size;
   op->m_JoinedBlock = (SBlock*)(((char*)op) + sizeof( ObjectPool ));
   SetupBlock( op, op->m_JoinedBlock );
@@ -58,10 +63,10 @@ void DestroyObjectPool( ObjectPool* op )
   {
     op->m_FirstBlock = b->m_Next;
     if( b != op->m_JoinedBlock )
-      op->m_Setup.m_Free( b );
+      OP_FREE_MACRO( b );
     b = op->m_FirstBlock;
   }
-  op->m_Setup.m_Free( op );
+  OP_FREE_MACRO( op );
 }
 
 void* AllocateObject( ObjectPool* op )
@@ -109,7 +114,7 @@ void AllocateBlock( ObjectPool* op )
       + op->m_Setup.m_TypeSize * op->m_Setup.m_BlockSize);
 
   //Allocate memory for a new block
-  SBlock* block = (SBlock*)op->m_Setup.m_Alloc( alloc_size );
+  SBlock* block = (SBlock*)OP_ALLOC_MACRO( alloc_size );
   //Setup the data in the block and add it to the pool
   SetupBlock( op, block );
 }
@@ -141,3 +146,7 @@ void SetupBlock( ObjectPool* op, SBlock* block )
   //Set the pool's first to the block's first.
   op->m_FirstFree = block->m_First;
 }
+
+#undef OP_ALLOC_MACRO
+#undef OP_FREE_MACRO
+

@@ -16,10 +16,9 @@
 
 struct ObjectPoolSetup
 {
-  mem_size_t            m_TypeSize;     // How big is each object
-  int                   m_BlockSize;    // How many objects should be allocated in each block
-  AllocateMemoryFunc    m_Alloc;        // The function used to allocate memory
-  FreeMemoryFunc        m_Free;         // The function used to free memory
+  mem_size_t m_TypeSize;     // How big is each object
+  int        m_BlockSize;    // How many objects should be allocated in each block
+  Allocator  m_Allocator;
 };
 
 struct ObjectPool;

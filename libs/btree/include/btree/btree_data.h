@@ -172,17 +172,16 @@ struct BehaviorTree
 };
 
 typedef unsigned int mem_size_t;
-typedef void* (*AllocateMemoryFunc)( const mem_size_t size );
-typedef void (*FreeMemoryFunc)( void* object_pointer );
+typedef void* (*AllocateMemoryCallback)( const mem_size_t size );
+typedef void (*FreeMemoryCallback)( void* object_pointer );
 
 typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
-struct BehaviorTreeContextSetup
+struct Allocator
 {
-  AllocateMemoryFunc    m_Alloc; // The function that will be used for all memory allocations
-  FreeMemoryFunc        m_Free;  // The function that will be used to free all allocated memory
+  AllocateMemoryCallback m_Alloc; // The function that will be used for all memory allocations
+  FreeMemoryCallback     m_Free;  // The function that will be used to free all allocated memory
 };
-
 
 union SymbolTypeData
 {
@@ -214,19 +213,28 @@ struct StringBuffer
 };
 
 typedef struct SParserContext* ParserContext;
+typedef struct SSaverContext* SaverContext;
 typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
-typedef void (*ParserErrorFunction)( ParserContext, const char* msg );
-typedef void (*ParserWarningFunction)( ParserContext, const char* msg );
-typedef int (*ParserFillBufferFunction)( ParserContext, char* buffer, int maxsize );
-typedef const char* (*ParserTranslateIncludeFunction)( ParserContext, const char* );
+typedef void (*ErrorCallback)( ParserContext, const char* msg );
+typedef void (*WarningCallback)( ParserContext, const char* msg );
+typedef const char* (*TranslateIncludeCallback)( ParserContext, const char* );
+typedef int (*FillBufferCallback)( ParserContext, char* buffer, int maxsize );
+typedef void (*FlushBufferCallback)( SaverContext, const char*, int size );
 
 struct ParserContextFunctions
 {
-  ParserErrorFunction               m_Error;
-  ParserWarningFunction             m_Warning;
-  ParserFillBufferFunction          m_Read;
-  ParserTranslateIncludeFunction    m_Translate;
+  ErrorCallback            m_Error;
+  WarningCallback          m_Warning;
+  FillBufferCallback       m_Read;
+  TranslateIncludeCallback m_Translate;
 };
+
+struct SaverContextFunctions
+{
+  FlushBufferCallback      m_Write;
+  TranslateIncludeCallback m_Translate;
+};
+
 
 #endif /* BTREE_DATA_H_INCLUDED */

@@ -13,6 +13,9 @@
 #include <algorithm>
 #include <stdlib.h>
 
+#define ST_ALLOC_MACRO( _size ) st->m_Allocator.m_Alloc(_size)
+#define ST_FREE_MACRO( _ptr ) st->m_Allocator.m_Free(_ptr)
+
 struct NamedSymbolPredicate
 {
   hash_t GetId( const NamedSymbol& s ) const
@@ -63,7 +66,7 @@ void SymbolTableGrow( SymbolTable* st )
 {
   st->m_Capacity += 512;
   const size_t alloc_size = sizeof(NamedSymbol) * st->m_Capacity;
-  NamedSymbol* new_buffer = (NamedSymbol*)st->m_Alloc( alloc_size );
+  NamedSymbol* new_buffer = (NamedSymbol*)ST_ALLOC_MACRO( alloc_size );
 
   memset( new_buffer, 0xcd, alloc_size );
 
@@ -71,24 +74,22 @@ void SymbolTableGrow( SymbolTable* st )
     memcpy( new_buffer, st->m_Symbols, sizeof(NamedSymbol) * (st->m_Size) );
 
   if( st->m_Symbols )
-    st->m_Free( st->m_Symbols );
+    ST_FREE_MACRO( st->m_Symbols );
 
   st->m_Symbols = new_buffer;
 }
 
-void SymbolTableInit( SymbolTable* st, AllocateMemoryFunc alloc,
-  FreeMemoryFunc free )
+void SymbolTableInit( SymbolTable* st, Allocator allocator )
 {
-  st->m_Capacity    = 0;
-  st->m_Size        = 0;
-  st->m_Symbols     = 0;
-  st->m_Alloc       = alloc;
-  st->m_Free        = free;
+  st->m_Capacity  = 0;
+  st->m_Size      = 0;
+  st->m_Symbols   = 0;
+  st->m_Allocator = allocator;
 }
 
 void SymbolTableDestroy( SymbolTable* st )
 {
-  st->m_Free( st->m_Symbols );
+  ST_FREE_MACRO( st->m_Symbols );
   memset( st, 0xdeadbeef, sizeof(SymbolTable) );
 }
 
@@ -122,3 +123,6 @@ void SymbolTableInsert( SymbolTable* st, const NamedSymbol& s )
     ++st->m_Size;
   }
 }
+
+#undef ST_ALLOC_MACRO
+#undef ST_FREE_MACRO

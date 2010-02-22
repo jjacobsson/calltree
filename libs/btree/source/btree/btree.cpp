@@ -21,12 +21,21 @@
 
 struct SBehaviorTreeContext
 {
-  StringTable               m_StringTable;
-  SymbolTable               m_SymbolTable;
-  BehaviorTreeContextSetup  m_Setup;
-  BehaviorTree*             m_Trees;
-  ObjectPool*               m_Pool;
-  Include*                  m_Includes;
+  StringTable   m_StringTable;
+  SymbolTable   m_SymbolTable;
+  Allocator     m_Allocator;
+  BehaviorTree* m_Trees;
+  ObjectPool*   m_Pool;
+  Include*      m_Includes;
+};
+
+struct SSaverContext
+{
+  StringBuffer          m_Buffer;
+  BehaviorTreeContext   m_Tree;
+  SaverContextFunctions m_Funcs;
+  void*                 m_Extra;
+  Allocator             m_Allocator;
 };
 
 union ObjectFootPrint
@@ -39,26 +48,26 @@ union ObjectFootPrint
   SBehaviorTreeContext  m_BTContext;
   SParserContext        m_ParserContext;
   Include               m_Include;
+  SSaverContext         m_Saver;
 };
 
-BehaviorTreeContext BehaviorTreeContextCreate( BehaviorTreeContextSetup* btcs )
+BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
 {
   ObjectPoolSetup ops;
-  ops.m_Alloc       = btcs->m_Alloc;
-  ops.m_Free        = btcs->m_Free;
-  ops.m_BlockSize   = 4096;
-  ops.m_TypeSize    = (mem_size_t)sizeof(ObjectFootPrint);
-  ObjectPool* op    = CreateObjectPool( &ops );
+  ops.m_Allocator = allocator;
+  ops.m_BlockSize = 4096;
+  ops.m_TypeSize  = (mem_size_t)sizeof(ObjectFootPrint);
+  ObjectPool* op  = CreateObjectPool( &ops );
 
   SBehaviorTreeContext* btc =
       &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
-  btc->m_Trees          = 0x0;
-  btc->m_Pool           = op;
-  btc->m_Setup          = *btcs;
-  btc->m_Includes       = 0x0;
+  btc->m_Trees     = 0x0;
+  btc->m_Pool      = op;
+  btc->m_Allocator = allocator;
+  btc->m_Includes  = 0x0;
 
-  StringTableInit( &btc->m_StringTable, btcs->m_Alloc, btcs->m_Free );
-  SymbolTableInit( &btc->m_SymbolTable, btcs->m_Alloc, btcs->m_Free );
+  StringTableInit( &btc->m_StringTable, btc->m_Allocator );
+  SymbolTableInit( &btc->m_SymbolTable, btc->m_Allocator );
 
   return btc;
 }
@@ -154,16 +163,17 @@ ParserContext ParserContextCreate( BehaviorTreeContext btc )
   pc->m_Extra       = 0x0;
   pc->m_Current     = 0x0;
   pc->m_Translate   = 0x0;
-  pc->m_Alloc       = btc->m_Setup.m_Alloc;
-  pc->m_Free        = btc->m_Setup.m_Free;
-  StringBufferInit( pc, &pc->m_Parsed );
-  StringBufferInit( pc, &pc->m_Original );
+  pc->m_Allocator   = btc->m_Allocator;
+  StringBufferInit( pc->m_Allocator, &pc->m_Parsed );
+  StringBufferInit( pc->m_Allocator, &pc->m_Original );
   return pc;
 }
 
 void ParserContextDestroy( ParserContext pc )
 {
-  StringBufferDestroy( pc, &pc->m_Parsed );
-  StringBufferDestroy( pc, &pc->m_Original );
+  StringBufferDestroy( pc->m_Allocator, &pc->m_Parsed );
+  StringBufferDestroy( pc->m_Allocator, &pc->m_Original );
   FreeObject( pc->m_Tree->m_Pool, pc );
 }
+
+

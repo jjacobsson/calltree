@@ -72,13 +72,32 @@ void parser_warning( ParserContext pc, const char* msg )
   }
 }
 
+void* allocate_memory( mem_size_t size )
+{
+  g_allocs++;
+  return malloc( size );
+}
+
+void free_memory( void* ptr )
+{
+  if( ptr )
+  {
+    g_frees++;
+    free( ptr );
+  }
+}
+
 const char* parser_translate_include( ParserContext pc, const char* include )
 {
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
 
+  Allocator a;
+  a.m_Alloc = &allocate_memory;
+  a.m_Free = &free_memory;
+
   StringBuffer sb;
-  StringBufferInit( pc, &sb );
+  StringBufferInit( a, &sb );
 
   if( pi->m_Name )
   {
@@ -95,31 +114,15 @@ const char* parser_translate_include( ParserContext pc, const char* include )
       ++s;
     }
     if( last != -1 )
-      StringBufferAppend( pc, &sb, pi->m_Name, last + 1 );
+      StringBufferAppend( a, &sb, pi->m_Name, last + 1 );
   }
 
-  StringBufferAppend( pc, &sb, include );
+  StringBufferAppend( a, &sb, include );
   const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( pc, &sb );
+  StringBufferDestroy( a, &sb );
 
   return ret;
 }
-
-void* allocate_memory( mem_size_t size )
-{
-  g_allocs++;
-  return malloc( size );
-}
-
-void free_memory( void* ptr )
-{
-  if( ptr )
-  {
-    g_frees++;
-    free( ptr );
-  }
-}
-
 
 int main( int argc, char** argv )
 {
@@ -175,10 +178,10 @@ int main( int argc, char** argv )
 
   if( returnCode == 0 )
   {
-    BehaviorTreeContextSetup btcs;
-    btcs.m_Alloc = &allocate_memory;
-    btcs.m_Free = &free_memory;
-    BehaviorTreeContext btc = BehaviorTreeContextCreate( &btcs );
+    Allocator a;
+    a.m_Alloc = &allocate_memory;
+    a.m_Free = &free_memory;
+    BehaviorTreeContext btc = BehaviorTreeContextCreate( a );
 
     ParserContextFunctions pcf;
     pcf.m_Read = &read_file;

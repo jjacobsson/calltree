@@ -19,18 +19,17 @@
 
 struct SParserContext
 {
-  StringBuffer                      m_Parsed;
-  StringBuffer                      m_Original;
-  int                               m_LineNo;
-  BehaviorTreeContext               m_Tree;
-  ParserErrorFunction               m_Error;
-  ParserWarningFunction             m_Warning;
-  ParserFillBufferFunction          m_Read;
-  ParserTranslateIncludeFunction    m_Translate;
-  void*                             m_Extra;
-  const char*                       m_Current;
-  AllocateMemoryFunc                m_Alloc;
-  FreeMemoryFunc                    m_Free;
+  StringBuffer             m_Parsed;
+  StringBuffer             m_Original;
+  int                      m_LineNo;
+  BehaviorTreeContext      m_Tree;
+  ErrorCallback            m_Error;
+  WarningCallback          m_Warning;
+  FillBufferCallback       m_Read;
+  TranslateIncludeCallback m_Translate;
+  void*                    m_Extra;
+  const char*              m_Current;
+  Allocator                m_Allocator;
 };
 
 #define YY_EXTRA_TYPE ParserContext

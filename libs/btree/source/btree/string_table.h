@@ -19,17 +19,16 @@ struct StringTableBlock;
 
 struct StringTable
 {
-  int                   m_BlockSize;
-  int                   m_LookupGrow;
-  int                   m_LookupSize;
-  int                   m_LookupCapacity;
-  StringTableLookup*    m_LookupTable;
-  StringTableBlock*     m_FirstBlock;
-  AllocateMemoryFunc    m_Alloc;
-  FreeMemoryFunc        m_Free;
+  int                m_BlockSize;
+  int                m_LookupGrow;
+  int                m_LookupSize;
+  int                m_LookupCapacity;
+  StringTableLookup* m_LookupTable;
+  StringTableBlock*  m_FirstBlock;
+  Allocator          m_Allocator;
 };
 
-void StringTableInit( StringTable*, AllocateMemoryFunc alloc, FreeMemoryFunc free );
+void StringTableInit( StringTable*, Allocator );
 void StringTableDestroy( StringTable* );
 
 const char* StringTableRegisterString( StringTable*, const char*, hash_t );

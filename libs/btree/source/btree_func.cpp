@@ -518,49 +518,49 @@ void InitGrist( NodeGrist* g )
  */
 
 
-void StringBufferInit( ParserContext pc, StringBuffer* sb )
+void StringBufferInit( Allocator& a, StringBuffer* sb )
 {
   sb->m_Size        = 0;
   sb->m_Capacity    = 0;
   sb->m_Str         = 0x0;
-  StringBufferGrow( pc, sb, 1024 );
+  StringBufferGrow( a, sb, 1024 );
   sb->m_Str[0]      = 0;
 
 }
 
-void StringBufferDestroy( ParserContext pc, StringBuffer* sb )
+void StringBufferDestroy( Allocator& a, StringBuffer* sb )
 {
-  pc->m_Free( sb->m_Str );
+  a.m_Free( sb->m_Str );
   sb->m_Str         = 0x0;
   sb->m_Size        = 0;
   sb->m_Capacity    = 0;
   memset( sb, 0xdeadbeef, sizeof(StringBuffer) );
 }
 
-void StringBufferAppend( ParserContext pc, StringBuffer* sb, char c)
+void StringBufferAppend( Allocator& a, StringBuffer* sb, char c)
 {
   if( sb->m_Size >= sb->m_Capacity - 1 )
-    StringBufferGrow( pc, sb, 128 );
+    StringBufferGrow( a, sb, 128 );
   sb->m_Str[sb->m_Size++]   = c;
   sb->m_Str[sb->m_Size]     = 0;
 }
 
-void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char* str )
+void StringBufferAppend( Allocator& a, StringBuffer* sb, const char* str )
 {
   int l = strlen( str );
-  StringBufferAppend( pc, sb, str, l );
+  StringBufferAppend( a, sb, str, l );
 }
 
-void StringBufferAppend( ParserContext pc, StringBuffer* sb, const char * str, int l )
+void StringBufferAppend( Allocator& a, StringBuffer* sb, const char * str, int l )
 {
   if( sb->m_Size >= sb->m_Capacity - (l + 1) )
-    StringBufferGrow( pc, sb, l + 1 );
+    StringBufferGrow( a, sb, l + 1 );
   memcpy( sb->m_Str + sb->m_Size, str, l );
   sb->m_Size += l;
   sb->m_Str[sb->m_Size] = 0;
 }
 
-void StringBufferClear( ParserContext pc, StringBuffer* sb )
+void StringBufferClear( Allocator& a, StringBuffer* sb )
 {
   if( sb->m_Capacity <= 0 )
     return;
@@ -568,16 +568,16 @@ void StringBufferClear( ParserContext pc, StringBuffer* sb )
   sb->m_Str[0]  = 0;
 }
 
-void StringBufferGrow( ParserContext pc, StringBuffer* sb, int min )
+void StringBufferGrow( Allocator& a, StringBuffer* sb, int min )
 {
   int ns = sb->m_Capacity + (128>min?128:min);
-  char* t = (char*)pc->m_Alloc( ns );
+  char* t = (char*)a.m_Alloc( ns );
   if( sb->m_Str )
   {
     if( sb->m_Size > 0 )
       memcpy( t, sb->m_Str, sb->m_Size + 1 );
 
-    pc->m_Free( sb->m_Str );
+    a.m_Free( sb->m_Str );
 
     sb->m_Str       = t;
     sb->m_Capacity  = ns;

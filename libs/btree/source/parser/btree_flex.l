@@ -29,8 +29,8 @@
 #define STRINGBUFFERAPPEND( STR1, STR2 ) \
 	{ \
 		ParserContext ctx = yyget_extra(yyscanner); \
-		StringBufferAppend( ctx, &(ctx->m_Parsed), (STR1) ); \
-		StringBufferAppend( ctx, &(ctx->m_Original), (STR2) ); \
+		StringBufferAppend( ctx->m_Allocator, &(ctx->m_Parsed), (STR1) ); \
+		StringBufferAppend( ctx->m_Allocator, &(ctx->m_Original), (STR2) ); \
 	} \
 		
 %}
@@ -129,8 +129,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                     SParserContext* ctx = yyget_extra( yyscanner );
                     (*yylval).m_String.m_Parsed = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
                     (*yylval).m_String.m_Raw = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
-                    StringBufferClear( ctx, &ctx->m_Parsed );
-                    StringBufferClear( ctx, &ctx->m_Original );
+                    StringBufferClear( ctx->m_Allocator, &ctx->m_Parsed );
+                    StringBufferClear( ctx->m_Allocator, &ctx->m_Original );
                     return T_STRING_VALUE;
                 }
 \\n             { STRINGBUFFERAPPEND( '\n', yytext ); }
@@ -140,8 +140,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \\f             { STRINGBUFFERAPPEND( '\f', yytext ); }
 \\(.|\n)        { 
 					ParserContext ctx = yyget_extra(yyscanner);
-					StringBufferAppend( ctx, &(ctx->m_Parsed), yytext[1] );
-					StringBufferAppend( ctx, &(ctx->m_Original), yytext );
+					StringBufferAppend( ctx->m_Allocator, &(ctx->m_Parsed), yytext[1] );
+					StringBufferAppend( ctx->m_Allocator, &(ctx->m_Original), yytext );
 				}
 [^\\\n\"]+      { STRINGBUFFERAPPEND( yytext, yytext ); }
 
@@ -154,7 +154,7 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 /* Provide our own implementations. */
 void * yyalloc (size_t bytes, void* yyscanner)
 {
-	return yyget_extra(yyscanner)->m_Alloc( bytes );
+	return yyget_extra(yyscanner)->m_Allocator.m_Alloc( bytes );
 }
  
 void * yyrealloc (void * ptr, size_t bytes, void* yyscanner)
@@ -167,5 +167,5 @@ void * yyrealloc (void * ptr, size_t bytes, void* yyscanner)
  
 void yyfree (void * ptr, void * yyscanner) 
 {
-	yyget_extra(yyscanner)->m_Free( ptr );
+	yyget_extra(yyscanner)->m_Allocator.m_Free( ptr );
 }

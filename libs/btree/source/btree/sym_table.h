@@ -16,14 +16,13 @@
 
 struct SymbolTable
 {
-  AllocateMemoryFunc    m_Alloc;
-  FreeMemoryFunc        m_Free;
-  NamedSymbol*          m_Symbols;
-  int                   m_Size;
-  int                   m_Capacity;
+  Allocator    m_Allocator;
+  NamedSymbol* m_Symbols;
+  int          m_Size;
+  int          m_Capacity;
 };
 
-void SymbolTableInit( SymbolTable*, AllocateMemoryFunc alloc, FreeMemoryFunc free  );
+void SymbolTableInit( SymbolTable*, Allocator );
 void SymbolTableDestroy( SymbolTable* );
 
 NamedSymbol* SymbolTableFind( SymbolTable*, hash_t );

@@ -13,6 +13,9 @@
 #include <string.h>
 #include <algorithm>
 
+#define ST_ALLOC_MACRO( _size ) st->m_Allocator.m_Alloc(_size)
+#define ST_FREE_MACRO( _ptr ) st->m_Allocator.m_Free(_ptr)
+
 struct StringTableBlock
 {
   StringTableBlock* m_Next;
@@ -39,7 +42,7 @@ void StringTableGrowHashTable( StringTable* st )
 {
   int alloc = sizeof(StringTableLookup) * st->m_LookupCapacity
       + sizeof(StringTableLookup) * st->m_LookupGrow;
-  StringTableLookup* n = (StringTableLookup*)st->m_Alloc( alloc );
+  StringTableLookup* n = (StringTableLookup*)ST_ALLOC_MACRO( alloc );
   if( st->m_LookupTable )
     memcpy( n, st->m_LookupTable, sizeof(StringTableLookup) * st->m_LookupCapacity );
 
@@ -47,7 +50,7 @@ void StringTableGrowHashTable( StringTable* st )
   st->m_LookupTable = n;
   st->m_LookupCapacity += st->m_LookupGrow;
 
-  st->m_Free( o );
+  ST_FREE_MACRO( o );
 }
 
 void StringTableHashInsert( StringTable* st, StringTableLookup& l )
@@ -81,7 +84,7 @@ StringTableBlock* StringTableAllocateBlock( StringTable* st, int minimum = 0 )
   else
     alloc = sizeof(StringTableBlock) + st->m_BlockSize;
 
-  StringTableBlock* c = (StringTableBlock*)st->m_Alloc( alloc );
+  StringTableBlock* c = (StringTableBlock*)ST_ALLOC_MACRO( alloc );
   c->m_Next = 0x0;
   c->m_Used = 0;
   c->m_Text = (char*)(c) + sizeof(StringTableBlock);
@@ -89,7 +92,7 @@ StringTableBlock* StringTableAllocateBlock( StringTable* st, int minimum = 0 )
   return c;
 }
 
-void StringTableInit( StringTable* st, AllocateMemoryFunc alloc, FreeMemoryFunc free )
+void StringTableInit( StringTable* st, Allocator allocator )
 {
   st->m_BlockSize = 4096;
   st->m_LookupCapacity = 0;
@@ -97,17 +100,16 @@ void StringTableInit( StringTable* st, AllocateMemoryFunc alloc, FreeMemoryFunc 
   st->m_LookupSize = 0;
   st->m_LookupTable = 0x0;
   st->m_FirstBlock = 0x0;
-  st->m_Alloc = alloc;
-  st->m_Free = free;
+  st->m_Allocator = allocator;
 }
 
 void StringTableDestroy( StringTable* st )
 {
-  st->m_Free( st->m_LookupTable );
+  ST_FREE_MACRO( st->m_LookupTable );
   while( st->m_FirstBlock )
   {
     StringTableBlock* t = st->m_FirstBlock->m_Next;
-    st->m_Free( st->m_FirstBlock );
+    ST_FREE_MACRO( st->m_FirstBlock );
     st->m_FirstBlock = t;
   }
   memset( st, 0xdeadbeef, sizeof(StringTable) );

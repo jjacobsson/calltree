@@ -30,10 +30,10 @@ BehaviorTreeScene::BehaviorTreeScene( QMainWindow* mw )
   : m_TreeContext( 0x0 )
   , m_MainWindow( mw )
 {
-  BehaviorTreeContextSetup btcs;
-  btcs.m_Alloc = &allocate_memory;
-  btcs.m_Free = &free_memory;
-  m_TreeContext = BehaviorTreeContextCreate( &btcs );
+  Allocator a;
+  a.m_Alloc = &allocate_memory;
+  a.m_Free = &free_memory;
+  m_TreeContext = BehaviorTreeContextCreate( a );
 }
 
 BehaviorTreeScene::~BehaviorTreeScene()
@@ -152,10 +152,10 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
   BehaviorTreeContextDestroy( m_TreeContext );
   m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
 
-  BehaviorTreeContextSetup btcs;
-  btcs.m_Alloc = &allocate_memory;
-  btcs.m_Free = &free_memory;
-  m_TreeContext = BehaviorTreeContextCreate( &btcs );
+  Allocator a;
+  a.m_Alloc = &allocate_memory;
+  a.m_Free = &free_memory;
+  m_TreeContext = BehaviorTreeContextCreate( a );
 
   QFile f( qt_filename );
 
