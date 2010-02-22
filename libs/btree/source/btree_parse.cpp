@@ -10,7 +10,7 @@
  *******************************************************************************/
 
 #include <btree/btree_parse.h>
-#include "../parser/common.h"
+#include "parser/common.h"
 
 
 void* ParserContextGetExtra( ParserContext pc )
