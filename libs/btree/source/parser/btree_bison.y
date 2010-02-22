@@ -98,7 +98,7 @@ atom: deftree
     | defdec
     ;
 
-deftree: T_DEFTREE T_ID node
+deftree: T_DEFTREE T_ID nlist
        {
 		BehaviorTree* t = LookUpBehaviorTree( ctx->m_Tree, $2 );
 		t->m_Root = $3;

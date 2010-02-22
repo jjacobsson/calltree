@@ -168,7 +168,7 @@
 (include "cbrun.bth")
 
 (deftree main 
-	(sequence '(
+	'((sequence '(
 		(action 'act_set_gc '((value 100000)))
 		(action 'act_count_to_zero '((start 1000)))
 		(action 'act_print '((str "We're under attack! A vast, ye swabs! Repel the invaders!")))
@@ -222,8 +222,8 @@
 			)
 			(action 'print '((str "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)"))))
 		))
-	))
+	)))
 
 
 (deftree poop
-	(sequence '()))
+	'((sequence '())))

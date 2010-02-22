@@ -12,10 +12,10 @@
 (include "cbrun.bth")
 
 (deftree main 
-	(action 'banan 
+	'((action 'banan 
 		'((a "\\keps") (b "\\n") (c "\n"))
 	)
-)
+))
 
 ;// A single line comment that the compiler wont see...
 
