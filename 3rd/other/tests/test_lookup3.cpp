@@ -5,6 +5,6 @@
 
 TEST( hashlittleProducesPredictableValues )
 {
-    int hash = hashlittle( "A test string" );    
-    CHECK( hash == 0xe0ecf1a7 );
+  unsigned int hash = hashlittle( "A test string" );
+  CHECK( hash == 0xe0ecf1a7 );
 }

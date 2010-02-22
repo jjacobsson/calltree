@@ -77,13 +77,14 @@ struct Variable
   VariableType  m_Type;
   VariableData  m_Data;
   Variable*     m_Next;
+  bool          m_ValueSet;
 };
 
 struct Action
 {
 	Identifier      m_Id;
 	Variable*		m_Args;		/* Argument declarations */
-	Variable*		m_Vars;		/* Code-generation variables */
+	Variable*		m_Options;	/* Code-generation variables */
 	bool			m_Declared;
 };
 
@@ -91,7 +92,7 @@ struct Decorator
 {
 	Identifier      m_Id;
 	Variable*		m_Args;		/* Argument declarations */
-	Variable*		m_Vars;		/* Code-generation variables */
+	Variable*		m_Options;	/* Code-generation variables */
 	bool			m_Declared;
 };
 

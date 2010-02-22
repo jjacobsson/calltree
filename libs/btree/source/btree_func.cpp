@@ -36,7 +36,7 @@ void InitVariable( Variable* v )
   v->m_Data.m_String.m_Parsed = 0x0;
   v->m_Data.m_String.m_Raw = 0x0;
   v->m_Next = 0x0;
-
+  v->m_ValueSet = false;
   InitIdentifier( &v->m_Id );
 }
 
@@ -324,7 +324,7 @@ void InitAction( Action* a )
 {
   InitIdentifier( &a->m_Id );
   a->m_Args = 0x0;
-  a->m_Vars = 0x0;
+  a->m_Options = 0x0;
   a->m_Declared = false;
 }
 
@@ -336,7 +336,7 @@ void InitDecorator( Decorator* d )
 {
   InitIdentifier( &d->m_Id );
   d->m_Args = 0x0;
-  d->m_Vars = 0x0;
+  d->m_Options = 0x0;
   d->m_Declared = false;
 }
 

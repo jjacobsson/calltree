@@ -44,7 +44,6 @@ BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
 
   SBehaviorTreeContext* btc =
       &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
-  btc->m_Trees     = 0x0;
   btc->m_Pool      = op;
   btc->m_Allocator = allocator;
   btc->m_Includes  = 0x0;

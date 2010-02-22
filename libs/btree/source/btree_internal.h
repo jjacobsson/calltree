@@ -23,7 +23,6 @@ struct SBehaviorTreeContext
   StringTable   m_StringTable;
   SymbolTable   m_SymbolTable;
   Allocator     m_Allocator;
-  BehaviorTree* m_Trees;
   ObjectPool*   m_Pool;
   Include*      m_Includes;
 };

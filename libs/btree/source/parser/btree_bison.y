@@ -120,7 +120,7 @@ include: T_INCLUDE T_STRING_VALUE
 defact: T_DEFACT T_ID vlist vdlist
 	  {
 		Action* a = LookUpAction( ctx->m_Tree, $2 );
-		a->m_Vars = $3;
+		a->m_Options = $3;
 		a->m_Args = $4;
 		a->m_Declared = true;
 	  }
@@ -129,7 +129,7 @@ defact: T_DEFACT T_ID vlist vdlist
 defdec: T_DEFDEC T_ID vlist vdlist
       {
       	Decorator* d = LookUpDecorator( ctx->m_Tree, $2 );
-      	d->m_Vars = $3;
+      	d->m_Options = $3;
       	d->m_Args = $4;
       	d->m_Declared = true;
       }
@@ -233,10 +233,10 @@ vmember: variable         { $$ = $1; }
 variable: T_LPARE vtypes T_RPARE { $$ = $2; }
         ;
 
-vtypes: T_ID T_INT32_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER, $1 ); $$->m_Data.m_Integer = $2; }
-      | T_ID T_STRING_VALUE { $$ = AllocateVariable( ctx->m_Tree, E_VART_STRING, $1 );  $$->m_Data.m_String = $2; }
-      | T_ID T_BOOL_VALUE   { $$ = AllocateVariable( ctx->m_Tree, E_VART_BOOL, $1 );    $$->m_Data.m_Bool = $2; }
-      | T_ID T_FLOAT_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; }
+vtypes: T_ID T_INT32_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_INTEGER, $1 ); $$->m_Data.m_Integer = $2; $$->m_ValueSet = true; }
+      | T_ID T_STRING_VALUE { $$ = AllocateVariable( ctx->m_Tree, E_VART_STRING, $1 );  $$->m_Data.m_String = $2; $$->m_ValueSet = true; }
+      | T_ID T_BOOL_VALUE   { $$ = AllocateVariable( ctx->m_Tree, E_VART_BOOL, $1 );    $$->m_Data.m_Bool = $2; $$->m_ValueSet = true; }
+      | T_ID T_FLOAT_VALUE  { $$ = AllocateVariable( ctx->m_Tree, E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; $$->m_ValueSet = true; }
       ;
 
 vdlist: T_QUOTE T_LPARE vdmember T_RPARE { $$ = $3; }

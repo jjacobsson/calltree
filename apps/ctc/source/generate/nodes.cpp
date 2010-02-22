@@ -1113,9 +1113,9 @@ int gen_setup_decorator( Node* n, Program* p )
   //Get the decorator declaration.
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
-  Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "bss" ) );
+  Variable* t = FindVariableWithIdHash( d->m_Options, hashlittle( "bss" ) );
   int bss_need = t ? ValueAsInteger( *t ) : 0;
-  t = FindVariableWithIdHash( d->m_Vars, hashlittle( "modify" ) );
+  t = FindVariableWithIdHash( d->m_Options, hashlittle( "modify" ) );
   if( t && ValueAsBool( *t ) )
     bss_need += 4;
 
@@ -1155,7 +1155,7 @@ int gen_con_decorator( Node* n, Program* p )
 
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
-  Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( d->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
@@ -1169,7 +1169,7 @@ int gen_con_decorator( Node* n, Program* p )
   if( err != 0 )
     return err;
 
-  t = FindVariableWithIdHash( d->m_Vars, hashlittle( "construct" ) );
+  t = FindVariableWithIdHash( d->m_Options, hashlittle( "construct" ) );
   if( t && ValueAsBool( *t ) )
   {
     //Setup the register for the data pointer
@@ -1204,7 +1204,7 @@ int gen_exe_decorator( Node* n, Program* p )
   DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
-  Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( d->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
@@ -1213,7 +1213,7 @@ int gen_exe_decorator( Node* n, Program* p )
   int err;
   int jump_out = -1;
 
-  t = FindVariableWithIdHash( d->m_Vars, hashlittle( "prune" ) );
+  t = FindVariableWithIdHash( d->m_Options, hashlittle( "prune" ) );
   if( t && ValueAsBool( *t ) )
   {
     // Enter Debug scope
@@ -1244,7 +1244,7 @@ int gen_exe_decorator( Node* n, Program* p )
   if( (err = gen_exe( c, p )) != 0 )
     return err;
 
-  t = FindVariableWithIdHash( d->m_Vars, hashlittle( "modify" ) );
+  t = FindVariableWithIdHash( d->m_Options, hashlittle( "modify" ) );
   if( t && ValueAsBool( *t ) )
   {
     // Enter Debug scope
@@ -1288,7 +1288,7 @@ int gen_des_decorator( Node* n, Program* p )
   DecoratorNodeData* nd = (DecoratorNodeData*)n->m_UserData;
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
-  Variable* t = FindVariableWithIdHash( d->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( d->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
@@ -1300,7 +1300,7 @@ int gen_des_decorator( Node* n, Program* p )
   if( (err = gen_des( c, p )) != 0 )
     return err;
 
-  t = FindVariableWithIdHash( d->m_Vars, hashlittle( "destruct" ) );
+  t = FindVariableWithIdHash( d->m_Options, hashlittle( "destruct" ) );
   if( t && ValueAsBool( *t ) )
   {
     //Setup the register for the data pointer
@@ -1346,7 +1346,7 @@ int gen_setup_action( Node* n, Program* p )
   Action* a = n->m_Grist.m_Action.m_Action;
 
   //Alloc bss-space for the callback function if it needs it.
-  Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "bss" ) );
+  Variable* t = FindVariableWithIdHash( a->m_Options, hashlittle( "bss" ) );
   int bss = t ? ValueAsInteger( *t ) : 0;
   if( bss > 0 )
     nd->m_bssPos = p->m_B.Push( bss, 4 );
@@ -1373,7 +1373,7 @@ int gen_con_action( Node* n, Program* p )
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
-  Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( a->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
@@ -1387,7 +1387,7 @@ int gen_con_action( Node* n, Program* p )
   if( err != 0 )
     return err;
 
-  t = FindVariableWithIdHash( a->m_Vars, hashlittle( "construct" ) );
+  t = FindVariableWithIdHash( a->m_Options, hashlittle( "construct" ) );
   if( t && ValueAsBool( *t ) )
   {
     //Setup the register for the data pointer
@@ -1416,7 +1416,7 @@ int gen_exe_action( Node* n, Program* p )
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
-  Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( a->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
@@ -1445,13 +1445,13 @@ int gen_des_action( Node* n, Program* p )
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
-  Variable* t = FindVariableWithIdHash( a->m_Vars, hashlittle( "id" ) );
+  Variable* t = FindVariableWithIdHash( a->m_Options, hashlittle( "id" ) );
   int fid = t ? ValueAsInteger( *t ) : ~0;
 
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
 
-  t = FindVariableWithIdHash( a->m_Vars, hashlittle( "destruct" ) );
+  t = FindVariableWithIdHash( a->m_Options, hashlittle( "destruct" ) );
   if( t && ValueAsBool( *t ) )
   {
     //Setup the register for the data pointer
