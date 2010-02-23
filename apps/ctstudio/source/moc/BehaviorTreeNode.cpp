@@ -204,7 +204,7 @@ void BehaviorTreeNode::setupRelinkage()
 void BehaviorTreeNode::executeRelinkage()
 {
 
-  if( memcmp( &m_Relinkage, &m_Previous, sizeof(Relinkage) ) == 0 )
+  if( memcmp( &m_Relinkage, &m_Previous, sizeof(Relinkage) ) != 0 )
     signalModified();
 
   m_Node->m_Pare = m_Relinkage.m_Parent;
