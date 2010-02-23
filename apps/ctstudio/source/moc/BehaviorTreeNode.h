@@ -75,6 +75,7 @@ private:
   };
 
   Relinkage m_Relinkage; // This is the information needed to be able to correctly link the m_Node into a new position in the BT.
+  Relinkage m_Previous;
   NodeToNodeArrow* m_DraggingArrow; // This arrow is the one used to indicate where the node will be linked while dragging.
 
 };

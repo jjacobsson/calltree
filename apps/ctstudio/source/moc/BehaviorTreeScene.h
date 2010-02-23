@@ -48,8 +48,12 @@ public:
     void dragMoveEvent( QDragMoveEvent *event );
     void dropEvent( QDropEvent *event );
 
+signals:
+  void modified();
+
 public slots:
 	void layout();
+	void itemModified();
 
 protected:
 

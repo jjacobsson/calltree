@@ -145,6 +145,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
       bt->m_Root = n;
 
     layout();
+    emit modified();
   }
   else
     event->ignore();
@@ -233,6 +234,11 @@ void BehaviorTreeScene::layout()
   setSceneRect( itemsBoundingRect() );
 }
 
+void BehaviorTreeScene::itemModified()
+{
+  emit modified();
+}
+
 void BehaviorTreeScene::createGraphics()
 {
   int i, c;
@@ -244,6 +250,7 @@ void BehaviorTreeScene::createGraphics()
     BehaviorTreeSceneItem* tree = new BehaviorTreeTree( s[i].m_Symbol.m_Tree );
     s[i].m_Symbol.m_Tree->m_UserData = tree;
     addItem( tree );
+    connect( tree, SIGNAL(modified()), this, SLOT( itemModified() ) );
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
 }
@@ -255,6 +262,7 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
     BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
 
     connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
+    connect( svg_item, SIGNAL( modified() ), this, SLOT( itemModified() ) );
 
     connect(
       svg_item,
@@ -262,6 +270,8 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
       m_MainWindow->statusBar(),
       SLOT( showMessage( QString, int ) )
     );
+
+
 
     if( !parent )
       addItem( svg_item );

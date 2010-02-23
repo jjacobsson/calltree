@@ -42,6 +42,7 @@ MainWindow::MainWindow() :
   connect( m_ActionSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()) );
   connect( m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
   connect( m_BTreeView, SIGNAL( statusMessage( QString, int ) ), this->statusBar(), SLOT( showMessage( QString, int ) ) );
+  connect( m_BTreeScene, SIGNAL( modified() ), this, SLOT(treeModified()) );
 }
 
 void MainWindow::open()
@@ -82,6 +83,11 @@ void MainWindow::openRecentFile()
     if( action )
       loadFile(action->data().toString());
   }
+}
+
+void MainWindow::treeModified()
+{
+  setWindowModified( true );
 }
 
 void MainWindow::setupStatusBar()
@@ -203,6 +209,7 @@ bool MainWindow::saveFile( const QString& fileName )
 void MainWindow::setCurrentFile( const QString& fileName )
 {
   m_CurrentFile = fileName;
+  setWindowModified( false );
   QString shownName = "Untitled";
   if( !m_CurrentFile.isEmpty() )
   {
@@ -222,6 +229,22 @@ QString MainWindow::strippedName( const QString &fullFileName )
 
 bool MainWindow::okToContinue()
 {
+  if( isWindowModified() )
+  {
+    int r = QMessageBox::warning( this, tr( "Calltree Studio" ), tr(
+      "The behavior tree has been modified.\n"
+        "Do you want to save your changes?" ), QMessageBox::Yes
+        | QMessageBox::Default, QMessageBox::No, QMessageBox::Cancel
+        | QMessageBox::Escape );
+    if( r == QMessageBox::Yes )
+    {
+      return save();
+    }
+    else if( r == QMessageBox::Cancel )
+    {
+      return false;
+    }
+  }
   return true;
 }
 

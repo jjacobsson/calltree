@@ -18,6 +18,7 @@
 #include <QtGui/QtGui>
 #include <QtSvg/QSvgRenderer>
 
+#include <string.h>
 
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
 	: BehaviorTreeSceneItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
@@ -194,11 +195,18 @@ void BehaviorTreeNode::setupRelinkage()
     m_Relinkage.m_Sibling = 0x0;
     m_Relinkage.m_BeforeSibling = false;
   }
+
+  memcpy( &m_Previous, &m_Relinkage, sizeof(Relinkage) );
+
   UnlinkNodeFromParentAndSiblings( m_Node );
 }
 
 void BehaviorTreeNode::executeRelinkage()
 {
+
+  if( memcmp( &m_Relinkage, &m_Previous, sizeof(Relinkage) ) == 0 )
+    signalModified();
+
   m_Node->m_Pare = m_Relinkage.m_Parent;
 
   if( m_Relinkage.m_Sibling )

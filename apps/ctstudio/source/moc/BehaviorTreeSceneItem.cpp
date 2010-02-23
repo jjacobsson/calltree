@@ -129,3 +129,7 @@ void BehaviorTreeSceneItem::dragEnd()
   emit itemDragged();
 }
 
+void BehaviorTreeSceneItem::signalModified()
+{
+  emit modified();
+}

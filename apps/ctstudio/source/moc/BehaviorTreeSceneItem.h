@@ -56,6 +56,7 @@ public:
 signals:
 
   void itemDragged();
+  void modified();
 
 protected:
 
@@ -68,6 +69,8 @@ protected:
   virtual void dragMove();
   virtual void dragBegin();
   virtual void dragEnd();
+
+  void signalModified();
 
 private:
 

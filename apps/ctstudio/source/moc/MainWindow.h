@@ -41,6 +41,7 @@ private slots:
 	bool save();
 	bool saveAs();
 	void openRecentFile();
+	void treeModified();
 
 private:
 
