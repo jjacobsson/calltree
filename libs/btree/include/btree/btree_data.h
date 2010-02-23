@@ -34,10 +34,9 @@ enum SymbolTypes
 {
   E_ST_UNKOWN,
   E_ST_TREE,
-  E_ST_NODE,
   E_ST_ACTION,
   E_ST_DECORATOR,
-  E_ST_MAX_TYPES
+  E_MAX_SYMBOL_TYPES
 };
 
 enum VariableType
@@ -146,9 +145,17 @@ struct NodeGrist
 	};
 };
 
+enum NodeParentTypes
+{
+  E_NP_UNKOWN,
+  E_NP_NODE,
+  E_NP_TREE,
+  E_MAX_NODE_PARENT_TYPES
+};
+
 struct NodeParent
 {
-  SymbolTypes m_Type;
+  NodeParentTypes m_Type;
   union {
     Node*           m_Node;
     BehaviorTree*   m_Tree;

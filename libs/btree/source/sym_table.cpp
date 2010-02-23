@@ -32,6 +32,10 @@ struct NamedSymbolPredicate
     case E_ST_DECORATOR:
       r = s.m_Symbol.m_Decorator->m_Id.m_Hash;
       break;
+    case E_ST_UNKOWN:
+    case E_MAX_SYMBOL_TYPES:
+      /* Warning killers */
+      break;
     }
     return r;
   }

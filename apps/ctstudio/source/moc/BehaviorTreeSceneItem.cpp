@@ -72,7 +72,7 @@ QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,
   case ItemSelectedChange:
     update();
     break;
-  case ItemPositionChange:
+  default:
     break;
   }
   return QGraphicsSvgItem::itemChange( change, value );

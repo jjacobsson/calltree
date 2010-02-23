@@ -132,7 +132,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
 
     createGraphics( n, tree );
 
-    n->m_Pare.m_Type = E_ST_TREE;
+    n->m_Pare.m_Type = E_NP_TREE;
     n->m_Pare.m_Tree = bt;
 
     if( bt->m_Root )

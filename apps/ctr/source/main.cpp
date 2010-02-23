@@ -278,7 +278,6 @@ int main(int argc, char** argv)
     int returnCode = 0;
     char c = 0;
     char *inputFileName = 0x0;
-    int count = 0;
     bool silent = false;
 
     GetOptContext ctx;

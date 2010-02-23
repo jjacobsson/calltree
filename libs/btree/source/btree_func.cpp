@@ -142,7 +142,7 @@ bool SafeToConvert( const Variable& v, int to_type )
 
 int ValueAsInteger( const Variable& v )
 {
-  int r;
+  int r = 0;
   switch( v.m_Type )
   {
   case E_VART_INTEGER:
@@ -165,7 +165,7 @@ int ValueAsInteger( const Variable& v )
 
 float ValueAsFloat( const Variable& v )
 {
-  float r;
+  float r = 0.0f;
   switch( v.m_Type )
   {
   case E_VART_INTEGER:
@@ -195,7 +195,7 @@ const StringData* ValueAsString( const Variable& v )
 
 bool ValueAsBool( const Variable& v )
 {
-  bool r;
+  bool r = false;
   switch( v.m_Type )
   {
   case E_VART_INTEGER:
@@ -210,7 +210,7 @@ bool ValueAsBool( const Variable& v )
   case E_VART_UNDEFINED:
   case E_VART_STRING:
   case E_MAX_VARIABLE_TYPE:
-    r = 0.0f;
+    r = false;
     break;
   }
   return r;
@@ -310,7 +310,7 @@ void SetParentOnChildren( BehaviorTree* t )
   Node* c = t->m_Root;
   while( c )
   {
-    c->m_Pare.m_Type = E_ST_TREE;
+    c->m_Pare.m_Type = E_NP_TREE;
     c->m_Pare.m_Tree = t;
     c = c->m_Next;
   }
@@ -348,7 +348,7 @@ void InitNode( Node* n )
 {
   InitGrist( &n->m_Grist );
 
-  n->m_Pare.m_Type = E_ST_UNKOWN;
+  n->m_Pare.m_Type = E_NP_UNKOWN;
   n->m_Pare.m_Node = 0x0;
   n->m_Next = 0x0;
   n->m_Prev = 0x0;
@@ -371,7 +371,7 @@ void SetParentOnChildren( Node* n )
   Node* c = GetFirstChild( n );
   while( c )
   {
-    c->m_Pare.m_Type = E_ST_NODE;
+    c->m_Pare.m_Type = E_NP_NODE;
     c->m_Pare.m_Node = n;
     c = c->m_Next;
   }
@@ -413,10 +413,18 @@ Node* GetFirstChild( Node* n )
 
 Node* GetFirstChild( const NodeParent& p )
 {
-  if( p.m_Type == E_ST_NODE )
+  switch( p.m_Type )
+  {
+  case E_NP_NODE:
     return GetFirstChild( p.m_Node );
-  else if( p.m_Type == E_ST_TREE )
+    break;
+  case E_NP_TREE:
     return p.m_Tree->m_Root;
+    break;
+  case E_NP_UNKOWN:
+  case E_MAX_NODE_PARENT_TYPES:
+    break;
+  }
   return 0x0;
 }
 
@@ -456,16 +464,14 @@ void SetFirstChild( const NodeParent& p, Node* c )
 {
   switch( p.m_Type )
   {
-  case E_ST_NODE:
+  case E_NP_NODE:
     SetFirstChild( p.m_Node, c );
     break;
-  case E_ST_TREE:
+  case E_NP_TREE:
     p.m_Tree->m_Root = c;
     break;
-  case E_ST_UNKOWN:
-  case E_ST_ACTION:
-  case E_ST_DECORATOR:
-  case E_ST_MAX_TYPES:
+  case E_NP_UNKOWN:
+  case E_MAX_NODE_PARENT_TYPES:
     break;
   }
 }
@@ -482,20 +488,22 @@ void UnlinkFromSiblings( Node* n )
 
 void UnlinkNodeFromParentAndSiblings( Node* n )
 {
-  if( n->m_Pare.m_Type == E_ST_NODE )
+  switch( n->m_Pare.m_Type )
   {
-    Node* fc = GetFirstChild( n->m_Pare.m_Node );
-    if( fc == n )
+  case E_NP_NODE:
+    if( GetFirstChild( n->m_Pare.m_Node ) == n )
       SetFirstChild( n->m_Pare.m_Node, n->m_Next );
-  }
-  else if( n->m_Pare.m_Type == E_ST_TREE )
-  {
+    break;
+  case E_NP_TREE:
     if( n->m_Pare.m_Tree->m_Root == n )
       n->m_Pare.m_Tree->m_Root = n->m_Next;
+    break;
+  case E_NP_UNKOWN:
+  case E_MAX_NODE_PARENT_TYPES:
+    break;
   }
-
   UnlinkFromSiblings( n );
-  n->m_Pare.m_Type = E_ST_UNKOWN;
+  n->m_Pare.m_Type = E_NP_UNKOWN;
   n->m_Pare.m_Node = 0x0;
 }
 

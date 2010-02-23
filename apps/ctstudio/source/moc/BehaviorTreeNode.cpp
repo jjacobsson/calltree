@@ -77,57 +77,64 @@ void BehaviorTreeNode::dragBegin()
 
 void BehaviorTreeNode::dragEnd()
 {
-	if( m_Relinkage.m_Parent.m_Type == E_ST_NODE )
-	{
-		BehaviorTreeNode* p = (BehaviorTreeNode*)m_Relinkage.m_Parent.m_Node->m_UserData;
-		setPos( p->mapFromScene( scenePos() ) );
-		setParentItem( p );
-
-		p->addArrow( m_DraggingArrow );
-		m_DraggingArrow->setStartAndEnd( p, this );
-		m_DraggingArrow->setDashed( false );
-		m_DraggingArrow = 0x0;
-	}
-	else if( m_Relinkage.m_Parent.m_Type == E_ST_TREE )
-	{
-      BehaviorTreeTree* p = (BehaviorTreeTree*)m_Relinkage.m_Parent.m_Tree->m_UserData;
-      setPos( p->mapFromScene( scenePos() ) );
-      setParentItem( p );
-
-      p->addArrow( m_DraggingArrow );
-      m_DraggingArrow->setStartAndEnd( p, this );
-      m_DraggingArrow->setDashed( false );
-      m_DraggingArrow = 0x0;
-
-	}
-	else
-	{
-		removeArrow( m_DraggingArrow );
-		delete m_DraggingArrow;
-		m_DraggingArrow = 0x0;
-	}
-
-	executeRelinkage();
-
-	BehaviorTreeSceneItem::dragEnd();
+  switch( m_Relinkage.m_Parent.m_Type )
+  {
+  case E_NP_NODE:
+    dragEndNodeParent();
+    break;
+  case E_NP_TREE:
+    dragEndTreeParent();
+    break;
+    break;
+  default:
+    removeArrow( m_DraggingArrow );
+    delete m_DraggingArrow;
+    m_DraggingArrow = 0x0;
+    break;
+  }
+  executeRelinkage();
+  BehaviorTreeSceneItem::dragEnd();
 }
 
 void BehaviorTreeNode::setupLabel()
 {
-/*
-	QGraphicsTextItem* gti = new QGraphicsTextItem( m_Node->m_Id.m_Text, this );
-	QPointF p;
-	QRectF r( gti->boundingRect() );
-	p.rx() = 128.0 - (r.width() / 2.0);
-	p.ry() = 128.0 - (r.height() / 2.0);
-	gti->setPos( p );
-*/
+  const char* str = 0x0;
+  switch( m_Node->m_Grist.m_Type )
+  {
+  case E_GRIST_DECORATOR:
+    str = m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
+    break;
+  case E_GRIST_ACTION:
+    str = m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_MAX_GRIST_TYPES:
+    /* Warning killers */
+    break;
+  }
+
+  if( !str )
+    return;
+
+  QGraphicsTextItem* gti = new QGraphicsTextItem( str, this );
+  QPointF p;
+  QRectF r( gti->boundingRect() );
+  p.rx() = 128.0 - (r.width() / 2.0);
+  p.ry() = 128.0 - (r.height() / 2.0);
+  gti->setPos( p );
 }
 
 void BehaviorTreeNode::setupTooltip()
 {
   QString str;
-  switch( (int)m_Node->m_Grist.m_Type )
+  switch( m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
     str += tr( "Unknown" );
@@ -144,43 +151,27 @@ void BehaviorTreeNode::setupTooltip()
   case E_GRIST_DYN_SELECTOR:
     str += tr( "Dynamic Selector" );
     break;
+  case E_GRIST_SUCCEED:
+    str += tr( "Succeed" );
+    break;
+  case E_GRIST_FAIL:
+    str += tr( "Fail" );
+    break;
+  case E_GRIST_WORK:
+    str += tr( "Work" );
+    break;
   case E_GRIST_DECORATOR:
     str += tr( "Decorator, " );
     str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
-    {
-      /*
-       QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Decorator.m_Arguments ) );
-       if( t.isEmpty() )
-       str += "()";
-       else
-       {
-       str += "( ";
-       str += t;
-       str += " )";
-       }
-       */
-    }
     break;
   case E_GRIST_ACTION:
     str += tr( "Action, " );
     str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
-    {
-      /*
-       QString t( GetVariableListAsString( m_Node->m_Tree, m_Node->m_Grist.m_Action.m_Arguments ) );
-       if( t.isEmpty() )
-       str += "()";
-       else
-       {
-       str += "( ";
-       str += t;
-       str += " )";
-       }
-       */
-    }
+    break;
+  case E_MAX_GRIST_TYPES:
+    /* Warning killer */
     break;
   }
-  //str += "\n";
-  //str += m_Node->m_Id.m_Text;
   setToolTip( str );
 }
 
@@ -265,7 +256,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
 
       Relinkage t;
 
-      t.m_Parent.m_Type = E_ST_NODE;
+      t.m_Parent.m_Type = E_NP_NODE;
       t.m_Parent.m_Node = p;
       t.m_BeforeSibling = true;
 
@@ -282,7 +273,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
         continue;
 
       Relinkage t;
-      t.m_Parent.m_Type = E_ST_TREE;
+      t.m_Parent.m_Type = E_NP_TREE;
       t.m_Parent.m_Tree = p;
       t.m_BeforeSibling = true;
 
@@ -332,6 +323,31 @@ void BehaviorTreeNode::lookForRelinkTarget()
   QString s = QString( "Drag X: %1 Best X: %2 Before: %3").arg(x).arg(best).arg(m_Relinkage.m_BeforeSibling);
 
   emit relinkTargetMessage( s, 2000 );
+}
 
+void BehaviorTreeNode::dragEndNodeParent()
+{
+  BehaviorTreeNode* p =
+      (BehaviorTreeNode*)m_Relinkage.m_Parent.m_Node->m_UserData;
+  setPos( p->mapFromScene( scenePos() ) );
+  setParentItem( p );
+
+  p->addArrow( m_DraggingArrow );
+  m_DraggingArrow->setStartAndEnd( p, this );
+  m_DraggingArrow->setDashed( false );
+  m_DraggingArrow = 0x0;
+}
+
+void BehaviorTreeNode::dragEndTreeParent()
+{
+  BehaviorTreeTree* p =
+      (BehaviorTreeTree*)m_Relinkage.m_Parent.m_Tree->m_UserData;
+  setPos( p->mapFromScene( scenePos() ) );
+  setParentItem( p );
+
+  p->addArrow( m_DraggingArrow );
+  m_DraggingArrow->setStartAndEnd( p, this );
+  m_DraggingArrow->setDashed( false );
+  m_DraggingArrow = 0x0;
 }
 

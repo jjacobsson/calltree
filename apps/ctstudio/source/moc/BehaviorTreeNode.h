@@ -62,6 +62,9 @@ private:
   void executeRelinkage();
   void lookForRelinkTarget();
 
+  void dragEndNodeParent();
+  void dragEndTreeParent();
+
   Node* m_Node; // Associated behavior tree node.
 
   struct Relinkage
