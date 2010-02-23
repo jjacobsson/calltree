@@ -25,7 +25,7 @@ MainWindow::MainWindow() :
   m_BTreeView = new BehaviorTreeView( m_BTreeScene );
   m_List = new BehaviorTreeList;
 
-  m_Dock->setWidget( m_List );
+  m_NodesDock->setWidget( m_List );
 
   setCentralWidget( m_BTreeView );
 
@@ -43,6 +43,7 @@ MainWindow::MainWindow() :
   connect( m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
   connect( m_BTreeView, SIGNAL( statusMessage( QString, int ) ), this->statusBar(), SLOT( showMessage( QString, int ) ) );
   connect( m_BTreeScene, SIGNAL( modified() ), this, SLOT(treeModified()) );
+  connect( m_ExitAction, SIGNAL( triggered()), this, SLOT(close()) );
 }
 
 void MainWindow::open()
