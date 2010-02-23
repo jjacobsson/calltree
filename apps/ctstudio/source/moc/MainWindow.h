@@ -34,8 +34,8 @@ protected:
 private slots:
 
 	void open();
-	void save();
-	void saveAs();
+	bool save();
+	bool saveAs();
 
 private:
 
@@ -45,6 +45,7 @@ private:
 	void readSettings();
 	void writeSettings();
 	bool loadFile( const QString& fileName );
+	bool saveFile( const QString& fileName );
 
 	void setCurrentFile( const QString& fileName );
 	QString strippedName( const QString& fullFileName );
@@ -52,6 +53,8 @@ private:
 	BehaviorTreeList*   m_List;
 	BehaviorTreeView*	m_BTreeView;
 	BehaviorTreeScene*	m_BTreeScene;
+
+	QString m_CurrentFile;
 };
 
 #endif

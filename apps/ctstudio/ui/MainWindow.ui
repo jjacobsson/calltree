@@ -28,24 +28,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowTabbedDocks</set>
   </property>
-  <widget class="QWidget" name="m_CentralWidget">
-   <widget class="QLabel" name="m_StatusLabelCurrentFile">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>450</y>
-      <width>111</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="indent">
-     <number>3</number>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="m_CentralWidget"/>
   <widget class="QMenuBar" name="m_Menubar">
    <property name="geometry">
     <rect>

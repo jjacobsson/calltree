@@ -36,7 +36,7 @@ void SaverContextSetExtra( SaverContext sc, void* extra )
   sc->m_Extra = extra;
 }
 
-BehaviorTreeContext ParserContextGetBehaviorTreeContext( SaverContext sc )
+BehaviorTreeContext SaverContextGetBehaviorTreeContext( SaverContext sc )
 {
   return sc->m_Tree;
 }

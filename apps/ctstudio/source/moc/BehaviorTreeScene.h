@@ -41,6 +41,7 @@ public:
 	~BehaviorTreeScene();
 
 	bool readFile( const QString& fileName );
+	bool writeFile( const QString& fileName );
 
     void dragEnterEvent( QDragEnterEvent *event );
     void dragLeaveEvent( QDragLeaveEvent *event );

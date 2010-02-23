@@ -176,7 +176,7 @@ void SaverContextDestroy( SaverContext );
 void* SaverContextGetExtra( SaverContext );
 void SaverContextSetExtra( SaverContext, void* );
 
-BehaviorTreeContext ParserContextGetBehaviorTreeContext( SaverContext );
+BehaviorTreeContext SaverContextGetBehaviorTreeContext( SaverContext );
 
 void Save( SaverContext, SaverContextFunctions* );
 

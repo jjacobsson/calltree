@@ -12,13 +12,21 @@
 #ifndef BTREE_CALLBACKS_H_INCLUDED
 #define BTREE_CALLBACKS_H_INCLUDED
 
-#include <QtCore/QFile>
 #include <btree/btree_data.h>
+
+class QFile;
+class QFileInfo;
 
 struct ParsingInfo
 {
-  QFile* m_File;
-  const char* m_Name;
+  QFile*     m_File;
+  QFileInfo* m_FileName;
+};
+
+struct SavingInfo
+{
+  QFile*     m_File;
+  QFileInfo* m_FileName;
 };
 
 int read_file( ParserContext pc, char* buffer, int maxsize );
@@ -27,6 +35,9 @@ void parser_warning( ParserContext pc, const char* msg );
 const char* parser_translate_include( ParserContext pc, const char* include );
 void* allocate_memory( mem_size_t size );
 void free_memory( void* ptr );
+
+void write_file( SaverContext sc, const char* buffer, int size );
+const char* saver_translate_include( SaverContext sc, const char* include );
 
 
 #endif //BTREE_CALLBACKS_H_INCLUDED

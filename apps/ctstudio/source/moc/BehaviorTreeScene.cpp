@@ -20,6 +20,10 @@
 
 #include <QtGui/QtGui>
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+
+
 const float g_NodeWidth = 256.0f;
 const float g_NodeHeight = 256.0f;
 const float g_HoriSpace = 64.0f;
@@ -156,16 +160,15 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
   a.m_Free = &free_memory;
   m_TreeContext = BehaviorTreeContextCreate( a );
 
+  QFileInfo fi( qt_filename );
   QFile f( qt_filename );
 
   if( !f.open( QFile::ReadOnly ) )
     return false;
 
-  std::string filename( qt_filename.toStdString() );
-
   ParsingInfo pi;
-  pi.m_Name = BehaviorTreeContextRegisterString( m_TreeContext, filename.c_str() );
   pi.m_File = &f;
+  pi.m_FileName = &fi;
 
   ParserContextFunctions pcf;
   pcf.m_Read = &read_file;
@@ -175,7 +178,6 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
 
   ParserContext pc = ParserContextCreate( m_TreeContext );
   ParserContextSetExtra( pc, &pi );
-  ParserContextSetCurrent( pc, pi.m_Name );
   int returnCode = Parse( pc, &pcf );
   ParserContextDestroy( pc );
 
@@ -186,6 +188,30 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
 
   createGraphics();
   layout();
+
+  return true;
+}
+
+bool BehaviorTreeScene::writeFile( const QString& qt_filename )
+{
+  QFileInfo fi( qt_filename );
+  QFile f( qt_filename );
+
+  if( !f.open( QFile::WriteOnly ) )
+    return false;
+
+  SavingInfo si;
+  si.m_File = &f;
+  si.m_FileName = &fi;
+
+  SaverContextFunctions scf;
+  scf.m_Write = &write_file;
+  scf.m_Translate = &saver_translate_include;
+
+  SaverContext sc = SaverContextCreate( m_TreeContext );
+  SaverContextSetExtra( sc, &si );
+  Save( sc, &scf );
+  SaverContextDestroy( sc );
 
   return true;
 }

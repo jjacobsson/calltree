@@ -2,6 +2,12 @@
 #include <btree/btree_func.h>
 #include <malloc.h>
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
+#include <string>
+
 int read_file( ParserContext pc, char* buffer, int maxsize )
 {
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
@@ -17,7 +23,9 @@ void parser_error( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-    fprintf( stdout, "%s(%d) : error : %s\n", pi->m_Name,
+    QString fileName = pi->m_FileName->absoluteFilePath();
+    std::string std_fileName = fileName.toStdString();
+    fprintf( stdout, "%s(%d) : error : %s\n", std_fileName.c_str(),
       ParserContextGetLineNo( pc ), msg );
   }
   else
@@ -32,7 +40,9 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-    fprintf( stdout, "%s(%d) : warning : %s\n", pi->m_Name,
+    QString fileName = pi->m_FileName->absoluteFilePath();
+    std::string std_fileName = fileName.toStdString();
+    fprintf( stdout, "%s(%d) : warning : %s\n", std_fileName.c_str(),
       ParserContextGetLineNo( pc ), msg );
   }
   else
@@ -45,39 +55,30 @@ void parser_warning( ParserContext pc, const char* msg )
 const char* parser_translate_include( ParserContext pc, const char* include )
 {
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
+  if( !pi )
+    return include;
+  QDir parent_dir( pi->m_FileName->absoluteDir() );
+  QString qstr = parent_dir.absoluteFilePath( QString( include ) );
+  std::string stdstr( qstr.toStdString() );
+  return BehaviorTreeContextRegisterString( ParserContextGetBehaviorTreeContext( pc ), stdstr.c_str() );
+}
 
-  StringBuffer sb;
+void write_file( SaverContext sc, const char* data, int size )
+{
+  SavingInfo* si = (SavingInfo*)SaverContextGetExtra( sc );
+  si->m_File->write( data, size );
+}
 
-  Allocator a;
-  a.m_Alloc = &allocate_memory;
-  a.m_Free = &free_memory;
+const char* saver_translate_include( SaverContext sc, const char* include )
+{
+  SavingInfo* si = (SavingInfo*)SaverContextGetExtra( sc );
+  if( !si )
+    return include;
+  QDir parent_dir( si->m_FileName->absoluteDir() );
+  QString qstr = parent_dir.relativeFilePath( QString( include ) );
+  std::string stdstr( qstr.toStdString() );
+  return BehaviorTreeContextRegisterString( SaverContextGetBehaviorTreeContext( sc ), stdstr.c_str() );
 
-  StringBufferInit( a, &sb );
-
-  if( pi->m_Name )
-  {
-    char backslash = '\\';
-    char frontslash = '/';
-
-    int s = 0, last = -1;
-    const char* p = pi->m_Name;
-    while( p && *p )
-    {
-      if( *p == backslash || *p == frontslash )
-        last = s;
-      ++p;
-      ++s;
-    }
-    if( last != -1 )
-      StringBufferAppend( &sb, pi->m_Name, last + 1 );
-  }
-
-  StringBufferAppend( &sb, include );
-  const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( &sb );
-
-  return ret;
 }
 
 void* allocate_memory( mem_size_t size )

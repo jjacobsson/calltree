@@ -79,22 +79,32 @@ void BehaviorTreeView::mouseReleaseEvent( QMouseEvent* e )
 
 void BehaviorTreeView::keyPressEvent( QKeyEvent* e )
 {
-  if( e->key() == Qt::Key_Alt )
+  switch( e->key() )
   {
+  case Qt::Key_Alt:
     setInteractive( false );
     setDragMode( QGraphicsView::ScrollHandDrag );
+    break;
+  case Qt::Key_Return:
+  case Qt::Key_Enter:
+    break;
+  default:
+    QGraphicsView::keyPressEvent( e );
+    break;
   }
-  QGraphicsView::keyPressEvent( e );
 }
 
 void BehaviorTreeView::keyReleaseEvent( QKeyEvent* e )
 {
-  if( e->key() == Qt::Key_Alt )
+  switch( e->key() )
   {
+  case Qt::Key_Alt:
     setInteractive( true );
     setDragMode( QGraphicsView::NoDrag );
+    break;
+  default:
+    QGraphicsView::keyReleaseEvent( e );
   }
-  QGraphicsView::keyReleaseEvent( e );
 }
 
 void BehaviorTreeView::dragEnterEvent( QDragEnterEvent *event )

@@ -19,26 +19,30 @@
 // Qt Forward declares
 class QGraphicsScene;
 
-class BehaviorTreeView : public QGraphicsView
+class BehaviorTreeView: public QGraphicsView
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
 
-	BehaviorTreeView();
-	BehaviorTreeView( QGraphicsScene* scene );
+  BehaviorTreeView();
+  BehaviorTreeView( QGraphicsScene* scene );
+
+signals:
+
+  void statusMessage( QString s, int timeout );
 
 protected:
-	void wheelEvent( QWheelEvent* e );
-	void mousePressEvent( QMouseEvent* e );
-	void mouseReleaseEvent( QMouseEvent* e );
-	void keyPressEvent( QKeyEvent* e );
-	void keyReleaseEvent( QKeyEvent* e );
+  void wheelEvent( QWheelEvent* e );
+  void mousePressEvent( QMouseEvent* e );
+  void mouseReleaseEvent( QMouseEvent* e );
+  void keyPressEvent( QKeyEvent* e );
+  void keyReleaseEvent( QKeyEvent* e );
 
-    void dragEnterEvent( QDragEnterEvent *event );
-    void dragLeaveEvent( QDragLeaveEvent *event );
-    void dragMoveEvent( QDragMoveEvent *event );
-    void dropEvent( QDropEvent *event );
+  void dragEnterEvent( QDragEnterEvent *event );
+  void dragLeaveEvent( QDragLeaveEvent *event );
+  void dragMoveEvent( QDragMoveEvent *event );
+  void dropEvent( QDropEvent *event );
 
 };
 
