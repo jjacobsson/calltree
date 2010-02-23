@@ -15,6 +15,10 @@
 #include "../../ui/ui_MainWindow.h"
 #include <QtGui/QMainWindow>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
+
+// Qt Forard declares
+class QAction;
 
 // Internal Forward declares
 class BehaviorTreeScene;
@@ -36,10 +40,15 @@ private slots:
 	void open();
 	bool save();
 	bool saveAs();
+	void openRecentFile();
 
 private:
 
 	void setupStatusBar();
+	void setupActions();
+	void setupMenus();
+
+	void updateRecentFileActions();
 
 	bool okToContinue();
 	void readSettings();
@@ -55,6 +64,13 @@ private:
 	BehaviorTreeScene*	m_BTreeScene;
 
 	QString m_CurrentFile;
+
+	enum { MaxRecentFiles = 5 };
+	QAction* m_RecentFileActions[ MaxRecentFiles ];
+	QAction* m_SeparatorAction;
+	QStringList m_RecentFiles;
+
+	QAction* m_ExitAction;
 };
 
 #endif

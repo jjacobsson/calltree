@@ -30,6 +30,8 @@ MainWindow::MainWindow() :
   setCentralWidget( m_BTreeView );
 
   setupStatusBar();
+  setupActions();
+  setupMenus();
 
   readSettings();
 
@@ -72,8 +74,68 @@ bool MainWindow::saveAs()
   return saveFile( fileName );
 }
 
+void MainWindow::openRecentFile()
+{
+  if( okToContinue() )
+  {
+    QAction* action = qobject_cast<QAction*>(sender());
+    if( action )
+      loadFile(action->data().toString());
+  }
+}
+
 void MainWindow::setupStatusBar()
 {
+}
+
+void MainWindow::setupActions()
+{
+  for( int i = 0; i < MaxRecentFiles; ++i )
+  {
+    m_RecentFileActions[i] = new QAction( this );
+    m_RecentFileActions[i]->setVisible( false );
+    connect( m_RecentFileActions[i], SIGNAL(triggered()),
+      this, SLOT(openRecentFile()) );
+  }
+
+  m_ExitAction = new QAction( tr("&Exit"), this );
+  m_ExitAction->setShortcut(tr("Ctrl+Q"));
+}
+
+void MainWindow::setupMenus()
+{
+  m_SeparatorAction = m_MenuFile->addSeparator();
+  m_SeparatorAction->setVisible(false);
+  for( int i = 0; i < MaxRecentFiles; ++i )
+    m_MenuFile->addAction(m_RecentFileActions[i]);
+  m_MenuFile->addSeparator();
+  m_MenuFile->addAction( m_ExitAction );
+}
+
+void MainWindow::updateRecentFileActions()
+{
+  QMutableStringListIterator i( m_RecentFiles );
+  while( i.hasNext() )
+  {
+    if( !QFile::exists( i.next() ) )
+      i.remove();
+  }
+  for( int j = 0; j < MaxRecentFiles; ++j )
+  {
+    if( j < m_RecentFiles.count() )
+    {
+      QString text = tr( "&%1 %2" ) .arg( j + 1 ) .arg( strippedName(
+        m_RecentFiles[j] ) );
+      m_RecentFileActions[j]->setText( text );
+      m_RecentFileActions[j]->setData( m_RecentFiles[j] );
+      m_RecentFileActions[j]->setVisible( true );
+    }
+    else
+    {
+      m_RecentFileActions[j]->setVisible( false );
+    }
+  }
+  m_SeparatorAction->setVisible( !m_RecentFiles.isEmpty() );
 }
 
 void MainWindow::closeEvent( QCloseEvent* event )
@@ -95,7 +157,9 @@ void MainWindow::readSettings()
   settings.beginGroup( "main window" );
   restoreState( settings.value( "state" ).toByteArray() );
   restoreGeometry( settings.value( "geometry" ).toByteArray() );
+  m_RecentFiles = settings.value("recentFiles").toStringList();
   settings.endGroup();
+  updateRecentFileActions();
 }
 
 void MainWindow::writeSettings()
@@ -104,6 +168,7 @@ void MainWindow::writeSettings()
   settings.beginGroup( "main window" );
   settings.setValue( "state", saveState() );
   settings.setValue( "geometry", saveGeometry() );
+  settings.setValue( "recentFiles", m_RecentFiles );
   settings.endGroup();
 }
 
@@ -142,9 +207,9 @@ void MainWindow::setCurrentFile( const QString& fileName )
   if( !m_CurrentFile.isEmpty() )
   {
     shownName = strippedName( m_CurrentFile );
-    //recentFiles.removeAll(m_CurrentFile);
-    //recentFiles.prepend(m_CurrentFile);
-    //updateRecentFileActions();
+    m_RecentFiles.removeAll(m_CurrentFile);
+    m_RecentFiles.prepend(m_CurrentFile);
+    updateRecentFileActions();
   }
   setWindowTitle( tr( "%1[*] - %2" ).arg( shownName ).arg( tr(
     "Call Tree Studio" ) ) );
