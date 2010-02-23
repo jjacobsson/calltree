@@ -239,8 +239,14 @@ void SaveNode( SaverContext, Node*, int );
 
 void AppendDepth( SaverContext sc, int depth )
 {
-  if( depth == 0 )
+  //Negative scope... hmm...
+  if( depth <= 0 )
     return;
+
+  //This is to ensure that we don't get a buffer-overrun in the "space_buff" string.
+  if( depth >= 500 )
+    depth = 500;
+
   char depth_buff[ 128 ];
   char space_buff[ 1024 ];
   sprintf( depth_buff, "%%-%ds", depth );
