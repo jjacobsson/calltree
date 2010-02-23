@@ -256,52 +256,47 @@ void AppendDepth( SaverContext sc, int depth )
 
 void SaveSequence( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(sequence " );
-  SaveNodeList( sc, GetFirstChild( n ), depth + 1 );
+  SaveNodeList( sc, GetFirstChild( n ), depth );
   StringBufferAppend( &sc->m_Buffer, ")\n" );
 }
 
 void SaveSelector( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(selector " );
-  SaveNodeList( sc, GetFirstChild( n ), depth + 1 );
+  SaveNodeList( sc, GetFirstChild( n ), depth );
   StringBufferAppend( &sc->m_Buffer, ")\n" );
 }
 
 void SaveParallel( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(parallel " );
-  SaveNodeList( sc, GetFirstChild( n ), depth + 1 );
+  SaveNodeList( sc, GetFirstChild( n ), depth );
   StringBufferAppend( &sc->m_Buffer, ")\n" );
 }
 
 void SaveDynSelector( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(dyn_selector " );
-  SaveNodeList( sc, GetFirstChild( n ), depth + 1 );
+  SaveNodeList( sc, GetFirstChild( n ), depth );
   StringBufferAppend( &sc->m_Buffer, ")\n" );
 }
 
 void SaveSucceed( SaverContext sc, Node* n, int depth )
 {
-  StringBufferAppend( &sc->m_Buffer, "(succeed)" );
+  StringBufferAppend( &sc->m_Buffer, "(succeed)\n" );
 }
 void SaveFail( SaverContext sc, Node* n, int depth )
 {
-  StringBufferAppend( &sc->m_Buffer, "(fail)" );
+  StringBufferAppend( &sc->m_Buffer, "(fail)\n" );
 }
 void SaveWork( SaverContext sc, Node* n, int depth )
 {
-  StringBufferAppend( &sc->m_Buffer, "(work)" );
+  StringBufferAppend( &sc->m_Buffer, "(work)\n" );
 }
 
 void SaveDecorator( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(decorator '" );
   StringBufferAppend( &sc->m_Buffer, n->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text );
   StringBufferAppend( &sc->m_Buffer, ' ' );
@@ -314,7 +309,6 @@ void SaveDecorator( SaverContext sc, Node* n, int depth )
 
 void SaveAction( SaverContext sc, Node* n, int depth )
 {
-  AppendDepth( sc, depth );
   StringBufferAppend( &sc->m_Buffer, "(action '" );
   StringBufferAppend( &sc->m_Buffer, n->m_Grist.m_Action.m_Action->m_Id.m_Text );
   StringBufferAppend( &sc->m_Buffer, ' ' );
@@ -324,6 +318,8 @@ void SaveAction( SaverContext sc, Node* n, int depth )
 
 void SaveNode( SaverContext sc, Node* n, int depth )
 {
+  AppendDepth( sc, depth );
+  depth++;
   switch( n->m_Grist.m_Type )
   {
   case E_GRIST_SEQUENCE:
@@ -365,16 +361,26 @@ void SaveNode( SaverContext sc, Node* n, int depth )
 void SaveNodeList( SaverContext sc, Node* n, int depth )
 {
   StringBufferAppend( &sc->m_Buffer, "'(" );
+  Node* it = n;
   if( n )
     StringBufferAppend( &sc->m_Buffer, '\n' );
 
-  while( n )
+  while( it )
   {
-    SaveNode( sc, n, depth );
-    n = n->m_Next;
+    SaveNode( sc, it, depth + 1 );
+    it = it->m_Next;
   }
-  AppendDepth( sc, depth - 1 );
+  if( n )
+    AppendDepth( sc, depth );
+
   StringBufferAppend( &sc->m_Buffer, ")" );
+
+  if( n )
+  {
+    StringBufferAppend( &sc->m_Buffer, '\n' );
+    if( depth > 1 )
+      AppendDepth( sc, depth - 1 );
+  }
 }
 
 void FlushBuffer( SaverContext sc )
