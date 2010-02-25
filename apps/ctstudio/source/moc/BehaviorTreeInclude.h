@@ -23,7 +23,7 @@ class BehaviorTreeInclude: public BehaviorTreeSceneItem
 public:
 
 
-  BehaviorTreeTree( BehaviorTree* tree );
+  BehaviorTreeInclude();
 
   enum
   {

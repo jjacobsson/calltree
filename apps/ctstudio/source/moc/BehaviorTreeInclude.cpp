@@ -13,7 +13,7 @@
 #include "../standard_resources.h"
 #include <btree/btree.h>
 
-BehaviorTreeTree::BehaviorTreeTree()
+BehaviorTreeInclude::BehaviorTreeInclude()
   : BehaviorTreeSceneItem( ":/nodes/include.svg" )
 {
   setFlag( QGraphicsItem::ItemIsMovable, false );
