@@ -12,5 +12,6 @@
 	<file>nodes/decorator.svg</file>
 	<file>nodes/action.svg</file>     
 	<file>nodes/tree.svg</file>
+	<file>nodes/include.svg</file>
  </qresource>
  </RCC>
