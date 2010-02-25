@@ -210,6 +210,7 @@ struct Include
   const char*   m_Name;
   const char*   m_Parent;
   int           m_LineNo;
+  void*         m_UserData;
   Include*      m_Next;
 };
 

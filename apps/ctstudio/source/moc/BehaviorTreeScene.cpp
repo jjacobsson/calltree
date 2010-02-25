@@ -12,6 +12,7 @@
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeNode.h"
 #include "BehaviorTreeTree.h"
+#include "BehaviorTreeInclude.h"
 #include "../NodeToNodeArrow.h"
 #include "../btree_callbacks.h"
 #include <btree/btree.h>
@@ -253,6 +254,18 @@ void BehaviorTreeScene::createGraphics()
     connect( tree, SIGNAL(modified()), this, SLOT( itemModified() ) );
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
+
+  Include* inc = BehaviorTreeContextGetFirstInclude( m_TreeContext );
+  int count = 0;
+  while( inc )
+  {
+    BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude();
+    addItem( inc_si );
+    inc_si->moveBy( (g_NodeWidth + g_HoriSpace) * count, 0 );
+    inc = inc->m_Next;
+    ++count;
+  }
+
 }
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
@@ -270,8 +283,6 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
       m_MainWindow->statusBar(),
       SLOT( showMessage( QString, int ) )
     );
-
-
 
     if( !parent )
       addItem( svg_item );
@@ -297,7 +308,7 @@ void BehaviorTreeScene::layoutRoot( BehaviorTreeSceneItem* n, ExtentsList& el )
     depthFirstPlace( n, t );
     padExtents( el, t );
     double slide = minimumRootDistance( el, t );
-    n->moveBy( slide, 0 );
+    n->moveBy( slide, g_NodeHeight + g_VertSpace );
     moveExtents( t, slide );
     mergeExtents( el, el, t );
     n = n->nextSibling();

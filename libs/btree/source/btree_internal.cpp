@@ -120,6 +120,7 @@ void BehaviorTreeContextAddInclude( BehaviorTreeContext btc, const Include& incl
   *i = include;
   i->m_Hash = h;
   i->m_Next = 0x0;
+  i->m_UserData = 0x0;
 
   if( l )
     l->m_Next = i;

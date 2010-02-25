@@ -22,7 +22,6 @@ class BehaviorTreeInclude: public BehaviorTreeSceneItem
   Q_OBJECT
 public:
 
-
   BehaviorTreeInclude();
 
   enum
