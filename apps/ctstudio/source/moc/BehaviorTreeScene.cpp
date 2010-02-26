@@ -15,6 +15,7 @@
 #include "BehaviorTreeInclude.h"
 #include "../NodeToNodeArrow.h"
 #include "../btree_callbacks.h"
+#include "../x-node.h"
 #include <btree/btree.h>
 #include <other/lookup3.h>
 #include <malloc.h>
@@ -33,10 +34,11 @@ const float g_VertSpace = 128.0f;
 BehaviorTreeScene::BehaviorTreeScene( QMainWindow* mw )
   : m_TreeContext( 0x0 )
   , m_MainWindow( mw )
+  , m_DragItem( 0x0 )
 {
   Allocator a;
-  a.m_Alloc = &allocate_memory;
-  a.m_Free = &free_memory;
+  a.m_Alloc     = &allocate_memory;
+  a.m_Free      = &free_memory;
   m_TreeContext = BehaviorTreeContextCreate( a );
 }
 
@@ -48,8 +50,13 @@ BehaviorTreeScene::~BehaviorTreeScene()
 
 void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
 {
-  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  if( event->mimeData()->hasFormat("ctstudio/x-node") && !m_DragItem )
+  {
+    QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
+    XNodeData node_data;
+    memcpy( &node_data, pieceData.constData(), sizeof( XNodeData ) );
     event->accept();
+  }
   else
     event->ignore();
 }
@@ -69,8 +76,11 @@ void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
 
 void BehaviorTreeScene::dropEvent( QDropEvent* event )
 {
+  event->ignore();
+/*
   if( event->mimeData()->hasFormat("ctstudio/x-node") )
   {
+
     event->accept();
 
     hash_t h = hashlittle( "main" );
@@ -150,6 +160,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
   }
   else
     event->ignore();
+*/
 }
 
 bool BehaviorTreeScene::readFile( const QString& qt_filename )

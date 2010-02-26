@@ -81,8 +81,9 @@ protected:
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void padExtents( ExtentsList& l, const ExtentsList& r );
 
-    BehaviorTreeContext	m_TreeContext;
-	QMainWindow*        m_MainWindow;
+    BehaviorTreeContext    m_TreeContext;
+	QMainWindow*           m_MainWindow;
+	BehaviorTreeSceneItem* m_DragItem;
 };
 
 #endif

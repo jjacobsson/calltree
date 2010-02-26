@@ -12,8 +12,10 @@
 #include <QtGui/QtGui>
 
 #include "BehaviorTreeList.h"
-
 #include "../standard_resources.h"
+#include "../x-node.h"
+
+#include <btree/btree_data.h>
 
 BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   QListWidget( parent )
@@ -25,15 +27,48 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   setAcceptDrops( false );
   setDropIndicatorShown( false );
 
+  XNodeData node_data;
+
+  {
+    QListWidgetItem *nodeItem = new QListWidgetItem( this );
+    QPixmap pixmap(32,32);
+    pixmap = QPixmap( ":/nodes/tree.svg" ).scaled(
+      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+    );
+    nodeItem->setIcon( QIcon(pixmap) );
+    nodeItem->setData( Qt::UserRole + 0, pixmap );
+
+    node_data.m_Type      = E_XNDT_TREE;
+    node_data.m_NodeGrist = E_GRIST_UNKOWN;
+    node_data.m_FuncId    = 0;
+
+    nodeItem->setData( Qt::UserRole + 1,
+      QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
+
+    nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
+        | Qt::ItemIsDragEnabled );
+    nodeItem->setText( tr("Tree") );
+  }
+
   for( int i = 1; i < E_GRIST_DECORATOR; ++i )
   {
     QListWidgetItem *nodeItem = new QListWidgetItem( this );
     QPixmap pixmap(32,32);
-    pixmap = QPixmap(g_NodeSVGResourcePaths[i]).scaled( 32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation );
+
+    pixmap = QPixmap(g_NodeSVGResourcePaths[i]).scaled(
+      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+    );
+
     nodeItem->setIcon( QIcon(pixmap) );
     nodeItem->setData( Qt::UserRole + 0, pixmap );
-    nodeItem->setData( Qt::UserRole + 1, i );
-    nodeItem->setData( Qt::UserRole + 2, -1 );
+
+    node_data.m_Type        = E_XNDT_NODE;
+    node_data.m_NodeGrist   = i;
+    node_data.m_FuncId      = 0;
+
+    nodeItem->setData( Qt::UserRole + 1,
+      QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
+
     nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
         | Qt::ItemIsDragEnabled );
     nodeItem->setText( g_NodeNames[i] );
@@ -41,33 +76,14 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
 
 }
 
-/*
-void BehaviorTreeList::addPiece( QPixmap pixmap, QPoint location )
-{
-  QListWidgetItem *pieceItem = new QListWidgetItem( this );
-  pieceItem->setIcon( QIcon( pixmap ) );
-  pieceItem->setData( Qt::UserRole, QVariant( pixmap ) );
-  pieceItem->setData( Qt::UserRole + 1, location );
-  pieceItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
-      | Qt::ItemIsDragEnabled );
-  pieceItem->setText( "Banan" );
-}
-*/
-
 void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )
 {
   QListWidgetItem *item = currentItem();
 
-  QByteArray itemData;
-  QDataStream dataStream( &itemData, QIODevice::WriteOnly );
 
   QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole + 0 ) );
-
-  dataStream << item->data( Qt::UserRole + 1 ).toInt();
-  dataStream << item->data( Qt::UserRole + 2 ).toInt();
-
   QMimeData *mimeData = new QMimeData;
-  mimeData->setData( "ctstudio/x-node", itemData );
+  mimeData->setData( "ctstudio/x-node", item->data( Qt::UserRole + 1 ).toByteArray() );
 
   QDrag *drag = new QDrag( this );
   drag->setMimeData( mimeData );
