@@ -26,6 +26,7 @@ class QDragLeaveEvent;
 class QDragMoveEvent;
 class QDropEvent;
 class QMainWindow;
+class QGraphicsItemGroup;
 
 // BT Forward declares
 struct Node;
@@ -80,17 +81,7 @@ protected:
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void padExtents( ExtentsList& l, const ExtentsList& r );
 
-    void drawItems(
-		QPainter* painter,
-		int numItems,
-		QGraphicsItem* items[],
-		const QStyleOptionGraphicsItem options[],
-		QWidget* widget = 0
-    );
-
-	QGraphicsView*  	m_View;
-	QGraphicsScene* 	m_Scene;
-	BehaviorTreeContext	m_TreeContext;
+    BehaviorTreeContext	m_TreeContext;
 	QMainWindow*        m_MainWindow;
 };
 

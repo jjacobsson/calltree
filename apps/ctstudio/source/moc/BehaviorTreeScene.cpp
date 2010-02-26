@@ -441,36 +441,4 @@ void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
   }
 }
 
-void BehaviorTreeScene::drawItems( QPainter* painter, int numItems,
-  QGraphicsItem* items[], const QStyleOptionGraphicsItem options[],
-  QWidget* widget )
-{
-  int c = 0;
-  QGraphicsItem** tItems =
-      (QGraphicsItem**)alloca( sizeof(QGraphicsItem*) * numItems );
-  QStyleOptionGraphicsItem* tOptions = new QStyleOptionGraphicsItem[numItems];
-
-  for( int i = 0; i < numItems; ++i )
-  {
-    if( items[i]->type() == NodeToNodeArrow::Type )
-    {
-      tItems[c] = items[i];
-      tOptions[c] = options[i];
-      ++c;
-    }
-  }
-  for( int i = 0; i < numItems; ++i )
-  {
-    if( items[i]->type() != NodeToNodeArrow::Type )
-    {
-      tItems[c] = items[i];
-      tOptions[c] = options[i];
-      ++c;
-    }
-  }
-
-  QGraphicsScene::drawItems( painter, numItems, tItems, tOptions, widget );
-
-  delete[] tOptions;
-}
 
