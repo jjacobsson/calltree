@@ -21,10 +21,8 @@
 #include <malloc.h>
 
 #include <QtGui/QtGui>
-
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-
 
 const float g_NodeWidth = 256.0f;
 const float g_NodeHeight = 256.0f;
@@ -55,6 +53,8 @@ void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
     QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
     XNodeData node_data;
     memcpy( &node_data, pieceData.constData(), sizeof( XNodeData ) );
+    setupDrag( node_data );
+    m_DragItem->dragBegin();
     event->accept();
   }
   else
@@ -63,104 +63,53 @@ void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
 
 void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
 {
-   event->accept();
+  if( m_DragItem )
+  {
+    m_DragItem->destroyResources( m_TreeContext );
+    delete m_DragItem;
+    m_DragItem = 0x0;
+    event->accept();
+  }
+  else
+    event->ignore();
 }
 
-void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event )
+void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos )
 {
-  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  if( event->mimeData()->hasFormat("ctstudio/x-node") && m_DragItem )
+  {
+    m_DragItem->setPos( mapped_pos );
+    m_DragItem->dragMove();
     event->accept();
+  }
   else
     event->ignore();
 }
 
 void BehaviorTreeScene::dropEvent( QDropEvent* event )
 {
-  event->ignore();
-/*
-  if( event->mimeData()->hasFormat("ctstudio/x-node") )
+  if( event->mimeData()->hasFormat("ctstudio/x-node") && m_DragItem )
   {
-
+    if( m_DragItem->validForDrop() )
+    {
+      m_DragItem->dragEnd();
+      m_DragItem->setVisible( true );
+      m_DragItem = 0x0;
+      layout();
+      emit modified();
+    }
+    else
+    {
+      m_DragItem->destroyResources( m_TreeContext );
+      delete m_DragItem;
+      m_DragItem = 0x0;
+    }
     event->accept();
-
-    hash_t h = hashlittle( "main" );
-    NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, h );
-    BehaviorTree* bt = 0x0;
-    BehaviorTreeSceneItem* tree = 0x0;
-    if( !ns )
-    {
-      bt = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
-
-      tree = new BehaviorTreeTree( bt );
-      addItem( tree );
-
-      InitBehaviorTree( bt );
-      bt->m_Id.m_Hash = h;
-      bt->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, "main" );
-      bt->m_Declared = true;
-      bt->m_UserData = tree;
-
-      NamedSymbol reg;
-      reg.m_Type = E_ST_TREE;
-      reg.m_Symbol.m_Tree = bt;
-      BehaviorTreeContextRegisterSymbol( m_TreeContext, reg );
-    }
-    else if( ns->m_Type != E_ST_TREE )
-    {
-      // FAIL!
-    }
-    else if( !ns->m_Symbol.m_Tree->m_Declared )
-    {
-      bt = ns->m_Symbol.m_Tree;
-      bt->m_Declared = true;
-    }
-    else
-    {
-      bt = ns->m_Symbol.m_Tree;
-    }
-
-    if( !bt )
-      return;
-
-    tree = (BehaviorTreeSceneItem*)bt->m_UserData;
-
-    QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
-    QDataStream dataStream(&pieceData, QIODevice::ReadOnly);
-    int grist_type, act_dec_id;
-    dataStream >> grist_type >> act_dec_id;
-
-    Node* n = (Node*)BehaviorTreeContextAllocateObject( m_TreeContext );
-    InitNode( n );
-    switch( grist_type )
-    {
-    case E_GRIST_SEQUENCE: n->m_Grist.m_Type = E_GRIST_SEQUENCE; break;
-    case E_GRIST_SELECTOR: n->m_Grist.m_Type = E_GRIST_SELECTOR; break;
-    case E_GRIST_PARALLEL: n->m_Grist.m_Type = E_GRIST_PARALLEL; break;
-    case E_GRIST_DYN_SELECTOR: n->m_Grist.m_Type = E_GRIST_DYN_SELECTOR; break;
-    case E_GRIST_SUCCEED: n->m_Grist.m_Type = E_GRIST_SUCCEED; break;
-    case E_GRIST_FAIL: n->m_Grist.m_Type = E_GRIST_FAIL; break;
-    case E_GRIST_WORK: n->m_Grist.m_Type = E_GRIST_WORK; break;
-    default:
-      // FAIL!
-      break;
-    }
-
-    createGraphics( n, tree );
-
-    n->m_Pare.m_Type = E_NP_TREE;
-    n->m_Pare.m_Tree = bt;
-
-    if( bt->m_Root )
-      AppendToEndOfList( bt->m_Root, n );
-    else
-      bt->m_Root = n;
-
-    layout();
-    emit modified();
   }
   else
+  {
     event->ignore();
-*/
+  }
 }
 
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
@@ -439,6 +388,7 @@ void BehaviorTreeScene::mergeExtents( ExtentsList& r, const ExtentsList& lel,
       r[i] = rel[i];
   }
 }
+
 void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
 {
   int ls = (int)l.size();
@@ -452,4 +402,153 @@ void BehaviorTreeScene::padExtents( ExtentsList& l, const ExtentsList& r )
   }
 }
 
+void BehaviorTreeScene::setupDrag( const XNodeData& data )
+{
+  switch( data.m_Type )
+  {
+  case E_XNDT_TREE:
+    setupTreeDrag( data );
+    break;
+  case E_XNDT_NODE:
+    setupNodeDrag( data );
+    break;
+  }
+}
 
+void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
+{
+  //First, find a name for the new tree, we try "main" first
+  //but if that is taken we go with "tree_X" where X is an incrementing number.
+  char tree_name_buff[128];
+  sprintf( tree_name_buff, "%s", "main" );
+  hash_t name_hash = hashlittle( tree_name_buff );
+  NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, name_hash );
+  unsigned int c = 0;
+  while( ns )
+  {
+    sprintf( tree_name_buff, "tree_%08u", ++c );
+    name_hash = hashlittle( tree_name_buff );
+    ns = BehaviorTreeContextFindSymbol( m_TreeContext, name_hash );
+  }
+
+  //When we have a name we create and setup a BehaviorTree structure for it
+  //that we add to the symbol register, and we create a "drag item" in the graphics scene.
+
+  BehaviorTree* tree = (BehaviorTree*)BehaviorTreeContextAllocateObject( m_TreeContext );
+  InitBehaviorTree( tree );
+  tree->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, tree_name_buff );
+  tree->m_Id.m_Hash = name_hash;
+
+  m_DragItem = new BehaviorTreeTree( tree );
+  //m_DragItem->setVisible( false );
+  addItem( m_DragItem );
+
+  connect( m_DragItem, SIGNAL(modified()), this, SLOT( itemModified() ) );
+
+  tree->m_UserData = m_DragItem;
+  tree->m_Declared = true;
+
+  NamedSymbol new_symbol;
+  new_symbol.m_Type = E_ST_TREE;
+  new_symbol.m_Symbol.m_Tree = tree;
+  BehaviorTreeContextRegisterSymbol( m_TreeContext, new_symbol );
+}
+
+void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
+{
+  //First, allocate a node from the tree and set it up.
+  Node* node = (Node*)BehaviorTreeContextAllocateObject( m_TreeContext );
+  InitNode( node );
+  //Setup the node's grist type
+  node->m_Grist.m_Type = (NodeGristType)data.m_NodeGrist;
+
+  //Do grist dependent setup.
+  switch( node->m_Grist.m_Type )
+  {
+  case E_GRIST_DECORATOR:
+    setupDecoratorNode( node, data );
+    break;
+  case E_GRIST_ACTION:
+    setupActionNode( node, data );
+    break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_MAX_GRIST_TYPES:
+    /* Warning killers */
+    break;
+  }
+  // Create the graphics item.
+  m_DragItem = new BehaviorTreeNode( node );
+  //m_DragItem->setVisible( false );
+  addItem( m_DragItem );
+
+  connect( m_DragItem, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
+  connect( m_DragItem, SIGNAL( modified() ), this, SLOT( itemModified() ) );
+
+  connect(
+    m_DragItem,
+    SIGNAL( relinkTargetMessage( QString, int ) ),
+    m_MainWindow->statusBar(),
+    SLOT( showMessage( QString, int ) )
+  );
+
+  node->m_UserData = m_DragItem;
+}
+
+void BehaviorTreeScene::setupDecoratorNode( Node* n, const XNodeData& xnd )
+{
+  NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
+  if( ns->m_Type != E_ST_DECORATOR )
+    return;
+  n->m_Grist.m_Decorator.m_Decorator = ns->m_Symbol.m_Decorator;
+  Variable* v1 = n->m_Grist.m_Decorator.m_Decorator->m_Args;
+  Variable* v2 = 0x0;
+  while( v1 )
+  {
+    Variable* v = (Variable*)BehaviorTreeContextAllocateObject( m_TreeContext );
+    InitVariable( v );
+
+    v->m_Id     = v1->m_Id;
+    v->m_Type   = v1->m_Type;
+
+    if( v2 )
+      v2->m_Next = v;
+    else
+      n->m_Grist.m_Decorator.m_Arguments = v;
+
+    v2 = v;
+    v1 = v1->m_Next;
+  }
+}
+
+void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
+{
+  NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
+  if( ns->m_Type != E_ST_DECORATOR )
+    return;
+  n->m_Grist.m_Action.m_Action = ns->m_Symbol.m_Action;
+  Variable* v1 = n->m_Grist.m_Action.m_Action->m_Args;
+  Variable* v2 = 0x0;
+  while( v1 )
+  {
+    Variable* v = (Variable*)BehaviorTreeContextAllocateObject( m_TreeContext );
+    InitVariable( v );
+
+    v->m_Id     = v1->m_Id;
+    v->m_Type   = v1->m_Type;
+
+    if( v2 )
+      v2->m_Next = v;
+    else
+      n->m_Grist.m_Action.m_Arguments = v;
+
+    v2 = v;
+    v1 = v1->m_Next;
+  }
+}

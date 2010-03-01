@@ -92,6 +92,11 @@ void BehaviorTreeContextRegisterSymbol( BehaviorTreeContext btc, const NamedSymb
   SymbolTableInsert( &btc->m_SymbolTable, s );
 }
 
+void BehaviorTreeContextRemoveSymbol( BehaviorTreeContext btc, hash_t hash )
+{
+  SymbolTableErase( &btc->m_SymbolTable, hash );
+}
+
 NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext btc, hash_t hash )
 {
   return SymbolTableFind( &btc->m_SymbolTable, hash );

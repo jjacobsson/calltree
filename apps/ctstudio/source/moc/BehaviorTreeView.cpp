@@ -128,8 +128,12 @@ void BehaviorTreeView::dragLeaveEvent( QDragLeaveEvent *event )
 void BehaviorTreeView::dragMoveEvent( QDragMoveEvent *event )
 {
   BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*> ( scene() );
+
   if( s )
-    s->dragMoveEvent( event );
+  {
+    QPointF pos( mapToScene( event->pos() ) );
+    s->dragMoveEvent( event, pos );
+  }
   else
     event->ignore();
 }

@@ -32,11 +32,7 @@ enum NodeGristType
 
 enum SymbolTypes
 {
-  E_ST_UNKOWN,
-  E_ST_TREE,
-  E_ST_ACTION,
-  E_ST_DECORATOR,
-  E_MAX_SYMBOL_TYPES
+  E_ST_UNKOWN, E_ST_TREE, E_ST_ACTION, E_ST_DECORATOR, E_MAX_SYMBOL_TYPES
 };
 
 enum VariableType
@@ -51,9 +47,9 @@ enum VariableType
 
 struct Identifier
 {
-	const char*	m_Text;
-	hash_t		m_Hash;
-	int    		m_Line;
+  const char* m_Text;
+  hash_t m_Hash;
+  int m_Line;
 };
 
 struct StringData
@@ -64,35 +60,35 @@ struct StringData
 
 union VariableData
 {
-  int      m_Integer;
-  float      m_Float;
+  int m_Integer;
+  float m_Float;
   StringData m_String;
-  bool		 m_Bool;
+  bool m_Bool;
 };
 
 struct Variable
 {
-  Identifier    m_Id;
-  VariableType  m_Type;
-  VariableData  m_Data;
-  Variable*     m_Next;
-  bool          m_ValueSet;
+  Identifier m_Id;
+  VariableType m_Type;
+  VariableData m_Data;
+  Variable* m_Next;
+  bool m_ValueSet;
 };
 
 struct Action
 {
-	Identifier      m_Id;
-	Variable*		m_Args;		/* Argument declarations */
-	Variable*		m_Options;	/* Code-generation variables */
-	bool			m_Declared;
+  Identifier m_Id;
+  Variable* m_Args; /* Argument declarations */
+  Variable* m_Options; /* Code-generation variables */
+  bool m_Declared;
 };
 
 struct Decorator
 {
-	Identifier      m_Id;
-	Variable*		m_Args;		/* Argument declarations */
-	Variable*		m_Options;	/* Code-generation variables */
-	bool			m_Declared;
+  Identifier m_Id;
+  Variable* m_Args; /* Argument declarations */
+  Variable* m_Options; /* Code-generation variables */
+  bool m_Declared;
 };
 
 struct Node;
@@ -100,83 +96,81 @@ struct BehaviorTree;
 
 struct SequenceGrist
 {
-	Node* m_FirstChild;
+  Node* m_FirstChild;
 };
 
 struct SelectorGrist
 {
-	Node* m_FirstChild;
+  Node* m_FirstChild;
 };
 
 struct ParallelGrist
 {
-	Node* m_FirstChild;
+  Node* m_FirstChild;
 };
 
 struct DynSelectorGrist
 {
-	Node* m_FirstChild;
+  Node* m_FirstChild;
 };
 
 struct DecoratorGrist
 {
-	Node*      m_Child;
-	Decorator* m_Decorator;
-	Variable*  m_Arguments;
+  Node* m_Child;
+  Decorator* m_Decorator;
+  Variable* m_Arguments;
 };
 
 struct ActionGrist
 {
-	Action*   m_Action;
-	Variable* m_Arguments;
+  Action* m_Action;
+  Variable* m_Arguments;
 };
 
 struct NodeGrist
 {
-	NodeGristType    m_Type;
-	union
-	{
-		SequenceGrist    m_Sequence;
-		SelectorGrist    m_Selector;
-		ParallelGrist    m_Parallel;
-		DynSelectorGrist m_DynSelector;
-		DecoratorGrist   m_Decorator;
-		ActionGrist      m_Action;
-	};
+  NodeGristType m_Type;
+  union
+  {
+    SequenceGrist m_Sequence;
+    SelectorGrist m_Selector;
+    ParallelGrist m_Parallel;
+    DynSelectorGrist m_DynSelector;
+    DecoratorGrist m_Decorator;
+    ActionGrist m_Action;
+  };
 };
 
 enum NodeParentTypes
 {
-  E_NP_UNKOWN,
-  E_NP_NODE,
-  E_NP_TREE,
-  E_MAX_NODE_PARENT_TYPES
+  E_NP_UNKOWN, E_NP_NODE, E_NP_TREE, E_MAX_NODE_PARENT_TYPES
 };
 
 struct NodeParent
 {
   NodeParentTypes m_Type;
-  union {
-    Node*           m_Node;
-    BehaviorTree*   m_Tree;
+  union
+  {
+    Node* m_Node;
+    BehaviorTree* m_Tree;
   };
 };
 
 struct Node
 {
-    NodeGrist       m_Grist;
-    NodeParent		m_Pare;
-	Node*			m_Next;
-	Node*			m_Prev;
-	void*			m_UserData;
+  NodeGrist m_Grist;
+  NodeParent m_Pare;
+  Node* m_Next;
+  Node* m_Prev;
+  void* m_UserData;
 };
 
 struct BehaviorTree
 {
-  Identifier    m_Id;
-  Node*         m_Root;
-  void*         m_UserData;
-  bool          m_Declared;
+  Identifier m_Id;
+  Node* m_Root;
+  void* m_UserData;
+  bool m_Declared;
 };
 
 typedef unsigned int mem_size_t;
@@ -188,38 +182,38 @@ typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 struct Allocator
 {
   AllocateMemoryCallback m_Alloc; // The function that will be used for all memory allocations
-  FreeMemoryCallback     m_Free;  // The function that will be used to free all allocated memory
+  FreeMemoryCallback m_Free; // The function that will be used to free all allocated memory
 };
 
 union SymbolTypeData
 {
   BehaviorTree* m_Tree;
-  Action*       m_Action;
-  Decorator*    m_Decorator;
+  Action* m_Action;
+  Decorator* m_Decorator;
 };
 
 struct NamedSymbol
 {
-  SymbolTypes       m_Type;
-  SymbolTypeData    m_Symbol;
+  SymbolTypes m_Type;
+  SymbolTypeData m_Symbol;
 };
 
 struct Include
 {
-  hash_t        m_Hash;
-  const char*   m_Name;
-  const char*   m_Parent;
-  int           m_LineNo;
-  void*         m_UserData;
-  Include*      m_Next;
+  hash_t m_Hash;
+  const char* m_Name;
+  const char* m_Parent;
+  int m_LineNo;
+  void* m_UserData;
+  Include* m_Next;
 };
 
 struct StringBuffer
 {
   Allocator m_Allocator;
-  char*     m_Str;
-  int       m_Size;
-  int       m_Capacity;
+  char* m_Str;
+  int m_Size;
+  int m_Capacity;
 };
 
 typedef struct SParserContext* ParserContext;
@@ -228,24 +222,24 @@ typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 typedef void (*ErrorCallback)( ParserContext, const char* msg );
 typedef void (*WarningCallback)( ParserContext, const char* msg );
-typedef const char* (*ParserTranslateIncludeCallback)( ParserContext, const char* );
+typedef const char* (*ParserTranslateIncludeCallback)( ParserContext,
+  const char* );
 typedef const char* (*SaveTranslateIncludeCallback)( SaverContext, const char* );
 typedef int (*FillBufferCallback)( ParserContext, char* buffer, int maxsize );
 typedef void (*FlushBufferCallback)( SaverContext, const char*, int size );
 
 struct ParserContextFunctions
 {
-  ErrorCallback                  m_Error;
-  WarningCallback                m_Warning;
-  FillBufferCallback             m_Read;
+  ErrorCallback m_Error;
+  WarningCallback m_Warning;
+  FillBufferCallback m_Read;
   ParserTranslateIncludeCallback m_Translate;
 };
 
 struct SaverContextFunctions
 {
-  FlushBufferCallback          m_Write;
+  FlushBufferCallback m_Write;
   SaveTranslateIncludeCallback m_Translate;
 };
-
 
 #endif /* BTREE_DATA_H_INCLUDED */

@@ -122,6 +122,8 @@ void BehaviorTreeContextFreeObject( BehaviorTreeContext, void* );
 
 void BehaviorTreeContextRegisterSymbol( BehaviorTreeContext, const NamedSymbol& );
 
+void BehaviorTreeContextRemoveSymbol( BehaviorTreeContext, hash_t );
+
 NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext, hash_t );
 
 NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext, int* );

@@ -39,24 +39,25 @@ public:
     return BehaviorTreeSceneItem::isType( type );
   }
 
+  void destroyResources( BehaviorTreeContext ctx );
+
   BehaviorTreeSceneItem* firstChild();
   BehaviorTreeSceneItem* nextSibling();
 
-
-protected:
+  bool validForDrop() const;
 
   void dragMove();
   void dragBegin();
   void dragEnd();
-
-  void setupLabel();
-  void setupTooltip();
 
 signals:
 
   void relinkTargetMessage( QString s, int timeout );
 
 private:
+
+  void setupLabel();
+  void setupTooltip();
 
   void setupRelinkage();
   void executeRelinkage();

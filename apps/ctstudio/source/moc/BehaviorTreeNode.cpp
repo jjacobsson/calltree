@@ -29,6 +29,41 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
 	setupTooltip();
 }
 
+void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
+{
+  UnlinkNodeFromParentAndSiblings( m_Node );
+  Variable* v = 0x0;
+  switch( m_Node->m_Grist.m_Type )
+  {
+  case E_GRIST_DECORATOR:
+    v = m_Node->m_Grist.m_Decorator.m_Arguments;
+    break;
+  case E_GRIST_ACTION:
+    v = m_Node->m_Grist.m_Action.m_Arguments;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_MAX_GRIST_TYPES:
+    /* Warning killers */
+    v = 0x0;
+    break;
+  }
+  while( v )
+  {
+    Variable* n = v->m_Next;
+    BehaviorTreeContextFreeObject( ctx, v );
+    v = n;
+  }
+  BehaviorTreeContextFreeObject( ctx, m_Node );
+  m_Node = 0x0;
+}
+
 BehaviorTreeSceneItem* BehaviorTreeNode::firstChild()
 {
   Node* n = GetFirstChild( m_Node );
@@ -42,6 +77,11 @@ BehaviorTreeSceneItem* BehaviorTreeNode::nextSibling()
   if( m_Node->m_Next )
     return (BehaviorTreeSceneItem*)m_Node->m_Next->m_UserData;
   return 0x0;
+}
+
+bool BehaviorTreeNode::validForDrop() const
+{
+  return m_Relinkage.m_Parent.m_Type != E_NP_UNKOWN;
 }
 
 void BehaviorTreeNode::dragMove()
@@ -85,7 +125,6 @@ void BehaviorTreeNode::dragEnd()
     break;
   case E_NP_TREE:
     dragEndTreeParent();
-    break;
     break;
   default:
     removeArrow( m_DraggingArrow );
@@ -269,7 +308,10 @@ void BehaviorTreeNode::lookForRelinkTarget()
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
+      {
         m_DraggingArrow->setStartAndEnd( this, item );
+        m_DraggingArrow->setVisible( true );
+      }
       m_Relinkage = t;
     }
     else if( btsi->isType( BehaviorTreeTree::Type ) )
@@ -286,7 +328,10 @@ void BehaviorTreeNode::lookForRelinkTarget()
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
+      {
         m_DraggingArrow->setStartAndEnd( this, item );
+        m_DraggingArrow->setVisible( true );
+      }
       m_Relinkage = t;
 
     }

@@ -35,6 +35,8 @@ public:
     return BehaviorTreeSceneItem::isType( type );
   }
 
+  void destroyResources( BehaviorTreeContext ctx ) {}
+
 protected:
 
 };

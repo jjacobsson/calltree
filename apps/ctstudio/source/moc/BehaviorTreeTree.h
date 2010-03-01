@@ -38,6 +38,8 @@ public:
 
   BehaviorTree* GetTree() { return m_Tree; }
 
+  void destroyResources( BehaviorTreeContext ctx );
+
   BehaviorTreeSceneItem* firstChild();
 
 protected:

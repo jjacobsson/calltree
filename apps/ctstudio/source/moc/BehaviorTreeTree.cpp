@@ -20,6 +20,13 @@ BehaviorTreeTree::BehaviorTreeTree( BehaviorTree* tree )
   setFlag( QGraphicsItem::ItemIsMovable, false );
 }
 
+void BehaviorTreeTree::destroyResources( BehaviorTreeContext ctx )
+{
+  BehaviorTreeContextRemoveSymbol( ctx, m_Tree->m_Id.m_Hash );
+  BehaviorTreeContextFreeObject( ctx, m_Tree );
+  m_Tree = 0x0;
+}
+
 BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
 {
   if( m_Tree->m_Root )

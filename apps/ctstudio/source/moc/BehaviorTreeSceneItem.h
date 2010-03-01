@@ -17,6 +17,8 @@
 
 #include "../GraphicsItemTypes.h"
 
+#include <btree/btree_data.h>
+
 // Internal Forward declares
 class NodeToNodeArrow;
 
@@ -50,8 +52,16 @@ public:
 
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
+  virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
+
   virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }
   virtual BehaviorTreeSceneItem* nextSibling() { return 0x0; }
+
+  virtual bool validForDrop() const { return true; }
+
+  virtual void dragMove();
+  virtual void dragBegin();
+  virtual void dragEnd();
 
 signals:
 
@@ -66,9 +76,6 @@ protected:
   void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
   void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
 
-  virtual void dragMove();
-  virtual void dragBegin();
-  virtual void dragEnd();
 
   void signalModified();
 

@@ -27,12 +27,16 @@ class QDragMoveEvent;
 class QDropEvent;
 class QMainWindow;
 class QGraphicsItemGroup;
+class QPointF;
 
 // BT Forward declares
 struct Node;
 struct BehaviorTree;
+
 class BehaviorTreeSceneItem;
 typedef struct SBehaviorTreeContext* BehaviorTreeContext;
+
+struct XNodeData;
 
 class BehaviorTreeScene : public QGraphicsScene
 {
@@ -46,7 +50,7 @@ public:
 
     void dragEnterEvent( QDragEnterEvent *event );
     void dragLeaveEvent( QDragLeaveEvent *event );
-    void dragMoveEvent( QDragMoveEvent *event );
+    void dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos );
     void dropEvent( QDropEvent *event );
 
 signals:
@@ -80,6 +84,13 @@ protected:
     void moveExtents( ExtentsList& el, double dist );
     void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
     void padExtents( ExtentsList& l, const ExtentsList& r );
+
+    void setupDrag( const XNodeData& data );
+    void setupTreeDrag( const XNodeData& data );
+    void setupNodeDrag( const XNodeData& data );
+
+    void setupDecoratorNode( Node*, const XNodeData& );
+    void setupActionNode( Node*, const XNodeData& );
 
     BehaviorTreeContext    m_TreeContext;
 	QMainWindow*           m_MainWindow;

@@ -88,7 +88,7 @@ void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )
   QDrag *drag = new QDrag( this );
   drag->setMimeData( mimeData );
   drag->setHotSpot( QPoint( pixmap.width(), pixmap.height() ) );
-  drag->setPixmap( pixmap );
+  //drag->setPixmap( pixmap );
 
   drag->exec( Qt::CopyAction );
 }

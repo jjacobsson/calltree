@@ -52,6 +52,19 @@ void BehaviorTreeSceneItem::addArrow(NodeToNodeArrow *arrow)
   m_Arrows.append(arrow);
 }
 
+void BehaviorTreeSceneItem::dragMove()
+{
+}
+
+void BehaviorTreeSceneItem::dragBegin()
+{
+}
+
+void BehaviorTreeSceneItem::dragEnd()
+{
+  emit itemDragged();
+}
+
 NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* other )
 {
   foreach( NodeToNodeArrow *arrow, m_Arrows )
@@ -114,19 +127,6 @@ void BehaviorTreeSceneItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
     dragMove();
 
   QGraphicsSvgItem::mouseMoveEvent( event );
-}
-
-void BehaviorTreeSceneItem::dragMove()
-{
-}
-
-void BehaviorTreeSceneItem::dragBegin()
-{
-}
-
-void BehaviorTreeSceneItem::dragEnd()
-{
-  emit itemDragged();
 }
 
 void BehaviorTreeSceneItem::signalModified()

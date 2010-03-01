@@ -12,6 +12,8 @@
 #ifndef XNODE_H_INCLUDED
 #define XNODE_H_INCLUDED
 
+#include <btree/btree_data.h>
+
 enum XNodeDataTypes
 {
   E_XNDT_TREE,
@@ -22,7 +24,7 @@ struct XNodeData
 {
   XNodeDataTypes m_Type;
   int m_NodeGrist;
-  int m_FuncId;
+  hash_t m_FuncId;
 };
 
 
