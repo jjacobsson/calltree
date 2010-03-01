@@ -133,9 +133,58 @@ void BehaviorTreeContextAddInclude( BehaviorTreeContext btc, const Include& incl
     btc->m_Includes = i;
 }
 
+Include* BehaviorTreeContextCreateInclude( BehaviorTreeContext btc, const char* path_in )
+{
+  const char* path = BehaviorTreeContextRegisterString( btc, path_in );
+  hash_t h = hashlittle( path );
+  Include* t = btc->m_Includes;
+  Include* l = 0x0;
+  while( t )
+  {
+    if( t->m_Hash == h )
+      return 0x0;
+    l = t;
+    t = t->m_Next;
+  }
+
+  Include* i = &(((ObjectFootPrint*)AllocateObject( btc->m_Pool ))->m_Include);
+  i->m_LineNo = 0;
+  i->m_Name = path;
+  i->m_Hash = h;
+  i->m_Parent = 0x0;
+  i->m_Next = 0x0;
+  i->m_UserData = 0x0;
+
+  if( l )
+    l->m_Next = i;
+  else
+    btc->m_Includes = i;
+  return i;
+}
+
 Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext btc )
 {
   return btc->m_Includes;
+}
+
+void BehaviorTreeContextReleaseInclude( BehaviorTreeContext btc, Include* i )
+{
+  Include* t = btc->m_Includes;
+  Include* p = 0x0;
+  while( t )
+  {
+    if( t == i )
+    {
+      if( p )
+        p->m_Next = i->m_Next;
+      else
+        btc->m_Includes = i->m_Next;
+      break;
+    }
+    p = t;
+    t = t->m_Next;
+  }
+  BehaviorTreeContextFreeObject( btc, i );
 }
 
 ParserContext ParserContextCreate( BehaviorTreeContext btc )

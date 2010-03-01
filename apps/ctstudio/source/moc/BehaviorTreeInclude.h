@@ -15,14 +15,12 @@
 #include "BehaviorTreeSceneItem.h"
 #include "../GraphicsItemTypes.h"
 
-struct BehaviorTree;
-
 class BehaviorTreeInclude: public BehaviorTreeSceneItem
 {
   Q_OBJECT
 public:
 
-  BehaviorTreeInclude();
+  BehaviorTreeInclude( Include* );
 
   enum
   {
@@ -35,9 +33,11 @@ public:
     return BehaviorTreeSceneItem::isType( type );
   }
 
-  void destroyResources( BehaviorTreeContext ctx ) {}
+  void destroyResources( BehaviorTreeContext ctx );
 
 protected:
+
+  Include* m_Include;
 
 };
 

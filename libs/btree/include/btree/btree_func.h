@@ -130,7 +130,11 @@ NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext, int* );
 
 void BehaviorTreeContextAddInclude( BehaviorTreeContext, const Include& );
 
+Include* BehaviorTreeContextCreateInclude( BehaviorTreeContext, const char* );
+
 Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
+
+void BehaviorTreeContextReleaseInclude( BehaviorTreeContext, Include* );
 
 /*
  * String Buffer Functions

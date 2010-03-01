@@ -48,6 +48,7 @@ BehaviorTreeScene::~BehaviorTreeScene()
 
 void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
 {
+  bool accept = false;
   if( event->mimeData()->hasFormat("ctstudio/x-node") && !m_DragItem )
   {
     QByteArray pieceData = event->mimeData()->data("ctstudio/x-node");
@@ -55,8 +56,30 @@ void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
     memcpy( &node_data, pieceData.constData(), sizeof( XNodeData ) );
     setupDrag( node_data );
     m_DragItem->dragBegin();
-    event->accept();
+    accept = true;
   }
+  else if( event->mimeData()->hasFormat( "text/uri-list" ) && !m_DragItem )
+  {
+    QList<QUrl> urls = event->mimeData()->urls();
+    if( !urls.isEmpty() )
+    {
+      QString fileName = urls.first().toLocalFile();
+      if( !fileName.isEmpty() )
+      {
+        Include* i = BehaviorTreeContextCreateInclude( m_TreeContext, fileName.toAscii().constData() );
+        if( i )
+        {
+          m_DragItem = new BehaviorTreeInclude( i );
+          i->m_UserData = m_DragItem;
+          addItem( m_DragItem );
+          accept = true;
+        }
+      }
+    }
+  }
+
+  if( accept )
+    event->accept();
   else
     event->ignore();
 }
@@ -76,7 +99,7 @@ void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
 
 void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos )
 {
-  if( event->mimeData()->hasFormat("ctstudio/x-node") && m_DragItem )
+  if( m_DragItem )
   {
     m_DragItem->setPos( mapped_pos );
     m_DragItem->dragMove();
@@ -88,13 +111,12 @@ void BehaviorTreeScene::dragMoveEvent( QDragMoveEvent *event, const QPointF& map
 
 void BehaviorTreeScene::dropEvent( QDropEvent* event )
 {
-  if( event->mimeData()->hasFormat("ctstudio/x-node") && m_DragItem )
+  if( m_DragItem )
   {
     if( m_DragItem->validForDrop() )
     {
       m_DragItem->dragEnd();
       m_DragItem->setVisible( true );
-      m_DragItem = 0x0;
       layout();
       emit modified();
     }
@@ -102,8 +124,9 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     {
       m_DragItem->destroyResources( m_TreeContext );
       delete m_DragItem;
-      m_DragItem = 0x0;
     }
+
+    m_DragItem = 0x0;
     event->accept();
   }
   else
@@ -229,7 +252,7 @@ void BehaviorTreeScene::createGraphics()
   c = 0;
   while( inc )
   {
-    BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude();
+    BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude( inc );
     addItem( inc_si );
     inc_si->moveBy( (g_NodeWidth + g_HoriSpace) * c, 0 );
     inc->m_UserData = inc_si;
