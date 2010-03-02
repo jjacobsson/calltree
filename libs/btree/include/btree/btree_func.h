@@ -110,6 +110,8 @@ void InitGrist( NodeGrist* );
 
 BehaviorTreeContext BehaviorTreeContextCreate( Allocator& );
 
+BehaviorTreeContext BehaviorTreeContextClone( BehaviorTreeContext );
+
 void BehaviorTreeContextDestroy( BehaviorTreeContext );
 
 const char* BehaviorTreeContextRegisterString( BehaviorTreeContext, const char* );

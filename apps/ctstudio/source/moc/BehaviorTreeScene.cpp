@@ -463,7 +463,6 @@ void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
   tree->m_Id.m_Hash = name_hash;
 
   m_DragItem = new BehaviorTreeTree( tree );
-  //m_DragItem->setVisible( false );
   addItem( m_DragItem );
 
   connect( m_DragItem, SIGNAL(modified()), this, SLOT( itemModified() ) );
@@ -508,7 +507,6 @@ void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
   }
   // Create the graphics item.
   m_DragItem = new BehaviorTreeNode( node );
-  //m_DragItem->setVisible( false );
   addItem( m_DragItem );
 
   connect( m_DragItem, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
@@ -563,8 +561,9 @@ void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
     Variable* v = (Variable*)BehaviorTreeContextAllocateObject( m_TreeContext );
     InitVariable( v );
 
-    v->m_Id     = v1->m_Id;
-    v->m_Type   = v1->m_Type;
+    v->m_Id = v1->m_Id;
+    v->m_Type = v1->m_Type;
+    v->m_ValueSet = true;
 
     if( v2 )
       v2->m_Next = v;

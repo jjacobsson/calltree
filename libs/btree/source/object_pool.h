@@ -21,7 +21,24 @@ struct ObjectPoolSetup
   Allocator  m_Allocator;
 };
 
-struct ObjectPool;
+struct SObject
+{
+  SObject* m_Next;
+};
+
+struct SBlock
+{
+  SBlock*  m_Next;
+  SObject* m_First;
+};
+
+struct ObjectPool
+{
+  ObjectPoolSetup m_Setup;
+  SBlock*         m_JoinedBlock;
+  SBlock*         m_FirstBlock;
+  SObject*        m_FirstFree;
+};
 
 ObjectPool* CreateObjectPool( ObjectPoolSetup* object_pool_setup );
 

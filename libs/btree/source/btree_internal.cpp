@@ -16,23 +16,7 @@
 
 #include "btree_internal.h"
 
-#include "parser/parser.h"
-#include "saver/saver.h"
-
 #include <string.h> // for memset....
-
-union ObjectFootPrint
-{
-  Variable             m_Variable;
-  Action               m_Action;
-  Decorator            m_Decorator;
-  Node                 m_Node;
-  BehaviorTree         m_Tree;
-  SBehaviorTreeContext m_BTContext;
-  SParserContext       m_ParserContext;
-  Include              m_Include;
-  SSaverContext        m_SaverContext;
-};
 
 BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
 {
@@ -53,6 +37,7 @@ BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
 
   return btc;
 }
+
 
 void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
 {

@@ -18,6 +18,9 @@
 #include "object_pool.h"
 #include "string_table.h"
 
+#include "parser/parser.h"
+#include "saver/saver.h"
+
 struct SBehaviorTreeContext
 {
   StringTable   m_StringTable;
@@ -25,6 +28,19 @@ struct SBehaviorTreeContext
   Allocator     m_Allocator;
   ObjectPool*   m_Pool;
   Include*      m_Includes;
+};
+
+union ObjectFootPrint
+{
+  Variable             m_Variable;
+  Action               m_Action;
+  Decorator            m_Decorator;
+  Node                 m_Node;
+  BehaviorTree         m_Tree;
+  SBehaviorTreeContext m_BTContext;
+  SParserContext       m_ParserContext;
+  Include              m_Include;
+  SSaverContext        m_SaverContext;
 };
 
 #endif /*BTREE_INTERNAL_H_INCLUDED*/

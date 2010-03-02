@@ -11,24 +11,6 @@
 
 #include "object_pool.h"
 
-struct SObject
-{
-  SObject* m_Next;
-};
-
-struct SBlock
-{
-  SBlock*  m_Next;
-  SObject* m_First;
-};
-
-struct ObjectPool
-{
-  ObjectPoolSetup m_Setup;
-  SBlock*         m_JoinedBlock;
-  SBlock*         m_FirstBlock;
-  SObject*        m_FirstFree;
-};
 
 #define OP_ALLOC_MACRO( _size ) op->m_Setup.m_Allocator.m_Alloc(_size)
 #define OP_FREE_MACRO( _ptr ) op->m_Setup.m_Allocator.m_Free(_ptr)
