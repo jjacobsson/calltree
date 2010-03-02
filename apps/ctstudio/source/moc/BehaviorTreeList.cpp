@@ -78,12 +78,6 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
 
 void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
 {
-
-  QMessageBox::warning( this, tr( "Calltree Studio" ), tr(
-        "The behavior keps has been modified.\n"
-          "Do you want to save your changes?" ), QMessageBox::Yes
-          | QMessageBox::Default, QMessageBox::No, QMessageBox::Cancel
-          | QMessageBox::Escape );
   int c;
   NamedSymbol* ns = BehaviorTreeContextAccessSymbols( ctx, &c );
 
