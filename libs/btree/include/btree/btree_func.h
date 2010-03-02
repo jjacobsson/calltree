@@ -28,6 +28,8 @@ void InitVariable( Variable* v );
 
 void DeleteVariableList( Variable* v );
 
+Variable* CloneVariableList( BehaviorTreeContext, Variable* );
+
 Variable* FindLastVariable( Variable* v );
 
 void AppendToEndOfList( Variable* start, Variable* v );

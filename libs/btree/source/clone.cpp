@@ -20,7 +20,6 @@ void CloneId( BehaviorTreeContext, Identifier*, Identifier* );
 void CloneTree( BehaviorTreeContext, BehaviorTree* );
 void CloneAction( BehaviorTreeContext, Action* );
 void CloneDecorator( BehaviorTreeContext, Decorator* );
-Variable* CloneVariableList( BehaviorTreeContext, Variable* );
 Node* CloneNodeList( BehaviorTreeContext, Node* );
 
 BehaviorTreeContext BehaviorTreeContextClone( BehaviorTreeContext obtc )
