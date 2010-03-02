@@ -141,9 +141,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
   BehaviorTreeContextDestroy( m_TreeContext );
-  BehaviorTreeContextDestroy( m_FullContext );
   m_TreeContext = 0x0;
-  m_FullContext = 0x0;
 
   Allocator a;
   a.m_Alloc = &allocate_memory;
@@ -171,10 +169,10 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
   int returnCode = Parse( pc, &pcf );
   ParserContextDestroy( pc );
 
+  updateClone();
+
   if( returnCode != 0 )
     return false;
-
-  m_FullContext = BehaviorTreeContextClone( m_TreeContext );
 
   clear();
 
@@ -580,4 +578,44 @@ void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
     v2 = v;
     v1 = v1->m_Next;
   }
+}
+
+void BehaviorTreeScene::updateClone()
+{
+  BehaviorTreeContextDestroy( m_FullContext );
+  m_FullContext = BehaviorTreeContextClone( m_TreeContext );
+
+  ParsingInfo pi;
+
+  ParserContextFunctions pcf;
+  pcf.m_Read = &read_file;
+  pcf.m_Error = &parser_error;
+  pcf.m_Warning = &parser_warning;
+  pcf.m_Translate = &parser_translate_include;
+
+  Include* include = BehaviorTreeContextGetFirstInclude( m_FullContext );
+  while( include )
+  {
+    QFileInfo fi( include->m_Name );
+    QFile f( include->m_Name );
+
+    pi.m_File = &f;
+    pi.m_FileName = &fi;
+
+    if( !pi.m_File->open( QFile::ReadOnly ) )
+      break;
+
+    ParserContext pc = ParserContextCreate( m_FullContext );
+    ParserContextSetExtra( pc, &pi );
+    ParserContextSetCurrent( pc, include->m_Name );
+    int returnCode = Parse( pc, &pcf );
+    ParserContextDestroy( pc );
+
+    if( returnCode != 0 )
+      break;
+
+    include = include->m_Next;
+  }
+
+  emit updatedSymbols( m_FullContext );
 }

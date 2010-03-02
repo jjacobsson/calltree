@@ -14,12 +14,17 @@
 
 #include <QtGui/QListWidget>
 
+#include <btree/btree_data.h>
+
 class BehaviorTreeList : public QListWidget
 {
    Q_OBJECT
 
 public:
    BehaviorTreeList(QWidget *parent = 0);
+
+public slots:
+   void loadSymbols( BehaviorTreeContext );
 
 protected:
    void startDrag(Qt::DropActions supportedActions);

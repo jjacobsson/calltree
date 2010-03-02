@@ -15,7 +15,7 @@
 #include "../standard_resources.h"
 #include "../x-node.h"
 
-#include <btree/btree_data.h>
+#include <btree/btree_func.h>
 
 BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   QListWidget( parent )
@@ -74,6 +74,67 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
     nodeItem->setText( g_NodeNames[i] );
   }
 
+}
+
+void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
+{
+
+  QMessageBox::warning( this, tr( "Calltree Studio" ), tr(
+        "The behavior keps has been modified.\n"
+          "Do you want to save your changes?" ), QMessageBox::Yes
+          | QMessageBox::Default, QMessageBox::No, QMessageBox::Cancel
+          | QMessageBox::Escape );
+  int c;
+  NamedSymbol* ns = BehaviorTreeContextAccessSymbols( ctx, &c );
+
+  XNodeData node_data;
+
+  for( int i = 0; i < c; ++i )
+  {
+    bool set = false;
+    const char* name = 0x0;
+    switch( ns[i].m_Type )
+    {
+    case E_ST_ACTION:
+      if( ns[i].m_Symbol.m_Action->m_Declared )
+      {
+        node_data.m_Type = E_XNDT_NODE;
+        node_data.m_NodeGrist = E_GRIST_ACTION;
+        node_data.m_FuncId = ns[i].m_Symbol.m_Action->m_Id.m_Hash;
+        name = ns[i].m_Symbol.m_Action->m_Id.m_Text;
+        set = true;
+      }
+      break;
+    case E_ST_DECORATOR:
+      if( ns[i].m_Symbol.m_Decorator->m_Declared )
+      {
+        node_data.m_Type = E_XNDT_NODE;
+        node_data.m_NodeGrist = E_GRIST_DECORATOR;
+        node_data.m_FuncId = ns[i].m_Symbol.m_Decorator->m_Id.m_Hash;
+        name = ns[i].m_Symbol.m_Decorator->m_Id.m_Text;
+        set = true;
+      }
+      break;
+    }
+    if( !set )
+      continue;
+
+    QListWidgetItem *nodeItem = new QListWidgetItem( this );
+    QPixmap pixmap(32,32);
+
+    pixmap = QPixmap(g_NodeSVGResourcePaths[node_data.m_NodeGrist]).scaled(
+      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+    );
+
+    nodeItem->setIcon( QIcon(pixmap) );
+    nodeItem->setData( Qt::UserRole + 0, pixmap );
+    nodeItem->setData( Qt::UserRole + 1,
+      QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
+
+    nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
+        | Qt::ItemIsDragEnabled );
+    nodeItem->setText( name );
+  }
 }
 
 void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )

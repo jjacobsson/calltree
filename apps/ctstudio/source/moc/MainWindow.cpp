@@ -43,6 +43,7 @@ MainWindow::MainWindow() :
   connect( m_ActionAboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()) );
   connect( m_BTreeView, SIGNAL( statusMessage( QString, int ) ), this->statusBar(), SLOT( showMessage( QString, int ) ) );
   connect( m_BTreeScene, SIGNAL( modified() ), this, SLOT(treeModified()) );
+  connect( m_BTreeScene, SIGNAL( updatedSymbols( BehaviorTreeContext ) ), m_List, SLOT( loadSymbols( BehaviorTreeContext ) ) );
   connect( m_ExitAction, SIGNAL( triggered()), this, SLOT(close()) );
 }
 

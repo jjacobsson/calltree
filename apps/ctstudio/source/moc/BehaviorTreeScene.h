@@ -55,6 +55,7 @@ public:
 
 signals:
   void modified();
+  void updatedSymbols( BehaviorTreeContext );
 
 public slots:
 	void layout();
@@ -91,6 +92,8 @@ protected:
 
     void setupDecoratorNode( Node*, const XNodeData& );
     void setupActionNode( Node*, const XNodeData& );
+
+    void updateClone();
 
     BehaviorTreeContext    m_TreeContext;
     BehaviorTreeContext    m_FullContext;
