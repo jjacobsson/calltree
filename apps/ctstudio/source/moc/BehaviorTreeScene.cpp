@@ -529,55 +529,37 @@ void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
 
 void BehaviorTreeScene::setupDecoratorNode( Node* n, const XNodeData& xnd )
 {
-  NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
-  if( ns->m_Type != E_ST_DECORATOR )
-    return;
-  n->m_Grist.m_Decorator.m_Decorator = ns->m_Symbol.m_Decorator;
-  Variable* v1 = n->m_Grist.m_Decorator.m_Decorator->m_Args;
-  Variable* v2 = 0x0;
-  while( v1 )
+  NamedSymbol* ns;
+
+  ns = BehaviorTreeContextFindSymbol( m_FullContext, xnd.m_FuncId );
+  n->m_Grist.m_Decorator.m_Arguments = CloneVariableList( m_TreeContext, ns->m_Symbol.m_Decorator->m_Args );
+
+  Variable* v = n->m_Grist.m_Decorator.m_Arguments;
+  while( v )
   {
-    Variable* v = (Variable*)BehaviorTreeContextAllocateObject( m_TreeContext );
-    InitVariable( v );
-
-    v->m_Id     = v1->m_Id;
-    v->m_Type   = v1->m_Type;
-
-    if( v2 )
-      v2->m_Next = v;
-    else
-      n->m_Grist.m_Decorator.m_Arguments = v;
-
-    v2 = v;
-    v1 = v1->m_Next;
+    v->m_ValueSet = true;
+    v = v->m_Next;
   }
+  ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
+  n->m_Grist.m_Decorator.m_Decorator = ns->m_Symbol.m_Decorator;
+
 }
 
 void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
 {
-  NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
-  if( ns->m_Type != E_ST_DECORATOR )
-    return;
-  n->m_Grist.m_Action.m_Action = ns->m_Symbol.m_Action;
-  Variable* v1 = n->m_Grist.m_Action.m_Action->m_Args;
-  Variable* v2 = 0x0;
-  while( v1 )
+  NamedSymbol* ns;
+
+  ns = BehaviorTreeContextFindSymbol( m_FullContext, xnd.m_FuncId );
+  n->m_Grist.m_Action.m_Arguments = CloneVariableList( m_TreeContext, ns->m_Symbol.m_Action->m_Args );
+
+  Variable* v = n->m_Grist.m_Action.m_Arguments;
+  while( v )
   {
-    Variable* v = (Variable*)BehaviorTreeContextAllocateObject( m_TreeContext );
-    InitVariable( v );
-
-    v->m_Id = v1->m_Id;
-    v->m_Type = v1->m_Type;
     v->m_ValueSet = true;
-
-    if( v2 )
-      v2->m_Next = v;
-    else
-      n->m_Grist.m_Action.m_Arguments = v;
-
-    v2 = v;
-    v1 = v1->m_Next;
+    v = v->m_Next;
   }
+  ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
+  n->m_Grist.m_Action.m_Action = ns->m_Symbol.m_Action;
 }
 
 void BehaviorTreeScene::updateClone()
