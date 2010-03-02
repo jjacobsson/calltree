@@ -31,6 +31,7 @@ const float g_VertSpace = 128.0f;
 
 BehaviorTreeScene::BehaviorTreeScene( QMainWindow* mw )
   : m_TreeContext( 0x0 )
+  , m_FullContext( 0x0 )
   , m_MainWindow( mw )
   , m_DragItem( 0x0 )
 {
@@ -44,6 +45,8 @@ BehaviorTreeScene::~BehaviorTreeScene()
 {
   BehaviorTreeContextDestroy( m_TreeContext );
   m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
+  BehaviorTreeContextDestroy( m_FullContext );
+  m_FullContext = (BehaviorTreeContext)0xdeadbeef;
 }
 
 void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
@@ -138,7 +141,9 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
   BehaviorTreeContextDestroy( m_TreeContext );
-  m_TreeContext = (BehaviorTreeContext)0xdeadbeef;
+  BehaviorTreeContextDestroy( m_FullContext );
+  m_TreeContext = 0x0;
+  m_FullContext = 0x0;
 
   Allocator a;
   a.m_Alloc = &allocate_memory;
@@ -168,6 +173,8 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
 
   if( returnCode != 0 )
     return false;
+
+  m_FullContext = BehaviorTreeContextClone( m_TreeContext );
 
   clear();
 

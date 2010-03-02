@@ -93,6 +93,7 @@ protected:
     void setupActionNode( Node*, const XNodeData& );
 
     BehaviorTreeContext    m_TreeContext;
+    BehaviorTreeContext    m_FullContext;
 	QMainWindow*           m_MainWindow;
 	BehaviorTreeSceneItem* m_DragItem;
 };

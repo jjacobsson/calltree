@@ -38,7 +38,6 @@ BehaviorTreeContext BehaviorTreeContextCreate( Allocator& allocator )
   return btc;
 }
 
-
 void BehaviorTreeContextDestroy( BehaviorTreeContext btc )
 {
   if( !btc )
