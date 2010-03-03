@@ -28,6 +28,8 @@ public slots:
 
 protected:
    void startDrag(Qt::DropActions supportedActions);
+
+   void setupStandardNodes();
 };
 
 #endif
