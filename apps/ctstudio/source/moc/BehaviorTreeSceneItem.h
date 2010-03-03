@@ -52,6 +52,9 @@ public:
 
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
+  virtual float layoutOffset() const { return 0.0f; }
+  virtual float layoutWidth() const { return 256.0f; }
+
   virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
 
   virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }

@@ -24,6 +24,7 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
 	: BehaviorTreeSceneItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
 	, m_Node( n )
 	, m_DraggingArrow( 0x0 )
+	, m_Label( 0x0 )
 {
 	setupLabel();
 	setupTooltip();
@@ -163,12 +164,15 @@ void BehaviorTreeNode::setupLabel()
   if( !str )
     return;
 
-  QGraphicsTextItem* gti = new QGraphicsTextItem( str, this );
+  QFont font;
+  font.setPixelSize(64);
+  m_Label = new QGraphicsTextItem( str, this );
+  m_Label->setFont( font );
   QPointF p;
-  QRectF r( gti->boundingRect() );
+  QRectF r( m_Label->boundingRect() );
   p.rx() = 128.0 - (r.width() / 2.0);
-  p.ry() = 128.0 - (r.height() / 2.0);
-  gti->setPos( p );
+  p.ry() = 256.0;
+  m_Label->setPos( p );
 }
 
 void BehaviorTreeNode::setupTooltip()

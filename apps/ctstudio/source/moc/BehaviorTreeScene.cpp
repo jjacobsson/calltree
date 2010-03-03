@@ -223,13 +223,13 @@ void BehaviorTreeScene::layout()
     layoutRoot( (BehaviorTreeSceneItem*)(s[i].m_Symbol.m_Tree->m_UserData), el );
   }
   Include* inc = BehaviorTreeContextGetFirstInclude( m_TreeContext );
-  c = 0;
+  float increment_pos = 0.0f;
   while( inc )
   {
     BehaviorTreeSceneItem* inc_si = (BehaviorTreeSceneItem*)inc->m_UserData;
-    inc_si->setPos( (g_NodeWidth + g_HoriSpace) * c, 0 );
+    inc_si->setPos( increment_pos, 0 );
+    increment_pos += inc_si->layoutWidth() + g_HoriSpace;
     inc = inc->m_Next;
-    ++c;
   }
 
   setSceneRect( itemsBoundingRect() );
@@ -256,15 +256,15 @@ void BehaviorTreeScene::createGraphics()
   }
 
   Include* inc = BehaviorTreeContextGetFirstInclude( m_TreeContext );
-  c = 0;
+  float increment_pos = 0;
   while( inc )
   {
     BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude( inc );
     addItem( inc_si );
-    inc_si->moveBy( (g_NodeWidth + g_HoriSpace) * c, 0 );
+    inc_si->setPos( increment_pos, 0 );
     inc->m_UserData = inc_si;
     inc = inc->m_Next;
-    ++c;
+    increment_pos += inc_si->layoutWidth() + g_HoriSpace;
   }
 
 }
@@ -353,7 +353,7 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
 
   Extents e;
   e.l = 0;
-  e.r = g_NodeWidth + g_HoriSpace;
+  e.r = n->layoutWidth() + g_HoriSpace;
   pel.push_back( e );
   if( !el.empty() )
     pel.insert( pel.end(), el.begin(), el.end() );
