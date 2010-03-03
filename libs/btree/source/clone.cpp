@@ -16,7 +16,6 @@
 
 void CloneIncludes( BehaviorTreeContext, Include* );
 void CloneDeclarations( BehaviorTreeContext, NamedSymbol*, int );
-void CloneId( BehaviorTreeContext, Identifier*, Identifier* );
 void CloneTree( BehaviorTreeContext, BehaviorTree* );
 void CloneAction( BehaviorTreeContext, Action* );
 void CloneDecorator( BehaviorTreeContext, Decorator* );

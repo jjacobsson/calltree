@@ -20,6 +20,8 @@
 
 void InitIdentifier( Identifier* id );
 
+void CloneId( BehaviorTreeContext, Identifier*, Identifier* );
+
 /*
  * Variable Functions
  */

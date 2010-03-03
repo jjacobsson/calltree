@@ -122,6 +122,8 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
       m_DragItem->setVisible( true );
       layout();
       emit modified();
+      if( m_DragItem->isType( BehaviorTreeIncludeType ) )
+        updateClone();
     }
     else
     {
@@ -532,8 +534,8 @@ void BehaviorTreeScene::setupDecoratorNode( Node* n, const XNodeData& xnd )
   NamedSymbol* ns;
 
   ns = BehaviorTreeContextFindSymbol( m_FullContext, xnd.m_FuncId );
-  n->m_Grist.m_Decorator.m_Arguments = CloneVariableList( m_TreeContext, ns->m_Symbol.m_Decorator->m_Args );
-
+  Decorator* declared = ns->m_Symbol.m_Decorator;
+  n->m_Grist.m_Decorator.m_Arguments = CloneVariableList( m_TreeContext, declared->m_Args );
   Variable* v = n->m_Grist.m_Decorator.m_Arguments;
   while( v )
   {
@@ -541,7 +543,23 @@ void BehaviorTreeScene::setupDecoratorNode( Node* n, const XNodeData& xnd )
     v = v->m_Next;
   }
   ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
-  n->m_Grist.m_Decorator.m_Decorator = ns->m_Symbol.m_Decorator;
+  Decorator* partial = 0x0;
+  if( !ns )
+  {
+    NamedSymbol new_sym;
+    new_sym.m_Type = E_ST_DECORATOR;
+    new_sym.m_Symbol.m_Decorator = (Decorator*)BehaviorTreeContextAllocateObject( m_TreeContext );
+    partial = new_sym.m_Symbol.m_Decorator;
+    InitDecorator( partial );
+    CloneId( m_TreeContext, &partial->m_Id, &declared->m_Id );
+    BehaviorTreeContextRegisterSymbol( m_TreeContext, new_sym );
+  }
+  else
+  {
+    partial = ns->m_Symbol.m_Decorator;
+  }
+
+  n->m_Grist.m_Decorator.m_Decorator = partial;
 
 }
 
@@ -550,7 +568,8 @@ void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
   NamedSymbol* ns;
 
   ns = BehaviorTreeContextFindSymbol( m_FullContext, xnd.m_FuncId );
-  n->m_Grist.m_Action.m_Arguments = CloneVariableList( m_TreeContext, ns->m_Symbol.m_Action->m_Args );
+  Action* declared = ns->m_Symbol.m_Action;
+  n->m_Grist.m_Action.m_Arguments = CloneVariableList( m_TreeContext, declared->m_Args );
 
   Variable* v = n->m_Grist.m_Action.m_Arguments;
   while( v )
@@ -559,7 +578,22 @@ void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
     v = v->m_Next;
   }
   ns = BehaviorTreeContextFindSymbol( m_TreeContext, xnd.m_FuncId );
-  n->m_Grist.m_Action.m_Action = ns->m_Symbol.m_Action;
+  Action* partial = 0x0;
+  if( !ns )
+  {
+    NamedSymbol new_sym;
+    new_sym.m_Type = E_ST_ACTION;
+    new_sym.m_Symbol.m_Action = (Action*)BehaviorTreeContextAllocateObject( m_TreeContext );
+    partial = new_sym.m_Symbol.m_Action;
+    InitAction( partial );
+    CloneId( m_TreeContext, &partial->m_Id, &declared->m_Id );
+    BehaviorTreeContextRegisterSymbol( m_TreeContext, new_sym );
+  }
+  else
+  {
+    partial = ns->m_Symbol.m_Action;
+  }
+  n->m_Grist.m_Action.m_Action = partial;
 }
 
 void BehaviorTreeScene::updateClone()
