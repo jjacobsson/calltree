@@ -211,7 +211,15 @@ decorator: T_DECORATOR T_QUOTE T_ID vlist node
         	n->m_Grist.m_Decorator.m_Arguments = $4;
         	n->m_Grist.m_Decorator.m_Decorator = LookUpDecorator( ctx->m_Tree, $3 );
          }
+         | T_DECORATOR T_QUOTE T_ID vlist T_QUOTE T_LPARE T_RPARE
+         {
+        	Node* n = AllocateNode( ctx->m_Tree, E_GRIST_DECORATOR, 0x0 );
+        	$$ = n;
+        	n->m_Grist.m_Decorator.m_Arguments = $4;
+        	n->m_Grist.m_Decorator.m_Decorator = LookUpDecorator( ctx->m_Tree, $3 );
+         }
          ;
+         
          
 action: T_ACTION T_QUOTE T_ID vlist 
       {

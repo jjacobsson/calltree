@@ -301,9 +301,18 @@ void SaveDecorator( SaverContext sc, Node* n, int depth )
   StringBufferAppend( &sc->m_Buffer, n->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text );
   StringBufferAppend( &sc->m_Buffer, ' ' );
   SaveVariableList( sc, n->m_Grist.m_Decorator.m_Arguments );
-  StringBufferAppend( &sc->m_Buffer, '\n' );
-  SaveNode( sc, n->m_Grist.m_Decorator.m_Child, depth + 1 );
-  AppendDepth( sc, depth );
+
+  if( n->m_Grist.m_Decorator.m_Child )
+  {
+    StringBufferAppend( &sc->m_Buffer, '\n' );
+    SaveNode( sc, n->m_Grist.m_Decorator.m_Child, depth + 1 );
+    AppendDepth( sc, depth );
+  }
+  else
+  {
+    StringBufferAppend( &sc->m_Buffer, " '()" );
+  }
+
   StringBufferAppend( &sc->m_Buffer, ")\n" );
 }
 
