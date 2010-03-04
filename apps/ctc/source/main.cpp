@@ -130,7 +130,7 @@ int main( int argc, char** argv )
   init_getopt_context( &ctx );
   char c;
 
-  while( (c = getopt( argc, argv, "?i:o:a:dex:", &ctx )) != -1 )
+  while( (c = getopt( argc, argv, "?i:o:a:de:x:", &ctx )) != -1 )
   {
     switch( c )
     {
@@ -141,7 +141,15 @@ int main( int argc, char** argv )
       g_outputFileName = ctx.optarg;
       break;
     case 'e':
-      g_swapEndian = true;
+      if( strcmp( ctx.optarg, "big" ) == 0 )
+        g_swapEndian = true;
+      else if( strcmp( ctx.optarg, "little" ) == 0 )
+        g_swapEndian = false;
+      else
+      {
+        fprintf( stdout, "error: unknown argument for option -e: %s\n", ctx.optarg );
+        return -1;
+      }
       break;
     case 'a':
       g_asmFileName = ctx.optarg;
@@ -160,7 +168,7 @@ int main( int argc, char** argv )
       fprintf( stdout,
         "\t-a\tOutput text file of generated callback instructions. (optional)\n" );
       fprintf( stdout, "\t-x\tOutput a xgml file of the parsed tree\n" );
-      fprintf( stdout, "\t-e\tEndian swap the output file.\n" );
+      fprintf( stdout, "\t-e\tSpecify endian, \"little\" or \"big\" as argument. Default is \"little\" (?).\n" );
       fprintf( stdout, "\t-d\tGenerate debug info\n" );
       fprintf( stdout, "\t-?\tPrint this message and exit.\n\n" );
       return 0;
