@@ -16,18 +16,27 @@
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
-#include <QtSvg/QSvgRenderer>
+#include <QtSvg/QGraphicsSvgItem>
 
 #include <string.h>
 
 BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
-	: BehaviorTreeSceneItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], parent )
+	: BehaviorTreeSceneItem( parent )
 	, m_Node( n )
 	, m_DraggingArrow( 0x0 )
 	, m_Label( 0x0 )
 {
-	setupLabel();
-	setupTooltip();
+  m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], this );
+  setupLabel();
+  setupTooltip();
+}
+
+QRectF BehaviorTreeNode::boundingRect() const
+{
+  QRectF rect = m_Graphics->boundingRect();
+  if( m_Label )
+    rect |= m_Label->boundingRect().translated(m_Label->pos());
+  return rect;
 }
 
 void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
@@ -170,7 +179,15 @@ void BehaviorTreeNode::setupLabel()
   m_Label->setFont( font );
   QPointF p;
   QRectF r( m_Label->boundingRect() );
-  p.rx() = 128.0 - (r.width() / 2.0);
+
+  p.rx() = 0.0;
+
+  float move_node = (r.width() - 256.0) / 2.0;
+  if( move_node > 0 )
+    m_Graphics->setPos( move_node, 0 );
+  else
+    p.rx() = -move_node;
+
   p.ry() = 256.0;
   m_Label->setPos( p );
 }
@@ -285,12 +302,12 @@ void BehaviorTreeNode::executeRelinkage()
 
 void BehaviorTreeNode::lookForRelinkTarget()
 {
-  QList<QGraphicsItem*> coll( collidingItems() );
+  QList<QGraphicsItem*> coll( m_Graphics->collidingItems() );
   QList<QGraphicsItem*>::iterator it, it_e( coll.end() );
   for( it = coll.begin(); it != it_e; ++it )
   {
     BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
-    if( !btsi )
+    if( !btsi || btsi == this )
       continue;
 
     if( btsi->isType( BehaviorTreeNode::Type ) )

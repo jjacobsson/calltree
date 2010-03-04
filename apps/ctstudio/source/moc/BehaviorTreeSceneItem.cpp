@@ -15,10 +15,9 @@
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
-#include <QtSvg/QSvgRenderer>
 
-BehaviorTreeSceneItem::BehaviorTreeSceneItem( const char* gfx_path, BehaviorTreeSceneItem* parent )
-  : QGraphicsSvgItem( gfx_path, parent )
+BehaviorTreeSceneItem::BehaviorTreeSceneItem( QGraphicsObject* parent )
+  : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
@@ -65,6 +64,33 @@ void BehaviorTreeSceneItem::dragEnd()
   emit itemDragged();
 }
 
+void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
+{
+  if(!(option->state & QStyle::State_Selected))
+    return;
+
+  const QRectF brect = boundingRect();
+  const QRectF mbrect = painter->transform().mapRect(brect);
+  if (qMin(mbrect.width(), mbrect.height()) < qreal(1.0))
+      return;
+
+  qreal itemPenWidth = 5.0;
+  const qreal pad = itemPenWidth / 2;
+  const QColor fgcolor = option->palette.windowText().color();
+  const QColor bgcolor( // ensure good contrast against fgcolor
+      fgcolor.red()   > 127 ? 0 : 255,
+      fgcolor.green() > 127 ? 0 : 255,
+      fgcolor.blue()  > 127 ? 0 : 255);
+
+  painter->setPen(QPen(bgcolor, 2.0, Qt::SolidLine));
+  painter->setBrush(Qt::NoBrush);
+  painter->drawRect(brect.adjusted(pad, pad, -pad, -pad));
+
+  painter->setPen(QPen(option->palette.windowText(), 2.0, Qt::DashLine));
+  painter->setBrush(Qt::NoBrush);
+  painter->drawRect(brect.adjusted(pad, pad, -pad, -pad));
+}
+
 NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* other )
 {
   foreach( NodeToNodeArrow *arrow, m_Arrows )
@@ -88,7 +114,7 @@ QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,
   default:
     break;
   }
-  return QGraphicsSvgItem::itemChange( change, value );
+  return QGraphicsItem::itemChange( change, value );
 }
 
 void BehaviorTreeSceneItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
@@ -98,7 +124,7 @@ void BehaviorTreeSceneItem::mousePressEvent( QGraphicsSceneMouseEvent* event )
     m_MouseState = E_MS_LB_DOWN;
     m_StartPos = event->screenPos();
   }
-  QGraphicsSvgItem::mousePressEvent( event );
+  QGraphicsItem::mousePressEvent( event );
 }
 
 void BehaviorTreeSceneItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
@@ -110,7 +136,7 @@ void BehaviorTreeSceneItem::mouseReleaseEvent( QGraphicsSceneMouseEvent* event )
 
     m_MouseState = E_MS_NONE;
   }
-  QGraphicsSvgItem::mouseReleaseEvent( event );
+  QGraphicsItem::mouseReleaseEvent( event );
 }
 
 void BehaviorTreeSceneItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
@@ -126,7 +152,7 @@ void BehaviorTreeSceneItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
   if( m_MouseState == E_MS_DRAGGING )
     dragMove();
 
-  QGraphicsSvgItem::mouseMoveEvent( event );
+  QGraphicsItem::mouseMoveEvent( event );
 }
 
 void BehaviorTreeSceneItem::signalModified()

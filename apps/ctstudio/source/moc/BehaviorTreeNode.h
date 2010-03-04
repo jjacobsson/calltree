@@ -19,13 +19,16 @@
 #include "../GraphicsItemTypes.h"
 
 class QGraphicsTextItem;
+class QGraphicsSvgItem;
 
 // Internal Forward declares
 class NodeToNodeArrow;
 
 class BehaviorTreeNode: public BehaviorTreeSceneItem
 {
+
 Q_OBJECT
+
 public:
 
   BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent = 0x0 );
@@ -40,6 +43,8 @@ public:
       return true;
     return BehaviorTreeSceneItem::isType( type );
   }
+
+  QRectF boundingRect() const;
 
   void destroyResources( BehaviorTreeContext ctx );
 
@@ -80,6 +85,7 @@ private:
   Relinkage m_Relinkage; // This is the information needed to be able to correctly link the m_Node into a new position in the BT.
   Relinkage m_Previous;
   NodeToNodeArrow* m_DraggingArrow; // This arrow is the one used to indicate where the node will be linked while dragging.
+  QGraphicsSvgItem*  m_Graphics;
   QGraphicsTextItem* m_Label;
 };
 

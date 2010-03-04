@@ -228,8 +228,10 @@ void BehaviorTreeScene::layout()
   {
     BehaviorTreeSceneItem* inc_si = (BehaviorTreeSceneItem*)inc->m_UserData;
     inc_si->setPos( increment_pos, 0 );
-    increment_pos += inc_si->layoutWidth() + g_HoriSpace;
     inc = inc->m_Next;
+
+    QRectF bounds = inc_si->boundingRect();
+    increment_pos += (float)bounds.width() + g_HoriSpace;
   }
 
   setSceneRect( itemsBoundingRect() );
@@ -264,7 +266,9 @@ void BehaviorTreeScene::createGraphics()
     inc_si->setPos( increment_pos, 0 );
     inc->m_UserData = inc_si;
     inc = inc->m_Next;
-    increment_pos += inc_si->layoutWidth() + g_HoriSpace;
+
+    QRectF bounds = inc_si->boundingRect();
+    increment_pos += (float)bounds.width() + g_HoriSpace;
   }
 
 }
@@ -321,7 +325,7 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
   ExtentsList el;
   BehaviorTreeSceneItem* it = n->firstChild();
   double lx = 0.0;
-
+  double fr = 0.0f;
   n->setPos( 0.0f, 0.0f );
 
   if( n->parentItem() )
@@ -333,16 +337,27 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
     depthFirstPlace( it, t );
     double slide = minimumRootDistance( el, t );
     it->moveBy( slide, 0 );
+    fr = it->pos().rx() + it->boundingRect().width();
     lx = slide;
     moveExtents( t, slide );
     mergeExtents( el, el, t );
     it = it->nextSibling();
   }
 
+  QRectF bounds = n->boundingRect();
+
   it = n->firstChild();
   if( it )
   {
     lx /= 2.0;
+
+    if( lx == 0.0 )
+    {
+      float nw = bounds.width();
+      float cw = it->boundingRect().width();
+      lx = (cw - nw) / 2.0;
+    }
+
     while( it )
     {
       it->moveBy( -lx, 0 );
@@ -353,7 +368,7 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
 
   Extents e;
   e.l = 0;
-  e.r = n->layoutWidth() + g_HoriSpace;
+  e.r = bounds.width() + g_HoriSpace;
   pel.push_back( e );
   if( !el.empty() )
     pel.insert( pel.end(), el.begin(), el.end() );

@@ -60,8 +60,8 @@ void NodeToNodeArrow::updatePosition()
   QPointF s, e;
   QRectF sr( m_Start->boundingRect() );
   QRectF er( m_End->boundingRect() );
-  s = mapFromItem( m_Start, m_Start->layoutWidth() / 2.0, sr.height() / 2.0 );
-  e = mapFromItem( m_End, m_End->layoutWidth() / 2.0, er.height() / 2.0 );
+  s = mapFromItem( m_Start, sr.width() / 2.0, sr.height() / 2.0 );
+  e = mapFromItem( m_End, er.width() / 2.0, er.height() / 2.0 );
   setLine( QLineF( s, e ) );
 }
 

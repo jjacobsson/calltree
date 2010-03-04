@@ -15,13 +15,15 @@
 #include "BehaviorTreeSceneItem.h"
 #include "../GraphicsItemTypes.h"
 
+class QGraphicsSvgItem;
+
 struct BehaviorTree;
 
 class BehaviorTreeTree: public BehaviorTreeSceneItem
 {
   Q_OBJECT
-public:
 
+public:
 
   BehaviorTreeTree( BehaviorTree* tree );
 
@@ -42,9 +44,12 @@ public:
 
   BehaviorTreeSceneItem* firstChild();
 
+  QRectF boundingRect() const;
+
 protected:
 
   BehaviorTree* m_Tree;
+  QGraphicsSvgItem* m_Graphics;
 
 };
 

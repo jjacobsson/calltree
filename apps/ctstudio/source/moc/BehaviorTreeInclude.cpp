@@ -13,11 +13,15 @@
 #include "../standard_resources.h"
 #include <btree/btree.h>
 
+#include <QtSvg/QGraphicsSvgItem>
+
 BehaviorTreeInclude::BehaviorTreeInclude( Include* i )
-  : BehaviorTreeSceneItem( ":/nodes/include.svg" )
+  : BehaviorTreeSceneItem()
   , m_Include( i )
+  , m_Graphics( 0x0 )
 {
   setFlag( QGraphicsItem::ItemIsMovable, false );
+  m_Graphics = new QGraphicsSvgItem( ":/nodes/include.svg", this );
 }
 
 void BehaviorTreeInclude::destroyResources( BehaviorTreeContext ctx )
@@ -25,3 +29,14 @@ void BehaviorTreeInclude::destroyResources( BehaviorTreeContext ctx )
   BehaviorTreeContextReleaseInclude( ctx, m_Include );
   m_Include = 0x0;
 }
+
+QRectF BehaviorTreeInclude::boundingRect() const
+{
+  return m_Graphics->boundingRect();
+}
+
+
+
+
+
+

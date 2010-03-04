@@ -12,7 +12,7 @@
 #ifndef BEHAVOIRTREESCENEITEM_H_INCLUDED
 #define BEHAVOIRTREESCENEITEM_H_INCLUDED
 
-#include <QtSvg/QGraphicsSvgItem>
+#include <QtGui/QGraphicsItem>
 #include <QtCore/QList>
 
 #include "../GraphicsItemTypes.h"
@@ -22,9 +22,11 @@
 // Internal Forward declares
 class NodeToNodeArrow;
 
-class BehaviorTreeSceneItem: public QGraphicsSvgItem
+class BehaviorTreeSceneItem: public QGraphicsObject
 {
+
 Q_OBJECT
+
 public:
 
   enum
@@ -37,7 +39,7 @@ public:
     return Type;
   }
 
-  BehaviorTreeSceneItem( const char* gfx_path, BehaviorTreeSceneItem* parent = 0x0 );
+  BehaviorTreeSceneItem( QGraphicsObject* parent = 0x0 );
 
   virtual bool isType( int type ) const
   {
@@ -52,9 +54,6 @@ public:
 
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
-  virtual float layoutOffset() const { return 0.0f; }
-  virtual float layoutWidth() const { return 256.0f; }
-
   virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
 
   virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }
@@ -65,6 +64,8 @@ public:
   virtual void dragMove();
   virtual void dragBegin();
   virtual void dragEnd();
+
+  void paint( QPainter*, const QStyleOptionGraphicsItem*, QWidget* );
 
 signals:
 

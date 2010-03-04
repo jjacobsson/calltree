@@ -15,9 +15,16 @@
 #include "BehaviorTreeSceneItem.h"
 #include "../GraphicsItemTypes.h"
 
+class QGraphicsSvgItem;
+class QPainter;
+class QStyleOptionGraphicsItem;
+class QWidget;
+
 class BehaviorTreeInclude: public BehaviorTreeSceneItem
 {
-  Q_OBJECT
+
+Q_OBJECT
+
 public:
 
   BehaviorTreeInclude( Include* );
@@ -35,10 +42,12 @@ public:
 
   void destroyResources( BehaviorTreeContext ctx );
 
+  QRectF boundingRect() const;
+
 protected:
 
   Include* m_Include;
-
+  QGraphicsSvgItem* m_Graphics;
 };
 
 #endif /*BEHAVOIRTREEINCLUDE_H_INCLUDED*/
