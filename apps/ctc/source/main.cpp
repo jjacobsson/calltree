@@ -21,6 +21,7 @@ FILE* g_outputFile = 0x0;
 char* g_inputFileName = 0x0;
 char* g_outputFileName = "a.out";
 bool g_swapEndian = false;
+bool g_printIncludes = false;
 char* g_asmFileName = 0x0;
 char* g_xgmlFileName = 0x0;
 bool g_debug = false;
@@ -130,7 +131,7 @@ int main( int argc, char** argv )
   init_getopt_context( &ctx );
   char c;
 
-  while( (c = getopt( argc, argv, "?i:o:a:de:x:", &ctx )) != -1 )
+  while( (c = getopt( argc, argv, "?i:o:a:de:x:lcr", &ctx )) != -1 )
   {
     switch( c )
     {
@@ -160,6 +161,12 @@ int main( int argc, char** argv )
     case 'x':
       g_xgmlFileName = ctx.optarg;
       break;
+    case 'l':
+      g_printIncludes = true;
+      break;
+    case 'c':
+      /* don't ask. */
+      break;
     case '?':
       fprintf( stdout, "calltree compiler Version 0.1\n\n" );
       fprintf( stdout, "Options:\n" );
@@ -170,6 +177,7 @@ int main( int argc, char** argv )
       fprintf( stdout, "\t-x\tOutput a xgml file of the parsed tree\n" );
       fprintf( stdout, "\t-e\tSpecify endian, \"little\" or \"big\" as argument. Default is \"little\" (?).\n" );
       fprintf( stdout, "\t-d\tGenerate debug info\n" );
+      fprintf( stdout, "\t-l\tPrint a list of files included to stdout (non-recursive).\n");
       fprintf( stdout, "\t-?\tPrint this message and exit.\n\n" );
       return 0;
       break;
@@ -221,7 +229,15 @@ int main( int argc, char** argv )
       fclose( pi.m_File );
 
     Include* include = BehaviorTreeContextGetFirstInclude( btc );
-    while( include )
+
+    while( returnCode == 0 && include && g_printIncludes )
+    {
+      fprintf( stdout, "%s\n", include->m_Name );
+      include = include->m_Next;
+    }
+
+    include = BehaviorTreeContextGetFirstInclude( btc );
+    while( returnCode == 0 && include )
     {
       pi.m_Name = include->m_Name;
       pi.m_File = fopen( pi.m_Name, "r" );
