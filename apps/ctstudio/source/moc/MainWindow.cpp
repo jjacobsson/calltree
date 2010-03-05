@@ -45,6 +45,7 @@ MainWindow::MainWindow() :
   connect( m_BTreeScene, SIGNAL( modified() ), this, SLOT(treeModified()) );
   connect( m_BTreeScene, SIGNAL( updatedSymbols( BehaviorTreeContext ) ), m_List, SLOT( loadSymbols( BehaviorTreeContext ) ) );
   connect( m_ExitAction, SIGNAL( triggered()), this, SLOT(close()) );
+  connect( m_ActionDelete, SIGNAL( triggered() ), m_BTreeScene, SLOT( deleteSelected() ) );
 }
 
 void MainWindow::open()

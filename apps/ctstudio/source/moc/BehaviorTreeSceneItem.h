@@ -40,6 +40,7 @@ public:
   }
 
   BehaviorTreeSceneItem( QGraphicsObject* parent = 0x0 );
+  ~BehaviorTreeSceneItem();
 
   virtual bool isType( int type ) const
   {

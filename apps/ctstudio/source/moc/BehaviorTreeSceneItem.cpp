@@ -27,6 +27,11 @@ BehaviorTreeSceneItem::BehaviorTreeSceneItem( QGraphicsObject* parent )
   setZValue( 0.0 );
 }
 
+BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
+{
+  removeArrows();
+}
+
 void BehaviorTreeSceneItem::removeArrow(NodeToNodeArrow *arrow)
 {
     int index = m_Arrows.indexOf(arrow);

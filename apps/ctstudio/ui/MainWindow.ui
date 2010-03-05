@@ -55,7 +55,14 @@
     </property>
     <addaction name="m_ActionAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="m_ActionDelete"/>
+   </widget>
    <addaction name="m_MenuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="m_MenuHelp"/>
   </widget>
   <widget class="QStatusBar" name="m_Statusbar">
@@ -120,6 +127,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="m_ActionDelete">
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
    </property>
   </action>
  </widget>

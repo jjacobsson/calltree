@@ -242,6 +242,38 @@ void BehaviorTreeScene::itemModified()
   emit modified();
 }
 
+void BehaviorTreeScene::deleteSelected()
+{
+  typedef QList<QGraphicsItem *> ItemList;
+  ItemList items( selectedItems() );
+  ItemList::iterator it, it_e = items.end();
+
+  bool itemDestroyed = false;
+  bool includeDestroyed = false;
+
+  for( it = items.begin(); it != it_e; ++it )
+  {
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    if( !btsi )
+      continue;
+
+    if( btsi->isType( BehaviorTreeIncludeType ) )
+      includeDestroyed = true;
+
+    destroySubTree( btsi );
+    itemDestroyed = true;
+  }
+
+  if( itemDestroyed )
+  {
+    emit modified();
+    layout();
+  }
+
+  if( includeDestroyed )
+    updateClone();
+}
+
 void BehaviorTreeScene::createGraphics()
 {
   int i, c;
@@ -644,3 +676,17 @@ void BehaviorTreeScene::updateClone()
 
   emit updatedSymbols( m_FullContext );
 }
+
+void BehaviorTreeScene::destroySubTree( BehaviorTreeSceneItem* item )
+{
+  BehaviorTreeSceneItem* c = item->firstChild();
+  while( c )
+  {
+    BehaviorTreeSceneItem* s = c->nextSibling();
+    destroySubTree( c );
+    c = s;
+  }
+  item->destroyResources( m_TreeContext );
+  delete item;
+}
+

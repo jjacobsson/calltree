@@ -136,7 +136,7 @@ void SymbolTableErase( SymbolTable* st, hash_t h )
   NamedSymbol* begin = st->m_Symbols;
   NamedSymbol* end = begin + st->m_Size;
   NamedSymbol* s = std::lower_bound( begin, end, h, g_NamedSymbolPredicate );
-  if( s == end || !g_NamedSymbolPredicate.GetId( *s ) != h )
+  if( s == end || g_NamedSymbolPredicate.GetId( *s ) != h )
     return;
 
   if( (end - (s+1)) > 0 )

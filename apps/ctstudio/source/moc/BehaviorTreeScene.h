@@ -60,6 +60,7 @@ signals:
 public slots:
 	void layout();
 	void itemModified();
+	void deleteSelected();
 
 protected:
 
@@ -94,6 +95,8 @@ protected:
     void setupActionNode( Node*, const XNodeData& );
 
     void updateClone();
+
+    void destroySubTree( BehaviorTreeSceneItem* );
 
     BehaviorTreeContext    m_TreeContext;
     BehaviorTreeContext    m_FullContext;
