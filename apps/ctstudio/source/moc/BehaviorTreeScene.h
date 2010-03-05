@@ -38,70 +38,73 @@ typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 struct XNodeData;
 
-class BehaviorTreeScene : public QGraphicsScene
+class BehaviorTreeScene: public QGraphicsScene
 {
-	Q_OBJECT
+Q_OBJECT
 public:
-	BehaviorTreeScene( QMainWindow* );
-	~BehaviorTreeScene();
+  BehaviorTreeScene( QMainWindow* );
+  ~BehaviorTreeScene();
 
-	bool readFile( const QString& fileName );
-	bool writeFile( const QString& fileName );
+  bool readFile( const QString& fileName );
+  bool writeFile( const QString& fileName );
 
-    void dragEnterEvent( QDragEnterEvent *event );
-    void dragLeaveEvent( QDragLeaveEvent *event );
-    void dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos );
-    void dropEvent( QDropEvent *event );
+  void dragEnterEvent( QDragEnterEvent *event );
+  void dragLeaveEvent( QDragLeaveEvent *event );
+  void dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos );
+  void dropEvent( QDropEvent *event );
 
 signals:
   void modified();
   void updatedSymbols( BehaviorTreeContext );
+  void itemSelected( QWidget* );
 
 public slots:
-	void layout();
-	void itemModified();
-	void deleteSelected();
+  void layout();
+  void itemModified();
+  void deleteSelected();
+  void nodeSelected( QWidget* );
 
 protected:
 
-    struct Extents
+  struct Extents
+  {
+    Extents() :
+      l( 0.0f ), r( 0.0f )
     {
-    	Extents()
-			: l( 0.0f )
-			, r( 0.0f )
-		{}
-        double l;
-        double r;
-    };
+    }
+    double l;
+    double r;
+  };
 
-    typedef std::vector<Extents> ExtentsList;
+  typedef std::vector<Extents> ExtentsList;
 
-    void createGraphics();
-	void createGraphics( Node*, BehaviorTreeSceneItem* );
+  void createGraphics();
+  void createGraphics( Node*, BehaviorTreeSceneItem* );
 
-	void layoutRoot( BehaviorTreeSceneItem* n, ExtentsList& el );
-	void depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& pel );
+  void layoutRoot( BehaviorTreeSceneItem* n, ExtentsList& el );
+  void depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& pel );
 
-	double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
-    void moveExtents( ExtentsList& el, double dist );
-    void mergeExtents( ExtentsList& res, const ExtentsList& lel, const ExtentsList& rel );
-    void padExtents( ExtentsList& l, const ExtentsList& r );
+  double minimumRootDistance( const ExtentsList& l, const ExtentsList& r );
+  void moveExtents( ExtentsList& el, double dist );
+  void mergeExtents( ExtentsList& res, const ExtentsList& lel,
+    const ExtentsList& rel );
+  void padExtents( ExtentsList& l, const ExtentsList& r );
 
-    void setupDrag( const XNodeData& data );
-    void setupTreeDrag( const XNodeData& data );
-    void setupNodeDrag( const XNodeData& data );
+  void setupDrag( const XNodeData& data );
+  void setupTreeDrag( const XNodeData& data );
+  void setupNodeDrag( const XNodeData& data );
 
-    void setupDecoratorNode( Node*, const XNodeData& );
-    void setupActionNode( Node*, const XNodeData& );
+  void setupDecoratorNode( Node*, const XNodeData& );
+  void setupActionNode( Node*, const XNodeData& );
 
-    void updateClone();
+  void updateClone();
 
-    void destroySubTree( BehaviorTreeSceneItem* );
+  void destroySubTree( BehaviorTreeSceneItem* );
 
-    BehaviorTreeContext    m_TreeContext;
-    BehaviorTreeContext    m_FullContext;
-	QMainWindow*           m_MainWindow;
-	BehaviorTreeSceneItem* m_DragItem;
+  BehaviorTreeContext m_TreeContext;
+  BehaviorTreeContext m_FullContext;
+  QMainWindow* m_MainWindow;
+  BehaviorTreeSceneItem* m_DragItem;
 };
 
 #endif

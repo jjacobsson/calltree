@@ -42,6 +42,7 @@ private slots:
 	bool saveAs();
 	void openRecentFile();
 	void treeModified();
+	void setPropertyWidget( QWidget* );
 
 private:
 

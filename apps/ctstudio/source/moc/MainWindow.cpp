@@ -44,8 +44,10 @@ MainWindow::MainWindow() :
   connect( m_BTreeView, SIGNAL( statusMessage( QString, int ) ), this->statusBar(), SLOT( showMessage( QString, int ) ) );
   connect( m_BTreeScene, SIGNAL( modified() ), this, SLOT(treeModified()) );
   connect( m_BTreeScene, SIGNAL( updatedSymbols( BehaviorTreeContext ) ), m_List, SLOT( loadSymbols( BehaviorTreeContext ) ) );
+  connect( m_BTreeScene, SIGNAL( itemSelected( QWidget* ) ), this, SLOT( setPropertyWidget( QWidget* ) ) );
   connect( m_ExitAction, SIGNAL( triggered()), this, SLOT(close()) );
   connect( m_ActionDelete, SIGNAL( triggered() ), m_BTreeScene, SLOT( deleteSelected() ) );
+
 }
 
 void MainWindow::open()
@@ -91,6 +93,11 @@ void MainWindow::openRecentFile()
 void MainWindow::treeModified()
 {
   setWindowModified( true );
+}
+
+void MainWindow::setPropertyWidget( QWidget* property_widget )
+{
+  m_PropertiesDock->setWidget( property_widget );
 }
 
 void MainWindow::setupStatusBar()

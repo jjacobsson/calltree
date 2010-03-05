@@ -26,7 +26,7 @@ class BehaviorTreeTree: public BehaviorTreeSceneItem
 
 public:
 
-  BehaviorTreeTree( BehaviorTree* tree );
+  BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree );
 
   enum
   {
@@ -49,10 +49,16 @@ public:
 
   BehaviorTreeSceneItem* firstChild();
 
+private slots:
+
+  void updateName();
+
 protected:
 
-  void setupLabel();
+  void setupLabel( const char* str );
+  void setupPropertyEditor();
 
+  BehaviorTreeContext m_Context;
   BehaviorTree* m_Tree;
   QGraphicsSvgItem* m_Graphics;
   QGraphicsTextItem* m_Label;

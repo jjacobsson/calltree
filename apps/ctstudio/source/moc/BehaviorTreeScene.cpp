@@ -274,6 +274,11 @@ void BehaviorTreeScene::deleteSelected()
     updateClone();
 }
 
+void BehaviorTreeScene::nodeSelected( QWidget* property_widget )
+{
+  emit itemSelected( property_widget );
+}
+
 void BehaviorTreeScene::createGraphics()
 {
   int i, c;
@@ -282,10 +287,11 @@ void BehaviorTreeScene::createGraphics()
   {
     if( s[i].m_Type != E_ST_TREE || !s[i].m_Symbol.m_Tree->m_Declared )
       continue;
-    BehaviorTreeSceneItem* tree = new BehaviorTreeTree( s[i].m_Symbol.m_Tree );
+    BehaviorTreeSceneItem* tree = new BehaviorTreeTree( m_TreeContext, s[i].m_Symbol.m_Tree );
     s[i].m_Symbol.m_Tree->m_UserData = tree;
     addItem( tree );
-    connect( tree, SIGNAL(modified()), this, SLOT( itemModified() ) );
+    connect( tree, SIGNAL(modified()), this, SLOT(itemModified()) );
+    connect( tree, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
 
@@ -294,6 +300,7 @@ void BehaviorTreeScene::createGraphics()
   while( inc )
   {
     BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude( inc );
+    connect( inc_si, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
     addItem( inc_si );
     inc_si->setPos( increment_pos, 0 );
     inc->m_UserData = inc_si;
@@ -302,7 +309,6 @@ void BehaviorTreeScene::createGraphics()
     QRectF bounds = inc_si->boundingRect();
     increment_pos += (float)bounds.width() + g_HoriSpace;
   }
-
 }
 
 void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
@@ -313,6 +319,7 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
 
     connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
     connect( svg_item, SIGNAL( modified() ), this, SLOT( itemModified() ) );
+    connect( svg_item, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
 
     connect(
       svg_item,
@@ -484,6 +491,13 @@ void BehaviorTreeScene::setupDrag( const XNodeData& data )
     setupNodeDrag( data );
     break;
   }
+
+  if( m_DragItem )
+  {
+    connect( m_DragItem, SIGNAL( modified() ), this, SLOT( itemModified() ) );
+    connect( m_DragItem, SIGNAL( itemSelected( QWidget* ) ), this, SLOT( nodeSelected( QWidget* ) ) );
+  }
+
 }
 
 void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
@@ -510,10 +524,8 @@ void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
   tree->m_Id.m_Text = BehaviorTreeContextRegisterString( m_TreeContext, tree_name_buff );
   tree->m_Id.m_Hash = name_hash;
 
-  m_DragItem = new BehaviorTreeTree( tree );
+  m_DragItem = new BehaviorTreeTree( m_TreeContext, tree );
   addItem( m_DragItem );
-
-  connect( m_DragItem, SIGNAL(modified()), this, SLOT( itemModified() ) );
 
   tree->m_UserData = m_DragItem;
   tree->m_Declared = true;
@@ -558,8 +570,6 @@ void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
   addItem( m_DragItem );
 
   connect( m_DragItem, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
-  connect( m_DragItem, SIGNAL( modified() ), this, SLOT( itemModified() ) );
-
   connect(
     m_DragItem,
     SIGNAL( relinkTargetMessage( QString, int ) ),

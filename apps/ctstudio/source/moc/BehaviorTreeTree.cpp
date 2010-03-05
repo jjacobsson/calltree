@@ -12,18 +12,24 @@
 #include "BehaviorTreeTree.h"
 #include "../standard_resources.h"
 #include <btree/btree.h>
+#include <other/lookup3.h>
 
 #include <QtSvg/QGraphicsSvgItem>
 #include <QtGui/QFont>
+#include <QtGui/QFormLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
 
-BehaviorTreeTree::BehaviorTreeTree( BehaviorTree* tree )
+BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree )
   : BehaviorTreeSceneItem()
+  , m_Context( ctx )
   , m_Tree( tree )
   , m_Label( 0x0 )
 {
   setFlag( QGraphicsItem::ItemIsMovable, false );
   m_Graphics = new QGraphicsSvgItem( ":/nodes/tree.svg", this );
-  setupLabel();
+  setupLabel( m_Tree->m_Id.m_Text );
+  setupPropertyEditor();
 }
 
 QRectF BehaviorTreeTree::boundingRect() const
@@ -58,11 +64,38 @@ BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
   return 0x0;
 }
 
-void BehaviorTreeTree::setupLabel()
+void BehaviorTreeTree::updateName()
 {
-  const char* str = m_Tree->m_Id.m_Text;
+  QLineEdit* le = qobject_cast<QLineEdit*>(sender());
+  if( !le )
+    return;
+
+  if( strcmp( le->text().toAscii().constData(), m_Tree->m_Id.m_Text ) == 0 )
+    return;
+
+  BehaviorTreeContextRemoveSymbol( m_Context, m_Tree->m_Id.m_Hash );
+
+  QByteArray new_str( le->text().toAscii() );
+  m_Tree->m_Id.m_Text = BehaviorTreeContextRegisterString( m_Context, new_str.constData() );
+  m_Tree->m_Id.m_Hash = hashlittle( new_str.constData() );
+
+  NamedSymbol ns;
+  ns.m_Type = E_ST_TREE;
+  ns.m_Symbol.m_Tree = m_Tree;
+  BehaviorTreeContextRegisterSymbol( m_Context, ns );
+
+  setupLabel( m_Tree->m_Id.m_Text );
+
+  signalModified();
+}
+
+void BehaviorTreeTree::setupLabel( const char* str )
+{
   if( !str )
     return;
+
+  delete m_Label;
+  m_Label = 0x0;
 
   QFont font;
   font.setPixelSize(64);
@@ -81,5 +114,16 @@ void BehaviorTreeTree::setupLabel()
 
   p.ry() = -r.height();
   m_Label->setPos( p );
+}
+
+void BehaviorTreeTree::setupPropertyEditor()
+{
+  m_PropertyWidget = new QWidget;
+  QFormLayout* form = new QFormLayout( m_PropertyWidget );
+
+  QLineEdit* edit = new QLineEdit( m_Tree->m_Id.m_Text );
+  connect( edit, SIGNAL( returnPressed() ), this, SLOT( updateName() ) );
+
+  form->addRow( new QLabel( tr( "Name" ) ), edit );
 }
 

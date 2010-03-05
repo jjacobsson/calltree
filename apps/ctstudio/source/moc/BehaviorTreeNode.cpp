@@ -29,6 +29,7 @@ BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
   m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], this );
   setupLabel();
   setupTooltip();
+  setupPropertyEditor();
 }
 
 QRectF BehaviorTreeNode::boundingRect() const
@@ -244,6 +245,52 @@ void BehaviorTreeNode::setupTooltip()
     break;
   }
   setToolTip( str );
+}
+
+void BehaviorTreeNode::setupPropertyEditor()
+{
+  QLabel* label = 0x0;
+  switch( m_Node->m_Grist.m_Type )
+  {
+  case E_GRIST_UNKOWN:
+    label = new QLabel( tr("I have no idea what kind of node you have selected mate...") );
+    break;
+  case E_GRIST_SEQUENCE:
+    label = new QLabel( tr("Sequence") );
+    break;
+  case E_GRIST_SELECTOR:
+    label = new QLabel( tr("Selector") );
+    break;
+  case E_GRIST_PARALLEL:
+    label = new QLabel( tr("Parallel") );
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    label = new QLabel( tr("Dynamic Selector") );
+    break;
+  case E_GRIST_SUCCEED:
+    label = new QLabel( tr("Success node") );
+    break;
+  case E_GRIST_FAIL:
+    label = new QLabel( tr("Fail node") );
+    break;
+  case E_GRIST_WORK:
+    label = new QLabel( tr("Working node") );
+    break;
+  case E_GRIST_DECORATOR:
+    break;
+  case E_GRIST_ACTION:
+    break;
+  case E_MAX_GRIST_TYPES:
+    /* Warning killer */
+    break;
+  }
+
+  if( label )
+  {
+    m_PropertyWidget = new QWidget;
+    QBoxLayout* layout = new QBoxLayout( QBoxLayout::TopToBottom, m_PropertyWidget );
+    layout->addWidget( label, 0, Qt::AlignHCenter | Qt::AlignVCenter );
+  }
 }
 
 void BehaviorTreeNode::setupRelinkage()

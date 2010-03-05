@@ -67,10 +67,19 @@ public:
 
   virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
 
-  virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }
-  virtual BehaviorTreeSceneItem* nextSibling() { return 0x0; }
+  virtual BehaviorTreeSceneItem* firstChild()
+  {
+    return 0x0;
+  }
+  virtual BehaviorTreeSceneItem* nextSibling()
+  {
+    return 0x0;
+  }
 
-  virtual bool validForDrop() const { return true; }
+  virtual bool validForDrop() const
+  {
+    return true;
+  }
 
   virtual void dragMove();
   virtual void dragBegin();
@@ -81,6 +90,7 @@ public:
 signals:
 
   void itemDragged();
+  void itemSelected( QWidget* );
   void modified();
 
 protected:
@@ -90,7 +100,6 @@ protected:
   void mousePressEvent( QGraphicsSceneMouseEvent* event );
   void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
   void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
-
 
   void signalModified();
 
@@ -106,6 +115,8 @@ private:
 
 protected:
   QList<NodeToNodeArrow*> m_Arrows;
+
+  QWidget* m_PropertyWidget;
 };
 
 #endif

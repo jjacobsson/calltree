@@ -67,6 +67,7 @@ private:
 
   void setupLabel();
   void setupTooltip();
+  void setupPropertyEditor();
 
   void setupRelinkage();
   void executeRelinkage();

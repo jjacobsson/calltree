@@ -19,6 +19,7 @@
 BehaviorTreeSceneItem::BehaviorTreeSceneItem( QGraphicsObject* parent )
   : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
+  , m_PropertyWidget( 0x0 )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
   setFlag( QGraphicsItem::ItemIsSelectable, true );
@@ -30,6 +31,8 @@ BehaviorTreeSceneItem::BehaviorTreeSceneItem( QGraphicsObject* parent )
 BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
 {
   removeArrows();
+  delete m_PropertyWidget;
+  m_PropertyWidget = 0x0;
 }
 
 void BehaviorTreeSceneItem::removeArrow(NodeToNodeArrow *arrow)
@@ -116,6 +119,10 @@ QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,
   {
   case ItemSelectedChange:
     update();
+    if( value.toBool() )
+      emit itemSelected( m_PropertyWidget );
+    else
+      emit itemSelected( 0x0 );
     break;
   default:
     break;
