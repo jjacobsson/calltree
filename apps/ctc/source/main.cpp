@@ -15,15 +15,13 @@
 
 #include <btree/btree.h>
 #include "generate/program.h"
-#include "xgml_printer.h"
 
 FILE* g_outputFile = 0x0;
 char* g_inputFileName = 0x0;
-char* g_outputFileName = "a.out";
+char* g_outputFileName = 0x0;
 bool g_swapEndian = false;
 bool g_printIncludes = false;
 char* g_asmFileName = 0x0;
-char* g_xgmlFileName = 0x0;
 bool g_debug = false;
 
 int g_allocs = 0;
@@ -64,8 +62,8 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
   if( pi )
   {
-    printf( "%s(%d): warning : %s\n", pi->m_Name,
-      ParserContextGetLineNo( pc ), msg );
+    printf( "%s(%d): warning : %s\n", pi->m_Name, ParserContextGetLineNo( pc ),
+      msg );
   }
   else
   {
@@ -102,7 +100,7 @@ const char* parser_translate_include( ParserContext pc, const char* include )
 
   if( pi->m_Name )
   {
-    char backslash  = '\\';
+    char backslash = '\\';
     char frontslash = '/';
 
     int s = 0, last = -1;
@@ -148,7 +146,8 @@ int main( int argc, char** argv )
         g_swapEndian = false;
       else
       {
-        fprintf( stdout, "error: unknown argument for option -e: %s\n", ctx.optarg );
+        fprintf( stdout, "error: unknown argument for option -e: %s\n",
+          ctx.optarg );
         return -1;
       }
       break;
@@ -157,9 +156,6 @@ int main( int argc, char** argv )
       break;
     case 'd':
       g_debug = true;
-      break;
-    case 'x':
-      g_xgmlFileName = ctx.optarg;
       break;
     case 'l':
       g_printIncludes = true;
@@ -170,14 +166,17 @@ int main( int argc, char** argv )
     case '?':
       fprintf( stdout, "calltree compiler Version 0.1\n\n" );
       fprintf( stdout, "Options:\n" );
-      fprintf( stdout, "\t-i\tInput file\n" );
-      fprintf( stdout, "\t-o\tOutput file (defaults to \"a.out\")\n" );
+      fprintf( stdout, "\t-i\tInput file. (required)\n" );
+      fprintf( stdout, "\t-o\tOutput file. (optional)\n" );
       fprintf( stdout,
         "\t-a\tOutput text file of generated callback instructions. (optional)\n" );
-      fprintf( stdout, "\t-x\tOutput a xgml file of the parsed tree\n" );
-      fprintf( stdout, "\t-e\tSpecify endian, \"little\" or \"big\" as argument. Default is \"little\" (?).\n" );
-      fprintf( stdout, "\t-d\tGenerate debug info\n" );
-      fprintf( stdout, "\t-l\tPrint a list of files included to stdout (non-recursive).\n");
+      fprintf(
+        stdout,
+        "\t-e\tSpecify endian, \"little\" or \"big\" as argument. (optional, default is \"little\").\n" );
+      fprintf( stdout, "\t-d\tGenerate debug info. (optional)\n" );
+      fprintf(
+        stdout,
+        "\t-l\tPrint a list of files included in the input file to stdout. (optional)\n" );
       fprintf( stdout, "\t-?\tPrint this message and exit.\n\n" );
       return 0;
       break;
@@ -210,8 +209,7 @@ int main( int argc, char** argv )
     pi.m_File = fopen( pi.m_Name, "r" );
     if( !pi.m_File )
     {
-      printf(
-        "%s(0): error : unable to open input file \"%s\" for reading.\n",
+      printf( "%s(0): error : unable to open input file \"%s\" for reading.\n",
         g_inputFileName, pi.m_Name );
       returnCode = -1;
     }
@@ -236,108 +234,100 @@ int main( int argc, char** argv )
       include = include->m_Next;
     }
 
-    include = BehaviorTreeContextGetFirstInclude( btc );
-    while( returnCode == 0 && include )
+    if( g_outputFileName )
     {
-      pi.m_Name = include->m_Name;
-      pi.m_File = fopen( pi.m_Name, "r" );
-      if( !pi.m_File )
+      include = BehaviorTreeContextGetFirstInclude( btc );
+      while( returnCode == 0 && include )
       {
-        printf(
-          "%s(%d): error : unable to open include file \"%s\" for reading.\n",
-          include->m_Parent, include->m_LineNo, pi.m_Name );
-        returnCode = -1;
-        break;
-      }
-
-      ParserContext pc = ParserContextCreate( btc );
-      ParserContextSetExtra( pc, &pi );
-      ParserContextSetCurrent( pc, pi.m_Name );
-      returnCode = Parse( pc, &pcf );
-      ParserContextDestroy( pc );
-
-      if( pi.m_File )
-        fclose( pi.m_File );
-
-      if( returnCode != 0 )
-        break;
-
-      include = include->m_Next;
-    }
-
-    NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle( "main" ) );
-    if( !main || main->m_Type != E_ST_TREE
-        || !main->m_Symbol.m_Tree->m_Declared )
-    {
-      printf( "%s(0): error: \"main\" tree has not been declared.\n",
-        g_inputFileName );
-      returnCode = -1;
-    }
-
-    if( returnCode == 0 )
-    {
-      Program p;
-      p.m_I.SetGenerateDebugInfo( g_debug );
-
-      setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
-      returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
-      teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
-
-      if( returnCode != 0 )
-      {
-        printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
-      }
-      else
-      {
-        g_outputFile = fopen( g_outputFileName, "wb" );
-        if( !g_outputFile )
+        pi.m_Name = include->m_Name;
+        pi.m_File = fopen( pi.m_Name, "r" );
+        if( !pi.m_File )
         {
-          printf( "error: Unable to open output file %s for writing.\n",
-            g_outputFileName );
-          returnCode = -2;
+          printf(
+            "%s(%d): error : unable to open include file \"%s\" for reading.\n",
+            include->m_Parent, include->m_LineNo, pi.m_Name );
+          returnCode = -1;
+          break;
         }
 
-        if( returnCode == 0 )
-          returnCode = save_program( g_outputFile, g_swapEndian, &p );
+        ParserContext pc = ParserContextCreate( btc );
+        ParserContextSetExtra( pc, &pi );
+        ParserContextSetCurrent( pc, pi.m_Name );
+        returnCode = Parse( pc, &pcf );
+        ParserContextDestroy( pc );
+
+        if( pi.m_File )
+          fclose( pi.m_File );
+
+        if( returnCode != 0 )
+          break;
+
+        include = include->m_Next;
+      }
+
+      NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle(
+        "main" ) );
+      if( !main || main->m_Type != E_ST_TREE
+          || !main->m_Symbol.m_Tree->m_Declared )
+      {
+        printf( "%s(0): error: \"main\" tree has not been declared.\n",
+          g_inputFileName );
+        returnCode = -1;
+      }
+      else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
+      {
+        printf( "%s(%d): error: \"main\" contains zero node's.\n", g_inputFileName, main->m_Symbol.m_Tree->m_Id.m_Line );
+        returnCode = -1;
+      }
+
+      if( returnCode == 0 )
+      {
+        Program p;
+        p.m_I.SetGenerateDebugInfo( g_debug );
+
+        setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
+        returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
+        teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
+
         if( returnCode != 0 )
         {
-          printf( "error: Failed to write output file %s.\n", g_outputFileName );
-          returnCode = -5;
-        }
-      }
-
-      if( returnCode == 0 && g_asmFileName )
-      {
-        FILE* asmFile = fopen( g_asmFileName, "w" );
-        if( !asmFile )
-        {
-          printf( "warning: Unable to open assembly file %s for writing.\n",
-            g_asmFileName );
+          printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
         }
         else
         {
-          print_program( asmFile, &p );
-          fclose( asmFile );
+          g_outputFile = fopen( g_outputFileName, "wb" );
+          if( !g_outputFile )
+          {
+            printf( "error: Unable to open output file %s for writing.\n",
+              g_outputFileName );
+            returnCode = -2;
+          }
+
+          if( returnCode == 0 )
+            returnCode = save_program( g_outputFile, g_swapEndian, &p );
+          if( returnCode != 0 )
+          {
+            printf( "error: Failed to write output file %s.\n",
+              g_outputFileName );
+            returnCode = -5;
+          }
         }
-      }
 
-    }
-    if( returnCode == 0 && g_xgmlFileName )
-    {
+        if( returnCode == 0 && g_asmFileName )
+        {
+          FILE* asmFile = fopen( g_asmFileName, "w" );
+          if( !asmFile )
+          {
+            printf( "warning: Unable to open assembly file %s for writing.\n",
+              g_asmFileName );
+          }
+          else
+          {
+            print_program( asmFile, &p );
+            fclose( asmFile );
+          }
+        }
 
-      XGMLPrinter xgml_printer;
-      xgml_printer.Visit( main->m_Symbol.m_Tree->m_Root );
-      xgml_printer.Layout();
-      FILE* xgml_file = fopen( g_xgmlFileName, "w" );
-      if( xgml_file )
-      {
-        xgml_printer.Print( xgml_file );
-        fclose( xgml_file );
-      }
-      else
-      {
-        printf( "warning: Unable to open xgml file \"%s\" for writing.\n",
-          g_xgmlFileName );
       }
     }
 
