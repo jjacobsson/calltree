@@ -176,7 +176,7 @@ int main( int argc, char** argv )
       fprintf( stdout, "\t-d\tGenerate debug info. (optional)\n" );
       fprintf(
         stdout,
-        "\t-l\tPrint a list of files included in the input file to stdout. (optional)\n" );
+        "\t-l\tPrint a list of all files that the input file is dependent of. (optional)\n" );
       fprintf( stdout, "\t-?\tPrint this message and exit.\n\n" );
       return 0;
       break;
@@ -227,7 +227,35 @@ int main( int argc, char** argv )
       fclose( pi.m_File );
 
     Include* include = BehaviorTreeContextGetFirstInclude( btc );
+    while( returnCode == 0 && include )
+    {
+      pi.m_Name = include->m_Name;
+      pi.m_File = fopen( pi.m_Name, "r" );
+      if( !pi.m_File )
+      {
+        printf(
+          "%s(%d): error : unable to open include file \"%s\" for reading.\n",
+          include->m_Parent, include->m_LineNo, pi.m_Name );
+        returnCode = -1;
+        break;
+      }
 
+      ParserContext pc = ParserContextCreate( btc );
+      ParserContextSetExtra( pc, &pi );
+      ParserContextSetCurrent( pc, pi.m_Name );
+      returnCode = Parse( pc, &pcf );
+      ParserContextDestroy( pc );
+
+      if( pi.m_File )
+        fclose( pi.m_File );
+
+      if( returnCode != 0 )
+        break;
+
+      include = include->m_Next;
+    }
+
+    include = BehaviorTreeContextGetFirstInclude( btc );
     while( returnCode == 0 && include && g_printIncludes )
     {
       fprintf( stdout, "%s\n", include->m_Name );
@@ -236,35 +264,6 @@ int main( int argc, char** argv )
 
     if( g_outputFileName )
     {
-      include = BehaviorTreeContextGetFirstInclude( btc );
-      while( returnCode == 0 && include )
-      {
-        pi.m_Name = include->m_Name;
-        pi.m_File = fopen( pi.m_Name, "r" );
-        if( !pi.m_File )
-        {
-          printf(
-            "%s(%d): error : unable to open include file \"%s\" for reading.\n",
-            include->m_Parent, include->m_LineNo, pi.m_Name );
-          returnCode = -1;
-          break;
-        }
-
-        ParserContext pc = ParserContextCreate( btc );
-        ParserContextSetExtra( pc, &pi );
-        ParserContextSetCurrent( pc, pi.m_Name );
-        returnCode = Parse( pc, &pcf );
-        ParserContextDestroy( pc );
-
-        if( pi.m_File )
-          fclose( pi.m_File );
-
-        if( returnCode != 0 )
-          break;
-
-        include = include->m_Next;
-      }
-
       NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle(
         "main" ) );
       if( !main || main->m_Type != E_ST_TREE
@@ -276,7 +275,8 @@ int main( int argc, char** argv )
       }
       else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
       {
-        printf( "%s(%d): error: \"main\" contains zero node's.\n", g_inputFileName, main->m_Symbol.m_Tree->m_Id.m_Line );
+        printf( "%s(%d): error: \"main\" contains zero node's.\n",
+          g_inputFileName, main->m_Symbol.m_Tree->m_Id.m_Line );
         returnCode = -1;
       }
 
@@ -327,7 +327,6 @@ int main( int argc, char** argv )
             fclose( asmFile );
           }
         }
-
       }
     }
 
