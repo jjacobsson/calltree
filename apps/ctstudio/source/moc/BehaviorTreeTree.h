@@ -16,6 +16,7 @@
 #include "../GraphicsItemTypes.h"
 
 class QGraphicsSvgItem;
+class QGraphicsTextItem;
 
 struct BehaviorTree;
 
@@ -40,17 +41,21 @@ public:
 
   BehaviorTree* GetTree() { return m_Tree; }
 
+  QRectF boundingRect() const;
+  QRectF layoutBoundingRect() const;
+  qreal layoutOffset() const;
+
   void destroyResources( BehaviorTreeContext ctx );
 
   BehaviorTreeSceneItem* firstChild();
 
-  QRectF boundingRect() const;
-
 protected:
+
+  void setupLabel();
 
   BehaviorTree* m_Tree;
   QGraphicsSvgItem* m_Graphics;
-
+  QGraphicsTextItem* m_Label;
 };
 
 #endif
