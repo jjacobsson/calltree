@@ -325,19 +325,20 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
   ExtentsList el;
   BehaviorTreeSceneItem* it = n->firstChild();
   double lx = 0.0;
-  double fr = 0.0f;
   n->setPos( 0.0f, 0.0f );
 
   if( n->parentItem() )
     n->moveBy( 0.0f, g_NodeHeight + g_VertSpace );
 
+
+  QRectF child_bounds;
   while( it )
   {
     ExtentsList t;
     depthFirstPlace( it, t );
     double slide = minimumRootDistance( el, t );
     it->moveBy( slide, 0 );
-    fr = it->pos().rx() + it->boundingRect().width();
+    child_bounds |= it->layoutBoundingRect().translated( it->pos() );
     lx = slide;
     moveExtents( t, slide );
     mergeExtents( el, el, t );
@@ -349,15 +350,8 @@ void BehaviorTreeScene::depthFirstPlace( BehaviorTreeSceneItem* n, ExtentsList& 
   it = n->firstChild();
   if( it )
   {
-    lx /= 2.0;
-
-    if( lx == 0.0 )
-    {
-      float nw = bounds.width();
-      float cw = it->boundingRect().width();
-      lx = (cw - nw) / 2.0;
-    }
-
+    lx = (child_bounds.width() / 2.0) - (bounds.width() / 2.0);
+    lx += it->layoutOffset();
     while( it )
     {
       it->moveBy( -lx, 0 );

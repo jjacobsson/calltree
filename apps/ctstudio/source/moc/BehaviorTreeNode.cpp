@@ -39,6 +39,16 @@ QRectF BehaviorTreeNode::boundingRect() const
   return rect;
 }
 
+QRectF BehaviorTreeNode::layoutBoundingRect() const
+{
+  return m_Graphics->boundingRect().translated( m_Graphics->pos() );
+}
+
+qreal BehaviorTreeNode::layoutOffset() const
+{
+  return m_Graphics->pos().rx();
+}
+
 void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
 {
   UnlinkNodeFromParentAndSiblings( m_Node );

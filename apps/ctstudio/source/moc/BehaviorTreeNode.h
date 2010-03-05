@@ -45,6 +45,8 @@ public:
   }
 
   QRectF boundingRect() const;
+  QRectF layoutBoundingRect() const;
+  qreal layoutOffset() const;
 
   void destroyResources( BehaviorTreeContext ctx );
 

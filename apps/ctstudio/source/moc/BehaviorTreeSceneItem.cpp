@@ -69,12 +69,13 @@ void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphics
   if(!(option->state & QStyle::State_Selected))
     return;
 
-  const QRectF brect = boundingRect();
+  QRectF brect( boundingRect() );
   const QRectF mbrect = painter->transform().mapRect(brect);
   if (qMin(mbrect.width(), mbrect.height()) < qreal(1.0))
       return;
 
-  qreal itemPenWidth = 5.0;
+  qreal itemPenWidth = 1;
+  qreal penWidth = 0;
   const qreal pad = itemPenWidth / 2;
   const QColor fgcolor = option->palette.windowText().color();
   const QColor bgcolor( // ensure good contrast against fgcolor
@@ -82,11 +83,11 @@ void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphics
       fgcolor.green() > 127 ? 0 : 255,
       fgcolor.blue()  > 127 ? 0 : 255);
 
-  painter->setPen(QPen(bgcolor, 2.0, Qt::SolidLine));
+  painter->setPen(QPen(bgcolor, penWidth, Qt::SolidLine));
   painter->setBrush(Qt::NoBrush);
   painter->drawRect(brect.adjusted(pad, pad, -pad, -pad));
 
-  painter->setPen(QPen(option->palette.windowText(), 2.0, Qt::DashLine));
+  painter->setPen(QPen(option->palette.windowText(), 0, Qt::DashLine));
   painter->setBrush(Qt::NoBrush);
   painter->drawRect(brect.adjusted(pad, pad, -pad, -pad));
 }

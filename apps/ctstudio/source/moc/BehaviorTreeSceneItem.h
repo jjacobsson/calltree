@@ -54,6 +54,16 @@ public:
 
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
+  virtual QRectF layoutBoundingRect() const
+  {
+    return boundingRect();
+  }
+
+  virtual qreal layoutOffset() const
+  {
+    return 0.0;
+  }
+
   virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
 
   virtual BehaviorTreeSceneItem* firstChild() { return 0x0; }
