@@ -55,7 +55,7 @@ if $(QT_PATH)
 		}
 		else if $(TOOLSET) = gcc
 		{
-			#SetExtraLinkFlags $(_appname) : -Wl,-subsystem,windows ;
+			SetExtraLinkFlags $(_appname) : -Wl,-subsystem,windows ;
 		}
 	}
 }
