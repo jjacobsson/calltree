@@ -14,11 +14,37 @@
 #include <btree/btree.h>
 #include <other/lookup3.h>
 
+#include <QtCore/QRegExp>
+
 #include <QtSvg/QGraphicsSvgItem>
 #include <QtGui/QFont>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QRegExpValidator>
+
+class PreventDuplicateSymbols : public QRegExpValidator
+{
+public:
+  PreventDuplicateSymbols( BehaviorTreeContext ctx, QObject* parent )
+    : QRegExpValidator(  QRegExp( "([a-zA-Z_])([a-zA-Z0-9_])*"), parent )
+    , m_Context( ctx )
+  {}
+
+  QValidator::State validate ( QString & input, int & pos ) const
+  {
+    QValidator::State s = QRegExpValidator::validate( input, pos );
+    if( s == QValidator::Invalid )
+      return s;
+    hash_t hash = hashlittle( input.toAscii().constData() );
+    NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_Context, hash );
+    if( ns )
+      return QValidator::Intermediate;
+    return s;
+  }
+private:
+  BehaviorTreeContext m_Context;
+};
 
 BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree )
   : BehaviorTreeSceneItem()
@@ -122,6 +148,7 @@ void BehaviorTreeTree::setupPropertyEditor()
   QFormLayout* form = new QFormLayout( m_PropertyWidget );
 
   QLineEdit* edit = new QLineEdit( m_Tree->m_Id.m_Text );
+  edit->setValidator( new PreventDuplicateSymbols( m_Context, edit ) );
   connect( edit, SIGNAL( returnPressed() ), this, SLOT( updateName() ) );
 
   form->addRow( new QLabel( tr( "Name" ) ), edit );

@@ -68,6 +68,7 @@ private:
   void setupLabel();
   void setupTooltip();
   void setupPropertyEditor();
+  void setupPropertyEditorForParamaters( Variable*, Variable* );
 
   void setupRelinkage();
   void executeRelinkage();

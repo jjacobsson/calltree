@@ -40,16 +40,6 @@ void InitVariable( Variable* v )
   InitIdentifier( &v->m_Id );
 }
 
-void DeleteVariableList( Variable* v )
-{
-  while( v )
-  {
-    Variable* d = v;
-    v = v->m_Next;
-    delete d;
-  }
-}
-
 Variable* FindLastVariable( Variable* v )
 {
   while( v && v->m_Next )

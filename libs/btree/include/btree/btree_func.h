@@ -28,8 +28,6 @@ void CloneId( BehaviorTreeContext, Identifier*, Identifier* );
 
 void InitVariable( Variable* v );
 
-void DeleteVariableList( Variable* v );
-
 Variable* CloneVariableList( BehaviorTreeContext, Variable* );
 
 Variable* FindLastVariable( Variable* v );

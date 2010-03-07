@@ -15,18 +15,23 @@
 #include "../standard_resources.h"
 #include <btree/btree.h>
 
-#include <QtGui/QtGui>
 #include <QtSvg/QGraphicsSvgItem>
+
+#include <QtGui/QFormLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QCheckBox>
+#include <QtGui/QDoubleValidator>
+#include <QtGui/QIntValidator>
 
 #include <string.h>
 
-BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent )
-	: BehaviorTreeSceneItem( parent )
-	, m_Node( n )
-	, m_DraggingArrow( 0x0 )
-	, m_Label( 0x0 )
+BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent ) :
+  BehaviorTreeSceneItem( parent ), m_Node( n ), m_DraggingArrow( 0x0 ),
+      m_Label( 0x0 )
 {
-  m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type], this );
+  m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type],
+    this );
   setupLabel();
   setupTooltip();
   setupPropertyEditor();
@@ -36,7 +41,7 @@ QRectF BehaviorTreeNode::boundingRect() const
 {
   QRectF rect = m_Graphics->boundingRect();
   if( m_Label )
-    rect |= m_Label->boundingRect().translated(m_Label->pos());
+    rect |= m_Label->boundingRect().translated( m_Label->pos() );
   return rect;
 }
 
@@ -113,28 +118,28 @@ void BehaviorTreeNode::dragMove()
 
 void BehaviorTreeNode::dragBegin()
 {
-	if( parentItem() )
-	{
-		BehaviorTreeNode* p = (BehaviorTreeNode*)parentItem();
-		m_DraggingArrow = findArrowTo( p );
-		p->removeArrow( m_DraggingArrow );
-		m_DraggingArrow->setDashed( true );
-		m_DraggingArrow->setStartAndEnd( this, p );
+  if( parentItem() )
+  {
+    BehaviorTreeNode* p = (BehaviorTreeNode*)parentItem();
+    m_DraggingArrow = findArrowTo( p );
+    p->removeArrow( m_DraggingArrow );
+    m_DraggingArrow->setDashed( true );
+    m_DraggingArrow->setStartAndEnd( this, p );
 
-		QPointF position( scenePos() );
-		setParentItem( 0x0 );
-		setPos( position );
-	}
-	else
-	{
-		m_DraggingArrow = new NodeToNodeArrow( this, 0x0, scene() );
-		m_DraggingArrow->setDashed( true );
-		addArrow( m_DraggingArrow );
-	}
+    QPointF position( scenePos() );
+    setParentItem( 0x0 );
+    setPos( position );
+  }
+  else
+  {
+    m_DraggingArrow = new NodeToNodeArrow( this, 0x0, scene() );
+    m_DraggingArrow->setDashed( true );
+    addArrow( m_DraggingArrow );
+  }
 
-	setupRelinkage();
+  setupRelinkage();
 
-	BehaviorTreeSceneItem::dragBegin();
+  BehaviorTreeSceneItem::dragBegin();
 }
 
 void BehaviorTreeNode::dragEnd()
@@ -185,7 +190,7 @@ void BehaviorTreeNode::setupLabel()
     return;
 
   QFont font;
-  font.setPixelSize(64);
+  font.setPixelSize( 64 );
   m_Label = new QGraphicsTextItem( str, this );
   m_Label->setFont( font );
   QPointF p;
@@ -253,32 +258,37 @@ void BehaviorTreeNode::setupPropertyEditor()
   switch( m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
-    label = new QLabel( tr("I have no idea what kind of node you have selected mate...") );
+    label = new QLabel( tr(
+      "I have no idea what kind of node you have selected mate..." ) );
     break;
   case E_GRIST_SEQUENCE:
-    label = new QLabel( tr("Sequence") );
+    label = new QLabel( tr( "Sequence" ) );
     break;
   case E_GRIST_SELECTOR:
-    label = new QLabel( tr("Selector") );
+    label = new QLabel( tr( "Selector" ) );
     break;
   case E_GRIST_PARALLEL:
-    label = new QLabel( tr("Parallel") );
+    label = new QLabel( tr( "Parallel" ) );
     break;
   case E_GRIST_DYN_SELECTOR:
-    label = new QLabel( tr("Dynamic Selector") );
+    label = new QLabel( tr( "Dynamic Selector" ) );
     break;
   case E_GRIST_SUCCEED:
-    label = new QLabel( tr("Success node") );
+    label = new QLabel( tr( "Success node" ) );
     break;
   case E_GRIST_FAIL:
-    label = new QLabel( tr("Fail node") );
+    label = new QLabel( tr( "Fail node" ) );
     break;
   case E_GRIST_WORK:
-    label = new QLabel( tr("Working node") );
+    label = new QLabel( tr( "Working node" ) );
     break;
   case E_GRIST_DECORATOR:
+    setupPropertyEditorForParamaters( m_Node->m_Grist.m_Decorator.m_Arguments,
+      m_Node->m_Grist.m_Decorator.m_Decorator->m_Args );
     break;
   case E_GRIST_ACTION:
+    setupPropertyEditorForParamaters( m_Node->m_Grist.m_Action.m_Arguments,
+      m_Node->m_Grist.m_Action.m_Action->m_Args );
     break;
   case E_MAX_GRIST_TYPES:
     /* Warning killer */
@@ -288,8 +298,70 @@ void BehaviorTreeNode::setupPropertyEditor()
   if( label )
   {
     m_PropertyWidget = new QWidget;
-    QBoxLayout* layout = new QBoxLayout( QBoxLayout::TopToBottom, m_PropertyWidget );
+    QBoxLayout* layout = new QBoxLayout( QBoxLayout::TopToBottom,
+      m_PropertyWidget );
     layout->addWidget( label, 0, Qt::AlignHCenter | Qt::AlignVCenter );
+  }
+}
+
+void BehaviorTreeNode::setupPropertyEditorForParamaters( Variable* set,
+  Variable* dec )
+{
+  //if( dec == 0x0 )
+  //  return;
+
+  m_PropertyWidget = new QWidget;
+  QFormLayout* form = new QFormLayout( m_PropertyWidget );
+
+  Variable* it = set;
+  while( it )
+  {
+    Variable* v = it;//FindVariableWithIdHash( set, it->m_Id.m_Hash );
+    switch( it->m_Type )
+    {
+    case E_VART_BOOL:
+      {
+        QCheckBox* cb = new QCheckBox( it->m_Id.m_Text );
+        if( v )
+          cb->setChecked( v->m_Data.m_Bool );
+        form->addRow( cb );
+      }
+      break;
+    case E_VART_FLOAT:
+      {
+        QLabel* l = new QLabel( it->m_Id.m_Text );
+        QLineEdit* e = new QLineEdit;
+        if( v )
+          e->setText( QString( "%1" ).arg( v->m_Data.m_Float ) );
+        e->setValidator( new QDoubleValidator( 0x0 ) );
+        form->addRow( l, e );
+      }
+      break;
+    case E_VART_INTEGER:
+      {
+        QLabel* l = new QLabel( it->m_Id.m_Text );
+        QLineEdit* e = new QLineEdit;
+        if( v )
+          e->setText( QString( "%1" ).arg( v->m_Data.m_Integer ) );
+        e->setValidator( new QIntValidator( 0x0 ) );
+        form->addRow( l, e );
+      }
+      break;
+    case E_VART_STRING:
+      {
+        QLabel* l = new QLabel( it->m_Id.m_Text );
+        QLineEdit* e = new QLineEdit;
+        if( v )
+          e->setText( v->m_Data.m_String.m_Raw );
+        form->addRow( l, e );
+      }
+      break;
+    case E_VART_UNDEFINED:
+    case E_MAX_VARIABLE_TYPE:
+      // Warning Killers
+      break;
+    }
+    it = it->m_Next;
   }
 }
 
@@ -363,7 +435,8 @@ void BehaviorTreeNode::lookForRelinkTarget()
   QList<QGraphicsItem*>::iterator it, it_e( coll.end() );
   for( it = coll.begin(); it != it_e; ++it )
   {
-    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*> (
+      *it );
     if( !btsi || btsi == this )
       continue;
 
@@ -423,35 +496,37 @@ void BehaviorTreeNode::lookForRelinkTarget()
   if( !n )
     return;
 
-  item        = (BehaviorTreeNode*)n->m_UserData;
-  qreal x     = scenePos().x();
-  qreal tx    = item->scenePos().x();
-  qreal best  = qAbs( x - tx );
+  item = (BehaviorTreeNode*)n->m_UserData;
+  qreal x = scenePos().x();
+  qreal tx = item->scenePos().x();
+  qreal best = qAbs( x - tx );
 
   m_Relinkage.m_Sibling = n;
   if( tx < x )
-      m_Relinkage.m_BeforeSibling = false;
+    m_Relinkage.m_BeforeSibling = false;
   else
-      m_Relinkage.m_BeforeSibling = true;
+    m_Relinkage.m_BeforeSibling = true;
 
   while( n )
   {
-      item    = (BehaviorTreeNode*)n->m_UserData;
-      tx      = item->scenePos().x();
-      qreal d = qAbs( x - tx );
-      if( d < best )
-      {
-          m_Relinkage.m_Sibling = n;
-          if( tx < x )
-              m_Relinkage.m_BeforeSibling = false;
-          else
-              m_Relinkage.m_BeforeSibling = true;
-          best = d;
-      }
-      n = n->m_Next;
+    item = (BehaviorTreeNode*)n->m_UserData;
+    tx = item->scenePos().x();
+    qreal d = qAbs( x - tx );
+    if( d < best )
+    {
+      m_Relinkage.m_Sibling = n;
+      if( tx < x )
+        m_Relinkage.m_BeforeSibling = false;
+      else
+        m_Relinkage.m_BeforeSibling = true;
+      best = d;
+    }
+    n = n->m_Next;
   }
 
-  QString s = QString( "Drag X: %1 Best X: %2 Before: %3").arg(x).arg(best).arg(m_Relinkage.m_BeforeSibling);
+  QString s =
+      QString( "Drag X: %1 Best X: %2 Before: %3" ).arg( x ).arg( best ).arg(
+        m_Relinkage.m_BeforeSibling );
 
   emit relinkTargetMessage( s, 2000 );
 }
