@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-04-24 Joacim Jacobsson.
+ * Copyright (c) 2010-03-08 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,25 +9,21 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef TEST_VARIABLES_H_INCLUDED
-#define TEST_VARIABLES_H_INCLUDED
+#include "ParamConnectorPlug.h"
 
-#include <btree/btree_data.h>
-#include <btree/btree_func.h>
+ParamConnectorPlug::ParamConnectorPlug( hash_t hash, QObject* parent )
+  : QObject( parent )
+  , m_Hash( hash )
+{}
 
-class TestVariablesFixture
+void ParamConnectorPlug::checkBoxChanged( int state )
 {
-public:
-	TestVariablesFixture()
-	{
-		init( &v );
-		init( &v1 );
-		init( &v2 );
-		init( &v3 );
-		init( &v4 );
-	}
+  emit dataChanged( sender(), m_Hash );
+}
 
-	Parameter v,v1,v2,v3,v4;
-};
+void ParamConnectorPlug::lineEditChanged( const QString& text )
+{
+  emit dataChanged( sender(), m_Hash );
+}
 
-#endif
+

@@ -35,7 +35,7 @@ enum SymbolTypes
   E_ST_UNKOWN, E_ST_TREE, E_ST_ACTION, E_ST_DECORATOR, E_MAX_SYMBOL_TYPES
 };
 
-enum VariableType
+enum ParameterType
 {
   E_VART_UNDEFINED,
   E_VART_INTEGER,
@@ -58,7 +58,7 @@ struct StringData
   const char* m_Raw;
 };
 
-union VariableData
+union ParameterData
 {
   int m_Integer;
   float m_Float;
@@ -66,28 +66,28 @@ union VariableData
   bool m_Bool;
 };
 
-struct Variable
+struct Parameter
 {
   Identifier m_Id;
-  VariableType m_Type;
-  VariableData m_Data;
-  Variable* m_Next;
+  ParameterType m_Type;
+  ParameterData m_Data;
+  Parameter* m_Next;
   bool m_ValueSet;
 };
 
 struct Action
 {
   Identifier m_Id;
-  Variable* m_Args; /* Argument declarations */
-  Variable* m_Options; /* Code-generation variables */
+  Parameter* m_Declarations; /* Argument declarations */
+  Parameter* m_Options; /* Code-generation variables */
   bool m_Declared;
 };
 
 struct Decorator
 {
   Identifier m_Id;
-  Variable* m_Args; /* Argument declarations */
-  Variable* m_Options; /* Code-generation variables */
+  Parameter* m_Declarations; /* Argument declarations */
+  Parameter* m_Options; /* Code-generation variables */
   bool m_Declared;
 };
 
@@ -118,13 +118,13 @@ struct DecoratorGrist
 {
   Node* m_Child;
   Decorator* m_Decorator;
-  Variable* m_Arguments;
+  Parameter* m_Parameters;
 };
 
 struct ActionGrist
 {
   Action* m_Action;
-  Variable* m_Arguments;
+  Parameter* m_Parameters;
 };
 
 struct NodeGrist

@@ -15,10 +15,10 @@
 #define OP_ALLOC_MACRO( _size ) op->m_Setup.m_Allocator.m_Alloc(_size)
 #define OP_FREE_MACRO( _ptr ) op->m_Setup.m_Allocator.m_Free(_ptr)
 
-void AllocateBlock( ObjectPool* op );
-void SetupBlock( ObjectPool* op, SBlock* block );
+void allocate_block( ObjectPool* op );
+void setup_block( ObjectPool* op, SBlock* block );
 
-ObjectPool* CreateObjectPool( ObjectPoolSetup* ops )
+ObjectPool* create_object_pool( ObjectPoolSetup* ops )
 {
   mem_size_t type_size =
       ops->m_TypeSize > (mem_size_t)sizeof(SObject) ? ops->m_TypeSize
@@ -33,12 +33,12 @@ ObjectPool* CreateObjectPool( ObjectPoolSetup* ops )
   op->m_FirstFree = 0x0;
   op->m_Setup.m_TypeSize = type_size;
   op->m_JoinedBlock = (SBlock*)(((char*)op) + sizeof( ObjectPool ));
-  SetupBlock( op, op->m_JoinedBlock );
+  setup_block( op, op->m_JoinedBlock );
 
   return op;
 }
 
-void DestroyObjectPool( ObjectPool* op )
+void destroy( ObjectPool* op )
 {
   SBlock* b = op->m_FirstBlock;
   while( b )
@@ -51,7 +51,7 @@ void DestroyObjectPool( ObjectPool* op )
   OP_FREE_MACRO( op );
 }
 
-void* AllocateObject( ObjectPool* op )
+void* allocate_object( ObjectPool* op )
 {
   //Get the first free SObject
   SObject* o( op->m_FirstFree );
@@ -63,7 +63,7 @@ void* AllocateObject( ObjectPool* op )
   else
   {
     //There was no free SObject, so we allocate a new block and add it to the pool
-    AllocateBlock( op );
+    allocate_block( op );
     //Get the first free SObject
     o = op->m_FirstFree;
     //If we did'nt get one this time we return 0x0, failed alloc
@@ -76,7 +76,7 @@ void* AllocateObject( ObjectPool* op )
   return (void*) (o);
 }
 
-void FreeObject( ObjectPool* op, void* ptr )
+void free_object( ObjectPool* op, void* ptr )
 {
   //Early out on null argument
   if( !ptr )
@@ -89,7 +89,7 @@ void FreeObject( ObjectPool* op, void* ptr )
   op->m_FirstFree = o;
 }
 
-void AllocateBlock( ObjectPool* op )
+void allocate_block( ObjectPool* op )
 {
   //Calculate the memory needed for a block
   const mem_size_t alloc_size = (mem_size_t)(sizeof(SBlock)
@@ -98,10 +98,10 @@ void AllocateBlock( ObjectPool* op )
   //Allocate memory for a new block
   SBlock* block = (SBlock*)OP_ALLOC_MACRO( alloc_size );
   //Setup the data in the block and add it to the pool
-  SetupBlock( op, block );
+  setup_block( op, block );
 }
 
-void SetupBlock( ObjectPool* op, SBlock* block )
+void setup_block( ObjectPool* op, SBlock* block )
 {
   //Set m_Next to current first block
   block->m_Next = op->m_FirstBlock;

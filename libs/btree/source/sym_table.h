@@ -22,11 +22,11 @@ struct SymbolTable
   int          m_Capacity;
 };
 
-void SymbolTableInit( SymbolTable*, Allocator );
-void SymbolTableDestroy( SymbolTable* );
+void init( SymbolTable*, Allocator );
+void destroy( SymbolTable* );
 
-NamedSymbol* SymbolTableFind( SymbolTable*, hash_t );
-void SymbolTableInsert( SymbolTable*, const NamedSymbol& );
-void SymbolTableErase( SymbolTable*, hash_t h );
+NamedSymbol* find( SymbolTable*, hash_t );
+void insert( SymbolTable*, const NamedSymbol& );
+void erase( SymbolTable*, hash_t h );
 
 #endif /*SYM_TABLE_H_INCLUDED*/

@@ -44,6 +44,8 @@ public:
     return BehaviorTreeSceneItem::isType( type );
   }
 
+  void setupPropertyEditor();
+
   QRectF boundingRect() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
@@ -63,12 +65,15 @@ signals:
 
   void relinkTargetMessage( QString s, int timeout );
 
+private slots:
+
+  void paramChanged( QObject* editor, hash_t hash );
+
 private:
 
   void setupLabel();
   void setupTooltip();
-  void setupPropertyEditor();
-  void setupPropertyEditorForParamaters( Variable*, Variable* );
+  void setupPropertyEditorForParamaters( Parameter*, Parameter* );
 
   void setupRelinkage();
   void executeRelinkage();
@@ -87,7 +92,14 @@ private:
   };
 
   Relinkage m_Relinkage; // This is the information needed to be able to correctly link the m_Node into a new position in the BT.
-  Relinkage m_Previous;
+
+  struct BeforeRelinkage
+  {
+    NodeParent m_Pare;
+    Node* m_Prev;
+    Node* m_Next;
+  } m_BeforeRelinkage;
+
   NodeToNodeArrow* m_DraggingArrow; // This arrow is the one used to indicate where the node will be linked while dragging.
   QGraphicsSvgItem*  m_Graphics;
   QGraphicsTextItem* m_Label;

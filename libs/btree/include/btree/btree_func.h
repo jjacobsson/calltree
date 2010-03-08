@@ -15,180 +15,190 @@
 #include "btree_data.h"
 
 /*
+ * Function that can be used to check if a word or string as one of the keywords
+ * used in the btree lexer.
+ */
+
+bool is_btree_keyword( const char* str );
+
+/*
  * Identifier Functions
  */
 
-void InitIdentifier( Identifier* id );
+void init( Identifier* id );
 
-void CloneId( BehaviorTreeContext, Identifier*, Identifier* );
+void clone( BehaviorTreeContext, Identifier*, Identifier* );
 
 /*
  * Variable Functions
  */
 
-void InitVariable( Variable* v );
+void init( Parameter* v );
 
-Variable* CloneVariableList( BehaviorTreeContext, Variable* );
+Parameter* clone_list( BehaviorTreeContext, Parameter* );
 
-Variable* FindLastVariable( Variable* v );
+Parameter* find_last( Parameter* v );
 
-void AppendToEndOfList( Variable* start, Variable* v );
+void append_to_end( Parameter* start, Parameter* v );
 
-int CountElementsInList( Variable* start );
+int count_elements( Parameter* start );
 
-Variable* FindVariableWithIdHash( Variable* start, hash_t hash );
+Parameter* find_by_hash( Parameter* start, hash_t hash );
 
-int CountOccourancesOfIdHashInList( Variable* start, hash_t hash );
+int count_occourances_of_hash_in_list( Parameter* start, hash_t hash );
 
-bool VariableIdsAreUniqueInList( Variable* start );
+bool id_hashes_are_unique_in_list( Parameter* start );
 
-bool SafeToConvert( const Variable&, int to_type );
+bool safe_to_convert( const Parameter&, int to_type );
 
-int ValueAsInteger( const Variable& );
+int as_integer( const Parameter& );
 
-float ValueAsFloat( const Variable& );
+float as_float( const Parameter& );
 
-const StringData* ValueAsString( const Variable& );
+const StringData* as_string( const Parameter& );
 
-bool ValueAsBool( const Variable& );
+bool as_bool( const Parameter& );
 
-const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* start );
+const char* list_as_string( BehaviorTreeContext tree, Parameter* start );
 
 /*
  * BehaviorTree Functions
  */
 
-void InitBehaviorTree( BehaviorTree* );
+void init( BehaviorTree* );
 
-void SetParentOnChildren( BehaviorTree* t );
+void set_parent_on_children( BehaviorTree* t );
 
 /*
  * Action Functions
  */
 
-void InitAction( Action* );
+void init( Action* );
 
 /*
  * Decorator Functions
  */
 
-void InitDecorator( Decorator* );
+void init( Decorator* );
 
 /*
  * Node Functions
  */
 
-void InitNode( Node* );
+void init( Node* );
 
-void AppendToEndOfList( Node* s, Node* n );
+void append_to_end( Node* s, Node* n );
 
-void SetParentOnChildren( Node* s );
+void set_parent_on_children( Node* s );
 
-Node* GetFirstChild( Node* n );
+Node* get_first_child( Node* n );
 
-Node* GetFirstChild( const NodeParent& p );
+Node* get_first_child( const NodeParent& p );
 
-void SetFirstChild( Node* p, Node* c );
+void set_first_child( Node* p, Node* c );
 
-void SetFirstChild( const NodeParent& p, Node* c );
+void set_first_child( const NodeParent& p, Node* c );
 
-void UnlinkFromSiblings( Node *n );
+void unlink_from_siblings( Node *n );
 
-void UnlinkNodeFromParentAndSiblings( Node* n );
+void unlink_from_parent_and_siblings( Node* n );
 
-int CountChildNodes( Node* n );
+int count_children( Node* n );
 
-bool AcceptsMoreChildren( Node* n );
+bool accepts_more_children( Node* n );
+
+Parameter* get_parameters( Node* n );
 
 /*
  * Node Grist Functions
  */
 
-void InitGrist( NodeGrist* );
+void init( NodeGrist* );
 
 /*
  * BehaviorTreeContext Functions
  */
 
-BehaviorTreeContext BehaviorTreeContextCreate( Allocator& );
+BehaviorTreeContext create_bt_context( Allocator& );
 
-BehaviorTreeContext BehaviorTreeContextClone( BehaviorTreeContext );
+BehaviorTreeContext clone_bt_context( BehaviorTreeContext );
 
-void BehaviorTreeContextDestroy( BehaviorTreeContext );
+void destroy( BehaviorTreeContext );
 
-const char* BehaviorTreeContextRegisterString( BehaviorTreeContext, const char* );
+const char* register_string( BehaviorTreeContext, const char* );
 
-const char* BehaviorTreeContextRegisterString( BehaviorTreeContext, const char*, hash_t );
+const char* register_string( BehaviorTreeContext, const char*, hash_t );
 
-void* BehaviorTreeContextAllocateObject( BehaviorTreeContext );
+void* allocate_object( BehaviorTreeContext );
 
-void BehaviorTreeContextFreeObject( BehaviorTreeContext, void* );
+void free_object( BehaviorTreeContext, void* );
 
-void BehaviorTreeContextRegisterSymbol( BehaviorTreeContext, const NamedSymbol& );
+void register_symbol( BehaviorTreeContext, const NamedSymbol& );
 
-void BehaviorTreeContextRemoveSymbol( BehaviorTreeContext, hash_t );
+void remove_symbol( BehaviorTreeContext, hash_t );
 
-NamedSymbol* BehaviorTreeContextFindSymbol( BehaviorTreeContext, hash_t );
+NamedSymbol* find_symbol( BehaviorTreeContext, hash_t );
 
-NamedSymbol* BehaviorTreeContextAccessSymbols( BehaviorTreeContext, int* );
+NamedSymbol* access_symbols( BehaviorTreeContext, int* );
 
-void BehaviorTreeContextAddInclude( BehaviorTreeContext, const Include& );
+void add_include( BehaviorTreeContext, const Include& );
 
-Include* BehaviorTreeContextCreateInclude( BehaviorTreeContext, const char* );
+Include* create_include( BehaviorTreeContext, const char* );
 
-Include* BehaviorTreeContextGetFirstInclude( BehaviorTreeContext );
+Include* get_first_include( BehaviorTreeContext );
 
-void BehaviorTreeContextReleaseInclude( BehaviorTreeContext, Include* );
+void release_include( BehaviorTreeContext, Include* );
 
 /*
  * String Buffer Functions
  */
 
-void StringBufferInit( Allocator&, StringBuffer*, int initial_size = 1024 );
-void StringBufferDestroy( StringBuffer* );
+void init( Allocator&, StringBuffer*, int initial_size = 1024 );
+void destroy( StringBuffer* );
 
-void StringBufferAppend( StringBuffer*, char );
-void StringBufferAppend( StringBuffer*, const char * );
-void StringBufferAppend( StringBuffer*, const char *, int );
+void append( StringBuffer*, char );
+void append( StringBuffer*, const char * );
+void append( StringBuffer*, const char *, int );
 
-void StringBufferClear( StringBuffer* );
+void clear( StringBuffer* );
 
-void StringBufferGrow( StringBuffer* sb, int min );
+void grow( StringBuffer* sb, int min );
 
 /*
  * Parser Functions
  */
 
-ParserContext ParserContextCreate( BehaviorTreeContext );
+ParserContext create_parser_context( BehaviorTreeContext );
 
-void ParserContextDestroy( ParserContext );
+void destroy( ParserContext );
 
-void* ParserContextGetExtra( ParserContext );
-void ParserContextSetExtra( ParserContext, void* );
+void* get_extra( ParserContext );
+void set_extra( ParserContext, void* );
 
-void ParserContextSetCurrent( ParserContext, const char* );
-const char* ParserContextGetCurrent( ParserContext );
+void set_current( ParserContext, const char* );
+const char* get_current( ParserContext );
 
-int ParserContextGetLineNo( ParserContext );
+int get_line_no( ParserContext );
 
-BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext );
+BehaviorTreeContext get_bt_context( ParserContext );
 
-int Parse( ParserContext, ParserContextFunctions* );
+int parse( ParserContext, ParserContextFunctions* );
 
 /*
  * Saver Functions
  */
 
-SaverContext SaverContextCreate( BehaviorTreeContext );
+SaverContext create_saver_context( BehaviorTreeContext );
 
-void SaverContextDestroy( SaverContext );
+void destroy( SaverContext );
 
-void* SaverContextGetExtra( SaverContext );
-void SaverContextSetExtra( SaverContext, void* );
+void* get_extra( SaverContext );
+void set_extra( SaverContext, void* );
 
-BehaviorTreeContext SaverContextGetBehaviorTreeContext( SaverContext );
+BehaviorTreeContext get_bt_context( SaverContext );
 
-void Save( SaverContext, SaverContextFunctions* );
+void save( SaverContext, SaverContextFunctions* );
+
 
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */

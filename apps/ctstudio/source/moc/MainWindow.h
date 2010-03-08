@@ -25,54 +25,59 @@ class BehaviorTreeScene;
 class BehaviorTreeView;
 class BehaviorTreeList;
 
-class MainWindow : public QMainWindow, public Ui::MainWindow
+class MainWindow: public QMainWindow, public Ui::MainWindow
 {
-	Q_OBJECT
+Q_OBJECT
 
 public:
-	MainWindow();
+  MainWindow();
 
 protected:
-	void closeEvent(QCloseEvent *event);
+  void closeEvent( QCloseEvent *event );
 
 private slots:
 
-	void open();
-	bool save();
-	bool saveAs();
-	void openRecentFile();
-	void treeModified();
-	void setPropertyWidget( QWidget* );
+  void newFile();
+  void open();
+  bool save();
+  bool saveAs();
+  void openRecentFile();
+  void treeModified();
+  void setPropertyWidget( QWidget* );
 
 private:
 
-	void setupStatusBar();
-	void setupActions();
-	void setupMenus();
+  void setupStatusBar();
+  void setupActions();
+  void setupMenus();
 
-	void updateRecentFileActions();
+  void updateRecentFileActions();
 
-	bool okToContinue();
-	void readSettings();
-	void writeSettings();
-	bool loadFile( const QString& fileName );
-	bool saveFile( const QString& fileName );
+  bool okToContinue();
+  void readSettings();
+  void writeSettings();
 
-	void setCurrentFile( const QString& fileName );
-	QString strippedName( const QString& fullFileName );
+  bool loadFile( const QString& fileName );
+  bool saveFile( const QString& fileName );
 
-	BehaviorTreeList*   m_List;
-	BehaviorTreeView*	m_BTreeView;
-	BehaviorTreeScene*	m_BTreeScene;
+  void setCurrentFile( const QString& fileName );
+  QString strippedName( const QString& fullFileName );
 
-	QString m_CurrentFile;
+  BehaviorTreeList* m_List;
+  BehaviorTreeView* m_BTreeView;
+  BehaviorTreeScene* m_BTreeScene;
 
-	enum { MaxRecentFiles = 5 };
-	QAction* m_RecentFileActions[ MaxRecentFiles ];
-	QAction* m_SeparatorAction;
-	QStringList m_RecentFiles;
+  QString m_CurrentFile;
 
-	QAction* m_ExitAction;
+  enum
+  {
+    MaxRecentFiles = 5
+  };
+  QAction* m_RecentFileActions[MaxRecentFiles];
+  QAction* m_SeparatorAction;
+  QStringList m_RecentFiles;
+
+  QAction* m_ExitAction;
 };
 
 #endif

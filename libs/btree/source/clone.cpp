@@ -21,24 +21,24 @@ void CloneAction( BehaviorTreeContext, Action* );
 void CloneDecorator( BehaviorTreeContext, Decorator* );
 Node* CloneNodeList( BehaviorTreeContext, Node* );
 
-BehaviorTreeContext BehaviorTreeContextClone( BehaviorTreeContext obtc )
+BehaviorTreeContext clone_bt_context( BehaviorTreeContext obtc )
 {
   ObjectPoolSetup ops;
   ops = obtc->m_Pool->m_Setup;
-  ObjectPool* op = CreateObjectPool( &ops );
+  ObjectPool* op = create_object_pool( &ops );
   SBehaviorTreeContext* btc =
-      &(((ObjectFootPrint*)AllocateObject( op ))->m_BTContext);
+      &(((ObjectFootPrint*)allocate_object( op ))->m_BTContext);
   btc->m_Pool = op;
   btc->m_Allocator = obtc->m_Allocator;
   btc->m_Includes = 0x0;
 
-  StringTableInit( &btc->m_StringTable, btc->m_Allocator );
-  SymbolTableInit( &btc->m_SymbolTable, btc->m_Allocator );
+  init( &btc->m_StringTable, btc->m_Allocator );
+  init( &btc->m_SymbolTable, btc->m_Allocator );
 
   CloneIncludes( btc, obtc->m_Includes );
 
   int count;
-  NamedSymbol* ns =  BehaviorTreeContextAccessSymbols( obtc, &count );
+  NamedSymbol* ns =  access_symbols( obtc, &count );
   CloneDeclarations( btc, ns, count );
 
   return btc;
@@ -52,7 +52,7 @@ void CloneIncludes( BehaviorTreeContext btc, Include* inc )
 {
   while( inc )
   {
-    BehaviorTreeContextCreateInclude( btc, inc->m_Name );
+    create_include( btc, inc->m_Name );
     inc = inc->m_Next;
   }
 }
@@ -93,25 +93,25 @@ void CloneDeclarations( BehaviorTreeContext btc, NamedSymbol* ns, int count )
   }
 }
 
-void CloneId( BehaviorTreeContext btc, Identifier* d, Identifier* s )
+void clone( BehaviorTreeContext btc, Identifier* d, Identifier* s )
 {
   *d = *s;
-  d->m_Text = BehaviorTreeContextRegisterString( btc, s->m_Text, s->m_Hash );
+  d->m_Text = register_string( btc, s->m_Text, s->m_Hash );
 }
 
 void CloneTree( BehaviorTreeContext btc, BehaviorTree* tree )
 {
-  NamedSymbol* ns = BehaviorTreeContextFindSymbol( btc, tree->m_Id.m_Hash );
+  NamedSymbol* ns = find_symbol( btc, tree->m_Id.m_Hash );
   BehaviorTree* new_tree = 0x0;
   if( ns )
     new_tree = ns->m_Symbol.m_Tree;
   else
   {
-    new_tree = (BehaviorTree*)BehaviorTreeContextAllocateObject( btc );
-    InitBehaviorTree( new_tree );
+    new_tree = (BehaviorTree*)allocate_object( btc );
+    init( new_tree );
   }
   new_tree->m_Declared = tree->m_Declared;
-  CloneId( btc, &new_tree->m_Id, &tree->m_Id );
+  clone( btc, &new_tree->m_Id, &tree->m_Id );
 
   if( ns )
     ns->m_Symbol.m_Tree = new_tree;
@@ -120,7 +120,7 @@ void CloneTree( BehaviorTreeContext btc, BehaviorTree* tree )
     NamedSymbol nsym;
     nsym.m_Type = E_ST_TREE;
     nsym.m_Symbol.m_Tree = new_tree;
-    BehaviorTreeContextRegisterSymbol( btc, nsym );
+    register_symbol( btc, nsym );
   }
   new_tree->m_Root = CloneNodeList( btc, tree->m_Root );
   Node* n = new_tree->m_Root;
@@ -134,45 +134,45 @@ void CloneTree( BehaviorTreeContext btc, BehaviorTree* tree )
 
 void CloneAction( BehaviorTreeContext btc, Action* src )
 {
-  Action* dest = (Action*)BehaviorTreeContextAllocateObject( btc );
-  InitAction( dest );
-  CloneId( btc, &dest->m_Id, &src->m_Id );
-  dest->m_Args = CloneVariableList( btc, src->m_Args );
-  dest->m_Options = CloneVariableList( btc, src->m_Options );
+  Action* dest = (Action*)allocate_object( btc );
+  init( dest );
+  clone( btc, &dest->m_Id, &src->m_Id );
+  dest->m_Declarations = clone_list( btc, src->m_Declarations );
+  dest->m_Options = clone_list( btc, src->m_Options );
   dest->m_Declared = src->m_Declared;
 
   NamedSymbol ns;
   ns.m_Type = E_ST_ACTION;
   ns.m_Symbol.m_Action = dest;
-  BehaviorTreeContextRegisterSymbol( btc, ns );
+  register_symbol( btc, ns );
 }
 
 void CloneDecorator( BehaviorTreeContext btc, Decorator* src )
 {
-  Decorator* dest = (Decorator*)BehaviorTreeContextAllocateObject( btc );
-  InitDecorator( dest );
-  CloneId( btc, &dest->m_Id, &src->m_Id );
-  dest->m_Args = CloneVariableList( btc, src->m_Args );
-  dest->m_Options = CloneVariableList( btc, src->m_Options );
+  Decorator* dest = (Decorator*)allocate_object( btc );
+  init( dest );
+  clone( btc, &dest->m_Id, &src->m_Id );
+  dest->m_Declarations = clone_list( btc, src->m_Declarations );
+  dest->m_Options = clone_list( btc, src->m_Options );
   dest->m_Declared = src->m_Declared;
 
   NamedSymbol ns;
   ns.m_Type = E_ST_DECORATOR;
   ns.m_Symbol.m_Decorator = dest;
-  BehaviorTreeContextRegisterSymbol( btc, ns );
+  register_symbol( btc, ns );
 }
 
-Variable* CloneVariableList( BehaviorTreeContext btc, Variable* v1 )
+Parameter* clone_list( BehaviorTreeContext btc, Parameter* v1 )
 {
 
-  Variable* v2 = 0x0;
-  Variable* r = 0x0;
+  Parameter* v2 = 0x0;
+  Parameter* r = 0x0;
   while( v1 )
   {
-    Variable* v = (Variable*)BehaviorTreeContextAllocateObject( btc );
-    InitVariable( v );
+    Parameter* v = (Parameter*)allocate_object( btc );
+    init( v );
 
-    CloneId( btc, &v->m_Id, &v1->m_Id );
+    clone( btc, &v->m_Id, &v1->m_Id );
     v->m_Data = v1->m_Data;
     v->m_Type = v1->m_Type;
     v->m_ValueSet = v1->m_ValueSet;
@@ -186,8 +186,8 @@ Variable* CloneVariableList( BehaviorTreeContext btc, Variable* v1 )
       case E_VART_FLOAT:
         break;
       case E_VART_STRING:
-        v->m_Data.m_String.m_Parsed = BehaviorTreeContextRegisterString( btc, v1->m_Data.m_String.m_Parsed );
-        v->m_Data.m_String.m_Raw = BehaviorTreeContextRegisterString( btc, v1->m_Data.m_String.m_Raw );
+        v->m_Data.m_String.m_Parsed = register_string( btc, v1->m_Data.m_String.m_Parsed );
+        v->m_Data.m_String.m_Raw = register_string( btc, v1->m_Data.m_String.m_Raw );
         break;
       case E_VART_BOOL:
       case E_MAX_VARIABLE_TYPE:
@@ -208,10 +208,10 @@ Variable* CloneVariableList( BehaviorTreeContext btc, Variable* v1 )
 
 void CloneDecoratorNode( BehaviorTreeContext btc, Node* dest, Node* src )
 {
-  dest->m_Grist.m_Decorator.m_Arguments = CloneVariableList( btc, src->m_Grist.m_Decorator.m_Arguments );
+  dest->m_Grist.m_Decorator.m_Parameters = clone_list( btc, src->m_Grist.m_Decorator.m_Parameters );
   if( src->m_Grist.m_Decorator.m_Decorator )
   {
-    NamedSymbol* ns = BehaviorTreeContextFindSymbol( btc, src->m_Grist.m_Decorator.m_Decorator->m_Id.m_Hash );
+    NamedSymbol* ns = find_symbol( btc, src->m_Grist.m_Decorator.m_Decorator->m_Id.m_Hash );
     if( ns )
       dest->m_Grist.m_Decorator.m_Decorator = ns->m_Symbol.m_Decorator;
   }
@@ -219,10 +219,10 @@ void CloneDecoratorNode( BehaviorTreeContext btc, Node* dest, Node* src )
 
 void CloneActionNode( BehaviorTreeContext btc, Node* dest, Node* src )
 {
-  dest->m_Grist.m_Action.m_Arguments = CloneVariableList( btc, src->m_Grist.m_Action.m_Arguments );
+  dest->m_Grist.m_Action.m_Parameters = clone_list( btc, src->m_Grist.m_Action.m_Parameters );
   if( src->m_Grist.m_Action.m_Action )
   {
-    NamedSymbol* ns = BehaviorTreeContextFindSymbol( btc, src->m_Grist.m_Action.m_Action->m_Id.m_Hash );
+    NamedSymbol* ns = find_symbol( btc, src->m_Grist.m_Action.m_Action->m_Id.m_Hash );
     if( ns )
       dest->m_Grist.m_Action.m_Action = ns->m_Symbol.m_Action;
   }
@@ -233,8 +233,8 @@ Node* CloneNodeList( BehaviorTreeContext btc, Node* n )
   if( !n )
     return 0x0;
 
-  Node* r = (Node*)BehaviorTreeContextAllocateObject( btc );
-  InitNode( r );
+  Node* r = (Node*)allocate_object( btc );
+  init( r );
 
   *r = *n;
 
@@ -263,8 +263,8 @@ Node* CloneNodeList( BehaviorTreeContext btc, Node* n )
     break;
   }
 
-  SetFirstChild( r, CloneNodeList( btc, GetFirstChild( n ) ) );
-  SetParentOnChildren( r );
+  set_first_child( r, CloneNodeList( btc, get_first_child( n ) ) );
+  set_parent_on_children( r );
   r->m_Next = CloneNodeList( btc, n->m_Next );
   if( r->m_Next )
     r->m_Next->m_Prev = r;

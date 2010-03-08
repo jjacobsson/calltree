@@ -35,7 +35,7 @@ struct ParsingInfo
 
 int read_file( ParserContext pc, char* buffer, int maxsize )
 {
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( !pi )
     return 0;
   if( feof( pi->m_File ) )
@@ -45,10 +45,10 @@ int read_file( ParserContext pc, char* buffer, int maxsize )
 
 void parser_error( ParserContext pc, const char* msg )
 {
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d) : error : %s\n", pi->m_Name, ParserContextGetLineNo( pc ),
+    printf( "%s(%d) : error : %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
@@ -59,10 +59,10 @@ void parser_error( ParserContext pc, const char* msg )
 
 void parser_warning( ParserContext pc, const char* msg )
 {
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d): warning : %s\n", pi->m_Name, ParserContextGetLineNo( pc ),
+    printf( "%s(%d): warning : %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
@@ -88,15 +88,15 @@ void free_memory( void* ptr )
 
 const char* parser_translate_include( ParserContext pc, const char* include )
 {
-  ParsingInfo* pi = (ParsingInfo*)ParserContextGetExtra( pc );
-  BehaviorTreeContext btc = ParserContextGetBehaviorTreeContext( pc );
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  BehaviorTreeContext btc = get_bt_context( pc );
 
   Allocator a;
   a.m_Alloc = &allocate_memory;
   a.m_Free = &free_memory;
 
   StringBuffer sb;
-  StringBufferInit( a, &sb );
+  init( a, &sb );
 
   if( pi->m_Name )
   {
@@ -113,12 +113,12 @@ const char* parser_translate_include( ParserContext pc, const char* include )
       ++s;
     }
     if( last != -1 )
-      StringBufferAppend( &sb, pi->m_Name, last + 1 );
+      append( &sb, pi->m_Name, last + 1 );
   }
 
-  StringBufferAppend( &sb, include );
-  const char* ret = BehaviorTreeContextRegisterString( btc, sb.m_Str );
-  StringBufferDestroy( &sb );
+  append( &sb, include );
+  const char* ret = register_string( btc, sb.m_Str );
+  destroy( &sb );
 
   return ret;
 }
@@ -196,7 +196,7 @@ int main( int argc, char** argv )
     Allocator a;
     a.m_Alloc = &allocate_memory;
     a.m_Free = &free_memory;
-    BehaviorTreeContext btc = BehaviorTreeContextCreate( a );
+    BehaviorTreeContext btc = create_bt_context( a );
 
     ParserContextFunctions pcf;
     pcf.m_Read = &read_file;
@@ -216,17 +216,17 @@ int main( int argc, char** argv )
 
     if( returnCode == 0 )
     {
-      ParserContext pc = ParserContextCreate( btc );
-      ParserContextSetExtra( pc, &pi );
-      ParserContextSetCurrent( pc, pi.m_Name );
-      returnCode = Parse( pc, &pcf );
-      ParserContextDestroy( pc );
+      ParserContext pc = create_parser_context( btc );
+      set_extra( pc, &pi );
+      set_current( pc, pi.m_Name );
+      returnCode = parse( pc, &pcf );
+      destroy( pc );
     }
 
     if( pi.m_File )
       fclose( pi.m_File );
 
-    Include* include = BehaviorTreeContextGetFirstInclude( btc );
+    Include* include = get_first_include( btc );
     while( returnCode == 0 && include )
     {
       pi.m_Name = include->m_Name;
@@ -240,11 +240,11 @@ int main( int argc, char** argv )
         break;
       }
 
-      ParserContext pc = ParserContextCreate( btc );
-      ParserContextSetExtra( pc, &pi );
-      ParserContextSetCurrent( pc, pi.m_Name );
-      returnCode = Parse( pc, &pcf );
-      ParserContextDestroy( pc );
+      ParserContext pc = create_parser_context( btc );
+      set_extra( pc, &pi );
+      set_current( pc, pi.m_Name );
+      returnCode = parse( pc, &pcf );
+      destroy( pc );
 
       if( pi.m_File )
         fclose( pi.m_File );
@@ -255,7 +255,7 @@ int main( int argc, char** argv )
       include = include->m_Next;
     }
 
-    include = BehaviorTreeContextGetFirstInclude( btc );
+    include = get_first_include( btc );
     while( returnCode == 0 && include && g_printIncludes )
     {
       fprintf( stdout, "%s\n", include->m_Name );
@@ -264,7 +264,7 @@ int main( int argc, char** argv )
 
     if( g_outputFileName )
     {
-      NamedSymbol* main = BehaviorTreeContextFindSymbol( btc, hashlittle(
+      NamedSymbol* main = find_symbol( btc, hashlittle(
         "main" ) );
       if( !main || main->m_Type != E_ST_TREE
           || !main->m_Symbol.m_Tree->m_Declared )
@@ -330,7 +330,7 @@ int main( int argc, char** argv )
       }
     }
 
-    BehaviorTreeContextDestroy( btc );
+    destroy( btc );
     if( g_allocs - g_frees != 0 )
       printf( "Allocs: %d\nFrees:  %d\nDelta:  %d\n", g_allocs, g_frees,
         g_allocs - g_frees );

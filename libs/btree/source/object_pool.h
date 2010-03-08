@@ -40,12 +40,12 @@ struct ObjectPool
   SObject*        m_FirstFree;
 };
 
-ObjectPool* CreateObjectPool( ObjectPoolSetup* object_pool_setup );
+ObjectPool* create_object_pool( ObjectPoolSetup* object_pool_setup );
 
-void DestroyObjectPool( ObjectPool* object_pool );
+void destroy( ObjectPool* object_pool );
 
-void* AllocateObject( ObjectPool* object_pool );
+void* allocate_object( ObjectPool* object_pool );
 
-void FreeObject( ObjectPool* object_pool, void* object );
+void free_object( ObjectPool* object_pool, void* object );
 
 #endif /*OBJECTPOOL_H_INCLUDED*/

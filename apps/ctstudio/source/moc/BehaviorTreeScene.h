@@ -42,9 +42,11 @@ class BehaviorTreeScene: public QGraphicsScene
 {
 Q_OBJECT
 public:
+
   BehaviorTreeScene( QMainWindow* );
   ~BehaviorTreeScene();
 
+  void newTree();
   bool readFile( const QString& fileName );
   bool writeFile( const QString& fileName );
 
@@ -53,6 +55,16 @@ public:
   void dragMoveEvent( QDragMoveEvent *event, const QPointF& mapped_pos );
   void dropEvent( QDropEvent *event );
 
+  BehaviorTreeContext getTreeContext()
+  {
+    return m_TreeContext;
+  }
+
+  BehaviorTreeContext getFullContext()
+  {
+    return m_FullContext;
+  }
+
 signals:
   void modified();
   void updatedSymbols( BehaviorTreeContext );
@@ -60,7 +72,7 @@ signals:
 
 public slots:
   void layout();
-  void itemModified();
+  void itemModified( bool geometry_changed );
   void deleteSelected();
   void nodeSelected( QWidget* );
 

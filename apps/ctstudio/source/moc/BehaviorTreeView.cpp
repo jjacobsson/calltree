@@ -18,16 +18,17 @@
 BehaviorTreeView::BehaviorTreeView() :
   QGraphicsView()
 {
-  QGLFormat format( QGL::SampleBuffers );
+  QGLFormat format( QGL::SampleBuffers | QGL::AccumBuffer );
   QGLWidget* gl_widget = new QGLWidget( format );
 
   if( gl_widget->isValid() )
-  {
     this->setViewport( gl_widget );
-    this->setRenderHint( QPainter::Antialiasing, true );
-  }
   else
     delete gl_widget;
+
+  this->setRenderHint( QPainter::Antialiasing, true );
+  this->setRenderHint( QPainter::TextAntialiasing, true );
+  this->setRenderHint( QPainter::HighQualityAntialiasing, true );
 }
 
 BehaviorTreeView::BehaviorTreeView( QGraphicsScene* scene ) :

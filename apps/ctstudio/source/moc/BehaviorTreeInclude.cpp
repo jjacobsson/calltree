@@ -14,25 +14,60 @@
 #include <btree/btree.h>
 
 #include <QtSvg/QGraphicsSvgItem>
+#include <QtGui/QFont>
 
 BehaviorTreeInclude::BehaviorTreeInclude( Include* i )
   : BehaviorTreeSceneItem()
   , m_Include( i )
   , m_Graphics( 0x0 )
+  , m_Label( 0x0 )
 {
   setFlag( QGraphicsItem::ItemIsMovable, false );
   m_Graphics = new QGraphicsSvgItem( ":/nodes/include.svg", this );
+  setupLabel();
 }
 
 void BehaviorTreeInclude::destroyResources( BehaviorTreeContext ctx )
 {
-  BehaviorTreeContextReleaseInclude( ctx, m_Include );
+  release_include( ctx, m_Include );
   m_Include = 0x0;
 }
 
 QRectF BehaviorTreeInclude::boundingRect() const
 {
-  return m_Graphics->boundingRect();
+  QRectF rect = m_Graphics->boundingRect().translated( m_Graphics->pos() );
+  if( m_Label )
+    rect |= m_Label->boundingRect().translated( m_Label->pos() );
+  return rect;
+}
+
+void BehaviorTreeInclude::setupLabel()
+{
+  prepareGeometryChange();
+
+  delete m_Label;
+  m_Label = 0x0;
+
+  m_Graphics->setPos( 0, 0 );
+
+  QFont font;
+  font.setStyleHint( QFont::Helvetica, QFont::PreferAntialias );
+  font.setPixelSize(64);
+  m_Label = new QGraphicsTextItem( m_Include->m_Name, this );
+  m_Label->setFont( font );
+  QPointF p;
+  QRectF r( m_Label->boundingRect() );
+
+  p.rx() = 0.0;
+
+  float move_node = (r.width() - 256.0) / 2.0;
+  if( move_node > 0 )
+    m_Graphics->setPos( move_node, 0.0 );
+  else
+    p.rx() = -move_node;
+
+  p.ry() = -r.height();
+  m_Label->setPos( p );
 }
 
 

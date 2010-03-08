@@ -74,7 +74,7 @@
         )
        )
       )
-      (action 'print '((str "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)")))
+      (action 'act_print '((str "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)")))
      )
     )
    )

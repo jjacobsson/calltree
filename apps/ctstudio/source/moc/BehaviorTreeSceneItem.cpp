@@ -168,7 +168,7 @@ void BehaviorTreeSceneItem::mouseMoveEvent( QGraphicsSceneMouseEvent* event )
   QGraphicsItem::mouseMoveEvent( event );
 }
 
-void BehaviorTreeSceneItem::signalModified()
+void BehaviorTreeSceneItem::signalModified( bool geometry_changed )
 {
-  emit modified();
+  emit modified(geometry_changed);
 }

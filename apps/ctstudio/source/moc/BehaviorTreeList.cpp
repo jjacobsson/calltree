@@ -36,7 +36,7 @@ void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
   setupStandardNodes();
 
   int c;
-  NamedSymbol* ns = BehaviorTreeContextAccessSymbols( ctx, &c );
+  NamedSymbol* ns = access_symbols( ctx, &c );
 
   XNodeData node_data;
 

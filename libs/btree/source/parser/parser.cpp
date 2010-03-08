@@ -13,32 +13,32 @@
 
 #include <string.h> // for memset....
 
-void* ParserContextGetExtra( ParserContext pc )
+void* get_extra( ParserContext pc )
 {
   return pc->m_Extra;
 }
 
-void ParserContextSetExtra( ParserContext pc, void* extra )
+void set_extra( ParserContext pc, void* extra )
 {
   pc->m_Extra = extra;
 }
 
-void ParserContextSetCurrent( ParserContext pc, const char* curr )
+void set_current( ParserContext pc, const char* curr )
 {
   pc->m_Current = curr;
 }
 
-const char* ParserContextGetCurrent( ParserContext pc )
+const char* get_current( ParserContext pc )
 {
   return pc->m_Current;
 }
 
-int ParserContextGetLineNo( ParserContext pc )
+int get_line_no( ParserContext pc )
 {
   return pc->m_LineNo;
 }
 
-int Parse( ParserContext pc, ParserContextFunctions* pcf )
+int parse( ParserContext pc, ParserContextFunctions* pcf )
 {
   pc->m_LineNo = 1;
   pc->m_Funcs  = *pcf;
@@ -54,7 +54,7 @@ int Parse( ParserContext pc, ParserContextFunctions* pcf )
   return r;
 }
 
-BehaviorTreeContext ParserContextGetBehaviorTreeContext( ParserContext pc )
+BehaviorTreeContext get_bt_context( ParserContext pc )
 {
   return pc->m_Tree;
 }

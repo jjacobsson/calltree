@@ -16,7 +16,7 @@
 TEST( IdentifierInitSetsAllMembersCorrectly )
 {
 	Identifier id;
-	InitIdentifier( &id );
+	init( &id );
 	CHECK( id.m_Text == 0x0 );
 	CHECK( id.m_Hash == INVALID_ID );
 	CHECK( id.m_Line == 0 );
@@ -26,8 +26,8 @@ TEST( IdentifierAssignmentWorksAsExpected )
 {
 	const char* test_string = "Banan monkey.";
 	Identifier i1,i2;
-	InitIdentifier( &i1 );
-	InitIdentifier( &i2 );
+	init( &i1 );
+	init( &i2 );
 	i1.m_Hash = 0xcafebabe;
 	i1.m_Line = 75;
 	i1.m_Text = test_string;

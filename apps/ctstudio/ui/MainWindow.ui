@@ -42,6 +42,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="m_ActionNew"/>
     <addaction name="m_ActionOpen"/>
     <addaction name="m_ActionSave"/>
     <addaction name="m_ActionSaveAs"/>
@@ -77,6 +78,9 @@
      <height>40</height>
     </size>
    </property>
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Nodes</string>
    </property>
@@ -86,6 +90,9 @@
    <widget class="QWidget" name="dockWidgetContents1"/>
   </widget>
   <widget class="QDockWidget" name="m_PropertiesDock">
+   <property name="features">
+    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
    <property name="windowTitle">
     <string>Properties</string>
    </property>
@@ -135,6 +142,17 @@
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+  </action>
+  <action name="m_ActionNew">
+   <property name="text">
+    <string>&amp;New</string>
+   </property>
+   <property name="toolTip">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

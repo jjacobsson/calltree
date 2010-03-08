@@ -66,7 +66,7 @@ struct NamedSymbolPredicate
 
 } g_NamedSymbolPredicate;
 
-void SymbolTableGrow( SymbolTable* st )
+void grow_sym_table( SymbolTable* st )
 {
   st->m_Capacity += 512;
   const size_t alloc_size = sizeof(NamedSymbol) * st->m_Capacity;
@@ -83,7 +83,7 @@ void SymbolTableGrow( SymbolTable* st )
   st->m_Symbols = new_buffer;
 }
 
-void SymbolTableInit( SymbolTable* st, Allocator allocator )
+void init( SymbolTable* st, Allocator allocator )
 {
   st->m_Capacity  = 0;
   st->m_Size      = 0;
@@ -91,13 +91,13 @@ void SymbolTableInit( SymbolTable* st, Allocator allocator )
   st->m_Allocator = allocator;
 }
 
-void SymbolTableDestroy( SymbolTable* st )
+void destroy( SymbolTable* st )
 {
   ST_FREE_MACRO( st->m_Symbols );
   memset( st, 0xdeadbeef, sizeof(SymbolTable) );
 }
 
-NamedSymbol* SymbolTableFind( SymbolTable* st, hash_t id )
+NamedSymbol* find( SymbolTable* st, hash_t id )
 {
   if( !st->m_Symbols )
     return 0x0;
@@ -111,10 +111,10 @@ NamedSymbol* SymbolTableFind( SymbolTable* st, hash_t id )
   return 0x0;
 }
 
-void SymbolTableInsert( SymbolTable* st, const NamedSymbol& s )
+void insert( SymbolTable* st, const NamedSymbol& s )
 {
   if( st->m_Size == st->m_Capacity )
-    SymbolTableGrow( st );
+    grow_sym_table( st );
 
   NamedSymbol* begin = st->m_Symbols;
   NamedSymbol* end = begin + st->m_Size;
@@ -128,7 +128,7 @@ void SymbolTableInsert( SymbolTable* st, const NamedSymbol& s )
   }
 }
 
-void SymbolTableErase( SymbolTable* st, hash_t h )
+void erase( SymbolTable* st, hash_t h )
 {
   if( !st->m_Symbols )
     return;

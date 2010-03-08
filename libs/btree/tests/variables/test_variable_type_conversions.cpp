@@ -29,27 +29,27 @@ public:
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToUndefined )
 {
-	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToInteger )
 {
-	CHECK( !SafeToConvert( v, E_VART_INTEGER ) );
+	CHECK( !safe_to_convert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToFloat )
 {
-	CHECK( !SafeToConvert( v, E_VART_FLOAT ) );
+	CHECK( !safe_to_convert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToString )
 {
-	CHECK( !SafeToConvert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToBool )
 {
-	CHECK( !SafeToConvert( v, E_VART_BOOL ) );
+	CHECK( !safe_to_convert( v, E_VART_BOOL ) );
 }
 
 /*
@@ -69,75 +69,75 @@ public:
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToUndefined )
 {
-	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToInteger )
 {
-	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToFloat )
 {
-	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToString )
 {
-	CHECK( !SafeToConvert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToBool )
 {
-	CHECK( SafeToConvert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToIntegerConversionReturnsCorrectValue )
 {
 	v.m_Data.m_Integer = 357;
-	CHECK( 357 == ValueAsInteger( v ) );
+	CHECK( 357 == as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToIntegerConversionDoesNotReturnIncorrectValue )
 {
 	v.m_Data.m_Integer = 357;
-	CHECK( 4723 != ValueAsInteger( v ) );
+	CHECK( 4723 != as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToFloatConversionReturnsCorrectValue )
 {
 	v.m_Data.m_Integer = 17;
-	CHECK( 17.0f == ValueAsFloat( v ) );
+	CHECK( 17.0f == as_float( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToFloatConversionDoesNotReturnIncorrectValue )
 {
 	v.m_Data.m_Integer = 17;
-	CHECK( 17.0002f != ValueAsFloat( v ) );
+	CHECK( 17.0002f != as_float( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToStringConversionReturnsNull )
 {
 	v.m_Data.m_Integer = 242754;
-	CHECK( 0x0 == ValueAsString( v ) );
+	CHECK( 0x0 == as_string( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, PositiveIntegerToBoolConversionReturnsTrue )
 {
 	v.m_Data.m_Integer = 1;
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, NegativeIntegerToBoolConversionReturnsTrue )
 {
 	v.m_Data.m_Integer = -3746;
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, ZeroIntegerToBoolConversionReturnsFalse )
 {
 	v.m_Data.m_Integer = 0;
-	CHECK( false == ValueAsBool( v ) );
+	CHECK( false == as_bool( v ) );
 }
 
 
@@ -158,57 +158,57 @@ public:
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToUndefined )
 {
-	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToInteger )
 {
-	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToFloat )
 {
-	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToString )
 {
-	CHECK( !SafeToConvert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToBool )
 {
-	CHECK( SafeToConvert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatConvertToIntegerReturnsCorrectValue )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( 17 == ValueAsInteger( v ) );
+	CHECK( 17 == as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatConvertToStringReturnsNull )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( 0x0 == ValueAsString( v ) );
+	CHECK( 0x0 == as_string( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, PositiveFloatConvertsToTrueBool )
 {
 	v.m_Data.m_Float = 17.002f;
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, NegativeFloatConvertsToTrueBool )
 {
 	v.m_Data.m_Float = -317.002f;
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, ZeroFloatConvertsToFalseBool )
 {
 	v.m_Data.m_Float = -317.002f;
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 /*
@@ -227,47 +227,47 @@ public:
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToUndefined )
 {
-	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToInteger )
 {
-	CHECK( !SafeToConvert( v, E_VART_INTEGER ) );
+	CHECK( !safe_to_convert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToFloat )
 {
-	CHECK( !SafeToConvert( v, E_VART_FLOAT ) );
+	CHECK( !safe_to_convert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCanConvertToString )
 {
-	CHECK( SafeToConvert( v, E_VART_STRING ) );
+	CHECK( safe_to_convert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToBool )
 {
-	CHECK( !SafeToConvert( v, E_VART_BOOL ) );
+	CHECK( !safe_to_convert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroInteger )
 {
-	CHECK( 0 == ValueAsInteger( v ) );
+	CHECK( 0 == as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroFloat )
 {
-	CHECK( 0.0f == ValueAsFloat( v ) );
+	CHECK( 0.0f == as_float( v ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToString )
 {
-	CHECK( g_TestString == ValueAsString( v )->m_Parsed );
+	CHECK( g_TestString == as_string( v )->m_Parsed );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToBool )
 {
-	CHECK( false == ValueAsBool( v ) );
+	CHECK( false == as_bool( v ) );
 }
 
 
@@ -287,46 +287,46 @@ public:
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToUndefined )
 {
-	CHECK( !SafeToConvert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToInteger )
 {
-	CHECK( SafeToConvert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToFloat )
 {
-	CHECK( SafeToConvert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToString )
 {
-	CHECK( !SafeToConvert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToBool )
 {
-	CHECK( SafeToConvert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToInteger )
 {
-	CHECK( 1 == ValueAsInteger( v ) );
+	CHECK( 1 == as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToFloat )
 {
-	CHECK( 1.0f == ValueAsFloat( v ) );
+	CHECK( 1.0f == as_float( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsPredictablyToString )
 {
-	CHECK( false == ValueAsString( v ) );
+	CHECK( false == as_string( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToBool )
 {
-	CHECK( true == ValueAsBool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 

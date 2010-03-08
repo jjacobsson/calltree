@@ -17,12 +17,12 @@ TEST( TestUnlinkParentAndSiblingsDoesNotBreakList )
 {
 	Node n1,n2,n3;
 
-	InitNode( &n1 );
-	InitNode( &n2 );
-	InitNode( &n3 );
+	init( &n1 );
+	init( &n2 );
+	init( &n3 );
 
-	AppendToEndOfList( &n1, &n2 );
-	AppendToEndOfList( &n1, &n3 );
+	append_to_end( &n1, &n2 );
+	append_to_end( &n1, &n3 );
 
 	CHECK( n1.m_Next == &n2 );
 	CHECK( n1.m_Prev == 0x0 );
@@ -31,7 +31,7 @@ TEST( TestUnlinkParentAndSiblingsDoesNotBreakList )
 	CHECK( n3.m_Next == 0x0 );
 	CHECK( n3.m_Prev == &n2 );
 
-	UnlinkNodeFromParentAndSiblings( &n2 );
+	unlink_from_parent_and_siblings( &n2 );
 
 	CHECK( n1.m_Next == &n3 );
 	CHECK( n1.m_Prev == 0x0 );
@@ -43,5 +43,5 @@ TEST( TestUnlinkParentAndSiblingsDoesNotBreakList )
 
 TEST( GetFirstChildReturnsNullOnNull )
 {
-	CHECK( GetFirstChild( 0x0 ) == 0x0 );
+	CHECK( get_first_child( 0x0 ) == 0x0 );
 }

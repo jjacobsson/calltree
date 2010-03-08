@@ -28,9 +28,9 @@ struct StringTable
   Allocator          m_Allocator;
 };
 
-void StringTableInit( StringTable*, Allocator );
-void StringTableDestroy( StringTable* );
+void init( StringTable*, Allocator );
+void destroy( StringTable* );
 
-const char* StringTableRegisterString( StringTable*, const char*, hash_t );
+const char* register_string( StringTable*, const char*, hash_t );
 
 #endif /*STRING_TABLE_H_INCLUDED*/

@@ -38,7 +38,7 @@ public:
   }
 };
 
-void StringTableGrowHashTable( StringTable* st )
+void grow_hash_table( StringTable* st )
 {
   int alloc = sizeof(StringTableLookup) * st->m_LookupCapacity
       + sizeof(StringTableLookup) * st->m_LookupGrow;
@@ -53,10 +53,10 @@ void StringTableGrowHashTable( StringTable* st )
   ST_FREE_MACRO( o );
 }
 
-void StringTableHashInsert( StringTable* st, StringTableLookup& l )
+void insert( StringTable* st, StringTableLookup& l )
 {
   if( st->m_LookupSize == st->m_LookupCapacity )
-    StringTableGrowHashTable( st );
+    grow_hash_table( st );
 
   StringTableLookupPred pred;
 
@@ -75,7 +75,7 @@ void StringTableHashInsert( StringTable* st, StringTableLookup& l )
   st->m_LookupSize++;
 }
 
-StringTableBlock* StringTableAllocateBlock( StringTable* st, int minimum = 0 )
+StringTableBlock* allocate_block( StringTable* st, int minimum = 0 )
 {
   int alloc;
 
@@ -92,7 +92,7 @@ StringTableBlock* StringTableAllocateBlock( StringTable* st, int minimum = 0 )
   return c;
 }
 
-void StringTableInit( StringTable* st, Allocator allocator )
+void init( StringTable* st, Allocator allocator )
 {
   st->m_BlockSize = 4096;
   st->m_LookupCapacity = 0;
@@ -103,7 +103,7 @@ void StringTableInit( StringTable* st, Allocator allocator )
   st->m_Allocator = allocator;
 }
 
-void StringTableDestroy( StringTable* st )
+void destroy( StringTable* st )
 {
   ST_FREE_MACRO( st->m_LookupTable );
   while( st->m_FirstBlock )
@@ -115,7 +115,7 @@ void StringTableDestroy( StringTable* st )
   memset( st, 0xdeadbeef, sizeof(StringTable) );
 }
 
-const char* StringTableRegisterString( StringTable* st, const char* str,
+const char* register_string( StringTable* st, const char* str,
   hash_t hash )
 {
   StringTableLookupPred pred;
@@ -133,11 +133,11 @@ const char* StringTableRegisterString( StringTable* st, const char* str,
   int l = strlen( str );
   if( !st->m_FirstBlock )
   {
-    st->m_FirstBlock = StringTableAllocateBlock( st, l + 1 );
+    st->m_FirstBlock = allocate_block( st, l + 1 );
   }
   else if( st->m_BlockSize - st->m_FirstBlock->m_Used < l + 1 )
   {
-    StringTableBlock* c = StringTableAllocateBlock( st, l + 1 );
+    StringTableBlock* c = allocate_block( st, l + 1 );
     c->m_Next = st->m_FirstBlock;
     st->m_FirstBlock = c;
   }
@@ -146,7 +146,7 @@ const char* StringTableRegisterString( StringTable* st, const char* str,
   memcpy( hl.m_Str, str, l + 1 );
   st->m_FirstBlock->m_Used += l + 1;
 
-  StringTableHashInsert( st, hl );
+  insert( st, hl );
 
 
   return hl.m_Str;

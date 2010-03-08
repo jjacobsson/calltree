@@ -37,9 +37,13 @@ public:
     if( s == QValidator::Invalid )
       return s;
     hash_t hash = hashlittle( input.toAscii().constData() );
-    NamedSymbol* ns = BehaviorTreeContextFindSymbol( m_Context, hash );
+    NamedSymbol* ns = find_symbol( m_Context, hash );
     if( ns )
       return QValidator::Intermediate;
+
+    if( is_btree_keyword( input.toAscii().constData() ) )
+      return QValidator::Intermediate;
+
     return s;
   }
 private:
@@ -78,8 +82,8 @@ qreal BehaviorTreeTree::layoutOffset() const
 
 void BehaviorTreeTree::destroyResources( BehaviorTreeContext ctx )
 {
-  BehaviorTreeContextRemoveSymbol( ctx, m_Tree->m_Id.m_Hash );
-  BehaviorTreeContextFreeObject( ctx, m_Tree );
+  remove_symbol( ctx, m_Tree->m_Id.m_Hash );
+  free_object( ctx, m_Tree );
   m_Tree = 0x0;
 }
 
@@ -99,20 +103,20 @@ void BehaviorTreeTree::updateName()
   if( strcmp( le->text().toAscii().constData(), m_Tree->m_Id.m_Text ) == 0 )
     return;
 
-  BehaviorTreeContextRemoveSymbol( m_Context, m_Tree->m_Id.m_Hash );
+  remove_symbol( m_Context, m_Tree->m_Id.m_Hash );
 
   QByteArray new_str( le->text().toAscii() );
-  m_Tree->m_Id.m_Text = BehaviorTreeContextRegisterString( m_Context, new_str.constData() );
+  m_Tree->m_Id.m_Text = register_string( m_Context, new_str.constData() );
   m_Tree->m_Id.m_Hash = hashlittle( new_str.constData() );
 
   NamedSymbol ns;
   ns.m_Type = E_ST_TREE;
   ns.m_Symbol.m_Tree = m_Tree;
-  BehaviorTreeContextRegisterSymbol( m_Context, ns );
+  register_symbol( m_Context, ns );
 
   setupLabel( m_Tree->m_Id.m_Text );
 
-  signalModified();
+  signalModified( true );
 }
 
 void BehaviorTreeTree::setupLabel( const char* str )
@@ -120,8 +124,12 @@ void BehaviorTreeTree::setupLabel( const char* str )
   if( !str )
     return;
 
+  prepareGeometryChange();
+
   delete m_Label;
   m_Label = 0x0;
+
+  m_Graphics->setPos( 0, 0 );
 
   QFont font;
   font.setPixelSize(64);

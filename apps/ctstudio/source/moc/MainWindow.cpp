@@ -37,6 +37,7 @@ MainWindow::MainWindow() :
 
   setCurrentFile( "" );
 
+  connect( m_ActionNew, SIGNAL(triggered()), this, SLOT(newFile()) );
   connect( m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()) );
   connect( m_ActionSave, SIGNAL(triggered()), this, SLOT(save()) );
   connect( m_ActionSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()) );
@@ -47,7 +48,15 @@ MainWindow::MainWindow() :
   connect( m_BTreeScene, SIGNAL( itemSelected( QWidget* ) ), this, SLOT( setPropertyWidget( QWidget* ) ) );
   connect( m_ExitAction, SIGNAL( triggered()), this, SLOT(close()) );
   connect( m_ActionDelete, SIGNAL( triggered() ), m_BTreeScene, SLOT( deleteSelected() ) );
+}
 
+void MainWindow::newFile()
+{
+  if( okToContinue() )
+  {
+    m_BTreeScene->newTree();
+    setCurrentFile("");
+  }
 }
 
 void MainWindow::open()
@@ -192,9 +201,8 @@ bool MainWindow::loadFile( const QString& fileName )
 {
   if( m_BTreeScene->readFile( fileName ) )
   {
-    QRectF itemsRect = m_BTreeScene->itemsBoundingRect();
-    m_BTreeScene->setSceneRect( itemsRect );
-    m_BTreeView->fitInView( itemsRect, Qt::KeepAspectRatio );
+    QRectF sceneRect = m_BTreeScene->sceneRect();
+    m_BTreeView->fitInView( sceneRect, Qt::KeepAspectRatio );
 
     setCurrentFile( fileName );
     statusBar()->showMessage( tr( "File loaded" ), 2000 );

@@ -11,15 +11,52 @@
 #include <btree/btree_func.h>
 #include <btree/btree.h>
 
+#include <other/lookup3.h>
+
 #include <string.h> // for memset....
 #include <stdlib.h>
 #include <stdio.h>
+
+const hash_t g_keyword_hash_values[] = {
+  hashlittle( "deftree" ),
+  hashlittle( "defact" ),
+  hashlittle( "defdec" ),
+  hashlittle( "tree" ),
+  hashlittle( "sequence" ),
+  hashlittle( "selector" ),
+  hashlittle( "parallel" ),
+  hashlittle( "dyn_selector" ),
+  hashlittle( "succeed" ),
+  hashlittle( "fail" ),
+  hashlittle( "work" ),
+  hashlittle( "action" ),
+  hashlittle( "decorator" ),
+  hashlittle( "int32" ),
+  hashlittle( "bool" ),
+  hashlittle( "float" ),
+  hashlittle( "string" ),
+  hashlittle( "include" ),
+  hashlittle( "true" ),
+  hashlittle( "false" )
+};
+
+bool is_btree_keyword( const char* str )
+{
+  hash_t t = hashlittle( str );
+  int s = sizeof( g_keyword_hash_values ) / sizeof( hash_t );
+  for( int i = 0; i < s; ++i )
+  {
+    if( g_keyword_hash_values[i] == t )
+      return true;
+  }
+  return false;
+}
 
 /*
  * Identifier Functions
  */
 
-void InitIdentifier( Identifier* id )
+void init( Identifier* id )
 {
   id->m_Text = 0x0;
   id->m_Hash = INVALID_ID;
@@ -30,24 +67,24 @@ void InitIdentifier( Identifier* id )
  * Variable Functions
  */
 
-void InitVariable( Variable* v )
+void init( Parameter* v )
 {
   v->m_Type = E_VART_UNDEFINED;
   v->m_Data.m_String.m_Parsed = 0x0;
   v->m_Data.m_String.m_Raw = 0x0;
   v->m_Next = 0x0;
   v->m_ValueSet = false;
-  InitIdentifier( &v->m_Id );
+  init( &v->m_Id );
 }
 
-Variable* FindLastVariable( Variable* v )
+Parameter* find_last( Parameter* v )
 {
   while( v && v->m_Next )
     v = v->m_Next;
   return v;
 }
 
-void AppendToEndOfList( Variable* s, Variable* v )
+void append_to_end( Parameter* s, Parameter* v )
 {
   while( s && s->m_Next )
     s = s->m_Next;
@@ -55,7 +92,7 @@ void AppendToEndOfList( Variable* s, Variable* v )
     s->m_Next = v;
 }
 
-int CountElementsInList( Variable* s )
+int count_elements( Parameter* s )
 {
   int r = 0;
   while( s )
@@ -66,7 +103,7 @@ int CountElementsInList( Variable* s )
   return r;
 }
 
-Variable* FindVariableWithIdHash( Variable* s, hash_t hash )
+Parameter* find_by_hash( Parameter* s, hash_t hash )
 {
   while( s )
   {
@@ -77,7 +114,7 @@ Variable* FindVariableWithIdHash( Variable* s, hash_t hash )
   return 0x0;
 }
 
-int CountOccourancesOfIdHashInList( Variable* s, hash_t hash )
+int count_occourances_of_hash_in_list( Parameter* s, hash_t hash )
 {
   int r = 0;
   while( s )
@@ -89,18 +126,18 @@ int CountOccourancesOfIdHashInList( Variable* s, hash_t hash )
   return r;
 }
 
-bool VariableIdsAreUniqueInList( Variable* s )
+bool id_hashes_are_unique_in_list( Parameter* s )
 {
   while( s )
   {
-    if( CountOccourancesOfIdHashInList( s->m_Next, s->m_Id.m_Hash ) > 0 )
+    if( count_occourances_of_hash_in_list( s->m_Next, s->m_Id.m_Hash ) > 0 )
       return false;
     s = s->m_Next;
   }
   return true;
 }
 
-bool SafeToConvert( const Variable& v, int to_type )
+bool safe_to_convert( const Parameter& v, int to_type )
 {
   switch( v.m_Type )
   {
@@ -130,7 +167,7 @@ bool SafeToConvert( const Variable& v, int to_type )
   return false;
 }
 
-int ValueAsInteger( const Variable& v )
+int as_integer( const Parameter& v )
 {
   int r = 0;
   switch( v.m_Type )
@@ -153,7 +190,7 @@ int ValueAsInteger( const Variable& v )
   return r;
 }
 
-float ValueAsFloat( const Variable& v )
+float as_float( const Parameter& v )
 {
   float r = 0.0f;
   switch( v.m_Type )
@@ -176,14 +213,14 @@ float ValueAsFloat( const Variable& v )
   return r;
 }
 
-const StringData* ValueAsString( const Variable& v )
+const StringData* as_string( const Parameter& v )
 {
   if( v.m_Type == E_VART_STRING )
     return &v.m_Data.m_String;
   return 0x0;
 }
 
-bool ValueAsBool( const Variable& v )
+bool as_bool( const Parameter& v )
 {
   bool r = false;
   switch( v.m_Type )
@@ -213,7 +250,7 @@ int max( int a, int b )
   return b;
 }
 
-const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
+const char* list_as_string( BehaviorTreeContext tree, Parameter* v )
 {
   const char* ret = "";
   int space = 0;
@@ -238,16 +275,16 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
     switch( v->m_Type )
     {
     case E_VART_INTEGER:
-      n = sprintf( tmp, "%d", ValueAsInteger( *v ) );
+      n = sprintf( tmp, "%d", as_integer( *v ) );
       break;
     case E_VART_FLOAT:
-      n = sprintf( tmp, "%f", ValueAsFloat( *v ) );
+      n = sprintf( tmp, "%f", as_float( *v ) );
       break;
     case E_VART_STRING:
-      n = sprintf( tmp, "\"%s\"", ValueAsString( *v )->m_Parsed );
+      n = sprintf( tmp, "\"%s\"", as_string( *v )->m_Parsed );
       break;
     case E_VART_BOOL:
-      n = sprintf( tmp, "%s", ValueAsBool( *v ) ? "true" : "false" );
+      n = sprintf( tmp, "%s", as_bool( *v ) ? "true" : "false" );
       break;
     case E_VART_UNDEFINED:
     case E_MAX_VARIABLE_TYPE:
@@ -275,7 +312,7 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
   if( str )
   {
     if( tree )
-      ret = BehaviorTreeContextRegisterString( tree, str );
+      ret = register_string( tree, str );
 
     free( str );
     str = 0x0;
@@ -287,15 +324,15 @@ const char* GetVariableListAsString( BehaviorTreeContext tree, Variable* v )
  * BehaviorTree Functions
  */
 
-void InitBehaviorTree( BehaviorTree* t )
+void init( BehaviorTree* t )
 {
-  InitIdentifier( &t->m_Id );
+  init( &t->m_Id );
   t->m_Root = 0x0;
   t->m_UserData = 0x0;
   t->m_Declared = false;
 }
 
-void SetParentOnChildren( BehaviorTree* t )
+void set_parent_on_children( BehaviorTree* t )
 {
   Node* c = t->m_Root;
   while( c )
@@ -310,10 +347,10 @@ void SetParentOnChildren( BehaviorTree* t )
  * Action functions
  */
 
-void InitAction( Action* a )
+void init( Action* a )
 {
-  InitIdentifier( &a->m_Id );
-  a->m_Args = 0x0;
+  init( &a->m_Id );
+  a->m_Declarations = 0x0;
   a->m_Options = 0x0;
   a->m_Declared = false;
 }
@@ -322,10 +359,10 @@ void InitAction( Action* a )
  * Decorator functions
  */
 
-void InitDecorator( Decorator* d )
+void init( Decorator* d )
 {
-  InitIdentifier( &d->m_Id );
-  d->m_Args = 0x0;
+  init( &d->m_Id );
+  d->m_Declarations = 0x0;
   d->m_Options = 0x0;
   d->m_Declared = false;
 }
@@ -334,9 +371,9 @@ void InitDecorator( Decorator* d )
  * Node functions
  */
 
-void InitNode( Node* n )
+void init( Node* n )
 {
-  InitGrist( &n->m_Grist );
+  init( &n->m_Grist );
 
   n->m_Pare.m_Type = E_NP_UNKOWN;
   n->m_Pare.m_Node = 0x0;
@@ -345,7 +382,7 @@ void InitNode( Node* n )
   n->m_UserData = 0x0;
 }
 
-void AppendToEndOfList( Node* s, Node* e )
+void append_to_end( Node* s, Node* e )
 {
   while( s && s->m_Next )
     s = s->m_Next;
@@ -356,9 +393,9 @@ void AppendToEndOfList( Node* s, Node* e )
   }
 }
 
-void SetParentOnChildren( Node* n )
+void set_parent_on_children( Node* n )
 {
-  Node* c = GetFirstChild( n );
+  Node* c = get_first_child( n );
   while( c )
   {
     c->m_Pare.m_Type = E_NP_NODE;
@@ -367,7 +404,7 @@ void SetParentOnChildren( Node* n )
   }
 }
 
-Node* GetFirstChild( Node* n )
+Node* get_first_child( Node* n )
 {
   if( !n )
     return 0x0;
@@ -401,12 +438,12 @@ Node* GetFirstChild( Node* n )
   return r;
 }
 
-Node* GetFirstChild( const NodeParent& p )
+Node* get_first_child( const NodeParent& p )
 {
   switch( p.m_Type )
   {
   case E_NP_NODE:
-    return GetFirstChild( p.m_Node );
+    return get_first_child( p.m_Node );
     break;
   case E_NP_TREE:
     return p.m_Tree->m_Root;
@@ -418,7 +455,7 @@ Node* GetFirstChild( const NodeParent& p )
   return 0x0;
 }
 
-void SetFirstChild( Node* n, Node* c )
+void set_first_child( Node* n, Node* c )
 {
   if( !n )
     return;
@@ -450,12 +487,12 @@ void SetFirstChild( Node* n, Node* c )
   }
 }
 
-void SetFirstChild( const NodeParent& p, Node* c )
+void set_first_child( const NodeParent& p, Node* c )
 {
   switch( p.m_Type )
   {
   case E_NP_NODE:
-    SetFirstChild( p.m_Node, c );
+    set_first_child( p.m_Node, c );
     break;
   case E_NP_TREE:
     p.m_Tree->m_Root = c;
@@ -466,7 +503,7 @@ void SetFirstChild( const NodeParent& p, Node* c )
   }
 }
 
-void UnlinkFromSiblings( Node* n )
+void unlink_from_siblings( Node* n )
 {
   if( n->m_Prev )
     n->m_Prev->m_Next = n->m_Next;
@@ -476,13 +513,13 @@ void UnlinkFromSiblings( Node* n )
   n->m_Next = 0x0;
 }
 
-void UnlinkNodeFromParentAndSiblings( Node* n )
+void unlink_from_parent_and_siblings( Node* n )
 {
   switch( n->m_Pare.m_Type )
   {
   case E_NP_NODE:
-    if( GetFirstChild( n->m_Pare.m_Node ) == n )
-      SetFirstChild( n->m_Pare.m_Node, n->m_Next );
+    if( get_first_child( n->m_Pare.m_Node ) == n )
+      set_first_child( n->m_Pare.m_Node, n->m_Next );
     break;
   case E_NP_TREE:
     if( n->m_Pare.m_Tree->m_Root == n )
@@ -492,14 +529,14 @@ void UnlinkNodeFromParentAndSiblings( Node* n )
   case E_MAX_NODE_PARENT_TYPES:
     break;
   }
-  UnlinkFromSiblings( n );
+  unlink_from_siblings( n );
   n->m_Pare.m_Type = E_NP_UNKOWN;
   n->m_Pare.m_Node = 0x0;
 }
 
-int CountChildNodes( Node* n )
+int count_children( Node* n )
 {
-  Node* c = GetFirstChild( n );
+  Node* c = get_first_child( n );
   int retval = 0;
   while( c )
   {
@@ -509,7 +546,7 @@ int CountChildNodes( Node* n )
   return retval;
 }
 
-bool AcceptsMoreChildren( Node* n )
+bool accepts_more_children( Node* n )
 {
   if( !n )
     return false;
@@ -540,11 +577,39 @@ bool AcceptsMoreChildren( Node* n )
   return false;
 }
 
+Parameter* get_parameters( Node* n )
+{
+  if( !n )
+    return 0x0;
+  Parameter* r = 0x0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_DECORATOR:
+    r = n->m_Grist.m_Decorator.m_Parameters;
+    break;
+  case E_GRIST_ACTION:
+    r = n->m_Grist.m_Action.m_Parameters;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+  return r;
+}
+
 /*
  * Node Grist functions
  */
 
-void InitGrist( NodeGrist* g )
+void init( NodeGrist* g )
 {
   memset( g, 0, sizeof(NodeGrist) );
 }
@@ -554,17 +619,17 @@ void InitGrist( NodeGrist* g )
  */
 
 
-void StringBufferInit( Allocator& a, StringBuffer* sb, int initial_size )
+void init( Allocator& a, StringBuffer* sb, int initial_size )
 {
   sb->m_Allocator   = a;
   sb->m_Size        = 0;
   sb->m_Capacity    = 0;
   sb->m_Str         = 0x0;
-  StringBufferGrow( sb, initial_size );
+  grow( sb, initial_size );
   sb->m_Str[0]      = 0;
 }
 
-void StringBufferDestroy( StringBuffer* sb )
+void destroy( StringBuffer* sb )
 {
   sb->m_Allocator.m_Free( sb->m_Str );
   sb->m_Str         = 0x0;
@@ -573,30 +638,34 @@ void StringBufferDestroy( StringBuffer* sb )
   memset( sb, 0xdeadbeef, sizeof(StringBuffer) );
 }
 
-void StringBufferAppend( StringBuffer* sb, char c)
+void append( StringBuffer* sb, char c )
 {
   if( sb->m_Size >= sb->m_Capacity - 1 )
-    StringBufferGrow( sb, 128 );
+    grow( sb, 128 );
   sb->m_Str[sb->m_Size++]   = c;
   sb->m_Str[sb->m_Size]     = 0;
 }
 
-void StringBufferAppend( StringBuffer* sb, const char* str )
+void append( StringBuffer* sb, const char* str )
 {
+  if( !str ) return;
+
   int l = strlen( str );
-  StringBufferAppend( sb, str, l );
+  append( sb, str, l );
 }
 
-void StringBufferAppend( StringBuffer* sb, const char * str, int l )
+void append( StringBuffer* sb, const char * str, int l )
 {
+  if( l == 0 ) return;
+
   if( sb->m_Size >= sb->m_Capacity - (l + 1) )
-    StringBufferGrow( sb, l + 1 );
+    grow( sb, l + 1 );
   memcpy( sb->m_Str + sb->m_Size, str, l );
   sb->m_Size += l;
   sb->m_Str[sb->m_Size] = 0;
 }
 
-void StringBufferClear( StringBuffer* sb )
+void clear( StringBuffer* sb )
 {
   if( sb->m_Capacity <= 0 )
     return;
@@ -604,7 +673,7 @@ void StringBufferClear( StringBuffer* sb )
   sb->m_Str[0]  = 0;
 }
 
-void StringBufferGrow( StringBuffer* sb, int min )
+void grow( StringBuffer* sb, int min )
 {
   int ns = sb->m_Capacity + (128>min?128:min);
   char* t = (char*)sb->m_Allocator.m_Alloc( ns );

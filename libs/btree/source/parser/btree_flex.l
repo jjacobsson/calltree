@@ -29,8 +29,8 @@
 #define STRINGBUFFERAPPEND( STR1, STR2 ) \
 	{ \
 		ParserContext ctx = yyget_extra(yyscanner); \
-		StringBufferAppend( &(ctx->m_Parsed), (STR1) ); \
-		StringBufferAppend( &(ctx->m_Original), (STR2) ); \
+		append( &(ctx->m_Parsed), (STR1) ); \
+		append( &(ctx->m_Original), (STR2) ); \
 	} \
 		
 %}
@@ -93,7 +93,7 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                     SParserContext* ctx = yyget_extra(yyscanner);
                     (*yylval).m_Id.m_Hash = hashlittle( yytext );
                     (*yylval).m_Id.m_Line = ctx->m_LineNo;
-                    (*yylval).m_Id.m_Text = BehaviorTreeContextRegisterString( ctx->m_Tree, yytext, (*yylval).m_Id.m_Hash );
+                    (*yylval).m_Id.m_Text = register_string( ctx->m_Tree, yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }
 {INTEGER}       {
@@ -127,10 +127,10 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \"              {   /*closing quote*/
                     BEGIN(INITIAL);
                     SParserContext* ctx = yyget_extra( yyscanner );
-                    (*yylval).m_String.m_Parsed = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Parsed.m_Str );
-                    (*yylval).m_String.m_Raw = BehaviorTreeContextRegisterString( ctx->m_Tree, ctx->m_Original.m_Str );
-                    StringBufferClear( &ctx->m_Parsed );
-                    StringBufferClear( &ctx->m_Original );
+                    (*yylval).m_String.m_Parsed = register_string( ctx->m_Tree, ctx->m_Parsed.m_Str );
+                    (*yylval).m_String.m_Raw = register_string( ctx->m_Tree, ctx->m_Original.m_Str );
+                    clear( &ctx->m_Parsed );
+                    clear( &ctx->m_Original );
                     return T_STRING_VALUE;
                 }
 \\n             { STRINGBUFFERAPPEND( '\n', yytext ); }
@@ -140,8 +140,8 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 \\f             { STRINGBUFFERAPPEND( '\f', yytext ); }
 \\(.|\n)        { 
 					ParserContext ctx = yyget_extra(yyscanner);
-					StringBufferAppend( &(ctx->m_Parsed), yytext[1] );
-					StringBufferAppend( &(ctx->m_Original), yytext );
+					append( &(ctx->m_Parsed), yytext[1] );
+					append( &(ctx->m_Original), yytext );
 				}
 [^\\\n\"]+      { STRINGBUFFERAPPEND( yytext, yytext ); }
 

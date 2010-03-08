@@ -32,7 +32,7 @@ struct SBehaviorTreeContext
 
 union ObjectFootPrint
 {
-  Variable             m_Variable;
+  Parameter             m_Variable;
   Action               m_Action;
   Decorator            m_Decorator;
   Node                 m_Node;

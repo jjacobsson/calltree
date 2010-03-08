@@ -91,7 +91,7 @@ signals:
 
   void itemDragged();
   void itemSelected( QWidget* );
-  void modified();
+  void modified( bool geometry_changed );
 
 protected:
 
@@ -101,7 +101,7 @@ protected:
   void mouseReleaseEvent( QGraphicsSceneMouseEvent* event );
   void mouseMoveEvent( QGraphicsSceneMouseEvent* event );
 
-  void signalModified();
+  void signalModified( bool geometry_changed );
 
 private:
 
