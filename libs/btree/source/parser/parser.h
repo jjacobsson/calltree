@@ -42,6 +42,4 @@ void yywarning( ParserContext ctx, const char* msg );
 void yyerror( ParserContext ctx, void*, const char* msg );
 void yywarning( ParserContext ctx, void*, const char* msg );
 
-
-
 #endif /* PARSER_COMMON_H_ */

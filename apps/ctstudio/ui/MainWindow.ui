@@ -44,6 +44,7 @@
     </property>
     <addaction name="m_ActionNew"/>
     <addaction name="m_ActionOpen"/>
+    <addaction name="m_ActionReload"/>
     <addaction name="m_ActionSave"/>
     <addaction name="m_ActionSaveAs"/>
    </widget>
@@ -153,6 +154,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="m_ActionReload">
+   <property name="text">
+    <string>&amp;Reload</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

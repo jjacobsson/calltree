@@ -85,6 +85,8 @@ void BehaviorTreeTree::destroyResources( BehaviorTreeContext ctx )
   remove_symbol( ctx, m_Tree->m_Id.m_Hash );
   free_object( ctx, m_Tree );
   m_Tree = 0x0;
+
+  emit symbolsChanged();
 }
 
 BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
@@ -92,6 +94,13 @@ BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
   if( m_Tree->m_Root )
     return (BehaviorTreeSceneItem*)m_Tree->m_Root->m_UserData;
   return 0x0;
+}
+
+void BehaviorTreeTree::dragEnd()
+{
+  BehaviorTreeSceneItem::dragEnd();
+
+  emit symbolsChanged();
 }
 
 void BehaviorTreeTree::updateName()
@@ -115,6 +124,8 @@ void BehaviorTreeTree::updateName()
   register_symbol( m_Context, ns );
 
   setupLabel( m_Tree->m_Id.m_Text );
+
+  emit symbolsChanged();
 
   signalModified( true );
 }

@@ -21,7 +21,7 @@ void ParamConnectorPlug::checkBoxChanged( int state )
   emit dataChanged( sender(), m_Hash );
 }
 
-void ParamConnectorPlug::lineEditChanged( const QString& text )
+void ParamConnectorPlug::lineEditChanged()
 {
   emit dataChanged( sender(), m_Hash );
 }

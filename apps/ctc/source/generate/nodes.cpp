@@ -1507,7 +1507,11 @@ int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
     case E_VART_BOOL:
       vd->m_Data.push_back( d.PushInteger( as_integer( *v ) ) );
       break;
-    default:
+    case E_VART_HASH:
+      vd->m_Data.push_back( d.PushInteger( as_hash( *v ) ) );
+      break;
+    case E_VART_UNDEFINED:
+    case E_MAX_VARIABLE_TYPE:
       return -1;
       break;
     }

@@ -49,6 +49,12 @@ public:
 
   BehaviorTreeSceneItem* firstChild();
 
+  void dragEnd();
+
+signals:
+
+  void symbolsChanged();
+
 private slots:
 
   void updateName();

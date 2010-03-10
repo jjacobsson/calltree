@@ -32,7 +32,7 @@ signals:
 public slots:
 
   void checkBoxChanged( int state );
-  void lineEditChanged( const QString& text );
+  void lineEditChanged();
 
 private:
   const hash_t m_Hash;

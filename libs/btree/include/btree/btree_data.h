@@ -25,8 +25,9 @@ enum NodeGristType
   E_GRIST_SUCCEED,
   E_GRIST_FAIL,
   E_GRIST_WORK,
-  E_GRIST_DECORATOR,
+  E_GRIST_TREE,
   E_GRIST_ACTION,
+  E_GRIST_DECORATOR,
   E_MAX_GRIST_TYPES
 };
 
@@ -42,6 +43,7 @@ enum ParameterType
   E_VART_FLOAT,
   E_VART_STRING,
   E_VART_BOOL,
+  E_VART_HASH,
   E_MAX_VARIABLE_TYPE
 };
 
@@ -61,6 +63,7 @@ struct StringData
 union ParameterData
 {
   int m_Integer;
+  hash_t m_Hash;
   float m_Float;
   StringData m_String;
   bool m_Bool;
@@ -127,6 +130,11 @@ struct ActionGrist
   Parameter* m_Parameters;
 };
 
+struct TreeGrist
+{
+  BehaviorTree* m_Tree;
+};
+
 struct NodeGrist
 {
   NodeGristType m_Type;
@@ -138,6 +146,7 @@ struct NodeGrist
     DynSelectorGrist m_DynSelector;
     DecoratorGrist m_Decorator;
     ActionGrist m_Action;
+    TreeGrist m_Tree;
   };
 };
 

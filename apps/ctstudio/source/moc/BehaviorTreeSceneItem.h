@@ -67,6 +67,11 @@ public:
 
   virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
 
+  virtual BehaviorTreeSceneItem* getParent()
+  {
+    return 0x0;
+  }
+
   virtual BehaviorTreeSceneItem* firstChild()
   {
     return 0x0;
@@ -84,6 +89,7 @@ public:
   virtual void dragMove();
   virtual void dragBegin();
   virtual void dragEnd();
+  virtual void dragFail();
 
   void paint( QPainter*, const QStyleOptionGraphicsItem*, QWidget* );
 

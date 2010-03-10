@@ -72,6 +72,11 @@ void BehaviorTreeSceneItem::dragEnd()
   emit itemDragged();
 }
 
+void BehaviorTreeSceneItem::dragFail()
+{
+
+}
+
 void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
 {
   if(!(option->state & QStyle::State_Selected))

@@ -15,6 +15,7 @@
 
 #include <QtSvg/QGraphicsSvgItem>
 #include <QtGui/QFont>
+#include <QtCore/QFileInfo>
 
 BehaviorTreeInclude::BehaviorTreeInclude( Include* i )
   : BehaviorTreeSceneItem()
@@ -50,10 +51,12 @@ void BehaviorTreeInclude::setupLabel()
 
   m_Graphics->setPos( 0, 0 );
 
+  QFileInfo fi( m_Include->m_Name );
+
   QFont font;
   font.setStyleHint( QFont::Helvetica, QFont::PreferAntialias );
   font.setPixelSize(64);
-  m_Label = new QGraphicsTextItem( m_Include->m_Name, this );
+  m_Label = new QGraphicsTextItem( fi.fileName(), this );
   m_Label->setFont( font );
   QPointF p;
   QRectF r( m_Label->boundingRect() );

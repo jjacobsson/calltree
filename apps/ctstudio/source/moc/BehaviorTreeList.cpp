@@ -9,13 +9,17 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#include <QtGui/QtGui>
-
 #include "BehaviorTreeList.h"
+#include "../BehaviorTreeListItem.h"
 #include "../standard_resources.h"
 #include "../x-node.h"
 
+
 #include <btree/btree_func.h>
+
+#include <QtCore/QMimeData>
+#include <QtGui/QDrag>
+#include <QtGui/QPixmap>
 
 BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   QListWidget( parent )
@@ -26,7 +30,6 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   setSpacing( 2 );
   setAcceptDrops( false );
   setDropIndicatorShown( false );
-
   setupStandardNodes();
 }
 
@@ -66,42 +69,46 @@ void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
         set = true;
       }
       break;
+    case E_ST_TREE:
+      if( ns[i].m_Symbol.m_Tree->m_Declared )
+      {
+        node_data.m_Type = E_XNDT_NODE;
+        node_data.m_NodeGrist = E_GRIST_TREE;
+        node_data.m_FuncId = ns[i].m_Symbol.m_Tree->m_Id.m_Hash;
+        name = ns[i].m_Symbol.m_Tree->m_Id.m_Text;
+        set = true;
+      }
+      break;
+    case E_ST_UNKOWN:
+    case E_MAX_SYMBOL_TYPES:
+      break;
     }
     if( !set )
       continue;
 
-    QListWidgetItem *nodeItem = new QListWidgetItem( this );
-    QPixmap pixmap(32,32);
-
-    pixmap = QPixmap(g_NodeSVGResourcePaths[node_data.m_NodeGrist]).scaled(
-      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-    );
-
-    nodeItem->setIcon( QIcon(pixmap) );
-    nodeItem->setData( Qt::UserRole + 0, pixmap );
-    nodeItem->setData( Qt::UserRole + 1,
+    QListWidgetItem *nodeItem = new BehaviorTreeListItem( node_data.m_NodeGrist );
+    nodeItem->setIcon( QIcon(g_NodeIcons[node_data.m_NodeGrist]) );
+    nodeItem->setData( Qt::UserRole + 0,
       QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
 
     nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
         | Qt::ItemIsDragEnabled );
     nodeItem->setText( name );
+    addItem( nodeItem );
   }
+
+  sortItems();
 }
 
 void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )
 {
   QListWidgetItem *item = currentItem();
 
-
-  QPixmap pixmap = qVariantValue<QPixmap> ( item->data( Qt::UserRole + 0 ) );
   QMimeData *mimeData = new QMimeData;
-  mimeData->setData( "ctstudio/x-node", item->data( Qt::UserRole + 1 ).toByteArray() );
+  mimeData->setData( "ctstudio/x-node", item->data( Qt::UserRole + 0 ).toByteArray() );
 
   QDrag *drag = new QDrag( this );
   drag->setMimeData( mimeData );
-  drag->setHotSpot( QPoint( pixmap.width(), pixmap.height() ) );
-  //drag->setPixmap( pixmap );
-
   drag->exec( Qt::CopyAction );
 }
 
@@ -110,47 +117,38 @@ void BehaviorTreeList::setupStandardNodes()
   XNodeData node_data;
 
   {
-    QListWidgetItem *nodeItem = new QListWidgetItem( this );
-    QPixmap pixmap(32,32);
-    pixmap = QPixmap( ":/nodes/tree.svg" ).scaled(
-      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-    );
-    nodeItem->setIcon( QIcon(pixmap) );
-    nodeItem->setData( Qt::UserRole + 0, pixmap );
+    QListWidgetItem *nodeItem = new BehaviorTreeListItem( 0 );
 
+    nodeItem->setIcon( QIcon(":/icons/tree.png") );
     node_data.m_Type      = E_XNDT_TREE;
     node_data.m_NodeGrist = E_GRIST_UNKOWN;
     node_data.m_FuncId    = 0;
 
-    nodeItem->setData( Qt::UserRole + 1,
+    nodeItem->setData( Qt::UserRole + 0,
       QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
 
     nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
         | Qt::ItemIsDragEnabled );
     nodeItem->setText( tr("Tree") );
+    addItem( nodeItem );
   }
 
-  for( int i = 1; i < E_GRIST_DECORATOR; ++i )
+  for( int i = 1; i < E_GRIST_TREE; ++i )
   {
-    QListWidgetItem *nodeItem = new QListWidgetItem( this );
-    QPixmap pixmap(32,32);
+    QListWidgetItem *nodeItem = new BehaviorTreeListItem( i );
 
-    pixmap = QPixmap(g_NodeSVGResourcePaths[i]).scaled(
-      32, 32, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-    );
-
-    nodeItem->setIcon( QIcon(pixmap) );
-    nodeItem->setData( Qt::UserRole + 0, pixmap );
+    nodeItem->setIcon( QIcon(g_NodeIcons[i]) );
 
     node_data.m_Type        = E_XNDT_NODE;
     node_data.m_NodeGrist   = i;
     node_data.m_FuncId      = 0;
 
-    nodeItem->setData( Qt::UserRole + 1,
+    nodeItem->setData( Qt::UserRole + 0,
       QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
 
     nodeItem->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable
         | Qt::ItemIsDragEnabled );
     nodeItem->setText( g_NodeNames[i] );
+    addItem( nodeItem );
   }
 }

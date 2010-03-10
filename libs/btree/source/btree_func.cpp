@@ -35,6 +35,7 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "bool" ),
   hashlittle( "float" ),
   hashlittle( "string" ),
+  hashlittle( "hash" ),
   hashlittle( "include" ),
   hashlittle( "true" ),
   hashlittle( "false" )
@@ -143,7 +144,7 @@ bool safe_to_convert( const Parameter& v, int to_type )
   {
   case E_VART_INTEGER:
     if( to_type == E_VART_INTEGER || to_type == E_VART_FLOAT || to_type
-        == E_VART_BOOL )
+        == E_VART_BOOL || to_type == E_VART_HASH )
       return true;
     break;
   case E_VART_FLOAT:
@@ -152,12 +153,16 @@ bool safe_to_convert( const Parameter& v, int to_type )
       return true;
     break;
   case E_VART_STRING:
-    if( to_type == E_VART_STRING )
+    if( to_type == E_VART_STRING || to_type == E_VART_HASH )
       return true;
     break;
   case E_VART_BOOL:
     if( to_type == E_VART_FLOAT || to_type == E_VART_INTEGER || to_type
         == E_VART_BOOL )
+      return true;
+    break;
+  case E_VART_HASH:
+    if( to_type == E_VART_HASH || to_type == E_VART_INTEGER )
       return true;
     break;
   case E_VART_UNDEFINED:
@@ -180,6 +185,9 @@ int as_integer( const Parameter& v )
     break;
   case E_VART_BOOL:
     r = v.m_Data.m_Bool ? 1 : 0;
+    break;
+  case E_VART_HASH:
+    r = (int)v.m_Data.m_Hash;
     break;
   case E_VART_UNDEFINED:
   case E_VART_STRING:
@@ -206,6 +214,7 @@ float as_float( const Parameter& v )
     break;
   case E_VART_UNDEFINED:
   case E_VART_STRING:
+  case E_VART_HASH:
   case E_MAX_VARIABLE_TYPE:
     r = 0.0f;
     break;
@@ -236,8 +245,33 @@ bool as_bool( const Parameter& v )
     break;
   case E_VART_UNDEFINED:
   case E_VART_STRING:
+  case E_VART_HASH:
   case E_MAX_VARIABLE_TYPE:
     r = false;
+    break;
+  }
+  return r;
+}
+
+hash_t as_hash( const Parameter& v )
+{
+  hash_t r = 0;
+  switch( v.m_Type )
+  {
+  case E_VART_INTEGER:
+    r = (hash_t)v.m_Data.m_Integer;
+    break;
+  case E_VART_FLOAT:
+  case E_VART_BOOL:
+    break;
+  case E_VART_STRING:
+    r = hashlittle( v.m_Data.m_String.m_Parsed );
+    break;
+  case E_VART_HASH:
+    r = v.m_Data.m_Hash;
+    break;
+  case E_VART_UNDEFINED:
+  case E_MAX_VARIABLE_TYPE:
     break;
   }
   return r;
@@ -285,6 +319,9 @@ const char* list_as_string( BehaviorTreeContext tree, Parameter* v )
       break;
     case E_VART_BOOL:
       n = sprintf( tmp, "%s", as_bool( *v ) ? "true" : "false" );
+      break;
+    case E_VART_HASH:
+      n = sprintf( tmp, "0x%08x", as_hash( *v ) );
       break;
     case E_VART_UNDEFINED:
     case E_MAX_VARIABLE_TYPE:
@@ -429,6 +466,7 @@ Node* get_first_child( Node* n )
     break;
   case E_GRIST_UNKOWN:
   case E_GRIST_ACTION:
+  case E_GRIST_TREE:
   case E_GRIST_FAIL:
   case E_GRIST_SUCCEED:
   case E_GRIST_WORK:
@@ -478,6 +516,7 @@ void set_first_child( Node* n, Node* c )
     n->m_Grist.m_Decorator.m_Child = c;
     break;
   case E_GRIST_UNKOWN:
+  case E_GRIST_TREE:
   case E_GRIST_SUCCEED:
   case E_GRIST_FAIL:
   case E_GRIST_WORK:
@@ -567,6 +606,7 @@ bool accepts_more_children( Node* n )
     return n->m_Grist.m_Decorator.m_Child == 0x0;
     break;
   case E_GRIST_ACTION:
+  case E_GRIST_TREE:
     return false;
     break;
   case E_GRIST_UNKOWN:
@@ -598,12 +638,65 @@ Parameter* get_parameters( Node* n )
   case E_GRIST_ACTION:
     r = n->m_Grist.m_Action.m_Parameters;
     break;
+  case E_GRIST_TREE:
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:
     break;
   }
   return r;
 }
+
+BehaviorTree* find_parent_tree( const NodeParent& p )
+{
+  switch( p.m_Type )
+  {
+  case E_NP_TREE:
+    return p.m_Tree;
+    break;
+  case E_NP_NODE:
+    return find_parent_tree( p.m_Node->m_Pare );
+    break;
+  case E_NP_UNKOWN:
+  case E_MAX_NODE_PARENT_TYPES:
+    break;
+  }
+  return 0x0;
+}
+
+bool contains_reference_to_tree( Node* n, BehaviorTree* tree )
+{
+  if( !n )
+    return false;
+
+  Node* it;
+
+  if( n->m_Grist.m_Type == E_GRIST_TREE )
+  {
+    if( n->m_Grist.m_Tree.m_Tree == tree )
+      return true;
+
+    if( !n->m_Grist.m_Tree.m_Tree )
+      return false;
+
+    it = n->m_Grist.m_Tree.m_Tree->m_Root;
+    while( it )
+    {
+      if( contains_reference_to_tree( it, tree ) )
+        return true;
+      it = it->m_Next;
+    }
+  }
+
+  it = get_first_child( n );
+  while( it )
+  {
+    if( contains_reference_to_tree( it, tree ) )
+      return true;
+    it = it->m_Next;
+  }
+  return false;
+}
+
 
 /*
  * Node Grist functions

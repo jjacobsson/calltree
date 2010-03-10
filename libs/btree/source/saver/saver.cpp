@@ -154,7 +154,7 @@ void save_trees( SaverContext sc )
   }
 }
 
-void SaveVariableDeclaration( SaverContext sc, Parameter* v )
+void save_parameter_declaration( SaverContext sc, Parameter* v )
 {
   switch( v->m_Type )
   {
@@ -170,6 +170,10 @@ void SaveVariableDeclaration( SaverContext sc, Parameter* v )
     append( &sc->m_Buffer, "string " );
     append( &sc->m_Buffer, v->m_Id.m_Text );
     break;
+  case E_VART_HASH:
+    append( &sc->m_Buffer, "hash " );
+    append( &sc->m_Buffer, v->m_Id.m_Text );
+    break;
   case E_VART_BOOL:
     append( &sc->m_Buffer, "bool " );
     append( &sc->m_Buffer, v->m_Id.m_Text );
@@ -180,7 +184,7 @@ void SaveVariableDeclaration( SaverContext sc, Parameter* v )
   }
 }
 
-void SaveVariableAssignment( SaverContext sc, Parameter* v )
+void save_variable_assignment( SaverContext sc, Parameter* v )
 {
   char tmp[128];
   switch( v->m_Type )
@@ -203,6 +207,11 @@ void SaveVariableAssignment( SaverContext sc, Parameter* v )
     append( &sc->m_Buffer, as_string( *v )->m_Raw );
     append( &sc->m_Buffer, '\"' );
     break;
+  case E_VART_HASH:
+    append( &sc->m_Buffer, v->m_Id.m_Text );
+    append( &sc->m_Buffer, ' ' );
+    sprintf( tmp, "0x%08x", as_hash( *v ) );
+    append( &sc->m_Buffer, tmp );
   case E_VART_BOOL:
     append( &sc->m_Buffer, v->m_Id.m_Text );
     append( &sc->m_Buffer, ' ' );
@@ -221,9 +230,9 @@ void save_parameter_list( SaverContext sc, Parameter* v )
   {
     append( &sc->m_Buffer, '(' );
     if( v->m_ValueSet )
-      SaveVariableAssignment( sc, v );
+      save_variable_assignment( sc, v );
     else
-      SaveVariableDeclaration( sc, v );
+      save_parameter_declaration( sc, v );
     append( &sc->m_Buffer, ')' );
     v = v->m_Next;
     if( v )
@@ -325,6 +334,13 @@ void save_action( SaverContext sc, Node* n, int depth )
   append( &sc->m_Buffer, ")\n" );
 }
 
+void save_tree( SaverContext sc, Node* n, int depth )
+{
+  append( &sc->m_Buffer, "(tree '" );
+  append( &sc->m_Buffer, n->m_Grist.m_Tree.m_Tree->m_Id.m_Text );
+  append( &sc->m_Buffer, ")\n" );
+}
+
 void save_node( SaverContext sc, Node* n, int depth )
 {
   append_depth( sc, depth );
@@ -357,6 +373,9 @@ void save_node( SaverContext sc, Node* n, int depth )
     break;
   case E_GRIST_ACTION:
     save_action( sc, n, depth );
+    break;
+  case E_GRIST_TREE:
+    save_tree( sc, n, depth );
     break;
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:

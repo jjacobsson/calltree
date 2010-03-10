@@ -30,9 +30,6 @@ bool declare_action( SParserContext* ctx, const Identifier& id, Parameter* vars,
 bool declare_decorator( SParserContext* ctx, const Identifier& id, Parameter* vars, Parameter* args );
 Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child );
 Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id );
-BehaviorTree* look_up_bt( BehaviorTreeContext ctx, const Identifier& id );
-Decorator* look_up_decorator( BehaviorTreeContext ctx, const Identifier& id );
-Action* look_up_action( BehaviorTreeContext ctx, const Identifier& id );
 
 %}
 
@@ -57,7 +54,7 @@ Action* look_up_action( BehaviorTreeContext ctx, const Identifier& id );
 %token            T_BOOL         /* literal string "bool" */
 %token            T_FLOAT        /* literal string "float" */
 %token            T_STRING       /* literal string "string" */
-
+%token            T_HASH         /* literal string "hash" */
 
 %token<m_Integer> T_INT32_VALUE  /* a integer value */
 %token<m_Bool>    T_BOOL_VALUE   /* a boolean value (i.e. "true" or "false) */
@@ -65,7 +62,7 @@ Action* look_up_action( BehaviorTreeContext ctx, const Identifier& id );
 %token<m_String>  T_STRING_VALUE /* a string value */
 %token<m_Id>      T_ID           /* a legal identifier string */
 
-%type<m_Node> node nmembers sequence selector parallel dselector succeed fail work decorator action nlist
+%type<m_Node> node nmembers sequence selector parallel dselector succeed fail work decorator action tree nlist
 %type<m_Parameter> vlist vmember Parameter vtypes vdlist vdmember vardec vdtypes
 
 %union {
@@ -99,7 +96,7 @@ atom: deftree
 
 deftree: T_DEFTREE T_ID nlist
        {
-		BehaviorTree* t = look_up_bt( ctx->m_Tree, $2 );
+		BehaviorTree* t = look_up_behavior_tree( ctx->m_Tree, &$2 );
 		t->m_Root = $3;
 		t->m_Declared = true;
 		set_parent_on_children( t );
@@ -118,7 +115,7 @@ include: T_INCLUDE T_STRING_VALUE
 
 defact: T_DEFACT T_ID vlist vdlist
 	  {
-		Action* a = look_up_action( ctx->m_Tree, $2 );
+		Action* a = look_up_action( ctx->m_Tree, &$2 );
 		a->m_Options = $3;
 		a->m_Declarations = $4;
 		a->m_Declared = true;
@@ -127,7 +124,7 @@ defact: T_DEFACT T_ID vlist vdlist
       
 defdec: T_DEFDEC T_ID vlist vdlist
       {
-      	Decorator* d = look_up_decorator( ctx->m_Tree, $2 );
+      	Decorator* d = look_up_decorator( ctx->m_Tree, &$2 );
       	d->m_Options = $3;
       	d->m_Declarations = $4;
       	d->m_Declared = true;
@@ -143,6 +140,7 @@ node: T_LPARE sequence T_RPARE  { $$ = $2; }
     | T_LPARE work T_RPARE      { $$ = $2; }
     | T_LPARE decorator T_RPARE { $$ = $2; }
     | T_LPARE action T_RPARE    { $$ = $2; }
+    | T_LPARE tree T_RPARE      { $$ = $2; }
     ;
     
 nlist: T_LPARE nmembers T_RPARE         { $$ = $2; }
@@ -208,14 +206,14 @@ decorator: T_DECORATOR T_QUOTE T_ID vlist node
         	Node* n = allocate_node( ctx->m_Tree, E_GRIST_DECORATOR, $5 );
         	$$ = n;
         	n->m_Grist.m_Decorator.m_Parameters = $4;
-        	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, $3 );
+        	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
          }
          | T_DECORATOR T_QUOTE T_ID vlist T_QUOTE T_LPARE T_RPARE
          {
         	Node* n = allocate_node( ctx->m_Tree, E_GRIST_DECORATOR, 0x0 );
         	$$ = n;
         	n->m_Grist.m_Decorator.m_Parameters = $4;
-        	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, $3 );
+        	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
          }
          ;
          
@@ -225,9 +223,16 @@ action: T_ACTION T_QUOTE T_ID vlist
         	Node* n = allocate_node( ctx->m_Tree, E_GRIST_ACTION, 0x0 );
         	$$ = n;
         	n->m_Grist.m_Action.m_Parameters = $4;
-        	n->m_Grist.m_Action.m_Action = look_up_action( ctx->m_Tree, $3 );
+        	n->m_Grist.m_Action.m_Action = look_up_action( ctx->m_Tree, &$3 );
       }
       ;
+
+tree: T_TREE T_QUOTE T_ID 
+    {
+    	Node* n = allocate_node( ctx->m_Tree, E_GRIST_TREE, 0x0 );
+    	$$ = n;
+    	n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( ctx->m_Tree, &$3 );
+    }
 
 vlist: T_QUOTE T_LPARE vmember T_RPARE { $$ = $3; }
      | T_QUOTE T_LPARE T_RPARE         { $$ = 0x0; }
@@ -260,81 +265,10 @@ vdtypes: T_INT32 T_ID  { $$ = allocate_parameter( ctx->m_Tree, E_VART_INTEGER, $
        | T_STRING T_ID { $$ = allocate_parameter( ctx->m_Tree, E_VART_STRING, $2 ); }
        | T_BOOL T_ID   { $$ = allocate_parameter( ctx->m_Tree, E_VART_BOOL, $2 ); }
        | T_FLOAT T_ID  { $$ = allocate_parameter( ctx->m_Tree, E_VART_FLOAT, $2 ); }
+       | T_HASH T_ID   { $$ = allocate_parameter( ctx->m_Tree, E_VART_HASH, $2 ); }
        ;
 
 %%
-
-BehaviorTree* look_up_bt( BehaviorTreeContext ctx, const Identifier& id )
-{
-	{
-		NamedSymbol* s = find_symbol( ctx, id.m_Hash );
-		if( s )
-		{
-			if( s->m_Type != E_ST_TREE )
-				return 0x0;
-			return s->m_Symbol.m_Tree;
-		}
-	}
-	BehaviorTree* t = (BehaviorTree*)allocate_object( ctx );
-	init( t );
-	t->m_Id = id;
-
-	NamedSymbol s;
-	s.m_Type = E_ST_TREE;
-	s.m_Symbol.m_Tree = t;
-	
-	register_symbol( ctx, s );
-	
-	return t;
-}
-
-Decorator* look_up_decorator( BehaviorTreeContext ctx, const Identifier& id )
-{
-	{
-		NamedSymbol* s = find_symbol( ctx, id.m_Hash );
-		if( s )
-		{
-			if( s->m_Type != E_ST_DECORATOR )
-				return 0x0;
-			return s->m_Symbol.m_Decorator;
-		}
-	}
-	Decorator* d = (Decorator*)allocate_object( ctx );
-	init( d );
-	d->m_Id = id;
-
-	NamedSymbol s;
-	s.m_Type = E_ST_DECORATOR;
-	s.m_Symbol.m_Decorator = d;
-	
-	register_symbol( ctx, s );
-	
-	return d;
-}
-
-Action* look_up_action( BehaviorTreeContext ctx, const Identifier& id )
-{
-	{
-		NamedSymbol* s = find_symbol( ctx, id.m_Hash );
-		if( s )
-		{
-			if( s->m_Type != E_ST_ACTION )
-				return 0x0;
-			return s->m_Symbol.m_Action;
-		}
-	}
-	Action* a = (Action*)allocate_object( ctx );
-	init( a );
-	a->m_Id = id;
-
-	NamedSymbol s;
-	s.m_Type = E_ST_ACTION;
-	s.m_Symbol.m_Action = a;
-	
-	register_symbol( ctx, s );
-	
-	return a;
-}
 
 Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child )
 {

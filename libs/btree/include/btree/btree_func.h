@@ -57,6 +57,8 @@ float as_float( const Parameter& );
 
 const StringData* as_string( const Parameter& );
 
+hash_t as_hash( const Parameter& );
+
 bool as_bool( const Parameter& );
 
 const char* list_as_string( BehaviorTreeContext tree, Parameter* start );
@@ -109,6 +111,12 @@ bool accepts_more_children( Node* n );
 
 Parameter* get_parameters( Node* n );
 
+// Searches up from parent p to find the first BehaviorTree
+BehaviorTree* find_parent_tree( const NodeParent& p );
+
+// Searches down from n to see if a reference to tree can be found.
+bool contains_reference_to_tree( Node* n, BehaviorTree* tree );
+
 /*
  * Node Grist Functions
  */
@@ -148,6 +156,13 @@ Include* create_include( BehaviorTreeContext, const char* );
 Include* get_first_include( BehaviorTreeContext );
 
 void release_include( BehaviorTreeContext, Include* );
+
+BehaviorTree* look_up_behavior_tree( BehaviorTreeContext, Identifier* );
+
+Decorator* look_up_decorator( BehaviorTreeContext, Identifier* );
+
+Action* look_up_action( BehaviorTreeContext, Identifier* );
+
 
 /*
  * String Buffer Functions

@@ -52,6 +52,7 @@ public:
 
   void destroyResources( BehaviorTreeContext ctx );
 
+  BehaviorTreeSceneItem* getParent();
   BehaviorTreeSceneItem* firstChild();
   BehaviorTreeSceneItem* nextSibling();
 
@@ -60,6 +61,7 @@ public:
   void dragMove();
   void dragBegin();
   void dragEnd();
+  void dragFail();
 
 signals:
 

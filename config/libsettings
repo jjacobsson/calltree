@@ -26,16 +26,16 @@ if $(QT_PATH)
 	{
 		if $(CONFIGURATION) = debug
 		{
-			qt_ext_library_files = QtMaind QtGuid4 QtCored4 QtSvgd4 QtOpenGLd4 ;
+			qt_ext_library_files = QtMaind QtGuid4 QtCored4 QtSvgd4 ;
 		}
 		else
 		{
-			qt_ext_library_files = QtMain QtGui4 QtCore4 QtSvg4 QtOpenGL4 ;
+			qt_ext_library_files = QtMain QtGui4 QtCore4 QtSvg4 ;
 		}
 	}
 	else
 	{
-		qt_ext_library_files = QtGui QtCore QtSvg QtOpenGL ;
+		qt_ext_library_files = QtGui QtCore QtSvg ;
 	}
 
 	TOOL_QT_MOC = $(QT_PATH)$(SLASH)bin$(SLASH)moc$(SUFEXE) ;

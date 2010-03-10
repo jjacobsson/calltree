@@ -1,0 +1,9 @@
+if $(QT_PATH)
+{
+	SetDependantOf $(_appname) : other ;
+	SetExtDependantOf $(_appname) : qt ;
+
+	local _source_files  = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	
+	SetSourceFiles $(_appname) : $(_source_files) ;
+}

@@ -7,9 +7,19 @@ if $(QT_PATH)
 	local _moc_headers   = [ RecursiveDirList $(_apppath) source moc : *.h ] ;
 	local _ui_headers    = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
 	local _moc_sources   = [ mocHeaders $(_moc_headers) ] ;
-	local _qrc_resources = [ RecursiveDirList $(_apppath) resources : *.svg ] ;
+	local _qrc_svgs      = [ RecursiveDirList $(_apppath) resources : *.svg ] ;
 	local _qrc_file		 = [ FDirName $(_apppath) resources cts_resources.qrc ] ;
-	local _qrc_sources   = [ qrcFile $(_qrc_file) : $(_qrc_resources) ] ;
+
+	local _qrc_pngs = ;
+	for _i in $(_qrc_svgs)
+	{
+		local _png_file = $(_i:B) ;
+		_png_file = [ FDirName $(_apppath) resources icons $(_png_file).png ] ;
+		_qrc_pngs += $(_png_file) ;
+		ConvertSvgToPNG $(_png_file) : $(_i) ;
+	}
+
+	local _qrc_sources   = [ qrcFile $(_qrc_file) : $(_qrc_svgs) $(_qrc_pngs) ] ;
 
 	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
 	_source_files += $(_moc_sources) ;

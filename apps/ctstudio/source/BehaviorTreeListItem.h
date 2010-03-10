@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-04-24 Joacim Jacobsson.
+ * Copyright (c) 2010-03-09 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,25 +9,25 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
+#ifndef BEHAVIORTREELISTITEM_H_INCLUDE
+#define BEHAVIORTREELISTITEM_H_INCLUDE
 
-#include "moc/MainWindow.h"
+#include <QtGui/QListWidgetItem>
 
-#ifdef LINK_QT_STATIC
-
-#include <QtCore/QtPlugin>
-Q_IMPORT_PLUGIN( qsvg )
-Q_IMPORT_PLUGIN( qico )
-
-#endif
-
-int main(int argc, char *argv[])
+class BehaviorTreeListItem: public QListWidgetItem
 {
-    QApplication app(argc, argv);
+public:
 
-	MainWindow main_window;
-	main_window.show();
+  BehaviorTreeListItem( int sort_key );
+  BehaviorTreeListItem( const BehaviorTreeListItem& o );
 
-    return app.exec();
-}
+  QListWidgetItem* clone() const;
+
+  bool operator < ( const QListWidgetItem& o ) const;
+
+private:
+
+  const int m_SortKey;
+
+};
+#endif /* BEHAVIORTREELISTITEM_H_INCLUDE */

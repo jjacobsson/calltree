@@ -173,6 +173,7 @@ void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
 {
   if( m_DragItem )
   {
+    m_DragItem->dragFail();
     m_DragItem->destroyResources( m_TreeContext );
     delete m_DragItem;
     m_DragItem = 0x0;
@@ -209,6 +210,7 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     }
     else
     {
+      m_DragItem->dragFail();
       m_DragItem->destroyResources( m_TreeContext );
       delete m_DragItem;
     }
@@ -298,6 +300,46 @@ void BehaviorTreeScene::nodeSelected( QWidget* property_widget )
   emit itemSelected( property_widget );
 }
 
+void BehaviorTreeScene::updateClone()
+{
+  destroy( m_FullContext );
+  m_FullContext = clone_bt_context( m_TreeContext );
+
+  ParsingInfo pi;
+
+  ParserContextFunctions pcf;
+  pcf.m_Read = &read_file;
+  pcf.m_Error = &parser_error;
+  pcf.m_Warning = &parser_warning;
+  pcf.m_Translate = &parser_translate_include;
+
+  Include* include = get_first_include( m_FullContext );
+  while( include )
+  {
+    QFileInfo fi( include->m_Name );
+    QFile f( include->m_Name );
+
+    pi.m_File = &f;
+    pi.m_FileName = &fi;
+
+    if( !pi.m_File->open( QFile::ReadOnly ) )
+      break;
+
+    ParserContext pc = create_parser_context( m_FullContext );
+    set_extra( pc, &pi );
+    set_current( pc, include->m_Name );
+    int returnCode = parse( pc, &pcf );
+    destroy( pc );
+
+    if( returnCode != 0 )
+      break;
+
+    include = include->m_Next;
+  }
+
+  emit updatedSymbols( m_FullContext );
+}
+
 void BehaviorTreeScene::createGraphics()
 {
   int i, c;
@@ -311,6 +353,7 @@ void BehaviorTreeScene::createGraphics()
     addItem( tree );
     connect( tree, SIGNAL(modified(bool)), this, SLOT(itemModified(bool)) );
     connect( tree, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
+    connect( tree, SIGNAL(symbolsChanged()), this, SLOT(updateClone()));
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
 
@@ -538,7 +581,6 @@ void BehaviorTreeScene::setupDrag( const XNodeData& data )
     connect( m_DragItem, SIGNAL( modified(bool) ), this, SLOT( itemModified(bool) ) );
     connect( m_DragItem, SIGNAL( itemSelected( QWidget* ) ), this, SLOT( nodeSelected( QWidget* ) ) );
   }
-
 }
 
 void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
@@ -568,6 +610,8 @@ void BehaviorTreeScene::setupTreeDrag( const XNodeData& data )
   m_DragItem = new BehaviorTreeTree( m_TreeContext, tree );
   addItem( m_DragItem );
 
+  connect( m_DragItem, SIGNAL(symbolsChanged()), this, SLOT(updateClone()));
+
   tree->m_UserData = m_DragItem;
   tree->m_Declared = true;
 
@@ -593,6 +637,9 @@ void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
     break;
   case E_GRIST_ACTION:
     setupActionNode( node, data );
+    break;
+  case E_GRIST_TREE:
+    setupTreeNode( node, data );
     break;
   case E_GRIST_UNKOWN:
   case E_GRIST_SEQUENCE:
@@ -638,25 +685,7 @@ void BehaviorTreeScene::setupDecoratorNode( Node* n, const XNodeData& xnd )
     v->m_ValueSet = true;
     v = v->m_Next;
   }
-  ns = find_symbol( m_TreeContext, xnd.m_FuncId );
-  Decorator* partial = 0x0;
-  if( !ns )
-  {
-    NamedSymbol new_sym;
-    new_sym.m_Type = E_ST_DECORATOR;
-    new_sym.m_Symbol.m_Decorator = (Decorator*)allocate_object( m_TreeContext );
-    partial = new_sym.m_Symbol.m_Decorator;
-    init( partial );
-    clone( m_TreeContext, &partial->m_Id, &declared->m_Id );
-    register_symbol( m_TreeContext, new_sym );
-  }
-  else
-  {
-    partial = ns->m_Symbol.m_Decorator;
-  }
-
-  n->m_Grist.m_Decorator.m_Decorator = partial;
-
+  n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( m_TreeContext, &declared->m_Id );
 }
 
 void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
@@ -673,63 +702,15 @@ void BehaviorTreeScene::setupActionNode( Node* n, const XNodeData& xnd )
     v->m_ValueSet = true;
     v = v->m_Next;
   }
-  ns = find_symbol( m_TreeContext, xnd.m_FuncId );
-  Action* partial = 0x0;
-  if( !ns )
-  {
-    NamedSymbol new_sym;
-    new_sym.m_Type = E_ST_ACTION;
-    new_sym.m_Symbol.m_Action = (Action*)allocate_object( m_TreeContext );
-    partial = new_sym.m_Symbol.m_Action;
-    init( partial );
-    clone( m_TreeContext, &partial->m_Id, &declared->m_Id );
-    register_symbol( m_TreeContext, new_sym );
-  }
-  else
-  {
-    partial = ns->m_Symbol.m_Action;
-  }
-  n->m_Grist.m_Action.m_Action = partial;
+  n->m_Grist.m_Action.m_Action = look_up_action( m_TreeContext, &declared->m_Id );
 }
 
-void BehaviorTreeScene::updateClone()
+void BehaviorTreeScene::setupTreeNode( Node* n, const XNodeData& xnd )
 {
-  destroy( m_FullContext );
-  m_FullContext = clone_bt_context( m_TreeContext );
-
-  ParsingInfo pi;
-
-  ParserContextFunctions pcf;
-  pcf.m_Read = &read_file;
-  pcf.m_Error = &parser_error;
-  pcf.m_Warning = &parser_warning;
-  pcf.m_Translate = &parser_translate_include;
-
-  Include* include = get_first_include( m_FullContext );
-  while( include )
-  {
-    QFileInfo fi( include->m_Name );
-    QFile f( include->m_Name );
-
-    pi.m_File = &f;
-    pi.m_FileName = &fi;
-
-    if( !pi.m_File->open( QFile::ReadOnly ) )
-      break;
-
-    ParserContext pc = create_parser_context( m_FullContext );
-    set_extra( pc, &pi );
-    set_current( pc, include->m_Name );
-    int returnCode = parse( pc, &pcf );
-    destroy( pc );
-
-    if( returnCode != 0 )
-      break;
-
-    include = include->m_Next;
-  }
-
-  emit updatedSymbols( m_FullContext );
+  NamedSymbol* ns;
+  ns = find_symbol( m_FullContext, xnd.m_FuncId );
+  BehaviorTree* declared = ns->m_Symbol.m_Tree;
+  n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( m_TreeContext, &declared->m_Id );;
 }
 
 void BehaviorTreeScene::destroySubTree( BehaviorTreeSceneItem* item )

@@ -55,25 +55,25 @@ void BehaviorTreeNode::setupPropertyEditor()
       "I have no idea what kind of node you have selected mate..." ) );
     break;
   case E_GRIST_SEQUENCE:
-    label = new QLabel( tr( "Sequence" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_SELECTOR:
-    label = new QLabel( tr( "Selector" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_PARALLEL:
-    label = new QLabel( tr( "Parallel" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_DYN_SELECTOR:
-    label = new QLabel( tr( "Dynamic Selector" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_SUCCEED:
-    label = new QLabel( tr( "Success node" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_FAIL:
-    label = new QLabel( tr( "Fail node" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_WORK:
-    label = new QLabel( tr( "Working node" ) );
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_DECORATOR:
     {
@@ -98,6 +98,9 @@ void BehaviorTreeNode::setupPropertyEditor()
           ns->m_Symbol.m_Action->m_Declarations );
       }
     }
+    break;
+  case E_GRIST_TREE:
+    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_MAX_GRIST_TYPES:
     /* Warning killer */
@@ -151,6 +154,7 @@ void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
   case E_GRIST_SUCCEED:
   case E_GRIST_FAIL:
   case E_GRIST_WORK:
+  case E_GRIST_TREE:
   case E_MAX_GRIST_TYPES:
     /* Warning killers */
     v = 0x0;
@@ -164,6 +168,24 @@ void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
   }
   free_object( ctx, m_Node );
   m_Node = 0x0;
+}
+
+BehaviorTreeSceneItem* BehaviorTreeNode::getParent()
+{
+  BehaviorTreeSceneItem* r = 0x0;
+  switch( m_Node->m_Pare.m_Type )
+  {
+  case E_NP_TREE:
+    r = (BehaviorTreeSceneItem*)m_Node->m_Pare.m_Tree->m_UserData;
+    break;
+  case E_NP_NODE:
+    r = (BehaviorTreeSceneItem*)m_Node->m_Pare.m_Node->m_UserData;
+    break;
+  case E_NP_UNKOWN:
+  case E_MAX_NODE_PARENT_TYPES:
+    break;
+  }
+  return r;
 }
 
 BehaviorTreeSceneItem* BehaviorTreeNode::firstChild()
@@ -183,7 +205,9 @@ BehaviorTreeSceneItem* BehaviorTreeNode::nextSibling()
 
 bool BehaviorTreeNode::validForDrop() const
 {
-  return m_Relinkage.m_Parent.m_Type != E_NP_UNKOWN;
+  if( m_Relinkage.m_Parent.m_Type == E_NP_UNKOWN )
+    return false;
+  return true;
 }
 
 void BehaviorTreeNode::dragMove()
@@ -238,6 +262,14 @@ void BehaviorTreeNode::dragEnd()
   BehaviorTreeSceneItem::dragEnd();
 }
 
+void BehaviorTreeNode::dragFail()
+{
+  removeArrow( m_DraggingArrow );
+  delete m_DraggingArrow;
+  m_DraggingArrow = 0x0;
+  BehaviorTreeSceneItem::dragFail();
+}
+
 void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
 {
   Parameter* p = find_by_hash( get_parameters( m_Node ), hash );
@@ -286,8 +318,18 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
     {
       QLineEdit* e = qobject_cast<QLineEdit*> ( editor );
       QByteArray ba( e->text().toAscii() );
-      hash_t hash_old = hashlittle( p->m_Data.m_String.m_Raw );
-      hash_t hash_new = hashlittle( ba.constData() );
+      hash_t hash_new, hash_old;
+
+      if( e->text().isEmpty() )
+        hash_new = hashlittle( "" );
+      else
+        hash_new = hashlittle( ba.constData() );
+
+      if( p->m_Data.m_String.m_Raw )
+        hash_old = hashlittle( p->m_Data.m_String.m_Raw );
+      else
+        hash_old = hashlittle( "" );
+
       if( hash_old != hash_new )
       {
         p->m_Data.m_String.m_Raw = register_string( s->getTreeContext(),
@@ -296,6 +338,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       }
     }
     break;
+  case E_VART_HASH:
   case E_VART_UNDEFINED:
   case E_MAX_VARIABLE_TYPE:
     // Warning Killers
@@ -313,6 +356,9 @@ void BehaviorTreeNode::setupLabel()
     break;
   case E_GRIST_ACTION:
     str = m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
+    break;
+  case E_GRIST_TREE:
+    str = m_Node->m_Grist.m_Tree.m_Tree->m_Id.m_Text;
     break;
   case E_GRIST_UNKOWN:
   case E_GRIST_SEQUENCE:
@@ -386,6 +432,10 @@ void BehaviorTreeNode::setupTooltip()
     str += tr( "Action, " );
     str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
     break;
+  case E_GRIST_TREE:
+    str += tr( "Tree, " );
+    str += m_Node->m_Grist.m_Tree.m_Tree->m_Id.m_Text;
+    break;
   case E_MAX_GRIST_TYPES:
     /* Warning killer */
     break;
@@ -426,13 +476,13 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
         QLabel* l = new QLabel( it->m_Id.m_Text );
         QLineEdit* e = new QLineEdit;
         if( v )
-          e->setText( QString( "%1" ).arg( v->m_Data.m_Float ) );
+          e->setText( QString( "%1" ).arg( as_float( *v ) ) );
         e->setValidator( new QDoubleValidator( 0x0 ) );
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( textChanged( const QString& ) ), conn,
-          SLOT( lineEditChanged( const QString& ) ) );
+        connect( e, SIGNAL( editingFinished() ), conn,
+          SLOT( lineEditChanged() ) );
         form->addRow( l, e );
       }
       break;
@@ -441,27 +491,34 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
         QLabel* l = new QLabel( it->m_Id.m_Text );
         QLineEdit* e = new QLineEdit;
         if( v )
-          e->setText( QString( "%1" ).arg( v->m_Data.m_Integer ) );
+          e->setText( QString( "%1" ).arg( as_integer( *v ) ) );
         e->setValidator( new QIntValidator( 0x0 ) );
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( textChanged( const QString& ) ), conn,
-          SLOT( lineEditChanged( const QString& ) ) );
+        connect( e, SIGNAL( editingFinished() ), conn,
+          SLOT( lineEditChanged() ) );
         form->addRow( l, e );
       }
       break;
+    case E_VART_HASH:
+      if( v && v->m_Type != E_VART_STRING )
+      {
+        v->m_Type = E_VART_STRING;
+        v->m_Data.m_String.m_Parsed = 0x0;
+        v->m_Data.m_String.m_Raw = 0x0;
+      }
     case E_VART_STRING:
       {
         QLabel* l = new QLabel( it->m_Id.m_Text );
         QLineEdit* e = new QLineEdit;
         if( v )
-          e->setText( v->m_Data.m_String.m_Raw );
+          e->setText( as_string(*v)->m_Raw );
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( textChanged( const QString& ) ), conn,
-          SLOT( lineEditChanged( const QString& ) ) );
+        connect( e, SIGNAL( editingFinished() ), conn,
+          SLOT( lineEditChanged() ) );
         form->addRow( l, e );
       }
       break;
@@ -567,6 +624,11 @@ void BehaviorTreeNode::lookForRelinkTarget()
       if( p == m_Relinkage.m_Parent.m_Node )
         continue;
 
+
+      BehaviorTree* parent_tree = find_parent_tree( p->m_Pare );
+      if( contains_reference_to_tree( m_Node, parent_tree ) )
+        continue;
+
       Relinkage t;
 
       t.m_Parent.m_Type = E_NP_NODE;
@@ -586,6 +648,9 @@ void BehaviorTreeNode::lookForRelinkTarget()
       BehaviorTree* p = item->GetTree();
 
       if( p == m_Relinkage.m_Parent.m_Tree )
+        continue;
+
+      if( contains_reference_to_tree( m_Node, p ) )
         continue;
 
       Relinkage t;
@@ -638,12 +703,6 @@ void BehaviorTreeNode::lookForRelinkTarget()
     }
     n = n->m_Next;
   }
-
-  QString s =
-      QString( "Drag X: %1 Best X: %2 Before: %3" ).arg( x ).arg( best ).arg(
-        m_Relinkage.m_BeforeSibling );
-
-  emit relinkTargetMessage( s, 2000 );
 }
 
 void BehaviorTreeNode::dragEndNodeParent()

@@ -75,6 +75,7 @@ public slots:
   void itemModified( bool geometry_changed );
   void deleteSelected();
   void nodeSelected( QWidget* );
+  void updateClone();
 
 protected:
 
@@ -108,8 +109,9 @@ protected:
 
   void setupDecoratorNode( Node*, const XNodeData& );
   void setupActionNode( Node*, const XNodeData& );
+  void setupTreeNode( Node*, const XNodeData& );
 
-  void updateClone();
+
 
   void destroySubTree( BehaviorTreeSceneItem* );
 

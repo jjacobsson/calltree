@@ -171,6 +171,75 @@ void release_include( BehaviorTreeContext btc, Include* i )
   free_object( btc, i );
 }
 
+BehaviorTree* look_up_behavior_tree( BehaviorTreeContext btc, Identifier* id )
+{
+  {
+    NamedSymbol* s = find_symbol( btc, id->m_Hash );
+    if( s )
+    {
+      if( s->m_Type != E_ST_TREE )
+        return 0x0;
+      return s->m_Symbol.m_Tree;
+    }
+  }
+  BehaviorTree* t = (BehaviorTree*)allocate_object( btc );
+  init( t );
+  clone( btc, &t->m_Id, id );
+
+  NamedSymbol s;
+  s.m_Type = E_ST_TREE;
+  s.m_Symbol.m_Tree = t;
+  register_symbol( btc, s );
+
+  return t;
+}
+
+Decorator* look_up_decorator( BehaviorTreeContext btc, Identifier* id )
+{
+  {
+    NamedSymbol* s = find_symbol( btc, id->m_Hash );
+    if( s )
+    {
+      if( s->m_Type != E_ST_DECORATOR )
+        return 0x0;
+      return s->m_Symbol.m_Decorator;
+    }
+  }
+  Decorator* d = (Decorator*)allocate_object( btc );
+  init( d );
+  clone( btc, &d->m_Id, id );
+
+  NamedSymbol s;
+  s.m_Type = E_ST_DECORATOR;
+  s.m_Symbol.m_Decorator = d;
+  register_symbol( btc, s );
+
+  return d;
+}
+
+Action* look_up_action( BehaviorTreeContext btc, Identifier* id )
+{
+  {
+    NamedSymbol* s = find_symbol( btc, id->m_Hash );
+    if( s )
+    {
+      if( s->m_Type != E_ST_ACTION )
+        return 0x0;
+      return s->m_Symbol.m_Action;
+    }
+  }
+  Action* a = (Action*)allocate_object( btc );
+  init( a );
+  clone( btc, &a->m_Id, id );
+
+  NamedSymbol s;
+  s.m_Type = E_ST_ACTION;
+  s.m_Symbol.m_Action = a;
+  register_symbol( btc, s );
+
+  return a;
+}
+
 ParserContext create_parser_context( BehaviorTreeContext btc )
 {
   SParserContext* pc = &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_ParserContext);

@@ -38,6 +38,7 @@ MainWindow::MainWindow() :
   setCurrentFile( "" );
 
   connect( m_ActionNew, SIGNAL(triggered()), this, SLOT(newFile()) );
+  connect( m_ActionReload, SIGNAL(triggered()), this, SLOT(reload()) );
   connect( m_ActionOpen, SIGNAL(triggered()), this, SLOT(open()) );
   connect( m_ActionSave, SIGNAL(triggered()), this, SLOT(save()) );
   connect( m_ActionSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()) );
@@ -57,6 +58,12 @@ void MainWindow::newFile()
     m_BTreeScene->newTree();
     setCurrentFile("");
   }
+}
+
+void MainWindow::reload()
+{
+  if( !m_CurrentFile.isEmpty() && okToContinue() )
+    loadFile( m_CurrentFile );
 }
 
 void MainWindow::open()
@@ -217,6 +224,14 @@ bool MainWindow::saveFile( const QString& fileName )
   if( !m_BTreeScene->writeFile( fileName ) )
   {
     statusBar()->showMessage(tr("Saving canceled"), 2000 );
+
+    QMessageBox::warning( this, tr( "Calltree Studio" ), tr(
+      "Save failed. Please make sure that:\n"
+        " - You have enough free disk-space.\n"
+        " - That the file you are saving to isen't write-protected.\n" ),
+      QMessageBox::Ok | QMessageBox::Default, QMessageBox::NoButton,
+      QMessageBox::NoButton );
+
     return false;
   }
   setCurrentFile( fileName );
