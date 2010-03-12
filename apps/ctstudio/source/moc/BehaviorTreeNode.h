@@ -31,7 +31,8 @@ Q_OBJECT
 
 public:
 
-  BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent = 0x0 );
+  BehaviorTreeNode( BehaviorTreeContext ctx, Node* n, BehaviorTreeSceneItem* parent = 0x0 );
+  ~BehaviorTreeNode();
 
   enum
   {
@@ -49,8 +50,6 @@ public:
   QRectF boundingRect() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
-
-  void destroyResources( BehaviorTreeContext ctx );
 
   BehaviorTreeSceneItem* getParent();
   BehaviorTreeSceneItem* firstChild();

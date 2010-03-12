@@ -28,16 +28,37 @@
 #include <QtGui/QDoubleValidator>
 #include <QtGui/QIntValidator>
 
+#include <QtGui/QTableWidget>
+#include <QtGui/QHeaderView>
+#include <QtGui/QVBoxLayout>
+
+
 #include <string.h>
 
-BehaviorTreeNode::BehaviorTreeNode( Node* n, BehaviorTreeSceneItem* parent ) :
-  BehaviorTreeSceneItem( parent ), m_Node( n ), m_DraggingArrow( 0x0 ),
+BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
+  BehaviorTreeSceneItem* parent ) :
+  BehaviorTreeSceneItem( ctx, parent ), m_Node( n ), m_DraggingArrow( 0x0 ),
       m_Label( 0x0 )
 {
   m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type],
     this );
   setupLabel();
   setupTooltip();
+
+  if( m_Node->m_Grist.m_Type == E_GRIST_TREE &&
+      m_Node->m_Grist.m_Tree.m_Tree &&
+      m_Node->m_Grist.m_Tree.m_Tree->m_UserData )
+  {
+    BehaviorTreeSceneItem* btsi = (BehaviorTreeSceneItem*)(m_Node->m_Grist.m_Tree.m_Tree->m_UserData );
+    connect( btsi, SIGNAL(itemDeleted()), this, SLOT(deleteThis()) );
+  }
+}
+
+BehaviorTreeNode::~BehaviorTreeNode()
+{
+  unlink_from_parent_and_siblings( m_Node );
+  free_node( m_Context, m_Node );
+  m_Node = 0x0;
 }
 
 void BehaviorTreeNode::setupPropertyEditor()
@@ -51,28 +72,14 @@ void BehaviorTreeNode::setupPropertyEditor()
   switch( m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
-    label = new QLabel( tr(
-      "I have no idea what kind of node you have selected mate..." ) );
-    break;
   case E_GRIST_SEQUENCE:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_SELECTOR:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_PARALLEL:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_DYN_SELECTOR:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_SUCCEED:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_FAIL:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
   case E_GRIST_WORK:
+  case E_GRIST_TREE:
     label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_DECORATOR:
@@ -98,9 +105,6 @@ void BehaviorTreeNode::setupPropertyEditor()
           ns->m_Symbol.m_Action->m_Declarations );
       }
     }
-    break;
-  case E_GRIST_TREE:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_MAX_GRIST_TYPES:
     /* Warning killer */
@@ -132,42 +136,6 @@ QRectF BehaviorTreeNode::layoutBoundingRect() const
 qreal BehaviorTreeNode::layoutOffset() const
 {
   return m_Graphics->pos().rx();
-}
-
-void BehaviorTreeNode::destroyResources( BehaviorTreeContext ctx )
-{
-  unlink_from_parent_and_siblings( m_Node );
-  Parameter* v = 0x0;
-  switch( m_Node->m_Grist.m_Type )
-  {
-  case E_GRIST_DECORATOR:
-    v = m_Node->m_Grist.m_Decorator.m_Parameters;
-    break;
-  case E_GRIST_ACTION:
-    v = m_Node->m_Grist.m_Action.m_Parameters;
-    break;
-  case E_GRIST_UNKOWN:
-  case E_GRIST_SEQUENCE:
-  case E_GRIST_SELECTOR:
-  case E_GRIST_PARALLEL:
-  case E_GRIST_DYN_SELECTOR:
-  case E_GRIST_SUCCEED:
-  case E_GRIST_FAIL:
-  case E_GRIST_WORK:
-  case E_GRIST_TREE:
-  case E_MAX_GRIST_TYPES:
-    /* Warning killers */
-    v = 0x0;
-    break;
-  }
-  while( v )
-  {
-    Parameter* n = v->m_Next;
-    free_object( ctx, v );
-    v = n;
-  }
-  free_object( ctx, m_Node );
-  m_Node = 0x0;
 }
 
 BehaviorTreeSceneItem* BehaviorTreeNode::getParent()
@@ -286,7 +254,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       if( checked != p->m_Data.m_Bool )
       {
         p->m_Data.m_Bool = checked;
-        signalModified(false);
+        signalModified( false );
       }
     }
     break;
@@ -298,7 +266,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       if( ok && f != p->m_Data.m_Float )
       {
         p->m_Data.m_Float = f;
-        signalModified(false);
+        signalModified( false );
       }
     }
     break;
@@ -310,7 +278,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       if( ok && i != p->m_Data.m_Integer )
       {
         p->m_Data.m_Integer = i;
-        signalModified(false);
+        signalModified( false );
       }
     }
     break;
@@ -334,7 +302,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       {
         p->m_Data.m_String.m_Raw = register_string( s->getTreeContext(),
           ba.constData() );
-        signalModified(false);
+        signalModified( false );
       }
     }
     break;
@@ -397,43 +365,28 @@ void BehaviorTreeNode::setupLabel()
 
 void BehaviorTreeNode::setupTooltip()
 {
-  QString str;
+  QString str( g_NodeNames[m_Node->m_Grist.m_Type] );
   switch( m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
-    str += tr( "Unknown" );
-    break;
   case E_GRIST_SEQUENCE:
-    str += tr( "Sequence" );
-    break;
   case E_GRIST_SELECTOR:
-    str += tr( "Selector" );
-    break;
   case E_GRIST_PARALLEL:
-    str += tr( "Parallel" );
-    break;
   case E_GRIST_DYN_SELECTOR:
-    str += tr( "Dynamic Selector" );
-    break;
   case E_GRIST_SUCCEED:
-    str += tr( "Succeed" );
-    break;
   case E_GRIST_FAIL:
-    str += tr( "Fail" );
-    break;
   case E_GRIST_WORK:
-    str += tr( "Work" );
     break;
   case E_GRIST_DECORATOR:
-    str += tr( "Decorator, " );
+    str += ", ";
     str += m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
     break;
   case E_GRIST_ACTION:
-    str += tr( "Action, " );
+    str += ", ";
     str += m_Node->m_Grist.m_Action.m_Action->m_Id.m_Text;
     break;
   case E_GRIST_TREE:
-    str += tr( "Tree, " );
+    str += ", ";
     str += m_Node->m_Grist.m_Tree.m_Tree->m_Id.m_Text;
     break;
   case E_MAX_GRIST_TYPES:
@@ -449,56 +402,82 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
   if( dec == 0x0 )
     return;
 
-  m_PropertyWidget = new QWidget;
-  QFormLayout* form = new QFormLayout( m_PropertyWidget );
+  QTableWidget* tw = new QTableWidget;
+  m_PropertyWidget = tw;
+
+  tw->setColumnCount( 3 );
+
+  {
+    QStringList headers;
+    headers.push_back( tr( "Param" ) );
+    headers.push_back( tr( "Type" ) );
+    headers.push_back( tr( "Value" ) );
+    tw->setHorizontalHeaderLabels( headers );
+    tw->verticalHeader()->hide();
+    tw->horizontalHeader()->setStretchLastSection( true );
+    tw->horizontalHeader()->setHighlightSections( false );
+  }
 
   Parameter* it = dec;
   while( it )
   {
     Parameter* v = find_by_hash( set, it->m_Id.m_Hash );
+
+    QLabel* l = new QLabel( it->m_Id.m_Text );
+    QLabel* tl = 0x0;
+    QWidget* e = 0x0;
     switch( it->m_Type )
     {
     case E_VART_BOOL:
       {
-        QCheckBox* cb = new QCheckBox( it->m_Id.m_Text );
+        tl = new QLabel( tr( "bool" ) );
+        QCheckBox* cb = new QCheckBox;
+
         if( v )
           cb->setChecked( v->m_Data.m_Bool );
+
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, cb );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
         connect( cb, SIGNAL( stateChanged( int ) ), conn,
           SLOT( checkBoxChanged( int ) ) );
-        form->addRow( cb );
+        e = cb;
       }
       break;
     case E_VART_FLOAT:
       {
-        QLabel* l = new QLabel( it->m_Id.m_Text );
-        QLineEdit* e = new QLineEdit;
+        tl = new QLabel( tr( "float" ) );
+
+        QLineEdit* le = new QLineEdit;
+        e = le;
+
         if( v )
-          e->setText( QString( "%1" ).arg( as_float( *v ) ) );
-        e->setValidator( new QDoubleValidator( 0x0 ) );
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
+          le->setText( QString( "%1" ).arg( as_float( *v ) ) );
+        le->setValidator( new QDoubleValidator( 0x0 ) );
+
+        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( editingFinished() ), conn,
-          SLOT( lineEditChanged() ) );
-        form->addRow( l, e );
+        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
+
       }
       break;
     case E_VART_INTEGER:
       {
-        QLabel* l = new QLabel( it->m_Id.m_Text );
-        QLineEdit* e = new QLineEdit;
+        tl = new QLabel( tr( "integer" ) );
+
+        QLineEdit* le = new QLineEdit;
+        e = le;
+
         if( v )
-          e->setText( QString( "%1" ).arg( as_integer( *v ) ) );
-        e->setValidator( new QIntValidator( 0x0 ) );
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
+          le->setText( QString( "%1" ).arg( as_integer( *v ) ) );
+        le->setValidator( new QIntValidator( 0x0 ) );
+
+        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( editingFinished() ), conn,
-          SLOT( lineEditChanged() ) );
-        form->addRow( l, e );
+        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
+
       }
       break;
     case E_VART_HASH:
@@ -510,16 +489,22 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
       }
     case E_VART_STRING:
       {
-        QLabel* l = new QLabel( it->m_Id.m_Text );
-        QLineEdit* e = new QLineEdit;
+        if( it->m_Type == E_VART_STRING )
+          tl = new QLabel( tr( "string" ) );
+        else if( it->m_Type == E_VART_HASH )
+          tl = new QLabel( tr( "hash" ) );
+
+        QLineEdit* le = new QLineEdit;
+        e = le;
+
         if( v )
-          e->setText( as_string(*v)->m_Raw );
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, e );
+          le->setText( as_string( *v )->m_Raw );
+
+        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
           SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( e, SIGNAL( editingFinished() ), conn,
-          SLOT( lineEditChanged() ) );
-        form->addRow( l, e );
+        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
+
       }
       break;
     case E_VART_UNDEFINED:
@@ -527,8 +512,21 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
       // Warning Killers
       break;
     }
+
+    int row = tw->rowCount();
+
+    l->setMargin( 5 );
+    tl->setMargin( 5 );
+
+    tw->setRowCount( row + 1 );
+    tw->setCellWidget( row, 0, l );
+    tw->setCellWidget( row, 1, tl );
+    tw->setCellWidget( row, 2, e );
+
     it = it->m_Next;
   }
+  tw->resizeRowsToContents();
+
 }
 
 void BehaviorTreeNode::setupRelinkage()
@@ -592,12 +590,12 @@ void BehaviorTreeNode::executeRelinkage()
     set_first_child( m_Node->m_Pare, m_Node );
   }
 
-  if( m_Node->m_Pare.m_Node != m_BeforeRelinkage.m_Pare.m_Node ||
-      m_Node->m_Pare.m_Tree != m_BeforeRelinkage.m_Pare.m_Tree ||
-      m_Node->m_Pare.m_Type != m_BeforeRelinkage.m_Pare.m_Type ||
-      m_Node->m_Prev != m_BeforeRelinkage.m_Prev ||
-      m_Node->m_Next != m_BeforeRelinkage.m_Next )
-    signalModified(false);
+  if( m_Node->m_Pare.m_Node != m_BeforeRelinkage.m_Pare.m_Node
+      || m_Node->m_Pare.m_Tree != m_BeforeRelinkage.m_Pare.m_Tree
+      || m_Node->m_Pare.m_Type != m_BeforeRelinkage.m_Pare.m_Type
+      || m_Node->m_Prev != m_BeforeRelinkage.m_Prev || m_Node->m_Next
+      != m_BeforeRelinkage.m_Next )
+    signalModified( false );
 
 }
 
@@ -623,7 +621,6 @@ void BehaviorTreeNode::lookForRelinkTarget()
       // Current parent does not need evaluation.
       if( p == m_Relinkage.m_Parent.m_Node )
         continue;
-
 
       BehaviorTree* parent_tree = find_parent_tree( p->m_Pare );
       if( contains_reference_to_tree( m_Node, parent_tree ) )

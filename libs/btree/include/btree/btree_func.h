@@ -71,6 +71,8 @@ void init( BehaviorTree* );
 
 void set_parent_on_children( BehaviorTree* t );
 
+void unlink_from_children( BehaviorTree* t );
+
 /*
  * Action Functions
  */
@@ -88,6 +90,8 @@ void init( Decorator* );
  */
 
 void init( Node* );
+
+void free_node( BehaviorTreeContext, Node* );
 
 void append_to_end( Node* s, Node* n );
 

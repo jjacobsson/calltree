@@ -111,10 +111,6 @@ protected:
   void setupActionNode( Node*, const XNodeData& );
   void setupTreeNode( Node*, const XNodeData& );
 
-
-
-  void destroySubTree( BehaviorTreeSceneItem* );
-
   BehaviorTreeContext m_TreeContext;
   BehaviorTreeContext m_FullContext;
   QMainWindow* m_MainWindow;

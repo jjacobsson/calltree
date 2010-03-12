@@ -27,6 +27,7 @@ class BehaviorTreeTree: public BehaviorTreeSceneItem
 public:
 
   BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree );
+  ~BehaviorTreeTree();
 
   enum
   {
@@ -45,8 +46,6 @@ public:
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
 
-  void destroyResources( BehaviorTreeContext ctx );
-
   BehaviorTreeSceneItem* firstChild();
 
   void dragEnd();
@@ -64,7 +63,6 @@ protected:
   void setupLabel( const char* str );
   void setupPropertyEditor();
 
-  BehaviorTreeContext m_Context;
   BehaviorTree* m_Tree;
   QGraphicsSvgItem* m_Graphics;
   QGraphicsTextItem* m_Label;

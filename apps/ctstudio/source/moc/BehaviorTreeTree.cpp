@@ -22,6 +22,9 @@
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QRegExpValidator>
+#include <QtGui/QTableWidget>
+#include <QtGui/QHeaderView>
+#include <QtGui/QVBoxLayout>
 
 class PreventDuplicateSymbols : public QRegExpValidator
 {
@@ -51,8 +54,7 @@ private:
 };
 
 BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree )
-  : BehaviorTreeSceneItem()
-  , m_Context( ctx )
+  : BehaviorTreeSceneItem( ctx )
   , m_Tree( tree )
   , m_Label( 0x0 )
 {
@@ -60,6 +62,15 @@ BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree 
   m_Graphics = new QGraphicsSvgItem( ":/nodes/tree.svg", this );
   setupLabel( m_Tree->m_Id.m_Text );
   setupPropertyEditor();
+}
+
+BehaviorTreeTree::~BehaviorTreeTree()
+{
+  unlink_from_children( m_Tree );
+  remove_symbol( m_Context, m_Tree->m_Id.m_Hash );
+  free_object( m_Context, m_Tree );
+  m_Tree = 0x0;
+  emit symbolsChanged();
 }
 
 QRectF BehaviorTreeTree::boundingRect() const
@@ -80,15 +91,6 @@ qreal BehaviorTreeTree::layoutOffset() const
   return m_Graphics->pos().rx();
 }
 
-void BehaviorTreeTree::destroyResources( BehaviorTreeContext ctx )
-{
-  remove_symbol( ctx, m_Tree->m_Id.m_Hash );
-  free_object( ctx, m_Tree );
-  m_Tree = 0x0;
-
-  emit symbolsChanged();
-}
-
 BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
 {
   if( m_Tree->m_Root )
@@ -99,7 +101,6 @@ BehaviorTreeSceneItem* BehaviorTreeTree::firstChild()
 void BehaviorTreeTree::dragEnd()
 {
   BehaviorTreeSceneItem::dragEnd();
-
   emit symbolsChanged();
 }
 
@@ -171,5 +172,6 @@ void BehaviorTreeTree::setupPropertyEditor()
   connect( edit, SIGNAL( returnPressed() ), this, SLOT( updateName() ) );
 
   form->addRow( new QLabel( tr( "Name" ) ), edit );
+
 }
 

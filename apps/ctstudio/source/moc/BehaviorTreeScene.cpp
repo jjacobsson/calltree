@@ -65,6 +65,8 @@ void BehaviorTreeScene::newTree()
 
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
+  clear();
+
   destroy( m_TreeContext );
   m_TreeContext = 0x0;
 
@@ -98,8 +100,6 @@ bool BehaviorTreeScene::readFile( const QString& qt_filename )
 
   if( returnCode != 0 )
     return false;
-
-  clear();
 
   createGraphics();
   layout();
@@ -154,7 +154,7 @@ void BehaviorTreeScene::dragEnterEvent( QDragEnterEvent *event )
         Include* i = create_include( m_TreeContext, fileName.toAscii().constData() );
         if( i )
         {
-          m_DragItem = new BehaviorTreeInclude( i );
+          m_DragItem = new BehaviorTreeInclude( m_TreeContext, i );
           i->m_UserData = m_DragItem;
           addItem( m_DragItem );
           accept = true;
@@ -174,7 +174,6 @@ void BehaviorTreeScene::dragLeaveEvent( QDragLeaveEvent *event )
   if( m_DragItem )
   {
     m_DragItem->dragFail();
-    m_DragItem->destroyResources( m_TreeContext );
     delete m_DragItem;
     m_DragItem = 0x0;
     event->accept();
@@ -202,7 +201,6 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     if( m_DragItem->validForDrop() )
     {
       m_DragItem->dragEnd();
-      m_DragItem->setVisible( true );
       layout();
       emit modified();
       if( m_DragItem->isType( BehaviorTreeIncludeType ) )
@@ -211,7 +209,6 @@ void BehaviorTreeScene::dropEvent( QDropEvent* event )
     else
     {
       m_DragItem->dragFail();
-      m_DragItem->destroyResources( m_TreeContext );
       delete m_DragItem;
     }
 
@@ -281,8 +278,9 @@ void BehaviorTreeScene::deleteSelected()
     if( btsi->isType( BehaviorTreeIncludeType ) )
       includeDestroyed = true;
 
-    destroySubTree( btsi );
+    delete btsi;
     itemDestroyed = true;
+    break;
   }
 
   if( itemDestroyed )
@@ -314,6 +312,7 @@ void BehaviorTreeScene::updateClone()
   pcf.m_Translate = &parser_translate_include;
 
   Include* include = get_first_include( m_FullContext );
+  int returnCode = 0;
   while( include )
   {
     QFileInfo fi( include->m_Name );
@@ -328,13 +327,19 @@ void BehaviorTreeScene::updateClone()
     ParserContext pc = create_parser_context( m_FullContext );
     set_extra( pc, &pi );
     set_current( pc, include->m_Name );
-    int returnCode = parse( pc, &pcf );
+    returnCode = parse( pc, &pcf );
     destroy( pc );
 
     if( returnCode != 0 )
       break;
 
     include = include->m_Next;
+  }
+
+  if( returnCode != 0 )
+  {
+    destroy( m_FullContext );
+    m_FullContext = clone_bt_context( m_TreeContext );
   }
 
   emit updatedSymbols( m_FullContext );
@@ -352,7 +357,7 @@ void BehaviorTreeScene::createGraphics()
     s[i].m_Symbol.m_Tree->m_UserData = tree;
     addItem( tree );
     connect( tree, SIGNAL(modified(bool)), this, SLOT(itemModified(bool)) );
-    connect( tree, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
+    connect( tree, SIGNAL(itemSelected(QWidget*)), this, SLOT(nodeSelected(QWidget*)) );
     connect( tree, SIGNAL(symbolsChanged()), this, SLOT(updateClone()));
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
@@ -361,7 +366,7 @@ void BehaviorTreeScene::createGraphics()
   float increment_pos = 0;
   while( inc )
   {
-    BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude( inc );
+    BehaviorTreeSceneItem* inc_si = new BehaviorTreeInclude( m_TreeContext, inc );
     connect( inc_si, SIGNAL( itemSelected(QWidget*) ), this, SLOT( nodeSelected(QWidget*) ) );
     addItem( inc_si );
     inc_si->setPos( increment_pos, 0 );
@@ -377,7 +382,7 @@ void BehaviorTreeScene::createGraphics( Node* n, BehaviorTreeSceneItem* parent )
 {
   while( n )
   {
-    BehaviorTreeNode* svg_item = new BehaviorTreeNode( n, parent );
+    BehaviorTreeNode* svg_item = new BehaviorTreeNode( m_TreeContext, n, parent );
 
     connect( svg_item, SIGNAL( itemDragged() ), this, SLOT( layout() ) );
     connect( svg_item, SIGNAL( modified(bool) ), this, SLOT( itemModified(bool) ) );
@@ -655,7 +660,7 @@ void BehaviorTreeScene::setupNodeDrag( const XNodeData& data )
   }
   // Create the graphics item.
   {
-    BehaviorTreeNode* btn = new BehaviorTreeNode( node );
+    BehaviorTreeNode* btn = new BehaviorTreeNode( m_TreeContext, node );
     addItem( btn );
     btn->setupPropertyEditor();
     m_DragItem = btn;
@@ -712,17 +717,3 @@ void BehaviorTreeScene::setupTreeNode( Node* n, const XNodeData& xnd )
   BehaviorTree* declared = ns->m_Symbol.m_Tree;
   n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( m_TreeContext, &declared->m_Id );;
 }
-
-void BehaviorTreeScene::destroySubTree( BehaviorTreeSceneItem* item )
-{
-  BehaviorTreeSceneItem* c = item->firstChild();
-  while( c )
-  {
-    BehaviorTreeSceneItem* s = c->nextSibling();
-    destroySubTree( c );
-    c = s;
-  }
-  item->destroyResources( m_TreeContext );
-  delete item;
-}
-

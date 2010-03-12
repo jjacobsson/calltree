@@ -39,7 +39,7 @@ public:
     return Type;
   }
 
-  BehaviorTreeSceneItem( QGraphicsObject* parent = 0x0 );
+  BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent = 0x0 );
   ~BehaviorTreeSceneItem();
 
   virtual bool isType( int type ) const
@@ -52,39 +52,14 @@ public:
   void removeArrow( NodeToNodeArrow* arrow );
   void removeArrows();
   void addArrow( NodeToNodeArrow* arrow );
-
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
-  virtual QRectF layoutBoundingRect() const
-  {
-    return boundingRect();
-  }
-
-  virtual qreal layoutOffset() const
-  {
-    return 0.0;
-  }
-
-  virtual void destroyResources( BehaviorTreeContext ctx ) = 0;
-
-  virtual BehaviorTreeSceneItem* getParent()
-  {
-    return 0x0;
-  }
-
-  virtual BehaviorTreeSceneItem* firstChild()
-  {
-    return 0x0;
-  }
-  virtual BehaviorTreeSceneItem* nextSibling()
-  {
-    return 0x0;
-  }
-
-  virtual bool validForDrop() const
-  {
-    return true;
-  }
+  virtual QRectF layoutBoundingRect() const;
+  virtual qreal layoutOffset() const;
+  virtual BehaviorTreeSceneItem* getParent();
+  virtual BehaviorTreeSceneItem* firstChild();
+  virtual BehaviorTreeSceneItem* nextSibling();
+  virtual bool validForDrop() const;
 
   virtual void dragMove();
   virtual void dragBegin();
@@ -93,11 +68,17 @@ public:
 
   void paint( QPainter*, const QStyleOptionGraphicsItem*, QWidget* );
 
+
 signals:
 
   void itemDragged();
   void itemSelected( QWidget* );
   void modified( bool geometry_changed );
+  void itemDeleted();
+
+protected slots:
+
+  void deleteThis();
 
 protected:
 
@@ -123,6 +104,8 @@ protected:
   QList<NodeToNodeArrow*> m_Arrows;
 
   QWidget* m_PropertyWidget;
+
+  BehaviorTreeContext m_Context;
 };
 
 #endif

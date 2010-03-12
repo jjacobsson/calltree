@@ -380,6 +380,17 @@ void set_parent_on_children( BehaviorTree* t )
   }
 }
 
+void unlink_from_children( BehaviorTree* t )
+{
+  Node* c = t->m_Root;
+  while( c )
+  {
+    c->m_Pare.m_Tree = 0x0;
+    c->m_Pare.m_Type = E_NP_UNKOWN;
+    c = c->m_Next;
+  }
+}
+
 /*
  * Action functions
  */
@@ -417,6 +428,40 @@ void init( Node* n )
   n->m_Next = 0x0;
   n->m_Prev = 0x0;
   n->m_UserData = 0x0;
+}
+
+void free_node( BehaviorTreeContext ctx, Node* n )
+{
+  Parameter* v = 0x0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_DECORATOR:
+    v = n->m_Grist.m_Decorator.m_Parameters;
+    break;
+  case E_GRIST_ACTION:
+    v = n->m_Grist.m_Action.m_Parameters;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_GRIST_TREE:
+  case E_MAX_GRIST_TYPES:
+    /* Warning killers */
+    v = 0x0;
+    break;
+  }
+  while( v )
+  {
+    Parameter* n = v->m_Next;
+    free_object( ctx, v );
+    v = n;
+  }
+  free_object( ctx, n );
 }
 
 void append_to_end( Node* s, Node* e )

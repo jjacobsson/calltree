@@ -17,8 +17,8 @@
 #include <QtGui/QFont>
 #include <QtCore/QFileInfo>
 
-BehaviorTreeInclude::BehaviorTreeInclude( Include* i )
-  : BehaviorTreeSceneItem()
+BehaviorTreeInclude::BehaviorTreeInclude( BehaviorTreeContext ctx, Include* i )
+  : BehaviorTreeSceneItem( ctx, 0x0 )
   , m_Include( i )
   , m_Graphics( 0x0 )
   , m_Label( 0x0 )
@@ -28,9 +28,9 @@ BehaviorTreeInclude::BehaviorTreeInclude( Include* i )
   setupLabel();
 }
 
-void BehaviorTreeInclude::destroyResources( BehaviorTreeContext ctx )
+BehaviorTreeInclude::~BehaviorTreeInclude()
 {
-  release_include( ctx, m_Include );
+  release_include( m_Context, m_Include );
   m_Include = 0x0;
 }
 

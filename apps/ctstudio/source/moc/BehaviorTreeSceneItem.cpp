@@ -16,10 +16,11 @@
 
 #include <QtGui/QtGui>
 
-BehaviorTreeSceneItem::BehaviorTreeSceneItem( QGraphicsObject* parent )
+BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent )
   : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
   , m_PropertyWidget( 0x0 )
+  , m_Context( ctx )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
   setFlag( QGraphicsItem::ItemIsSelectable, true );
@@ -33,6 +34,8 @@ BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
   removeArrows();
   delete m_PropertyWidget;
   m_PropertyWidget = 0x0;
+
+  emit itemDeleted();
 }
 
 void BehaviorTreeSceneItem::removeArrow(NodeToNodeArrow *arrow)
@@ -57,6 +60,43 @@ void BehaviorTreeSceneItem::removeArrows()
 void BehaviorTreeSceneItem::addArrow(NodeToNodeArrow *arrow)
 {
   m_Arrows.append(arrow);
+}
+
+NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* other )
+{
+  foreach( NodeToNodeArrow *arrow, m_Arrows )
+  {
+    if( arrow->startItem() == this && arrow->endItem() == other )
+      return arrow;
+    if( arrow->startItem() == other && arrow->endItem() == this )
+      return arrow;
+  }
+  return 0x0;
+}
+
+QRectF BehaviorTreeSceneItem::layoutBoundingRect() const
+{
+  return boundingRect();
+}
+qreal BehaviorTreeSceneItem::layoutOffset() const
+{
+  return 0.0;
+}
+BehaviorTreeSceneItem* BehaviorTreeSceneItem::getParent()
+{
+  return 0x0;
+}
+BehaviorTreeSceneItem* BehaviorTreeSceneItem::firstChild()
+{
+  return 0x0;
+}
+BehaviorTreeSceneItem* BehaviorTreeSceneItem::nextSibling()
+{
+  return 0x0;
+}
+bool BehaviorTreeSceneItem::validForDrop() const
+{
+  return true;
 }
 
 void BehaviorTreeSceneItem::dragMove()
@@ -105,16 +145,9 @@ void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphics
   painter->drawRect(brect.adjusted(pad, pad, -pad, -pad));
 }
 
-NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* other )
+void BehaviorTreeSceneItem::deleteThis()
 {
-  foreach( NodeToNodeArrow *arrow, m_Arrows )
-  {
-    if( arrow->startItem() == this && arrow->endItem() == other )
-      return arrow;
-    if( arrow->startItem() == other && arrow->endItem() == this )
-      return arrow;
-  }
-  return 0x0;
+  delete this;
 }
 
 QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,

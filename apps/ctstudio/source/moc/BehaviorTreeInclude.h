@@ -27,7 +27,8 @@ Q_OBJECT
 
 public:
 
-  BehaviorTreeInclude( Include* );
+  BehaviorTreeInclude( BehaviorTreeContext ctx, Include* );
+  ~BehaviorTreeInclude();
 
   enum
   {
