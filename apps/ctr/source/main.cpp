@@ -14,7 +14,6 @@
 #include <string.h>
 #include <malloc.h>
 
-#include <callback/types.h>
 #include <other/getopt.h>
 #include <callback/callback.h>
 #include <callback/instructions.h>
@@ -22,6 +21,7 @@
 #include "timing.h"
 
 using namespace callback;
+
 
 struct UserData
 {
@@ -34,19 +34,14 @@ struct UserData
     bool        m_Exit;
 };
 
-void cb_debug( const char* info, uint32 RE, uint32 IP )
+void cb_debug( CallbackProgram* cp, DebugInformation* di, BssHeader* bh, void* ud )
 {
-    const char* const str_RE[MAXIMUM_NODE_RETURN_COUNT] = {
-        "E_NODE_FAIL",
-        "E_NODE_SUCCESS",
-        "E_NODE_WORKING",
-        "E_NODE_UNDEFINED"
-    };
-
-    printf( "%s 0x%04x %s\n", info, IP, str_RE[RE] );
+  DebugFlags f;
+  f.m_Flags = di->m_Flags;
+  printf( "%s - %s %s\n", di->m_Name, di->m_Action, (f.m_Exit == 0)?"Entry":"Exit" );
 }
 
-uint32 cb_setexit(uint32 action, void* bss, void** data, UserData& user_data)
+unsigned int cb_setexit(unsigned int action, void* bss, void** data, UserData& user_data)
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -55,7 +50,7 @@ uint32 cb_setexit(uint32 action, void* bss, void** data, UserData& user_data)
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_checkexit(uint32 action, void* bss, void** data, UserData& user_data)
+unsigned int cb_checkexit(unsigned int action, void* bss, void** data, UserData& user_data)
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -63,7 +58,7 @@ uint32 cb_checkexit(uint32 action, void* bss, void** data, UserData& user_data)
     return user_data.m_Exit?E_NODE_SUCCESS:E_NODE_WORKING;
 }
 
-uint32 cb_getline(uint32 action, void* bss, void** data, UserData& ud)
+unsigned int cb_getline(unsigned int action, void* bss, void** data, UserData& ud)
 {
     if (action != ACT_EXECUTE)
         return E_NODE_UNDEFINED;
@@ -74,7 +69,7 @@ uint32 cb_getline(uint32 action, void* bss, void** data, UserData& ud)
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_strcmp(uint32 action, void* bss, void** data, UserData& user_data)
+unsigned int cb_strcmp(unsigned int action, void* bss, void** data, UserData& user_data)
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -85,7 +80,7 @@ uint32 cb_strcmp(uint32 action, void* bss, void** data, UserData& user_data)
     return E_NODE_FAIL;
 }
 
-uint32 cb_print(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_print(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -98,7 +93,7 @@ uint32 cb_print(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_count_to_zero(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_count_to_zero(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action == ACT_CONSTRUCT )
     {
@@ -113,7 +108,7 @@ uint32 cb_count_to_zero(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_UNDEFINED;
 }
 
-uint32 cb_set_gc(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_set_gc(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -122,7 +117,7 @@ uint32 cb_set_gc(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_dec_gc(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_dec_gc(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -131,7 +126,7 @@ uint32 cb_dec_gc(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_inc_gc(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_inc_gc(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -140,7 +135,7 @@ uint32 cb_inc_gc(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_SUCCESS;
 }
 
-uint32 cb_check_gc_smlr(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_check_gc_smlr(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -150,7 +145,7 @@ uint32 cb_check_gc_smlr(uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_FAIL;
 }
 
-uint32 cb_check_gc_grtr(uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_check_gc_grtr(unsigned int action, void* bss, void** data, UserData& ud )
 {
     if( action != ACT_EXECUTE )
         return E_NODE_UNDEFINED;
@@ -161,7 +156,7 @@ uint32 cb_check_gc_grtr(uint32 action, void* bss, void** data, UserData& ud )
 
 }
 
-uint32 cb_time_delay( uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_time_delay( unsigned int action, void* bss, void** data, UserData& ud )
 {
     double* t = (double*)bss;
 
@@ -181,7 +176,7 @@ uint32 cb_time_delay( uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_UNDEFINED;
 }
 
-uint32 cb_modify_return( uint32 action, void* bss, void** data, UserData& ud )
+unsigned int cb_modify_return( unsigned int action, void* bss, void** data, UserData& ud )
 {
     struct Parameters
     {
@@ -208,7 +203,7 @@ uint32 cb_modify_return( uint32 action, void* bss, void** data, UserData& ud )
     return E_NODE_UNDEFINED;
 }
 
-uint32 cb_handler(uint32 id, uint32 action, void* bss, void** data, void* user_data)
+unsigned int cb_handler(unsigned int id, unsigned int action, void* bss, void** data, void* user_data)
 {
     uint64 start, end;
 
@@ -216,7 +211,7 @@ uint32 cb_handler(uint32 id, uint32 action, void* bss, void** data, void* user_d
 
     UserData& ud = *((UserData*)user_data);
 
-    uint32 retVal = E_NODE_UNDEFINED;
+    unsigned int retVal = E_NODE_UNDEFINED;
     switch (id) {
     case 0:
         retVal = cb_setexit( action, bss, data, ud );
@@ -357,8 +352,8 @@ int main(int argc, char** argv)
         cp.m_Program  = program;
         cp.m_bss      = bss;
         cp.m_UserData = (void*)&ud;
-        cp.m_callback = &cb_handler;
-        //cp.m_Debug  = &cb_debug;
+        cp.m_Callback = &cb_handler;
+        cp.m_Debug    = &cb_debug;
         BssHeader* bh = (BssHeader*)bss;
 
         freq = get_cpu_frequency();

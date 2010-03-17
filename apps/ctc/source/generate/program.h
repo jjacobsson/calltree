@@ -12,7 +12,6 @@
 #ifndef PROGRAM_H_INCLUDED
 #define PROGRAM_H_INCLUDED
 
-#include <callback/types.h>
 #include <callback/instructions.h>
 #include <callback/callback.h>
 #include <btree/btree_data.h>
@@ -26,9 +25,11 @@ public:
 
     CodeSection();
 
-    typedef callback::uint32 TIn;
+    typedef unsigned int TIn;
 
     void    SetGenerateDebugInfo( bool onoff );
+
+    void    Setup( Program* p );
 
     void    Print( FILE* outFile ) const;
 
@@ -50,6 +51,7 @@ private:
 
     typedef std::vector<callback::Instruction> Instructions;
     Instructions m_Inst;
+    int          m_BssStart;
     bool         m_DebugInfo;
 };
 

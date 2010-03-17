@@ -22,7 +22,7 @@ namespace callback
         char*           bss  =   (char*)info->m_bss;
         char*           data =   ((char*)(i)) + (sizeof(Instruction) * ph->m_IC);
         BssHeader*      bh   =   (BssHeader*)(bss);
-        callbackHandler ch   =   info->m_callback;
+        CallbackHandler ch   =   info->m_Callback;
         DebugHandler    dh   =   info->m_Debug;
 
 start:
@@ -32,8 +32,8 @@ start:
 		switch( inst.m_I )
 		{
 		case INST_CALL_DEBUG_FN:
-			//if( dh )
-			//    dh( info, ph, bh );
+			if( dh )
+			    dh( info, (DebugInformation*)(&bss[inst.m_A1]), bh, info->m_UserData );
 			break;
 		case INST_CALL_CONS_FUN:
 			ch(

@@ -49,14 +49,23 @@ void print_instruction( FILE* outFile, const Instruction& inst, int i )
   }
 }
 
-CodeSection::CodeSection() :
-  m_DebugInfo( false )
+CodeSection::CodeSection()
+  : m_BssStart( 0 )
+  , m_DebugInfo( false )
 {
 }
 
 void CodeSection::SetGenerateDebugInfo( bool onoff )
 {
   m_DebugInfo = onoff;
+}
+
+void CodeSection::Setup( Program* p )
+{
+  if( !m_DebugInfo )
+    return;
+
+  m_BssStart = p->m_B.Push( sizeof(DebugInformation), 4 );
 }
 
 void CodeSection::Print( FILE* outFile ) const
@@ -125,26 +134,157 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
   return written == write;
 }
 
+int StringFromAction( Program* p, NodeAction action )
+{
+  return p->m_D.PushString( g_CBActionNames[ action ] );
+}
+
+int StringFromNode( Program* p, Node* n )
+{
+  const char* str = 0x0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_UNKOWN:
+    str = "Unkown";
+    break;
+  case E_GRIST_SEQUENCE:
+    str = "Sequence";
+    break;
+  case E_GRIST_SELECTOR:
+    str = "Selector";
+    break;
+  case E_GRIST_PARALLEL:
+    str = "Parallel";
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    str = "Dynamic Selector";
+    break;
+  case E_GRIST_SUCCEED:
+    str = "Succeed";
+    break;
+  case E_GRIST_FAIL:
+    str = "Fail";
+    break;
+  case E_GRIST_WORK:
+    str = "Work";
+    break;
+  case E_GRIST_TREE:
+    str = n->m_Grist.m_Tree.m_Tree->m_Id.m_Text;
+    break;
+  case E_GRIST_ACTION:
+    str = n->m_Grist.m_Action.m_Action->m_Id.m_Text;
+    break;
+  case E_GRIST_DECORATOR:
+    str = n->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text;
+    break;
+  case E_MAX_GRIST_TYPES:
+    str = "You are full of bananas.";
+    break;
+  }
+  return p->m_D.PushString( str );
+}
+
+bool StandardNode( Node* n )
+{
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_TREE:
+  case E_GRIST_ACTION:
+  case E_GRIST_DECORATOR:
+    return true;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+  return false;
+}
+
 void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
 {
   if( !m_DebugInfo )
     return;
-  char buff[2048];
-  buff[0] = 0;
-  //    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Enter", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-  int data = p->m_D.PushString( buff );
-  Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+
+  DebugFlags flags;
+
+  flags.m_Flags    = 0;
+  flags.m_Exit     = 0;
+  flags.m_Standard = StandardNode( n ) ? 0xff : 0x00;
+  flags.m_Action   = (unsigned char)action;
+
+  Instruction i;
+  i.m_I  = INST_STORE_PD_IN_B;
+  i.m_A1 = m_BssStart + 0;
+  i.m_A2 = StringFromAction( p, action );
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST_STORE_PD_IN_B;
+  i.m_A1 = m_BssStart + 4;
+  i.m_A2 = StringFromNode( p, n );
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST__STORE_C_IN_B;
+  i.m_A1 = m_BssStart + 8;
+  i.m_A2 = 0;
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST__STORE_C_IN_B;
+  i.m_A1 = m_BssStart + 12;
+  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
+  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  m_Inst.push_back( i );
+  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_A1 = m_BssStart;
+  i.m_A2 = 0;
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
 }
 
 void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
 {
   if( !m_DebugInfo )
     return;
-  char buff[2048];
-  buff[0] = 0;
-  //    sprintf( buff, "%-10s%-50s(%d)\t%-10s", "Exit", n->m_Id.m_Text, n->m_Id.m_Line, g_CBActionNames[action] );
-  int data = p->m_D.PushString( buff );
-  Push( INST_CALL_DEBUG_FN, data, 0, 0 );
+
+  DebugFlags flags;
+
+  flags.m_Flags    = 0;
+  flags.m_Exit     = 0xff;
+  flags.m_Standard = StandardNode( n ) ? 0xff : 0x00;
+  flags.m_Action   = (unsigned char)action;
+
+  Instruction i;
+  i.m_I  = INST_STORE_PD_IN_B;
+  i.m_A1 = m_BssStart + 0;
+  i.m_A2 = StringFromAction( p, action );
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST_STORE_PD_IN_B;
+  i.m_A1 = m_BssStart + 4;
+  i.m_A2 = StringFromNode( p, n );
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST__STORE_C_IN_B;
+  i.m_A1 = m_BssStart + 8;
+  i.m_A2 = 0;
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
+  i.m_I  = INST__STORE_C_IN_B;
+  i.m_A1 = m_BssStart + 12;
+  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
+  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  m_Inst.push_back( i );
+  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_A1 = m_BssStart;
+  i.m_A2 = 0;
+  i.m_A3 = 0;
+  m_Inst.push_back( i );
 }
 
 VMIType CodeSection::SafeConvert( TIn i ) const
@@ -310,6 +450,9 @@ int setup_before_generate( Node* n, Program* p )
   p->m_bss_Header = p->m_B.Push( sizeof(BssHeader), 4 );
   //Alloc storage area for child-node return value.
   p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
+
+  p->m_I.Setup( p );
+
   return setup_gen( n, p );
 }
 

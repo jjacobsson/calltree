@@ -399,9 +399,6 @@ void BehaviorTreeNode::setupTooltip()
 void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
   Parameter* dec )
 {
-  if( dec == 0x0 )
-    return;
-
   QTableWidget* tw = new QTableWidget;
   m_PropertyWidget = tw;
 
@@ -414,8 +411,6 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
     headers.push_back( tr( "Value" ) );
     tw->setHorizontalHeaderLabels( headers );
     tw->verticalHeader()->hide();
-    tw->horizontalHeader()->setStretchLastSection( true );
-    tw->horizontalHeader()->setHighlightSections( false );
   }
 
   Parameter* it = dec;
@@ -431,8 +426,9 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_BOOL:
       {
         tl = new QLabel( tr( "bool" ) );
-        QCheckBox* cb = new QCheckBox;
-
+        QWidget* cb_cont = new QWidget;
+        QCheckBox* cb = new QCheckBox( cb_cont );
+        cb->move( 5, 3 );
         if( v )
           cb->setChecked( v->m_Data.m_Bool );
 
@@ -441,7 +437,7 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
           SLOT( paramChanged( QObject*, hash_t ) ) );
         connect( cb, SIGNAL( stateChanged( int ) ), conn,
           SLOT( checkBoxChanged( int ) ) );
-        e = cb;
+        e = cb_cont;
       }
       break;
     case E_VART_FLOAT:
@@ -449,6 +445,8 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
         tl = new QLabel( tr( "float" ) );
 
         QLineEdit* le = new QLineEdit;
+        le->setFrame( false );
+        le->setTextMargins( 5, 0, 0, 0 );
         e = le;
 
         if( v )
@@ -467,6 +465,8 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
         tl = new QLabel( tr( "integer" ) );
 
         QLineEdit* le = new QLineEdit;
+        le->setFrame( false );
+        le->setTextMargins( 5, 0, 0, 0 );
         e = le;
 
         if( v )
@@ -495,10 +495,16 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
           tl = new QLabel( tr( "hash" ) );
 
         QLineEdit* le = new QLineEdit;
+        le->setFrame( false );
+        le->setTextMargins( 5, 0, 0, 0 );
+
         e = le;
 
         if( v )
+        {
           le->setText( as_string( *v )->m_Raw );
+          le->setCursorPosition( 0 );
+        }
 
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
         connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
@@ -515,8 +521,8 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
 
     int row = tw->rowCount();
 
-    l->setMargin( 5 );
-    tl->setMargin( 5 );
+    l->setIndent( 5 );
+    tl->setIndent( 5 );
 
     tw->setRowCount( row + 1 );
     tw->setCellWidget( row, 0, l );
@@ -525,8 +531,17 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
 
     it = it->m_Next;
   }
-  tw->resizeRowsToContents();
 
+  tw->resizeRowsToContents();
+  tw->setSelectionMode( QAbstractItemView::NoSelection );
+  {
+    QHeaderView* hw = tw->horizontalHeader();
+    hw->setMinimumSectionSize( 65 );
+    hw->setResizeMode( QHeaderView::ResizeToContents );
+    hw->setStretchLastSection( true );
+    hw->setHighlightSections( false );
+    hw->setClickable( false );
+  }
 }
 
 void BehaviorTreeNode::setupRelinkage()
