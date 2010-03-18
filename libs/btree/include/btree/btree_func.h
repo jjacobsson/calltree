@@ -22,20 +22,22 @@
 bool is_btree_keyword( const char* str );
 
 /*
+ * Locator functions
+ */
+
+void init( Locator* l );
+
+/*
  * Identifier Functions
  */
 
 void init( Identifier* id );
-
-void clone( BehaviorTreeContext, Identifier*, Identifier* );
 
 /*
  * Variable Functions
  */
 
 void init( Parameter* v );
-
-Parameter* clone_list( BehaviorTreeContext, Parameter* );
 
 Parameter* find_last( Parameter* v );
 
@@ -133,8 +135,6 @@ void init( NodeGrist* );
 
 BehaviorTreeContext create_bt_context( Allocator& );
 
-BehaviorTreeContext clone_bt_context( BehaviorTreeContext );
-
 void destroy( BehaviorTreeContext );
 
 const char* register_string( BehaviorTreeContext, const char* );
@@ -218,7 +218,20 @@ BehaviorTreeContext get_bt_context( SaverContext );
 
 void save( SaverContext, SaverContextFunctions* );
 
+/*
+ * Cloning
+ */
 
+BehaviorTreeContext clone( BehaviorTreeContext );
+void clone( BehaviorTreeContext, Identifier*, Identifier* );
+void clone( BehaviorTreeContext, Include* );
+void clone( BehaviorTreeContext, BehaviorTree* );
+void clone( BehaviorTreeContext, Action* );
+void clone( BehaviorTreeContext, Decorator* );
+
+void       clone_symbols( BehaviorTreeContext, NamedSymbol*, int );
+Parameter* clone_list( BehaviorTreeContext, Parameter* );
+Node*      clone_list( BehaviorTreeContext, Node* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

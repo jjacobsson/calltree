@@ -28,11 +28,13 @@ struct SBehaviorTreeContext
   Allocator     m_Allocator;
   ObjectPool*   m_Pool;
   Include*      m_Includes;
+  Parameter*    m_Options;
+  unsigned int  m_NodeId;
 };
 
 union ObjectFootPrint
 {
-  Parameter             m_Variable;
+  Parameter            m_Variable;
   Action               m_Action;
   Decorator            m_Decorator;
   Node                 m_Node;

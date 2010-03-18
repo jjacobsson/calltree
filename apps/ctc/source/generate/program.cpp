@@ -191,7 +191,7 @@ bool StandardNode( Node* n )
   case E_GRIST_TREE:
   case E_GRIST_ACTION:
   case E_GRIST_DECORATOR:
-    return true;
+    return false;
     break;
   case E_GRIST_UNKOWN:
   case E_GRIST_SEQUENCE:
@@ -204,7 +204,7 @@ bool StandardNode( Node* n )
   case E_MAX_GRIST_TYPES:
     break;
   }
-  return false;
+  return true;
 }
 
 void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
@@ -216,7 +216,7 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
 
   flags.m_Flags    = 0;
   flags.m_Exit     = 0;
-  flags.m_Standard = StandardNode( n ) ? 0xff : 0x00;
+  flags.m_Standard = StandardNode( n ) ? 1 : 0;
   flags.m_Action   = (unsigned char)action;
 
   Instruction i;
@@ -255,8 +255,8 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   DebugFlags flags;
 
   flags.m_Flags    = 0;
-  flags.m_Exit     = 0xff;
-  flags.m_Standard = StandardNode( n ) ? 0xff : 0x00;
+  flags.m_Exit     = 1;
+  flags.m_Standard = StandardNode( n ) ? 1 : 0;
   flags.m_Action   = (unsigned char)action;
 
   Instruction i;

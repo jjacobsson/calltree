@@ -276,7 +276,7 @@ int main( int argc, char** argv )
       else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
       {
         printf( "%s(%d): error: \"main\" contains zero node's.\n",
-          g_inputFileName, main->m_Symbol.m_Tree->m_Id.m_Line );
+          main->m_Symbol.m_Tree->m_Locator.m_Buffer, main->m_Symbol.m_Tree->m_Locator.m_LineNo );
         returnCode = -1;
       }
 

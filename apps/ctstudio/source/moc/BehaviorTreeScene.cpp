@@ -301,7 +301,7 @@ void BehaviorTreeScene::nodeSelected( QWidget* property_widget )
 void BehaviorTreeScene::updateClone()
 {
   destroy( m_FullContext );
-  m_FullContext = clone_bt_context( m_TreeContext );
+  m_FullContext = clone( m_TreeContext );
 
   ParsingInfo pi;
 
@@ -339,7 +339,7 @@ void BehaviorTreeScene::updateClone()
   if( returnCode != 0 )
   {
     destroy( m_FullContext );
-    m_FullContext = clone_bt_context( m_TreeContext );
+    m_FullContext = clone( m_TreeContext );
   }
 
   emit updatedSymbols( m_FullContext );

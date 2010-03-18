@@ -14,14 +14,9 @@
 #include <btree/btree_data.h>
 #include <btree/btree_func.h>
 
-void clone_includes( BehaviorTreeContext, Include* );
-void clone_declarations( BehaviorTreeContext, NamedSymbol*, int );
-void clone_tree( BehaviorTreeContext, BehaviorTree* );
-void clone_action( BehaviorTreeContext, Action* );
-void clone_decorator( BehaviorTreeContext, Decorator* );
-Node* clone_list( BehaviorTreeContext, Node* );
 
-BehaviorTreeContext clone_bt_context( BehaviorTreeContext obtc )
+
+BehaviorTreeContext clone( BehaviorTreeContext obtc )
 {
   ObjectPoolSetup ops;
   ops = obtc->m_Pool->m_Setup;
@@ -35,11 +30,11 @@ BehaviorTreeContext clone_bt_context( BehaviorTreeContext obtc )
   init( &btc->m_StringTable, btc->m_Allocator );
   init( &btc->m_SymbolTable, btc->m_Allocator );
 
-  clone_includes( btc, obtc->m_Includes );
+  clone( btc, obtc->m_Includes );
 
   int count;
   NamedSymbol* ns =  access_symbols( obtc, &count );
-  clone_declarations( btc, ns, count );
+  clone_symbols( btc, ns, count );
 
   return btc;
 }
@@ -48,7 +43,7 @@ BehaviorTreeContext clone_bt_context( BehaviorTreeContext obtc )
  * Cloning functions
  */
 
-void clone_includes( BehaviorTreeContext btc, Include* inc )
+void clone( BehaviorTreeContext btc, Include* inc )
 {
   while( inc )
   {
@@ -57,7 +52,7 @@ void clone_includes( BehaviorTreeContext btc, Include* inc )
   }
 }
 
-void clone_declarations( BehaviorTreeContext btc, NamedSymbol* ns, int count )
+void clone_symbols( BehaviorTreeContext btc, NamedSymbol* ns, int count )
 {
   for( int i = 0; i < count; ++i )
   {
@@ -65,13 +60,13 @@ void clone_declarations( BehaviorTreeContext btc, NamedSymbol* ns, int count )
     {
     case E_ST_UNKOWN:
     case E_ST_TREE:
-      clone_tree( btc, ns[i].m_Symbol.m_Tree );
+      clone( btc, ns[i].m_Symbol.m_Tree );
       break;
     case E_ST_ACTION:
-      clone_action( btc, ns[i].m_Symbol.m_Action );
+      clone( btc, ns[i].m_Symbol.m_Action );
       break;
     case E_ST_DECORATOR:
-      clone_decorator( btc, ns[i].m_Symbol.m_Decorator );
+      clone( btc, ns[i].m_Symbol.m_Decorator );
       break;
     case E_MAX_SYMBOL_TYPES:
       break;
@@ -85,14 +80,14 @@ void clone( BehaviorTreeContext btc, Identifier* d, Identifier* s )
   d->m_Text = register_string( btc, s->m_Text, s->m_Hash );
 }
 
-void clone_tree( BehaviorTreeContext btc, BehaviorTree* tree )
+void clone( BehaviorTreeContext btc, BehaviorTree* tree )
 {
   BehaviorTree* t = look_up_behavior_tree( btc, &tree->m_Id );
   t->m_Declared = tree->m_Declared;
   t->m_Root = clone_list( btc, tree->m_Root );
 }
 
-void clone_action( BehaviorTreeContext btc, Action* src )
+void clone( BehaviorTreeContext btc, Action* src )
 {
   Action* a = look_up_action( btc, &src->m_Id );
   a->m_Declarations = clone_list( btc, src->m_Declarations );
@@ -100,7 +95,7 @@ void clone_action( BehaviorTreeContext btc, Action* src )
   a->m_Declared = src->m_Declared;
 }
 
-void clone_decorator( BehaviorTreeContext btc, Decorator* src )
+void clone( BehaviorTreeContext btc, Decorator* src )
 {
   Decorator* d = look_up_decorator( btc, &src->m_Id );
   d->m_Declarations = clone_list( btc, src->m_Declarations );

@@ -54,6 +54,16 @@ bool is_btree_keyword( const char* str )
 }
 
 /*
+ * Locator functions
+ */
+
+void init( Locator* l )
+{
+  l->m_Buffer = 0x0;
+  l->m_LineNo = 0;
+}
+
+/*
  * Identifier Functions
  */
 
@@ -61,7 +71,6 @@ void init( Identifier* id )
 {
   id->m_Text = 0x0;
   id->m_Hash = INVALID_ID;
-  id->m_Line = 0;
 }
 
 /*
@@ -76,6 +85,7 @@ void init( Parameter* v )
   v->m_Next = 0x0;
   v->m_ValueSet = false;
   init( &v->m_Id );
+  init( &v->m_Locator );
 }
 
 Parameter* find_last( Parameter* v )
@@ -364,6 +374,7 @@ const char* list_as_string( BehaviorTreeContext tree, Parameter* v )
 void init( BehaviorTree* t )
 {
   init( &t->m_Id );
+  init( &t->m_Locator );
   t->m_Root = 0x0;
   t->m_UserData = 0x0;
   t->m_Declared = false;
@@ -398,6 +409,7 @@ void unlink_from_children( BehaviorTree* t )
 void init( Action* a )
 {
   init( &a->m_Id );
+  init( &a->m_Locator );
   a->m_Declarations = 0x0;
   a->m_Options = 0x0;
   a->m_Declared = false;
@@ -410,6 +422,7 @@ void init( Action* a )
 void init( Decorator* d )
 {
   init( &d->m_Id );
+  init( &d->m_Locator );
   d->m_Declarations = 0x0;
   d->m_Options = 0x0;
   d->m_Declared = false;
@@ -422,9 +435,10 @@ void init( Decorator* d )
 void init( Node* n )
 {
   init( &n->m_Grist );
-
+  init( &n->m_Locator );
   n->m_Pare.m_Type = E_NP_UNKOWN;
   n->m_Pare.m_Node = 0x0;
+  n->m_NodeId = 0;
   n->m_Next = 0x0;
   n->m_Prev = 0x0;
   n->m_UserData = 0x0;

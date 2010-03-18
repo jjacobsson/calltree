@@ -19,7 +19,6 @@ TEST( IdentifierInitSetsAllMembersCorrectly )
 	init( &id );
 	CHECK( id.m_Text == 0x0 );
 	CHECK( id.m_Hash == INVALID_ID );
-	CHECK( id.m_Line == 0 );
 }
 
 TEST( IdentifierAssignmentWorksAsExpected )
@@ -29,10 +28,8 @@ TEST( IdentifierAssignmentWorksAsExpected )
 	init( &i1 );
 	init( &i2 );
 	i1.m_Hash = 0xcafebabe;
-	i1.m_Line = 75;
 	i1.m_Text = test_string;
 	i2 = i1;
 	CHECK( i2.m_Hash == 0xcafebabe );
-	CHECK( i2.m_Line == 75 );
 	CHECK( i2.m_Text == test_string );
 }

@@ -21,7 +21,6 @@ TEST_FIXTURE( TestVariablesFixture, InitVariableInitsTheID )
 {
 	CHECK( v.m_Id.m_Text == 0x0 );
 	CHECK( v.m_Id.m_Hash == INVALID_ID );
-	CHECK( v.m_Id.m_Line == 0 );
 }
 
 TEST_FIXTURE( TestVariablesFixture, InitVariableInitsDataToZero )

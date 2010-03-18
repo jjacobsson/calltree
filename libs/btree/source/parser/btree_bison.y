@@ -20,6 +20,7 @@
 
 %{
 
+#include "../btree_internal.h"
 #include "parser.h"
 #include <stdio.h>
 
@@ -28,8 +29,11 @@
 
 bool declare_action( SParserContext* ctx, const Identifier& id, Parameter* vars, Parameter* args );
 bool declare_decorator( SParserContext* ctx, const Identifier& id, Parameter* vars, Parameter* args );
-Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child );
-Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id );
+Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child, const char* buffer, unsigned int line_no );
+Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id, const char* buffer, unsigned int line_no );
+
+#define ALLOCATE_NODE( TYPE, CHILD ) allocate_node( ctx->m_Tree, TYPE, CHILD, ctx->m_Current, ctx->m_LineNo );
+#define ALLOCATE_PARAMETER( TYPE, ID ) allocate_parameter( ctx->m_Tree, TYPE, ID, ctx->m_Current, ctx->m_LineNo );
 
 %}
 
@@ -99,6 +103,8 @@ deftree: T_DEFTREE T_ID nlist
 		BehaviorTree* t = look_up_behavior_tree( ctx->m_Tree, &$2 );
 		t->m_Root = $3;
 		t->m_Declared = true;
+		t->m_Locator.m_Buffer = ctx->m_Current;
+		t->m_Locator.m_LineNo = ctx->m_LineNo;
 		set_parent_on_children( t );
        }
        ;
@@ -119,6 +125,8 @@ defact: T_DEFACT T_ID vlist vdlist
 		a->m_Options = $3;
 		a->m_Declarations = $4;
 		a->m_Declared = true;
+		a->m_Locator.m_Buffer = ctx->m_Current;
+		a->m_Locator.m_LineNo = ctx->m_LineNo;
 	  }
       ;
       
@@ -128,6 +136,8 @@ defdec: T_DEFDEC T_ID vlist vdlist
       	d->m_Options = $3;
       	d->m_Declarations = $4;
       	d->m_Declared = true;
+      	d->m_Locator.m_Buffer = ctx->m_Current;
+      	d->m_Locator.m_LineNo = ctx->m_LineNo;
       }
       ;
 
@@ -154,63 +164,63 @@ nmembers: node	{ $$ = $1; }
 
 sequence: T_SEQUENCE nlist 
         {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_SEQUENCE, $2 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_SEQUENCE, $2 );
         	$$ = n;
         }
         ;
         
 selector: T_SELECTOR nlist 
         {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_SELECTOR, $2 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_SELECTOR, $2 );
         	$$ = n;
         }
         ;
         
 parallel: T_PARALLEL nlist 
         {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_PARALLEL, $2 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_PARALLEL, $2 );
         	$$ = n;
         }
         ;
         
 dselector: T_DSELECTOR nlist
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_DYN_SELECTOR, $2 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_DYN_SELECTOR, $2 );
         	$$ = n;
          }
          ;
          
 succeed: T_SUCCEED
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_SUCCEED, 0x0 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_SUCCEED, 0x0 );
         	$$ = n;
          }
          ;
          
 fail: T_FAIL
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_FAIL, 0x0 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_FAIL, 0x0 );
         	$$ = n;
          }
          ;
          
 work: T_WORK
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_WORK, 0x0 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_WORK, 0x0 );
         	$$ = n;
          }
          ;
          
 decorator: T_DECORATOR T_QUOTE T_ID vlist node 
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_DECORATOR, $5 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_DECORATOR, $5 );
         	$$ = n;
         	n->m_Grist.m_Decorator.m_Parameters = $4;
         	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
          }
          | T_DECORATOR T_QUOTE T_ID vlist T_QUOTE T_LPARE T_RPARE
          {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_DECORATOR, 0x0 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_DECORATOR, 0x0 );
         	$$ = n;
         	n->m_Grist.m_Decorator.m_Parameters = $4;
         	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
@@ -220,7 +230,7 @@ decorator: T_DECORATOR T_QUOTE T_ID vlist node
          
 action: T_ACTION T_QUOTE T_ID vlist 
       {
-        	Node* n = allocate_node( ctx->m_Tree, E_GRIST_ACTION, 0x0 );
+        	Node* n = ALLOCATE_NODE( E_GRIST_ACTION, 0x0 );
         	$$ = n;
         	n->m_Grist.m_Action.m_Parameters = $4;
         	n->m_Grist.m_Action.m_Action = look_up_action( ctx->m_Tree, &$3 );
@@ -229,7 +239,7 @@ action: T_ACTION T_QUOTE T_ID vlist
 
 tree: T_TREE T_QUOTE T_ID 
     {
-    	Node* n = allocate_node( ctx->m_Tree, E_GRIST_TREE, 0x0 );
+    	Node* n = ALLOCATE_NODE( E_GRIST_TREE, 0x0 );
     	$$ = n;
     	n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( ctx->m_Tree, &$3 );
     }
@@ -245,10 +255,10 @@ vmember: Parameter         { $$ = $1; }
 Parameter: T_LPARE vtypes T_RPARE { $$ = $2; }
         ;
 
-vtypes: T_ID T_INT32_VALUE  { $$ = allocate_parameter( ctx->m_Tree, E_VART_INTEGER, $1 ); $$->m_Data.m_Integer = $2; $$->m_ValueSet = true; }
-      | T_ID T_STRING_VALUE { $$ = allocate_parameter( ctx->m_Tree, E_VART_STRING, $1 );  $$->m_Data.m_String = $2; $$->m_ValueSet = true; }
-      | T_ID T_BOOL_VALUE   { $$ = allocate_parameter( ctx->m_Tree, E_VART_BOOL, $1 );    $$->m_Data.m_Bool = $2; $$->m_ValueSet = true; }
-      | T_ID T_FLOAT_VALUE  { $$ = allocate_parameter( ctx->m_Tree, E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; $$->m_ValueSet = true; }
+vtypes: T_ID T_INT32_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $1 ); $$->m_Data.m_Integer = $2; $$->m_ValueSet = true; }
+      | T_ID T_STRING_VALUE { $$ = ALLOCATE_PARAMETER( E_VART_STRING, $1 );  $$->m_Data.m_String = $2; $$->m_ValueSet = true; }
+      | T_ID T_BOOL_VALUE   { $$ = ALLOCATE_PARAMETER( E_VART_BOOL, $1 );    $$->m_Data.m_Bool = $2; $$->m_ValueSet = true; }
+      | T_ID T_FLOAT_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; $$->m_ValueSet = true; }
       ;
 
 vdlist: T_QUOTE T_LPARE vdmember T_RPARE { $$ = $3; }
@@ -261,34 +271,39 @@ vdmember: vardec          { $$ = $1; }
 vardec: T_LPARE vdtypes T_RPARE { $$ = $2; }
       ;
 
-vdtypes: T_INT32 T_ID  { $$ = allocate_parameter( ctx->m_Tree, E_VART_INTEGER, $2 ); }
-       | T_STRING T_ID { $$ = allocate_parameter( ctx->m_Tree, E_VART_STRING, $2 ); }
-       | T_BOOL T_ID   { $$ = allocate_parameter( ctx->m_Tree, E_VART_BOOL, $2 ); }
-       | T_FLOAT T_ID  { $$ = allocate_parameter( ctx->m_Tree, E_VART_FLOAT, $2 ); }
-       | T_HASH T_ID   { $$ = allocate_parameter( ctx->m_Tree, E_VART_HASH, $2 ); }
+vdtypes: T_INT32 T_ID  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $2 ); }
+       | T_STRING T_ID { $$ = ALLOCATE_PARAMETER( E_VART_STRING, $2 ); }
+       | T_BOOL T_ID   { $$ = ALLOCATE_PARAMETER( E_VART_BOOL, $2 ); }
+       | T_FLOAT T_ID  { $$ = ALLOCATE_PARAMETER( E_VART_FLOAT, $2 ); }
+       | T_HASH T_ID   { $$ = ALLOCATE_PARAMETER( E_VART_HASH, $2 ); }
        ;
 
 %%
 
-Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child )
+Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child, const char* buffer, unsigned int line_no )
 {
 	Node* n = (Node*)allocate_object( ctx );
 	if( n )
 	{
 		init( n );
 		n->m_Grist.m_Type = type;
+		n->m_NodeId = ctx->m_NodeId++;
+		n->m_Locator.m_Buffer = buffer;
+		n->m_Locator.m_LineNo = line_no;		
 		set_first_child( n, child );
 		set_parent_on_children( n );
 	}
 	return n;
 }
 
-Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id )
+Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id, const char* buffer, unsigned int line_no )
 {
 	Parameter* p = (Parameter*)allocate_object( ctx );
 	if( p )
 	{
 		init( p );
+		p->m_Locator.m_Buffer = buffer;
+		p->m_Locator.m_LineNo = line_no;
 		p->m_Type = type;
 		p->m_Id = id;
 	}

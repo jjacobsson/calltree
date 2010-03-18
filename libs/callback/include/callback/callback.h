@@ -86,9 +86,11 @@ struct CallbackProgram;
 union DebugFlags
 {
   unsigned int   m_Flags;
-  unsigned char  m_Exit;
-  unsigned char  m_Standard;
-  unsigned char  m_Action;
+  struct {
+    unsigned char  m_Exit:1;
+    unsigned char  m_Standard:1;
+    unsigned char  m_Action:4;
+  };
 };
 
 struct DebugInformation

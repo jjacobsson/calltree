@@ -22,7 +22,7 @@ struct SParserContext
   StringBuffer             m_Original;
   ParserContextFunctions   m_Funcs;
   Allocator                m_Allocator;
-  int                      m_LineNo;
+  unsigned int             m_LineNo;
   BehaviorTreeContext      m_Tree;
   void*                    m_Extra;
   const char*              m_Current;

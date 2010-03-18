@@ -51,7 +51,12 @@ struct Identifier
 {
   const char* m_Text;
   hash_t m_Hash;
-  int m_Line;
+};
+
+struct Locator
+{
+  const char*  m_Buffer;
+  unsigned int m_LineNo;
 };
 
 struct StringData
@@ -72,6 +77,7 @@ union ParameterData
 struct Parameter
 {
   Identifier m_Id;
+  Locator m_Locator;
   ParameterType m_Type;
   ParameterData m_Data;
   Parameter* m_Next;
@@ -81,6 +87,7 @@ struct Parameter
 struct Action
 {
   Identifier m_Id;
+  Locator m_Locator;
   Parameter* m_Declarations; /* Argument declarations */
   Parameter* m_Options; /* Code-generation variables */
   bool m_Declared;
@@ -89,6 +96,7 @@ struct Action
 struct Decorator
 {
   Identifier m_Id;
+  Locator m_Locator;
   Parameter* m_Declarations; /* Argument declarations */
   Parameter* m_Options; /* Code-generation variables */
   bool m_Declared;
@@ -169,6 +177,8 @@ struct Node
 {
   NodeGrist m_Grist;
   NodeParent m_Pare;
+  Locator m_Locator;
+  unsigned int m_NodeId;
   Node* m_Next;
   Node* m_Prev;
   void* m_UserData;
@@ -177,6 +187,7 @@ struct Node
 struct BehaviorTree
 {
   Identifier m_Id;
+  Locator m_Locator;
   Node* m_Root;
   void* m_UserData;
   bool m_Declared;
@@ -185,8 +196,6 @@ struct BehaviorTree
 typedef unsigned int mem_size_t;
 typedef void* (*AllocateMemoryCallback)( const mem_size_t size );
 typedef void (*FreeMemoryCallback)( void* object_pointer );
-
-typedef struct SBehaviorTreeContext* BehaviorTreeContext;
 
 struct Allocator
 {

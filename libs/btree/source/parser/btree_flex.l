@@ -93,7 +93,6 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 {ID}            {
                     SParserContext* ctx = yyget_extra(yyscanner);
                     (*yylval).m_Id.m_Hash = hashlittle( yytext );
-                    (*yylval).m_Id.m_Line = ctx->m_LineNo;
                     (*yylval).m_Id.m_Text = register_string( ctx->m_Tree, yytext, (*yylval).m_Id.m_Hash );
                     return T_ID; 
                 }

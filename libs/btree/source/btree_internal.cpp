@@ -31,6 +31,8 @@ BehaviorTreeContext create_bt_context( Allocator& allocator )
   btc->m_Pool      = op;
   btc->m_Allocator = allocator;
   btc->m_Includes  = 0x0;
+  btc->m_Options   = 0x0;
+  btc->m_NodeId    = 0;
 
   init( &btc->m_StringTable, btc->m_Allocator );
   init( &btc->m_SymbolTable, btc->m_Allocator );
