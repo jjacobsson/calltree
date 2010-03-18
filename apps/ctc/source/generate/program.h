@@ -12,7 +12,6 @@
 #ifndef PROGRAM_H_INCLUDED
 #define PROGRAM_H_INCLUDED
 
-#include <callback/instructions.h>
 #include <callback/callback.h>
 #include <btree/btree_data.h>
 #include <vector>
@@ -42,14 +41,12 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action );
-    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, cb::NodeAction action );
+    void    PopDebugScope( Program* p, Node* n, cb::NodeAction action );
 
 private:
 
-    callback::VMIType SafeConvert( TIn i ) const;
-
-    typedef std::vector<callback::Instruction> Instructions;
+    typedef std::vector<cb::Instruction> Instructions;
     Instructions m_Inst;
     int          m_BssStart;
     bool         m_DebugInfo;

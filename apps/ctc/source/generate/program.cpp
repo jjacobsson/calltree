@@ -22,10 +22,11 @@
 
 #include <algorithm>
 
-using namespace callback;
+using namespace cb;
 
 void print_instruction( FILE* outFile, const Instruction& inst, int i )
 {
+  /*
   fprintf( outFile, "0x%04x\t%-20s\t", i, g_InstructionNames[inst.m_I] );
 
   switch( inst.m_I )
@@ -47,6 +48,7 @@ void print_instruction( FILE* outFile, const Instruction& inst, int i )
       inst.m_A3 );
     break;
   }
+  */
 }
 
 CodeSection::CodeSection()
@@ -65,11 +67,12 @@ void CodeSection::Setup( Program* p )
   if( !m_DebugInfo )
     return;
 
-  m_BssStart = p->m_B.Push( sizeof(DebugInformation), 4 );
+  m_BssStart = p->m_B.Push( sizeof(DebugData), 4 );
 }
 
 void CodeSection::Print( FILE* outFile ) const
 {
+  /*
   int s = Count();
   fprintf( outFile, "%-6s\t%-20s\t%-10s\t%-10s\t%s\n", "Line", "Instruction",
     "A1", "A2", "A3" );
@@ -81,6 +84,7 @@ void CodeSection::Print( FILE* outFile ) const
   }
   fprintf( outFile, "\nCode:\t%d (%d instructions)\n", s * sizeof(Instruction),
     s );
+  */
 }
 
 int CodeSection::Count() const
@@ -90,32 +94,34 @@ int CodeSection::Count() const
 
 void CodeSection::Push( TIn inst, TIn A1, TIn A2, TIn A3 )
 {
+/*
   Instruction i;
   i.m_I = SafeConvert( inst );
   i.m_A1 = SafeConvert( A1 );
   i.m_A2 = SafeConvert( A2 );
   i.m_A3 = SafeConvert( A3 );
   m_Inst.push_back( i );
+*/
 }
 
 void CodeSection::SetA1( int i, TIn A1 )
 {
-  m_Inst[i].m_A1 = SafeConvert( A1 );
+ // m_Inst[i].m_A1 = SafeConvert( A1 );
 }
 void CodeSection::SetA2( int i, TIn A2 )
 {
-  m_Inst[i].m_A2 = SafeConvert( A2 );
+ // m_Inst[i].m_A2 = SafeConvert( A2 );
 }
 void CodeSection::SetA3( int i, TIn A3 )
 {
-  m_Inst[i].m_A3 = SafeConvert( A3 );
+ // m_Inst[i].m_A3 = SafeConvert( A3 );
 }
 
 bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
 {
   if( m_Inst.empty() )
     return true;
-
+/*
   Instructions t( m_Inst );
   size_t s = t.size();
 
@@ -132,6 +138,8 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
   size_t write = sizeof(Instruction) * s;
   size_t written = fwrite( &(t[0]), 1, write, outFile );
   return written == write;
+*/
+  return false;
 }
 
 int StringFromAction( Program* p, NodeAction action )
@@ -211,7 +219,7 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
 {
   if( !m_DebugInfo )
     return;
-
+/*
   DebugFlags flags;
 
   flags.m_Flags    = 0;
@@ -245,13 +253,14 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
+*/
 }
 
 void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
 {
   if( !m_DebugInfo )
     return;
-
+/*
   DebugFlags flags;
 
   flags.m_Flags    = 0;
@@ -285,12 +294,9 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
+  */
 }
 
-VMIType CodeSection::SafeConvert( TIn i ) const
-{
-  return static_cast<VMIType> ( i );
-}
 
 BSSSection::BSSSection()
   : m_Max( 0 )
@@ -340,7 +346,7 @@ void DataSection::Print( FILE* outFile )
     switch( (*it).m_Type )
     {
     case E_DT_INTEGER:
-      fprintf( outFile, "%d", *(int*)(&m_Data[(*it).m_Index]) );
+      fprintf( outFile, "0x%08x", *(int*)(&m_Data[(*it).m_Index]) );
       break;
     case E_DT_FLOAT:
       fprintf( outFile, "%f", *(float*)(&m_Data[(*it).m_Index]) );
@@ -447,7 +453,7 @@ int DataSection::PushData( const char* data, int count )
 int setup_before_generate( Node* n, Program* p )
 {
   //Alloc storage area for bss header
-  p->m_bss_Header = p->m_B.Push( sizeof(BssHeader), 4 );
+  p->m_bss_Header = p->m_B.Push( sizeof(Context), 4 );
   //Alloc storage area for child-node return value.
   p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
 
@@ -463,6 +469,8 @@ int teardown_after_generate( Node* n, Program* p )
 
 int generate_program( Node* n, Program* p )
 {
+  return -1;
+  /*
   if( !n || !p )
     return -1;
 
@@ -498,7 +506,7 @@ int generate_program( Node* n, Program* p )
 
   //Suspend execution
   p->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
-
+*/
   return 0;
 }
 
@@ -512,6 +520,8 @@ int print_program( FILE* outFile, Program* p )
 
 int save_program( FILE* outFile, bool swapEndian, Program* p )
 {
+  return -1;
+  /*
   ProgramHeader h;
   h.m_IC = p->m_I.Count();
   h.m_DS = p->m_D.Size();
@@ -532,4 +542,5 @@ int save_program( FILE* outFile, bool swapEndian, Program* p )
   if( !p->m_D.Save( outFile, swapEndian ) )
     return -1;
   return 0;
+  */
 }

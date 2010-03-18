@@ -19,7 +19,7 @@
 
 #include <vector>
 
-using namespace callback;
+using namespace cb;
 
 typedef std::vector<int> IntVector;
 
@@ -282,6 +282,7 @@ int gen_teardown_sequence( Node* n, Program* p )
 
 int gen_con_sequence( Node* n, Program* p )
 {
+  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
@@ -294,12 +295,13 @@ int gen_con_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
-
+*/
   return 0;
 }
 
 int gen_exe_sequence( Node* n, Program* p )
 {
+  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -397,11 +399,13 @@ int gen_exe_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  */
   return 0;
 }
 
 int gen_des_sequence( Node* n, Program* p )
 {
+  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -416,7 +420,7 @@ int gen_des_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
-
+  */
   return 0;
 }
 
@@ -476,6 +480,7 @@ int gen_teardown_selector( Node* n, Program* p )
 
 int gen_con_selector( Node* n, Program* p )
 {
+  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -489,12 +494,13 @@ int gen_con_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
-
+*/
   return 0;
 }
 
 int gen_exe_selector( Node* n, Program* p )
 {
+  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -592,12 +598,13 @@ int gen_exe_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
-
+*/
   return 0;
 }
 
 int gen_des_selector( Node* n, Program* p )
 {
+  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
@@ -611,7 +618,7 @@ int gen_des_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
-
+*/
   return 0;
 }
 
@@ -667,7 +674,7 @@ int gen_con_parallel( Node* n, Program* p )
 {
   //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  //p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
 
   int err;
   Node* c = get_first_child( n );
@@ -687,6 +694,7 @@ int gen_con_parallel( Node* n, Program* p )
 
 int gen_exe_parallel( Node* n, Program* p )
 {
+  /*
   ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
@@ -735,6 +743,7 @@ int gen_exe_parallel( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  */
   return 0;
 }
 
@@ -742,7 +751,7 @@ int gen_des_parallel( Node* n, Program* p )
 {
   //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  //p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
 
   int err;
   Node* c = get_first_child( n );
@@ -816,6 +825,7 @@ int gen_teardown_dynselector( Node* n, Program* p )
 
 int gen_con_dynselector( Node* n, Program* p )
 {
+  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
@@ -838,11 +848,13 @@ int gen_con_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  */
   return 0;
 }
 
 int gen_exe_dynselector( Node* n, Program* p )
 {
+  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
@@ -966,11 +978,13 @@ int gen_exe_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  */
   return 0;
 }
 
 int gen_des_dynselector( Node* n, Program* p )
 {
+  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
@@ -989,6 +1003,7 @@ int gen_des_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  */
   return 0;
 }
 
@@ -1015,7 +1030,7 @@ int gen_con_succeed( Node* n, Program* p )
 
 int gen_exe_succeed( Node* n, Program* p )
 {
-  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_SUCCESS, 0, 0 );
+  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_SUCCESS, 0, 0 );
   return 0;
 }
 
@@ -1044,7 +1059,7 @@ int gen_con_fail( Node* n, Program* p )
 }
 int gen_exe_fail( Node* n, Program* p )
 {
-  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_FAIL, 0, 0 );
+  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_FAIL, 0, 0 );
   return 0;
 }
 int gen_des_fail( Node* n, Program* p )
@@ -1075,7 +1090,7 @@ int gen_con_work( Node* n, Program* p )
 
 int gen_exe_work( Node* n, Program* p )
 {
-  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_WORKING, 0, 0 );
+  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_WORKING, 0, 0 );
   return 0;
 }
 
@@ -1147,6 +1162,7 @@ int gen_teardown_decorator( Node* n, Program* p )
 
 int gen_con_decorator( Node* n, Program* p )
 {
+  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1192,11 +1208,13 @@ int gen_con_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  */
   return 0;
 }
 
 int gen_exe_decorator( Node* n, Program* p )
 {
+  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1275,12 +1293,13 @@ int gen_exe_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
-
+*/
   return 0;
 }
 
 int gen_des_decorator( Node* n, Program* p )
 {
+  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1319,7 +1338,7 @@ int gen_des_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
-
+*/
   return 0;
 }
 
@@ -1369,6 +1388,7 @@ int gen_teardown_action( Node* n, Program* p )
 
 int gen_con_action( Node* n, Program* p )
 {
+  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -1406,12 +1426,13 @@ int gen_con_action( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
-
+*/
   return 0;
 }
 
 int gen_exe_action( Node* n, Program* p )
 {
+  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -1435,12 +1456,13 @@ int gen_exe_action( Node* n, Program* p )
   p->m_I.Push( INST_CALL_EXEC_FUN, 0, 1, 2 );
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
-
+*/
   return 0;
 }
 
 int gen_des_action( Node* n, Program* p )
 {
+  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -1470,13 +1492,14 @@ int gen_des_action( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
-
+*/
   return 0;
 }
 
 int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
   Parameter* dec, Program* p )
 {
+  /*
   if( !vars || !dec )
     return 0;
 
@@ -1516,12 +1539,13 @@ int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
       break;
     }
   }
-
+*/
   return 0;
 }
 int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
   Program* p )
 {
+  /*
   IntVector::iterator it, it_e( vd->m_Data.end() );
   int i = 0;
   for( it = vd->m_Data.begin(); it != it_e; ++it, ++i )
@@ -1530,12 +1554,14 @@ int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
     p->m_I.Push( INST_STORE_PD_IN_B, vd->m_bssStart + (sizeof(void*) * i), *it,
       0 );
   }
+  */
   return 0;
 }
 
 int setup_variable_registry( VariableGenerateData* vd, Parameter* vars,
   Program* p )
 {
+  /*
   if( !vd->m_Data.empty() )
   {
     // Load the user data register with a pointer to the bss structure for variables
@@ -1546,6 +1572,7 @@ int setup_variable_registry( VariableGenerateData* vd, Parameter* vars,
     //Load the user data register with a null pointer
     p->m_I.Push( INST_LOAD_REGISTRY, 2, 0, 0 );
   }
+  */
   return 0;
 }
 

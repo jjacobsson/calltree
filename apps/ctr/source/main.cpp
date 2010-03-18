@@ -16,11 +16,10 @@
 
 #include <other/getopt.h>
 #include <callback/callback.h>
-#include <callback/instructions.h>
 
 #include "timing.h"
 
-using namespace callback;
+using namespace cb;
 
 
 struct UserData
@@ -34,11 +33,11 @@ struct UserData
     bool        m_Exit;
 };
 
-void cb_debug( CallbackProgram* cp, DebugInformation* di, BssHeader* bh, void* ud )
+void cb_debug( CallbackProgram* cp, DebugData* dd, Context* ctx )
 {
   DebugFlags f;
-  f.m_Flags = di->m_Flags;
-  printf( "%s - %s %s\n", di->m_Name, di->m_Action, (f.m_Exit == 0)?"Entry":"Exit" );
+  f.m_Flags = dd->m_Flags;
+  printf( "%s - %s %s\n", dd->m_Name, dd->m_Action, (f.m_Exit == 0)?"Entry":"Exit" );
 }
 
 unsigned int cb_setexit(unsigned int action, void* bss, void** data, UserData& user_data)
@@ -203,7 +202,7 @@ unsigned int cb_modify_return( unsigned int action, void* bss, void** data, User
     return E_NODE_UNDEFINED;
 }
 
-unsigned int cb_handler(unsigned int id, unsigned int action, void* bss, void** data, void* user_data)
+unsigned int cb_handler( CallData* cd, void* ud )
 {
     uint64 start, end;
 
@@ -212,51 +211,45 @@ unsigned int cb_handler(unsigned int id, unsigned int action, void* bss, void** 
     UserData& ud = *((UserData*)user_data);
 
     unsigned int retVal = E_NODE_UNDEFINED;
-    switch (id) {
+    switch (cd->m_Id) {
     case 0:
-        retVal = cb_setexit( action, bss, data, ud );
+        retVal = cb_setexit( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 1:
-        retVal = cb_checkexit( action, bss, data, ud );
+        retVal = cb_checkexit( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 2:
-        retVal = cb_getline( action, bss, data, ud );
+        retVal = cb_getline( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 3:
-        retVal = cb_strcmp( action, bss, data, ud );
+        retVal = cb_strcmp( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 4:
-        retVal = cb_print( action, bss, data, ud );
-        break;
-    case 5:
-        retVal = E_NODE_FAIL;
-        break;
-    case 6:
-        retVal = E_NODE_SUCCESS;
+        retVal = cb_print( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 7:
-        retVal = cb_count_to_zero( action, bss, data, ud );
+        retVal = cb_count_to_zero( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 8:
-        retVal = cb_set_gc( action, bss, data, ud );
+        retVal = cb_set_gc( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 9:
-        retVal = cb_dec_gc( action, bss, data, ud );
+        retVal = cb_dec_gc( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 10:
-        retVal = cb_inc_gc( action, bss, data, ud );
+        retVal = cb_inc_gc( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 11:
-        retVal = cb_check_gc_smlr( action, bss, data, ud );
+        retVal = cb_check_gc_smlr( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 12:
-        retVal = cb_check_gc_grtr( action, bss, data, ud );
+        retVal = cb_check_gc_grtr( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 13:
-        retVal = cb_time_delay( action, bss, data, ud );
+        retVal = cb_time_delay( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     case 100:
-        retVal = cb_modify_return( action, bss, data, ud );
+        retVal = cb_modify_return( cd->m_Action, cd->m_Memory, cd->m_Parameters, ud );
         break;
     }
 
@@ -344,17 +337,17 @@ int main(int argc, char** argv)
 
         uint64 start, frame_start, end, frame_end, freq;
 
-        int bss_size = ((ProgramHeader*)program)->m_BS;
-        char* bss = (char*)alloca( bss_size );
-        memset( bss, 0, bss_size );
+        int memory_size = ((ProgramHeader*)program)->m_BS;
+        char* memory = (char*)alloca( memory_size );
+        memset( memory, 0, memory_size );
 
         CallbackProgram cp;
         cp.m_Program  = program;
-        cp.m_bss      = bss;
+        cp.m_Memory   = memory;
         cp.m_UserData = (void*)&ud;
         cp.m_Callback = &cb_handler;
         cp.m_Debug    = &cb_debug;
-        BssHeader* bh = (BssHeader*)bss;
+        Context* ctx  = (Context*)memory;
 
         freq = get_cpu_frequency();
 
@@ -372,7 +365,7 @@ int main(int argc, char** argv)
         while( !ud.m_Exit )
         {
             ud.m_FrameCounter = 0;
-            unsigned int IC = bh->m_IC;
+            unsigned int pc = ctx->r[eic];
 
             frame_start = get_cpu_counter();
 
@@ -389,13 +382,13 @@ int main(int argc, char** argv)
             {
                 worst_frame = frames;
                 maxima      = in_vm_this_frame;
-                inst_worst  = bh->m_IC - IC;
+                inst_worst  = ctx->r[epc] - pc;
             }
             if( in_vm_this_frame < minima )
             {
                 best_frame = frames;
                 minima     = in_vm_this_frame;
-                inst_best  = bh->m_IC - IC;
+                inst_best  = ctx->r[epc] - pc;
             }
         }
         end = get_cpu_counter();
@@ -405,7 +398,7 @@ int main(int argc, char** argv)
         double in_vm       = ((double)time_in_vm) / ((double)freq);
         double total       = ((double)total_ticks) / ((double)freq);
 
-        printf( "Instructions executed:    %10d\n", bh->m_IC );
+        printf( "Instructions executed:    %10d\n", ctx->r[eic] );
         printf( "Frames:                   %10d\n\n", frames );
 
         printf( "ys spent in VM per frame: %10.2f\n", (in_vm * 1000000.0) / (double)frames );
