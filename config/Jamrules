@@ -259,8 +259,6 @@ rule qrcFile
 
 rule ConvertSvgToPNG
 {
-	MkDir $(1:P) ;
-	Depends $(1) : $(1:P) ;
 	Depends $(1) : $(2) ;
 	Depends $(1) : $(BUILD_BIN_DIR)svg_to_png$(SUFEXE) ;
 	Clean clean : $(1) ;

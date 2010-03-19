@@ -13,6 +13,9 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QImage>
 
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
 #include <other/getopt.h>
 
 char* g_inputFileName = 0x0;
@@ -53,6 +56,14 @@ int main(int argc, char *argv[])
     if( pixmap.isNull() )
     {
       printf( "error: failed to load input file %s\n", g_inputFileName );
+      return -1;
+    }
+
+    QFileInfo fi( g_outputFileName );
+    QDir dir;
+    if( !dir.mkpath( fi.absolutePath() ) )
+    {
+      printf( "error: unable to create output directory %s\n", fi.absolutePath().toAscii().constData() );
       return -1;
     }
 
