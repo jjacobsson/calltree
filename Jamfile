@@ -59,6 +59,5 @@ rule CompileBehaviourTrees
 	}
 }
 
-CompileBehaviourTrees trees ;
-
-Depends all : trees ;
+#CompileBehaviourTrees trees ;
+#Depends all : trees ;

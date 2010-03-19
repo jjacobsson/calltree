@@ -202,7 +202,7 @@ unsigned int cb_modify_return( unsigned int action, void* bss, void** data, User
     return E_NODE_UNDEFINED;
 }
 
-unsigned int cb_handler( CallData* cd, void* ud )
+unsigned int cb_handler( CallData* cd, void* user_data )
 {
     uint64 start, end;
 
@@ -337,7 +337,8 @@ int main(int argc, char** argv)
 
         uint64 start, frame_start, end, frame_end, freq;
 
-        int memory_size = ((ProgramHeader*)program)->m_BS;
+        ProgramHeader* ph = (ProgramHeader*)program;
+        int memory_size = sizeof(Context) + ph->m_Bss + ph->m_Stack + ph->m_CStack;
         char* memory = (char*)alloca( memory_size );
         memset( memory, 0, memory_size );
 
@@ -382,13 +383,13 @@ int main(int argc, char** argv)
             {
                 worst_frame = frames;
                 maxima      = in_vm_this_frame;
-                inst_worst  = ctx->r[epc] - pc;
+                inst_worst  = ctx->r[eic] - pc;
             }
             if( in_vm_this_frame < minima )
             {
                 best_frame = frames;
                 minima     = in_vm_this_frame;
-                inst_best  = ctx->r[epc] - pc;
+                inst_best  = ctx->r[eic] - pc;
             }
         }
         end = get_cpu_counter();

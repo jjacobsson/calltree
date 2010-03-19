@@ -37,17 +37,30 @@ enum NodeReturns
 
 enum InstructionSet
 {
-  noop,         /* No-Op */
-  call,         /* push ip+1 to sp and set ip to toc[a1] */
-  ret,          /* pop sp to ip */
-  ccall,        /* */
-  dcall,        /* */
-  mov,          /* */
-  load,         /* */
-  store,        /* */
-  push,         /* */
-  pop,          /* */
-  exit,         /* */
+  inop,          /* No-Op */
+  icall,         /* push ip+1 to sp and set ip to toc[a1] */
+  iret,          /* pop sp to ip */
+  iccall,        /* */
+  idcall,        /* */
+  imov,          /* */
+  iload,         /* */
+  istore,        /* */
+  ipush,         /* */
+  ipop,          /* */
+  ishftl,        /* */
+  ishftr,        /* */
+  iand,          /* */
+  ior,           /* */
+  ixor,          /* */
+  isetl,         /* */
+  iseth,         /* */
+  iandl,         /* */
+  iandh,         /* */
+  iorl,          /* */
+  iorh,          /* */
+  ixorl,         /* */
+  ixorh,         /* */
+  iexit,         /* */
   inst_count
 };
 
@@ -85,9 +98,12 @@ struct Context
 
 struct ProgramHeader
 {
-  unsigned int m_IC; // Instruction COUNT
-  unsigned int m_DS; // Data SIZE
-  unsigned int m_BS; // .bss SIZE
+  unsigned int m_Inst;   // Offset to the first Instruction (i.e. sizeof( ProgramHeader ))
+  unsigned int m_Data;   // Offset to the first data byte
+  unsigned int m_Funt;   // Offset to the first FunctionTableEntry
+  unsigned int m_Bss;    // Offset from memory to the start of the bss (i.e. sizeof( Context ))
+  unsigned int m_Stack;  // Offset from memory to the start of the stack
+  unsigned int m_CStack; // Offset from memory to the start of the call stack
 };
 
 struct FunctionTableEntry

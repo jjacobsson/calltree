@@ -23,15 +23,24 @@ int run_program( CallbackProgram* info )
   DebugHandler dh    = info->m_Debug;
 
   ProgramHeader* ph  = (ProgramHeader*)(info->m_Program);
+  // Get the instruction array
+  Instruction* inst  = (Instruction*)((type)ph + ph->m_Inst);
+  // Setup the context ptr
   Context* ctx       = (Context*)info->m_Memory;
-  Instruction* inst  = (Instruction*)((type)info->m_Program + sizeof(ProgramHeader));
-  // Setup memory register
-  ctx->r[ems]        = (type)((type)info->m_Memory + sizeof( Context ));
-  // Setup instruction pointer
-  ctx->r[eip]        = 0;
   // Setup the data register
-  ctx->r[eds]        = ctx->r[eip] + sizeof(Instruction) * ph->m_IC;
+  ctx->r[eds] = (type)ph + ph->m_Data;
+  // Setup the function table register
+  ctx->r[eft] = (type)ph + ph->m_Funt;
+  // Setup memory register
+  ctx->r[ems] = (type)ctx + ph->m_Bss;
+  // Setup the stack register
+  ctx->r[esp] = (type)ctx + ph->m_Stack;
+  // Setup the call stack register
+  ctx->r[efs] = (type)ctx + ph->m_CStack;
+  // Setup instruction pointer
+  ctx->r[eip] = 0;
 
+  // Increment the frame counter
   ctx->r[efc]++;
 
   Instruction* i;
@@ -39,68 +48,95 @@ int run_program( CallbackProgram* info )
 start_label:
 
   i = &inst[ctx->r[eip]];
-  ctx->r[eip] += sizeof( Instruction );
+  ctx->r[eip]++;
   ctx->r[eic]++;
 
   switch( i->i )
   {
-  case noop:
+  case inop:
     break;
-  case call:
+  case icall:
     *(type*)ctx->r[efs] = ctx->r[eip];
     ctx->r[efs] += sizeof(type);
-    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])
-      [
-        ((type)i->a1<<16)&
-        ((type)i->a2<<8)&
-        ((type)i->a3)
-      ].m_Start;
+    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])[ctx->r[i->a1]].m_Start;
     break;
-  case ret:
+  case iret:
     ctx->r[efs] -= sizeof(type);
     ctx->r[eip] = *(type*)ctx->r[efs];
     break;
-  case ccall:
-    ctx->r[err] =
-      ch(
-        (CallData*)(
-          ctx->r[i->a1] +
-          (sizeof(type)*i->a2) +
-          (sizeof(type)*i->a3)
-        ),
-        info->m_UserData
-      );
+  case iccall:
+    if( ch )
+      ctx->r[err] =
+        ch(
+          (CallData*)(ctx->r[i->a1]),
+          info->m_UserData
+        );
     break;
-  case dcall:
+  case idcall:
     if( dh )
       dh(
         info,
-        (DebugData*)(
-          ctx->r[i->a1] +
-          (sizeof(type)*i->a2) +
-          (sizeof(type)*i->a3)
-        ),
+        (DebugData*)(ctx->r[i->a1]),
         ctx
       );
     break;
-  case mov:
+  case imov:
     ctx->r[i->a1] = ctx->r[i->a2];
     break;
-  case load:
+  case iload:
     ctx->r[i->a1] = *(type*)(ctx->r[i->a2] + (sizeof(type)*i->a3));
     break;
-  case store:
+  case istore:
     *(type*)(ctx->r[i->a1] + (sizeof(type)*i->a2)) = ctx->r[i->a3];
     break;
-  case push:
+  case ipush:
     *(type*)(ctx->r[esp]) = ctx->r[i->a1];
     ctx->r[esp] += sizeof(type);
     break;
-  case pop:
+  case ipop:
     ctx->r[esp] -= sizeof(type);
     ctx->r[i->a1] = *(type*)ctx->r[esp];
     break;
-  case exit:
+  case ishftl:
+    ctx->r[i->a1] = ctx->r[i->a2] << i->a3;
+    break;
+  case ishftr:
+    ctx->r[i->a1] = ctx->r[i->a2] >> i->a3;
+    break;
+  case iand:
+    ctx->r[i->a1] = ctx->r[i->a2] & ctx->r[i->a3];
+    break;
+  case ior:
+    ctx->r[i->a1] = ctx->r[i->a2] | ctx->r[i->a3];
+    break;
+  case ixor:
+    ctx->r[i->a1] = ctx->r[i->a2] ^ ctx->r[i->a3];
+    break;
+  case isetl:
+    ctx->r[i->a1] = (((type)i->a2)<<8)|(type)i->a3;
+    break;
+  case iseth:
+    ctx->r[i->a1] = (((type)i->a2)<<24)|(((type)i->a3)<<16);
+    break;
+  case iandl:
+    ctx->r[i->a1] &= (((type)i->a2)<<8)|(type)i->a3;
+    break;
+  case iandh:
+    ctx->r[i->a1] &= (((type)i->a2)<<24)|(((type)i->a3)<<16);
+    break;
+  case iorl:
+    ctx->r[i->a1] |= (((type)i->a2)<<8)|(type)i->a3;
+    break;
+  case iorh:
+    ctx->r[i->a1] |= (((type)i->a2)<<24)|(((type)i->a3)<<16);
+    break;
+  case ixorl:
+    ctx->r[i->a1] ^= (((type)i->a2)<<8)|(type)i->a3;
+    break;
+  case ixorh:
+    ctx->r[i->a1] ^= (((type)i->a2)<<24)|(((type)i->a3)<<16);
+    break;
+  case iexit:
     goto exit_label;
     break;
   }
