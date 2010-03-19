@@ -63,10 +63,77 @@ TEST_FIXTURE( VirtualMachineFixture, isetl )
 TEST_FIXTURE( VirtualMachineFixture, iseth )
 {
   inst[0].i  = iseth;
-  inst[0].a1 = er2;
+  inst[0].a1 = er3;
   inst[0].a2 = 0xca;
   inst[0].a3 = 0xfe;
   inst[1].i  = iexit;
   run_program( &cp );
-  CHECK( ctx->r[er2] == 0xcafe0000 );
+  CHECK( ctx->r[er3] == 0xcafe0000 );
 }
+
+TEST_FIXTURE( VirtualMachineFixture, ishftl )
+{
+  inst[0].i  = isetl;
+  inst[0].a1 = er3;
+  inst[0].a2 = 0xba;
+  inst[0].a3 = 0xbe;
+  inst[1].i  = ishftl;
+  inst[1].a1 = er2;
+  inst[1].a2 = er3;
+  inst[1].a3 = 8;
+  inst[2].i  = iexit;
+  run_program( &cp );
+  CHECK( ctx->r[er3] == 0x0000babe );
+  CHECK( ctx->r[er2] == 0x00babe00 );
+}
+
+TEST_FIXTURE( VirtualMachineFixture, ishftr )
+{
+  inst[0].i  = iseth;
+  inst[0].a1 = er3;
+  inst[0].a2 = 0xca;
+  inst[0].a3 = 0xfe;
+  inst[1].i  = ishftr;
+  inst[1].a1 = er2;
+  inst[1].a2 = er3;
+  inst[1].a3 = 16;
+  inst[2].i  = iexit;
+  run_program( &cp );
+  CHECK( ctx->r[er3] == 0xcafe0000 );
+  CHECK( ctx->r[er2] == 0x0000cafe );
+}
+
+TEST_FIXTURE( VirtualMachineFixture, icall )
+{
+  funt[16].m_Start = 5;
+  inst[0].i  = isetl;
+  inst[0].a1 = er3;
+  inst[0].a2 = 0x00;
+  inst[0].a3 = 0x10;
+  inst[1].i  = icall;
+  inst[1].a1 = er3;
+  inst[2].i  = iexit;
+
+  inst[5].i  = isetl;
+  inst[5].a1 = er0;
+  inst[5].a2 = 0xca;
+  inst[5].a3 = 0xfe;
+  inst[6].i  = ishftl;
+  inst[6].a1 = er0;
+  inst[6].a2 = er0;
+  inst[6].a3 = 16;
+  inst[7].i  = iorl;
+  inst[7].a1 = er0;
+  inst[7].a2 = 0xba;
+  inst[7].a3 = 0xbe;
+  inst[8].i  = iret;
+
+  run_program( &cp );
+  CHECK( ctx->r[er0] == 0xcafebabe );
+}
+
+
+
+
+
+
