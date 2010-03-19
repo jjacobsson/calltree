@@ -286,7 +286,7 @@ int main( int argc, char** argv )
         p.m_I.SetGenerateDebugInfo( g_debug );
 
         setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
-        returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
+        returnCode = generate_program( btc, &p );
         teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
 
         if( returnCode != 0 )

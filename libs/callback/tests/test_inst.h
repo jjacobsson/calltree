@@ -27,12 +27,14 @@ public:
   static const int max_ftable_entries  = 64;
   static const int max_memory          = 8 * 1024;
   static const int max_data            = 8 * 1024;
+  static const int max_jump            = 1 * 1024;
   static const int max_stack           = 1 * 1024;
   static const int max_cstack          = 1 * 1024;
   static const int total_memory =
       sizeof( ProgramHeader ) +
       max_instructions * sizeof( Instruction ) +
       max_data +
+      max_jump +
       max_ftable_entries * sizeof( FunctionTableEntry ) +
       sizeof( Context ) +
       max_memory +
@@ -47,6 +49,7 @@ public:
     ph->m_Inst   = sizeof( ProgramHeader );
     ph->m_Data   = ph->m_Inst + sizeof( Instruction ) * max_instructions;
     ph->m_Funt   = ph->m_Data + max_data;
+    ph->m_Jump   = ph->m_Funt + sizeof(FunctionTableEntry)*max_ftable_entries;
     ph->m_Bss    = sizeof( Context );
     ph->m_Stack  = ph->m_Bss + max_memory;
     ph->m_CStack = ph->m_Stack + max_stack;
@@ -78,6 +81,7 @@ public:
   Instruction* inst;
   unsigned int* data;
   FunctionTableEntry* funt;
+  unsigned int* jump;
   Context* ctx;
   unsigned int* bss;
   unsigned int* stack;

@@ -31,6 +31,8 @@ int run_program( CallbackProgram* info )
   ctx->r[eds] = (type)ph + ph->m_Data;
   // Setup the function table register
   ctx->r[eft] = (type)ph + ph->m_Funt;
+  // Setup the jump table register
+  ctx->r[ejt] = (type)ph + ph->m_Jump;
   // Setup memory register
   ctx->r[ems] = (type)ctx + ph->m_Bss;
   // Setup the stack register
@@ -58,7 +60,9 @@ start_label:
   case icall:
     *(type*)ctx->r[efs] = ctx->r[eip];
     ctx->r[efs] += sizeof(type);
-    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])[ctx->r[i->a1]].m_Start;
+    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])[
+      ((type)i->a1<<16)|((type)i->a2<<8)|((type)i->a3)
+    ].m_Start;
     break;
   case iret:
     ctx->r[efs] -= sizeof(type);
@@ -80,14 +84,26 @@ start_label:
         ctx
       );
     break;
+  case ijmp:
+    ctx->r[eip] = ctx->r[i->a1];
+    break;
+  case ijme:
+    ctx->r[eip] = ctx->r[i->a1]==ctx->r[i->a2]?ctx->r[i->a3]:ctx->r[eip];
+    break;
+  case ijne:
+    ctx->r[eip] = ctx->r[i->a1]!=ctx->r[i->a2]?ctx->r[i->a3]:ctx->r[eip];
+    break;
   case imov:
     ctx->r[i->a1] = ctx->r[i->a2];
     break;
+  case iadd:
+    ctx->r[i->a1] = ctx->r[i->a2] + ctx->r[i->a3];
+    break;
   case iload:
-    ctx->r[i->a1] = *(type*)(ctx->r[i->a2] + (sizeof(type)*i->a3));
+    ctx->r[i->a1] = ((type*)(ctx->r[i->a2]))[i->a3];
     break;
   case istore:
-    *(type*)(ctx->r[i->a1] + (sizeof(type)*i->a2)) = ctx->r[i->a3];
+    ((type*)(ctx->r[i->a1]))[i->a2] = ctx->r[i->a3];
     break;
   case ipush:
     *(type*)(ctx->r[esp]) = ctx->r[i->a1];

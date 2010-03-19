@@ -42,7 +42,11 @@ enum InstructionSet
   iret,          /* pop sp to ip */
   iccall,        /* */
   idcall,        /* */
+  ijmp,          /* */
+  ijme,          /* */
+  ijne,          /* */
   imov,          /* */
+  iadd,          /* */
   iload,         /* */
   istore,        /* */
   ipush,         /* */
@@ -75,19 +79,24 @@ struct Instruction
 
 enum Register
 {
-  er0,
-  er1,
-  er2,
-  er3,
-  err,           /* Return value register */
-  efc,           /* Frame counter */
-  eic,           /* Instruction counter */
-  eip,           /* Instruction pointer */
-  esp,           /* Stack pointer */
-  efs,           /* Call stack pointer */
-  eds,           /* Data section */
-  ems,           /* Memory section */
-  eft,           /* Function Lookup Table */
+  er0,  /* General purpose, volatile */
+  er1,  /* General purpose, volatile */
+  er2,  /* General purpose, volatile */
+  er3,  /* General purpose, volatile */
+  er4,  /* General purpose, persisting */
+  er5,  /* General purpose, persisting */
+  er6,  /* General purpose, persisting */
+  er7,  /* General purpose, persisting */
+  err,  /* Return value register */
+  efc,  /* Frame counter */
+  eic,  /* Instruction counter */
+  eip,  /* Instruction pointer */
+  esp,  /* Stack pointer */
+  efs,  /* Call stack pointer */
+  eds,  /* Data section */
+  ems,  /* Memory section */
+  eft,  /* Function Lookup Table */
+  ejt,  /* Jump target lookup table */
   reg_count
 };
 
@@ -101,6 +110,7 @@ struct ProgramHeader
   unsigned int m_Inst;   // Offset to the first Instruction (i.e. sizeof( ProgramHeader ))
   unsigned int m_Data;   // Offset to the first data byte
   unsigned int m_Funt;   // Offset to the first FunctionTableEntry
+  unsigned int m_Jump;   // Offset to the first jump target
   unsigned int m_Bss;    // Offset from memory to the start of the bss (i.e. sizeof( Context ))
   unsigned int m_Stack;  // Offset from memory to the start of the stack
   unsigned int m_CStack; // Offset from memory to the start of the call stack

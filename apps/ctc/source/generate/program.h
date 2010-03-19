@@ -18,6 +18,74 @@
 
 struct Program;
 
+class Function
+{
+public:
+
+  Function( BehaviorTreeContext btc, const char* name );
+
+  typedef std::vector<cb::Instruction> Instructions;
+  void add( const cb::Instruction& i )
+  {
+    m_Inst.push_back( i );
+  }
+
+  unsigned int size() const
+  {
+    return (unsigned int)m_Inst.size();
+  }
+
+  Identifier    m_Id;
+  Instructions  m_Inst;
+};
+
+class FunctionTable
+{
+public:
+
+  typedef std::vector<Function*> Functions;
+
+  ~FunctionTable()
+  {
+    Functions::iterator it, it_e( m_Functions.end() );
+    for( it = m_Functions.begin(); it != it_e; ++it )
+      delete *it;
+  }
+
+  unsigned int find_function_index( const char* name );
+
+  Functions m_Functions;
+};
+
+class JumpTargetTable
+{
+public:
+
+  struct JumpTarget
+  {
+    Function*       m_Func;
+    unsigned int    m_Inst;
+  };
+
+  unsigned int add( Function* f )
+  {
+    unsigned int r = m_Targets.size();
+    JumpTarget jt;
+    jt.m_Func = f;
+    jt.m_Inst = 0x00000000;
+    m_Targets.push_back( jt );
+    return r;
+  }
+
+  void set_jump_target( unsigned int jump_target, unsigned int inst_offset )
+  {
+    m_Targets[jump_target].m_Inst = inst_offset;
+  }
+
+  typedef std::vector<JumpTarget> JumpTargets;
+  JumpTargets m_Targets;
+};
+
 class CodeSection
 {
 public:
@@ -140,6 +208,8 @@ struct Program
 {
 	int m_bss_Header;
 	int m_bss_Return;
+	FunctionTable      m_Funcs;
+	JumpTargetTable    m_Jumps;
 	CodeSection m_I;
 	BSSSection	m_B;
 	DataSection m_D;
@@ -150,7 +220,7 @@ int setup_before_generate( Node* n, Program* p );
 
 int teardown_after_generate( Node* n, Program* p );
 
-int generate_program( Node* root, Program* p );
+int generate_program( BehaviorTreeContext btc, Program* p );
 
 int print_program( FILE* outfile, Program* p );
 

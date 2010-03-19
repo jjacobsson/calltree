@@ -24,6 +24,18 @@
 
 using namespace cb;
 
+Function::Function( BehaviorTreeContext ctx, const char* name )
+{
+  init( &m_Id );
+  m_Id.m_Hash = hashlittle( name );
+  m_Id.m_Text = register_string( ctx, name, m_Id.m_Hash );
+}
+
+unsigned int FunctionTable::find_function_index( const char* name )
+{
+  return 0x00ffffff;
+}
+
 void print_instruction( FILE* outFile, const Instruction& inst, int i )
 {
   /*
@@ -467,13 +479,141 @@ int teardown_after_generate( Node* n, Program* p )
   return teardown_gen( n, p );
 }
 
-int generate_program( Node* n, Program* p )
+bool generate_functions( BehaviorTreeContext btc, Program* p, BehaviorTree* tree )
 {
-  return -1;
-  /*
-  if( !n || !p )
-    return -1;
+  return true;
+}
 
+void load_jump_target_index_to_register( Function* f, unsigned char reg, unsigned int jt )
+{
+  Instruction i;
+  if( jt <= 0xff )
+  {
+    i.i  = iload;
+    i.a1 = reg;
+    i.a2 = ejt;
+    i.a3 = (unsigned char)jt;
+    f->add( i );
+  }
+  else if( jt <= 0xffff )
+  {
+    i.i  = isetl;
+    i.a1 = reg;
+    i.a2 = (unsigned char)(jt&0x0000ff00)>>8;
+    i.a3 = (unsigned char)(jt&0x000000ff);
+    f->add( i );
+    i.i  = iadd;
+    i.a1 = reg;
+    i.a2 = reg;
+    i.a3 = ejt;
+    f->add( i );
+    i.i  = iload;
+    i.a1 = reg;
+    i.a2 = reg;
+    i.a3 = 0;
+    f->add( i );
+  }
+  else
+  {
+    i.i  = iseth;
+    i.a1 = reg;
+    i.a2 = (unsigned char)(jt&0xff000000)>>24;
+    i.a3 = (unsigned char)(jt&0x00ff0000)>>16;
+    f->add( i );
+    i.i  = iorl;
+    i.a1 = reg;
+    i.a2 = (unsigned char)(jt&0x0000ff00)>>8;
+    i.a3 = (unsigned char)(jt&0x000000ff);
+    f->add( i );
+    i.i  = iadd;
+    i.a1 = reg;
+    i.a2 = reg;
+    i.a3 = ejt;
+    f->add( i );
+    i.i  = iload;
+    i.a1 = reg;
+    i.a2 = reg;
+    i.a3 = 0;
+    f->add( i );
+  }
+}
+
+int generate_program( BehaviorTreeContext btc, Program* p )
+{
+  if( !btc || !p )
+  {
+    // TODO: Report error, internal compiler error
+    return -1;
+  }
+
+  NamedSymbol* mts = find_symbol( btc, "main" );
+
+  if( !mts )
+  {
+    // TODO: Report error, main missing
+    return -1;
+  }
+
+  if( mts->m_Type != E_ST_TREE )
+  {
+    // TODO: Report error, "main" is not a tree.
+    return -1;
+  }
+
+  BehaviorTree* mt = mts->m_Symbol.m_Tree;
+
+  // Put the entry function first in the function table...
+  Function* f = new Function( btc, "__standard_entry" );
+  p->m_Funcs.m_Functions.push_back( f );
+
+  if( !generate_functions( btc, p, mt ) )
+    return -1; // Error should already be reported.
+
+  unsigned int tree_cons_func = p->m_Funcs.find_function_index( "main_construct" );
+  unsigned int tree_exec_func = p->m_Funcs.find_function_index( "main_execute" );
+  unsigned int tree_dest_func = p->m_Funcs.find_function_index( "main_destruct" );
+
+  unsigned int jump_to_exec = p->m_Jumps.add( f );
+  unsigned int jump_to_exit = p->m_Jumps.add( f );
+
+  Instruction i;
+  i.i  = isetl;     // Set r0 to ACT_CONSTRUCT
+  i.a1 = er0;
+  i.a2 = 0;
+  i.a3 = ACT_CONSTRUCT;
+  f->add( i );
+  i.i  = iload;     // Load the current tree state from memory into r1
+  i.a1 = er1;
+  i.a2 = ems;
+  i.a3 = 0;
+  f->add( i );
+  //Generate instructions to store jump_to_exec in er2, respecting the size of jump_to_exec
+  load_jump_target_index_to_register( f, er2, jump_to_exec );
+  i.i  = ijne;      // Jump to r2 if r0 != r1
+  i.a1 = er0;
+  i.a2 = er1;
+  i.a3 = er2;
+  f->add( i );
+  i.i  = icall;     // Call the tree's construction function
+  i.a1 = (unsigned char)(tree_cons_func&0x00ff0000)>>16;
+  i.a2 = (unsigned char)(tree_cons_func&0x0000ff00)>>8;
+  i.a3 = (unsigned char)(tree_cons_func&0x000000ff);
+  f->add( i );
+  i.i  = isetl;
+  i.a1 = er0;
+  i.a2 = 0;
+  i.a3 = ACT_EXECUTE;
+  f->add( i );
+  i.i  = istore;
+  i.a1 = ems;
+  i.a2 = 0;
+  i.a3 = er0;
+
+
+  p->m_Jumps.set_jump_target( jump_to_exec, f->size() );
+
+
+/*
   int err;
 
   //Jump past construction code if tree is already running

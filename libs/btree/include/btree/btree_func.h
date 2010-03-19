@@ -149,6 +149,8 @@ void register_symbol( BehaviorTreeContext, const NamedSymbol& );
 
 void remove_symbol( BehaviorTreeContext, hash_t );
 
+NamedSymbol* find_symbol( BehaviorTreeContext, const char* );
+
 NamedSymbol* find_symbol( BehaviorTreeContext, hash_t );
 
 NamedSymbol* access_symbols( BehaviorTreeContext, int* );

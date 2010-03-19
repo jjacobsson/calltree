@@ -83,6 +83,11 @@ void remove_symbol( BehaviorTreeContext btc, hash_t hash )
   erase( &btc->m_SymbolTable, hash );
 }
 
+NamedSymbol* find_symbol( BehaviorTreeContext btc, const char* name )
+{
+  return find( &btc->m_SymbolTable, hashlittle( name ) );
+}
+
 NamedSymbol* find_symbol( BehaviorTreeContext btc, hash_t hash )
 {
   return find( &btc->m_SymbolTable, hash );
