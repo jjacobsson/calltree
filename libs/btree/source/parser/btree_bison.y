@@ -40,6 +40,7 @@ Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, cons
 %token            T_LPARE        /* '(' */
 %token            T_RPARE        /* ')' */
 %token            T_QUOTE        /* ''' */
+%token            T_NULL         /* literal string "null" */
 %token            T_DEFTREE      /* literal string "deftree" */
 %token            T_DEFACT       /* literal string "defact" */
 %token            T_DEFDEC       /* literal string "defdec" */
@@ -153,9 +154,10 @@ node: T_LPARE sequence T_RPARE  { $$ = $2; }
     | T_LPARE tree T_RPARE      { $$ = $2; }
     ;
     
-nlist: T_LPARE nmembers T_RPARE         { $$ = $2; }
-     | T_QUOTE T_LPARE nmembers T_RPARE { $$ = $3; }
-     | T_QUOTE T_LPARE T_RPARE          { $$ = 0x0;}
+nlist: T_LPARE nmembers T_RPARE         { $$ = $2;  }
+     | T_QUOTE T_LPARE nmembers T_RPARE { $$ = $3;  }
+     | T_QUOTE T_LPARE T_RPARE          { $$ = 0x0; }
+     | T_NULL                           { $$ = 0x0; }
      ;
 
 nmembers: node	{ $$ = $1; }
@@ -191,29 +193,36 @@ dselector: T_DSELECTOR nlist
          ;
          
 succeed: T_SUCCEED
-         {
-        	Node* n = ALLOCATE_NODE( E_GRIST_SUCCEED, 0x0 );
-        	$$ = n;
-         }
-         ;
-         
+       {
+      	Node* n = ALLOCATE_NODE( E_GRIST_SUCCEED, 0x0 );
+      	$$ = n;
+       }
+       ;
+
 fail: T_FAIL
-         {
-        	Node* n = ALLOCATE_NODE( E_GRIST_FAIL, 0x0 );
-        	$$ = n;
-         }
-         ;
-         
+    {
+    	Node* n = ALLOCATE_NODE( E_GRIST_FAIL, 0x0 );
+    	$$ = n;
+    }
+    ;
+
 work: T_WORK
-         {
-        	Node* n = ALLOCATE_NODE( E_GRIST_WORK, 0x0 );
-        	$$ = n;
-         }
-         ;
-         
+    {
+    	Node* n = ALLOCATE_NODE( E_GRIST_WORK, 0x0 );
+    	$$ = n;
+    }
+    ;
+
 decorator: T_DECORATOR T_QUOTE T_ID vlist node 
          {
         	Node* n = ALLOCATE_NODE( E_GRIST_DECORATOR, $5 );
+        	$$ = n;
+        	n->m_Grist.m_Decorator.m_Parameters = $4;
+        	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
+         }
+         | T_DECORATOR T_QUOTE T_ID vlist T_NULL
+         {
+        	Node* n = ALLOCATE_NODE( E_GRIST_DECORATOR, 0x0 );
         	$$ = n;
         	n->m_Grist.m_Decorator.m_Parameters = $4;
         	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
@@ -226,7 +235,6 @@ decorator: T_DECORATOR T_QUOTE T_ID vlist node
         	n->m_Grist.m_Decorator.m_Decorator = look_up_decorator( ctx->m_Tree, &$3 );
          }
          ;
-         
          
 action: T_ACTION T_QUOTE T_ID vlist 
       {
@@ -243,9 +251,12 @@ tree: T_TREE T_QUOTE T_ID
     	$$ = n;
     	n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( ctx->m_Tree, &$3 );
     }
+    ;
 
-vlist: T_QUOTE T_LPARE vmember T_RPARE { $$ = $3; }
+vlist: T_LPARE vmember T_RPARE         { $$ = $2; }
+     | T_QUOTE T_LPARE vmember T_RPARE { $$ = $3; }
      | T_QUOTE T_LPARE T_RPARE         { $$ = 0x0; }
+     | T_NULL                          { $$ = 0x0; }
      ;
 
 vmember: Parameter         { $$ = $1; }
@@ -253,7 +264,7 @@ vmember: Parameter         { $$ = $1; }
        ;
        
 Parameter: T_LPARE vtypes T_RPARE { $$ = $2; }
-        ;
+         ;
 
 vtypes: T_ID T_INT32_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $1 ); $$->m_Data.m_Integer = $2; $$->m_ValueSet = true; }
       | T_ID T_STRING_VALUE { $$ = ALLOCATE_PARAMETER( E_VART_STRING, $1 );  $$->m_Data.m_String = $2; $$->m_ValueSet = true; }
@@ -261,8 +272,11 @@ vtypes: T_ID T_INT32_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $1 ); $$-
       | T_ID T_FLOAT_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; $$->m_ValueSet = true; }
       ;
 
-vdlist: T_QUOTE T_LPARE vdmember T_RPARE { $$ = $3; }
+vdlist: T_LPARE vdmember T_RPARE         { $$ = $2; } 
+      | T_QUOTE T_LPARE vdmember T_RPARE { $$ = $3; }
       | T_QUOTE T_LPARE T_RPARE          { $$ = 0x0; }
+      | T_NULL                           { $$ = 0x0; }
+      ;      
 
 vdmember: vardec          { $$ = $1; }
         | vardec vdmember { $$ = $1; append_to_end( $$, $2 ); }

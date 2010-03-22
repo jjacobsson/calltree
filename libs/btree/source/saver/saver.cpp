@@ -225,7 +225,13 @@ void save_variable_assignment( SaverContext sc, Parameter* v )
 
 void save_parameter_list( SaverContext sc, Parameter* v )
 {
-  append( &sc->m_Buffer, "'(" );
+  if( !v )
+  {
+    append( &sc->m_Buffer, "null" );
+    return;
+  }
+
+  append( &sc->m_Buffer, "(" );
   while( v )
   {
     append( &sc->m_Buffer, '(' );
@@ -319,7 +325,7 @@ void save_decorator( SaverContext sc, Node* n, int depth )
   }
   else
   {
-    append( &sc->m_Buffer, " '()" );
+    append( &sc->m_Buffer, " null" );
   }
 
   append( &sc->m_Buffer, ")\n" );
@@ -388,27 +394,27 @@ void save_node( SaverContext sc, Node* n, int depth )
 
 void save_node_list( SaverContext sc, Node* n, int depth )
 {
-  append( &sc->m_Buffer, "'(" );
-  Node* it = n;
-  if( n )
-    append( &sc->m_Buffer, '\n' );
+  append( &sc->m_Buffer, "(" );
 
+  if( !n )
+  {
+    append( &sc->m_Buffer, "null)" );
+    return;
+  }
+
+  append( &sc->m_Buffer, '\n' );
+
+  Node* it = n;
   while( it )
   {
     save_node( sc, it, depth + 1 );
     it = it->m_Next;
   }
-  if( n )
-    append_depth( sc, depth );
 
-  append( &sc->m_Buffer, ")" );
-
-  if( n )
-  {
-    append( &sc->m_Buffer, '\n' );
-    if( depth > 1 )
-      append_depth( sc, depth - 1 );
-  }
+  append_depth( sc, depth );
+  append( &sc->m_Buffer, ")\n" );
+  if( depth > 1 )
+    append_depth( sc, depth - 1 );
 }
 
 void flush_buffer( SaverContext sc )

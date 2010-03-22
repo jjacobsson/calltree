@@ -38,7 +38,8 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "hash" ),
   hashlittle( "include" ),
   hashlittle( "true" ),
-  hashlittle( "false" )
+  hashlittle( "false" ),
+  hashlittle( "null" )
 };
 
 bool is_btree_keyword( const char* str )

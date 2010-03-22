@@ -10,56 +10,56 @@
 ; *******************************************************************************/
 
 (defact act_exit
-	'((id 0)) 
-	'()
+	((id 0)) 
+	null
 )
 (defact act_check_exit
-	'((id 1))
-	'()
+	((id 1))
+	null
 )
 (defact act_getline
-	'((id 2))
-	'()
+	((id 2))
+	null
 )
 (defact act_strcmp
-	'((id 3))
-	'((string str))
+	((id 3))
+	((string str))
 )
 (defact act_print
-	'((id 4))
-	'((string str))
+	((id 4))
+	((string str))
 )
 (defact act_count_to_zero
-	'((id 7) (construct true) (bss 4))
-	'((int32 start))
+	((id 7) (construct true) (bss 4))
+	((int32 start))
 )
 (defact act_set_gc
-	'((id 8))
-	'((int32 value))
+	((id 8))
+	((int32 value))
 )
 (defact act_dec_gc
-	'((id 9))
-	'()
+	((id 9))
+	null
 )
 (defact act_inc_gc
-	'((id 10))
-	'()
+	((id 10))
+	null
 )
 (defact act_check_gc_smlr
-	'((id 11))
-	'((int32 value))
+	((id 11))
+	((int32 value))
 )
 (defact act_check_gc_grtr
-	'((id 12))
-	'((int32 value))
+	((id 12))
+	((int32 value))
 )
 (defact act_time_delay
-	'((id 13) (construct true) (bss 8))
-	'((float seconds))
+	((id 13) (construct true) (bss 8))
+	((float seconds))
 )
 
 (defdec dec_modify_return
-	'((id 100) (modify true))
-	'((int32 f) (int32 s) (int32 r))
+	((id 100) (modify true))
+	((int32 f) (int32 s) (int32 r))
 )
 

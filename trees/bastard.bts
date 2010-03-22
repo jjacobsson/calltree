@@ -12,8 +12,8 @@
 (include "cbrun.bth")
 
 (deftree main 
-	'((action 'banan 
-		'((a "\\keps") (b "\\n") (c "\n"))
+	((action 'banan 
+		((a "\\keps") (b "\\n") (c "\n"))
 	)
 ))
 
