@@ -9,6 +9,8 @@
 ; *    Joacim Jacobsson - first implementation
 ; *******************************************************************************/
 
+(include "options.bth")
+
 (defact act_exit
 	((id 0)) 
 	null

@@ -167,6 +167,7 @@ Decorator* look_up_decorator( BehaviorTreeContext, Identifier* );
 
 Action* look_up_action( BehaviorTreeContext, Identifier* );
 
+Parameter* get_options( BehaviorTreeContext );
 
 /*
  * String Buffer Functions

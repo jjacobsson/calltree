@@ -242,6 +242,11 @@ Action* look_up_action( BehaviorTreeContext btc, Identifier* id )
   return a;
 }
 
+Parameter* get_options( BehaviorTreeContext btc )
+{
+  return btc->m_Options;
+}
+
 ParserContext create_parser_context( BehaviorTreeContext btc )
 {
   SParserContext* pc = &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_ParserContext);

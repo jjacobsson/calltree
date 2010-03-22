@@ -41,6 +41,7 @@ Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, cons
 %token            T_RPARE        /* ')' */
 %token            T_QUOTE        /* ''' */
 %token            T_NULL         /* literal string "null" */
+%token            T_OPTIONS      /* litreal string "options" */
 %token            T_DEFTREE      /* literal string "deftree" */
 %token            T_DEFACT       /* literal string "defact" */
 %token            T_DEFDEC       /* literal string "defdec" */
@@ -93,11 +94,21 @@ list: T_LPARE atom T_RPARE
     | T_LPARE T_RPARE
     ;
 
-atom: deftree
+atom: options
+    | deftree
     | include
     | defact
     | defdec
     ;
+
+options: T_OPTIONS vlist
+       {
+       	if( ctx->m_Tree->m_Options )
+       		append_to_end( ctx->m_Tree->m_Options, $2 );
+       	else
+       		ctx->m_Tree->m_Options = $2;
+       }
+       ;
 
 deftree: T_DEFTREE T_ID nlist
        {

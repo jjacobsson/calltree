@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 
+void save_options( SaverContext );
 void save_includes( SaverContext );
 void save_actions( SaverContext );
 void save_decorators( SaverContext );
@@ -44,7 +45,9 @@ BehaviorTreeContext get_bt_context( SaverContext sc )
 void save( SaverContext sc, SaverContextFunctions* funcs )
 {
   sc->m_Funcs = *funcs;
-  append( &sc->m_Buffer, "\n; Includes\n\n");
+  append( &sc->m_Buffer, "\n; Options\n\n" );
+  save_options( sc );
+  append( &sc->m_Buffer, "\n; Includes\n\n" );
   save_includes( sc );
   append( &sc->m_Buffer, "; Actions\n\n" );
   save_actions( sc );
@@ -53,6 +56,18 @@ void save( SaverContext sc, SaverContextFunctions* funcs )
   append( &sc->m_Buffer, "; Trees\n\n" );
   save_trees( sc );
   flush_buffer( sc );
+}
+
+void save_options( SaverContext sc )
+{
+  if( sc->m_Tree->m_Options )
+  {
+    append( &sc->m_Buffer, "(options " );
+    save_parameter_list( sc, sc->m_Tree->m_Options );
+    append( &sc->m_Buffer, ")\n" );
+  }
+  if( sc->m_Buffer.m_Size >= SAVE_BUFFER_FLUSH_LIMIT )
+    flush_buffer( sc );
 }
 
 void save_includes( SaverContext sc )
