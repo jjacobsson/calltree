@@ -237,8 +237,8 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
-  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
-  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A2 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A3 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
   i.m_A1 = m_BssStart;
@@ -277,8 +277,8 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
-  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
-  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A2 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A3 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
   i.m_A1 = m_BssStart;

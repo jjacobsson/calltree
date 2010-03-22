@@ -163,7 +163,7 @@ start:
 			bh->m_RE = *((int*)&(bss[inst.m_A1]));
 			break;
 		case INST__STORE_C_IN_B:
-			*((int*)&(bss[inst.m_A1])) = inst.m_A2;
+			*((int*)&(bss[inst.m_A1])) = (inst.m_A3<<16)|(inst.m_A2);
 			break;
 		case INST__STORE_B_IN_B:
 			*((int*)&(bss[inst.m_A1])) = *((int*)&(bss[inst.m_A2]));
