@@ -232,12 +232,10 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
   if( !m_DebugInfo )
     return;
 /*
-  DebugFlags flags;
-
-  flags.m_Flags    = 0;
-  flags.m_Exit     = 0;
-  flags.m_Standard = StandardNode( n ) ? 1 : 0;
-  flags.m_Action   = (unsigned char)action;
+  unsigned short flags = (unsigned short)(action & 0x0000000f);
+  if( StandardNode( n ) )
+    flags |= E_STANDARD_NODE;
+  flags |= E_ENTER_SCOPE;
 
   Instruction i;
   i.m_I  = INST_STORE_PD_IN_B;
@@ -257,8 +255,8 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
-  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
-  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A2 = flags;
+  i.m_A3 = 0;
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
   i.m_A1 = m_BssStart;
@@ -273,12 +271,10 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   if( !m_DebugInfo )
     return;
 /*
-  DebugFlags flags;
-
-  flags.m_Flags    = 0;
-  flags.m_Exit     = 1;
-  flags.m_Standard = StandardNode( n ) ? 1 : 0;
-  flags.m_Action   = (unsigned char)action;
+  unsigned short flags = (unsigned char)(action & 0x0000000f);
+  if( StandardNode( n ) )
+    flags |= E_STANDARD_NODE;
+  flags |= E_EXIT_SCOPE;
 
   Instruction i;
   i.m_I  = INST_STORE_PD_IN_B;
@@ -298,8 +294,8 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
-  i.m_A2 = (unsigned short)((flags.m_Flags >> 16) & 0x0000ffff);
-  i.m_A3 = (unsigned short)(flags.m_Flags & 0x0000ffff);
+  i.m_A2 = flags;
+  i.m_A3 = 0;
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
   i.m_A1 = m_BssStart;

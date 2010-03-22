@@ -23,6 +23,8 @@ bool g_swapEndian = false;
 bool g_printIncludes = false;
 char* g_asmFileName = 0x0;
 
+char* g_asmFileNameMemory = 0x0;
+
 int g_allocs = 0;
 int g_frees = 0;
 
@@ -312,6 +314,24 @@ int main( int argc, char** argv )
           }
         }
 
+        if( !g_asmFileName )
+        {
+          unsigned int hash = hashlittle( "force_asm" );
+          Parameter* force_asm = find_by_hash( get_options( btc ), hash );
+          if( force_asm && as_bool( *force_asm ) )
+          {
+            unsigned int len = strlen( g_outputFileName );
+            g_asmFileNameMemory = (char*)malloc( len + 5 );
+            memcpy( g_asmFileNameMemory, g_outputFileName, len );
+            g_asmFileNameMemory[len+0] = '.';
+            g_asmFileNameMemory[len+1] = 'a';
+            g_asmFileNameMemory[len+2] = 's';
+            g_asmFileNameMemory[len+3] = 'm';
+            g_asmFileNameMemory[len+4] = 0;
+            g_asmFileName = g_asmFileNameMemory;
+          }
+        }
+
         if( returnCode == 0 && g_asmFileName )
         {
           FILE* asmFile = fopen( g_asmFileName, "w" );
@@ -334,6 +354,9 @@ int main( int argc, char** argv )
       printf( "Allocs: %d\nFrees:  %d\nDelta:  %d\n", g_allocs, g_frees,
         g_allocs - g_frees );
   }
+
+  if( g_asmFileNameMemory )
+    free( g_asmFileNameMemory );
 
   if( g_outputFile )
     fclose( g_outputFile );
