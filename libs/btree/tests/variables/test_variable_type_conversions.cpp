@@ -267,7 +267,7 @@ TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToString )
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsCorrectlyToBool )
 {
-	CHECK( false == as_bool( v ) );
+	CHECK( true == as_bool( v ) );
 }
 
 
