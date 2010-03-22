@@ -38,7 +38,8 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "hash" ),
   hashlittle( "include" ),
   hashlittle( "true" ),
-  hashlittle( "false" )
+  hashlittle( "false" ),
+  hashlittle( "null" )
 };
 
 bool is_btree_keyword( const char* str )
@@ -253,9 +254,14 @@ bool as_bool( const Parameter& v )
   case E_VART_BOOL:
     r = v.m_Data.m_Bool;
     break;
-  case E_VART_UNDEFINED:
   case E_VART_STRING:
+    if( v.m_Data.m_String.m_Parsed )
+      r = v.m_Data.m_String.m_Parsed[0] != 0;
+    break;
   case E_VART_HASH:
+    r = v.m_Data.m_Hash != 0;
+    break;
+  case E_VART_UNDEFINED:
   case E_MAX_VARIABLE_TYPE:
     r = false;
     break;

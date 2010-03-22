@@ -69,6 +69,8 @@ FLOAT           ({dfc}|{hfc})
 "("             { return T_LPARE; }
 ")"             { return T_RPARE; }
 "'"             { return T_QUOTE; }
+null            { return T_NULL; }
+options         { return T_OPTIONS; }
 deftree         { return T_DEFTREE; }
 defact          { return T_DEFACT; }
 defdec          { return T_DEFDEC; }

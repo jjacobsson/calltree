@@ -18,19 +18,9 @@ SUFBTC = .btc ;
 CTC_EXE         = $(BUILD_BIN_DIR)ctc$(SUFEXE) ;
 BUILD_TREES_DIR = build$(SLASH)trees$(SLASH) ;
 
-if $(CONFIGURATION) = debug
+actions ctc
 {
-	actions ctc
-	{
-		$(CTC_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml) -d
-	}
-}
-else
-{
-	actions ctc
-	{
-		$(CTC_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
-	}
+	$(CTC_EXE) -i $(>) -o $(<) -a $(<:S=.asm) -x $(<:S=.xgml)
 }
 
 rule CompileBehaviourTrees

@@ -22,7 +22,6 @@ char* g_outputFileName = 0x0;
 bool g_swapEndian = false;
 bool g_printIncludes = false;
 char* g_asmFileName = 0x0;
-bool g_debug = false;
 
 int g_allocs = 0;
 int g_frees = 0;
@@ -154,9 +153,6 @@ int main( int argc, char** argv )
     case 'a':
       g_asmFileName = ctx.optarg;
       break;
-    case 'd':
-      g_debug = true;
-      break;
     case 'l':
       g_printIncludes = true;
       break;
@@ -173,7 +169,6 @@ int main( int argc, char** argv )
       fprintf(
         stdout,
         "\t-e\tSpecify endian, \"little\" or \"big\" as argument. (optional, default is \"little\").\n" );
-      fprintf( stdout, "\t-d\tGenerate debug info. (optional)\n" );
       fprintf(
         stdout,
         "\t-l\tPrint a list of all files that the input file is dependent of. (optional)\n" );
@@ -283,7 +278,11 @@ int main( int argc, char** argv )
       if( returnCode == 0 )
       {
         Program p;
-        p.m_I.SetGenerateDebugInfo( g_debug );
+
+        unsigned int debug_hash = hashlittle( "debug_info" );
+        Parameter* debug_param = find_by_hash( get_options( btc ), debug_hash );
+        if( debug_param  )
+          p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
 
         setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
         returnCode = generate_program( btc, &p );
