@@ -36,9 +36,9 @@ struct UserData
 
 void cb_debug( CallbackProgram* cp, DebugInformation* di, BssHeader* bh, void* ud )
 {
-  DebugFlags f;
-  f.m_Flags = di->m_Flags;
-  printf( "%s - %s %s\n", di->m_Name, di->m_Action, (f.m_Exit == 0)?"Entry":"Exit" );
+
+
+  printf( "%s - %s %s\n", di->m_Name, di->m_Action, (di->m_Flags&E_EXIT_SCOPE)?"Entry":"Exit" );
 }
 
 unsigned int cb_setexit(unsigned int action, void* bss, void** data, UserData& user_data)
