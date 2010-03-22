@@ -91,17 +91,17 @@ enum DebugFlagBits
   E_EXIT_SCOPE    = 1 << 6, // 1 bit
 };
 
-bool act_flag_set( unsigned short, unsigned int );
-bool std_flag_set( unsigned short );
-bool exi_flag_set( unsigned short );
-bool ent_flag_set( unsigned short );
+bool act_flag_set( unsigned int, unsigned int );
+bool std_flag_set( unsigned int );
+bool exi_flag_set( unsigned int );
+bool ent_flag_set( unsigned int );
 
 struct DebugInformation
 {
   const char* m_Action;
   const char* m_Name;
   unsigned int m_NodeId;
-  unsigned short m_Flags;
+  unsigned int m_Flags;
 };
 
 typedef unsigned int (*CallbackHandler)( unsigned int id, unsigned int action, void* bss,

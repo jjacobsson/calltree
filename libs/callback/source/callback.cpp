@@ -15,22 +15,22 @@
 namespace callback
 {
 
-bool act_flag_set( unsigned short f, unsigned int a )
+bool act_flag_set( unsigned int f, unsigned int a )
 {
   return ((unsigned int)(f & 0x000f)) == a;
 }
 
-bool std_flag_set( unsigned short f )
+bool std_flag_set( unsigned int f )
 {
   return (f & E_STANDARD_NODE) != 0;
 }
 
-bool exi_flag_set( unsigned short f )
+bool exi_flag_set( unsigned int f )
 {
   return (f & E_EXIT_SCOPE) != 0;
 }
 
-bool ent_flag_set( unsigned short f )
+bool ent_flag_set( unsigned int f )
 {
   return (f & E_ENTER_SCOPE) != 0;
 }
