@@ -23,15 +23,35 @@ const char * const g_NodeReturnsNames[cb::MAXIMUM_NODE_RETURN_COUNT] =
 
 const char * const g_InstructionNames[cb::inst_count] =
 {
-  "noop",
-  "call",
-  "ret",
-  "ccall",
-  "dcall",
-  "mov",
-  "load",
-  "store",
-  "push",
-  "pop",
-  "exit"
+  "nop",          /* No-Op */
+  "call",         /* push ip+1 to sp and set ip to toc[a1] */
+  "ret",          /* pop sp to ip */
+  "ccall",        /* */
+  "dcall",        /* */
+  "jmp",          /* */
+  "jme",          /* */
+  "jne",          /* */
+  "mov",          /* */
+  "add",          /* */
+  "sub",          /* */
+  "mul",          /* */
+  "div",          /* */
+  "load",         /* */
+  "store",        /* */
+  "push",         /* */
+  "pop",          /* */
+  "shftl",        /* */
+  "shftr",        /* */
+  "and",          /* */
+  "or",           /* */
+  "xor",          /* */
+  "setl",         /* */
+  "seth",         /* */
+  "andl",         /* */
+  "andh",         /* */
+  "orl",          /* */
+  "orh",          /* */
+  "xorl",         /* */
+  "xorh",         /* */
+  "exit"          /* */
 };

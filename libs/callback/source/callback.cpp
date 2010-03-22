@@ -99,6 +99,15 @@ start_label:
   case iadd:
     ctx->r[i->a1] = ctx->r[i->a2] + ctx->r[i->a3];
     break;
+  case isub:
+    ctx->r[i->a1] = ctx->r[i->a2] - ctx->r[i->a3];
+    break;
+  case imul:
+    ctx->r[i->a1] = ctx->r[i->a2] * ctx->r[i->a3];
+    break;
+  case idiv:
+    ctx->r[i->a1] = ctx->r[i->a2] / ctx->r[i->a3];
+    break;
   case iload:
     ctx->r[i->a1] = ((type*)(ctx->r[i->a2]))[i->a3];
     break;

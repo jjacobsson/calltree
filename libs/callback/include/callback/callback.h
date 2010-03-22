@@ -47,6 +47,9 @@ enum InstructionSet
   ijne,          /* */
   imov,          /* */
   iadd,          /* */
+  isub,          /* */
+  imul,          /* */
+  idiv,          /* */
   iload,         /* */
   istore,        /* */
   ipush,         /* */
