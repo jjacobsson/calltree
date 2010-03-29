@@ -25,12 +25,23 @@ public:
   Function( BehaviorTreeContext btc, const char* name );
 
   typedef std::vector<cb::Instruction> Instructions;
-  void add( const cb::Instruction& i )
+
+  inline void add( const cb::Instruction& i )
   {
     m_Inst.push_back( i );
   }
 
-  unsigned int size() const
+  inline void add( unsigned char i, unsigned char a1, unsigned char a2, unsigned char a3 )
+  {
+    cb::Instruction inst;
+    inst.i  = i;
+    inst.a1 = a1;
+    inst.a2 = a2;
+    inst.a3 = a3;
+    add( inst );
+  }
+
+  inline unsigned int size() const
   {
     return (unsigned int)m_Inst.size();
   }

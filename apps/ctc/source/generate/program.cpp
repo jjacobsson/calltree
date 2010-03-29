@@ -480,57 +480,26 @@ bool generate_functions( BehaviorTreeContext btc, Program* p, BehaviorTree* tree
   return true;
 }
 
+#define ADD( I, A1, A2, A3 ) f->add(I, A1, A2, A3)
+
 void load_jump_target_index_to_register( Function* f, unsigned char reg, unsigned int jt )
 {
-  Instruction i;
   if( jt <= 0xff )
   {
-    i.i  = iload;
-    i.a1 = reg;
-    i.a2 = ejt;
-    i.a3 = (unsigned char)jt;
-    f->add( i );
+    ADD( iload, reg, ejt, (unsigned char)jt );
   }
   else if( jt <= 0xffff )
   {
-    i.i  = isetl;
-    i.a1 = reg;
-    i.a2 = (unsigned char)(jt&0x0000ff00)>>8;
-    i.a3 = (unsigned char)(jt&0x000000ff);
-    f->add( i );
-    i.i  = iadd;
-    i.a1 = reg;
-    i.a2 = reg;
-    i.a3 = ejt;
-    f->add( i );
-    i.i  = iload;
-    i.a1 = reg;
-    i.a2 = reg;
-    i.a3 = 0;
-    f->add( i );
+    ADD( isetl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
+    ADD( iadd, reg, reg, ejt );
+    ADD( iload, reg, reg, 0 );
   }
   else
   {
-    i.i  = iseth;
-    i.a1 = reg;
-    i.a2 = (unsigned char)(jt&0xff000000)>>24;
-    i.a3 = (unsigned char)(jt&0x00ff0000)>>16;
-    f->add( i );
-    i.i  = iorl;
-    i.a1 = reg;
-    i.a2 = (unsigned char)(jt&0x0000ff00)>>8;
-    i.a3 = (unsigned char)(jt&0x000000ff);
-    f->add( i );
-    i.i  = iadd;
-    i.a1 = reg;
-    i.a2 = reg;
-    i.a3 = ejt;
-    f->add( i );
-    i.i  = iload;
-    i.a1 = reg;
-    i.a2 = reg;
-    i.a3 = 0;
-    f->add( i );
+    ADD( iseth, reg, (unsigned char)(jt&0xff000000)>>24, (unsigned char)(jt&0x00ff0000)>>16 );
+    ADD( iorl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
+    ADD( iadd, reg, reg, ejt );
+    ADD( iload, reg, reg, 0 );
   }
 }
 
@@ -572,39 +541,20 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   unsigned int jump_to_exec = p->m_Jumps.add( f );
   unsigned int jump_to_exit = p->m_Jumps.add( f );
 
-  Instruction i;
-  i.i  = isetl;     // Set r0 to ACT_CONSTRUCT
-  i.a1 = er0;
-  i.a2 = 0;
-  i.a3 = ACT_CONSTRUCT;
-  f->add( i );
-  i.i  = iload;     // Load the current tree state from memory into r1
-  i.a1 = er1;
-  i.a2 = ems;
-  i.a3 = 0;
-  f->add( i );
+  // Set r0 to ACT_CONSTRUCT
+  ADD( isetl, er0, 0, ACT_CONSTRUCT );
+  // Load the current tree state from memory into r1
+  ADD( iload, er1, ems, 0 );
   //Generate instructions to store jump_to_exec in er2, respecting the size of jump_to_exec
   load_jump_target_index_to_register( f, er2, jump_to_exec );
-  i.i  = ijne;      // Jump to r2 if r0 != r1
-  i.a1 = er0;
-  i.a2 = er1;
-  i.a3 = er2;
-  f->add( i );
-  i.i  = icall;     // Call the tree's construction function
-  i.a1 = (unsigned char)(tree_cons_func&0x00ff0000)>>16;
-  i.a2 = (unsigned char)(tree_cons_func&0x0000ff00)>>8;
-  i.a3 = (unsigned char)(tree_cons_func&0x000000ff);
-  f->add( i );
-  i.i  = isetl;
-  i.a1 = er0;
-  i.a2 = 0;
-  i.a3 = ACT_EXECUTE;
-  f->add( i );
-  i.i  = istore;
-  i.a1 = ems;
-  i.a2 = 0;
-  i.a3 = er0;
-
+  // Jump to r2 if r0 != r1
+  ADD( ijne, er0, er1, er2 );
+  // Call the tree's construction function
+  ADD( icall, (unsigned char)(tree_cons_func&0x00ff0000)>>16, (unsigned char)(tree_cons_func&0x0000ff00)>>8, (unsigned char)(tree_cons_func&0x000000ff) );
+  // Set r0 to the current tree state (ACT_EXECUTE)
+  ADD( isetl, er0, 0, ACT_EXECUTE );
+  // Store the state in memory
+  ADD( istore, ems, 0, er0 );
 
   p->m_Jumps.set_jump_target( jump_to_exec, f->size() );
 
@@ -645,6 +595,8 @@ int generate_program( BehaviorTreeContext btc, Program* p )
 */
   return 0;
 }
+
+#undef ADD
 
 int print_program( FILE* outFile, Program* p )
 {
