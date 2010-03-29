@@ -5,6 +5,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtGui/QMessageBox>
 
 #include <string>
 
@@ -18,37 +19,49 @@ int read_file( ParserContext pc, char* buffer, int maxsize )
   return (int)pi->m_File->read( buffer, maxsize );
 }
 
-void parser_error( ParserContext pc, const char* msg )
+void parser_error( ParserContext pc, const char* msg_in )
 {
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  QString title( "Parser Error" );
   if( pi )
   {
-    QString fileName = pi->m_FileName->absoluteFilePath();
-    std::string std_fileName = fileName.toStdString();
-    fprintf( stdout, "%s(%d) : error : %s\n", std_fileName.c_str(),
-      get_line_no( pc ), msg );
+    QString msg;
+    msg = QString( "%1(%2) : error : %3" )
+        .arg( pi->m_FileName->absoluteFilePath() )
+        .arg( get_line_no( pc ) )
+        .arg( msg_in );
+    QMessageBox::critical( 0x0, title, msg );
   }
   else
   {
-    fprintf( stdout, "<no file>(%d) : error : %s\n",
-      get_line_no( pc ), msg );
+    QString msg;
+    msg = QString( "<no file>(%1) : error : %2" )
+        .arg( get_line_no( pc ) )
+        .arg( msg_in );
+    QMessageBox::critical( 0x0, title, msg );
   }
 }
 
-void parser_warning( ParserContext pc, const char* msg )
+void parser_warning( ParserContext pc, const char* msg_in )
 {
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  QString title( "Parser Warning" );
   if( pi )
   {
-    QString fileName = pi->m_FileName->absoluteFilePath();
-    std::string std_fileName = fileName.toStdString();
-    fprintf( stdout, "%s(%d) : warning : %s\n", std_fileName.c_str(),
-      get_line_no( pc ), msg );
+    QString msg;
+    msg = QString( "%1(%2) : warning : %3" )
+        .arg( pi->m_FileName->absoluteFilePath() )
+        .arg( get_line_no( pc ) )
+        .arg( msg_in );
+    QMessageBox::warning( 0x0, title, msg );
   }
   else
   {
-    fprintf( stdout, "<no file>(%d) : warning : %s\n", get_line_no(
-      pc ), msg );
+    QString msg;
+    msg = QString( "<no file>(%1) : warning : %2" )
+        .arg( get_line_no( pc ) )
+        .arg( msg_in );
+    QMessageBox::warning( 0x0, title, msg );
   }
 }
 
