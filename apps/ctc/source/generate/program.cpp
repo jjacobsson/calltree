@@ -314,13 +314,13 @@ int BSSSection::Push( int size, int align )
 
 void BSSSection::PushScope()
 {
-  m_ScopeStack.push_back( m_Current );
+  //m_ScopeStack.push_back( m_Current );
 }
 
 void BSSSection::PopScope()
 {
-  m_Current = m_ScopeStack.back();
-  m_ScopeStack.pop_back();
+  //m_Current = m_ScopeStack.back();
+  //m_ScopeStack.pop_back();
 }
 
 void DataSection::Print( FILE* outFile )
