@@ -1440,22 +1440,26 @@ int gen_exe_action( Node* n, Program* p )
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "id" ) );
   int fid = t ? as_integer( *t ) : ~0;
 
-  // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
-  //Setup the register for the data pointer
-  int err = setup_variable_registry( &nd->m_VD,
-    n->m_Grist.m_Action.m_Parameters, p );
-  if( err != 0 )
-    return err;
-  // Load bss register with bss pointer
-  p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
-  // Load the callback id register with the correct id
-  p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
-      & 0x0000ffff );
-  // Call the destruction callback
-  p->m_I.Push( INST_CALL_EXEC_FUN, 0, 1, 2 );
-  // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  t = find_by_hash( a->m_Options, hashlittle( "execute" ) );
+  if( !t || as_bool( *t ) )
+  {
+    // Enter Debug scope
+    p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+    //Setup the register for the data pointer
+    int err = setup_variable_registry( &nd->m_VD,
+      n->m_Grist.m_Action.m_Parameters, p );
+    if( err != 0 )
+      return err;
+    // Load bss register with bss pointer
+    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    // Load the callback id register with the correct id
+    p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
+        & 0x0000ffff );
+    // Call the destruction callback
+    p->m_I.Push( INST_CALL_EXEC_FUN, 0, 1, 2 );
+    // Exit Debug scope
+    p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  }
 */
   return 0;
 }

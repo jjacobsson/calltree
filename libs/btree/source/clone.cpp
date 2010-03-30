@@ -31,6 +31,7 @@ BehaviorTreeContext clone( BehaviorTreeContext obtc )
   init( &btc->m_SymbolTable, btc->m_Allocator );
 
   clone( btc, obtc->m_Includes );
+  btc->m_Options = clone_list( btc, obtc->m_Options );
 
   int count;
   NamedSymbol* ns =  access_symbols( obtc, &count );

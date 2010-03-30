@@ -302,6 +302,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
       {
         p->m_Data.m_String.m_Raw = register_string( s->getTreeContext(),
           ba.constData() );
+        p->m_Data.m_String.m_Parsed = p->m_Data.m_String.m_Raw;
         signalModified( false );
       }
     }

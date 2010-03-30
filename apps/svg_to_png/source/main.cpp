@@ -10,11 +10,13 @@
  *******************************************************************************/
 
 #include <QtGui/QApplication>
-#include <QtGui/QPixmap>
 #include <QtGui/QImage>
+#include <QtGui/QPainter>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+
+#include <QtSvg/QSvgRenderer>
 
 #include <other/getopt.h>
 
@@ -48,16 +50,18 @@ int main(int argc, char *argv[])
 
     QApplication app( argc, argv );
 
-    QPixmap pixmap(64,64);
-    pixmap = QPixmap(g_inputFileName, "SVG").scaled(
-      64, 64, Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-    );
-
-    if( pixmap.isNull() )
+    QSvgRenderer svgr( QString( g_inputFileName ), 0x0 );
+    if( !svgr.isValid() )
     {
-      printf( "error: failed to load input file %s\n", g_inputFileName );
+      printf( "error: failed to create renderer for input file %s\n", g_inputFileName );
       return -1;
     }
+
+    QImage img( 64, 64, QImage::Format_ARGB32_Premultiplied );
+    img.fill( 0 );
+    QPainter p( &img );
+    svgr.render( &p );
+    p.end();
 
     QFileInfo fi( g_outputFileName );
     QDir dir;
@@ -67,7 +71,7 @@ int main(int argc, char *argv[])
       return -1;
     }
 
-    if( !pixmap.save( g_outputFileName, "PNG" ) )
+    if( !img.save( g_outputFileName, "PNG" ) )
     {
       printf( "error: failed to save output file %s\n", g_outputFileName );
       return -1;
