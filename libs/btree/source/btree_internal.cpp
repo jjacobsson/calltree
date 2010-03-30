@@ -17,22 +17,21 @@
 #include "btree_internal.h"
 
 #include <string.h> // for memset....
-
 BehaviorTreeContext create_bt_context( Allocator& allocator )
 {
   ObjectPoolSetup ops;
   ops.m_Allocator = allocator;
   ops.m_BlockSize = 4096;
-  ops.m_TypeSize  = (mem_size_t)sizeof(ObjectFootPrint);
-  ObjectPool* op  = create_object_pool( &ops );
+  ops.m_TypeSize = (mem_size_t)sizeof(ObjectFootPrint);
+  ObjectPool* op = create_object_pool( &ops );
 
   SBehaviorTreeContext* btc =
       &(((ObjectFootPrint*)allocate_object( op ))->m_BTContext);
-  btc->m_Pool      = op;
+  btc->m_Pool = op;
   btc->m_Allocator = allocator;
-  btc->m_Includes  = 0x0;
-  btc->m_Options   = 0x0;
-  btc->m_NodeId    = 0;
+  btc->m_Includes = 0x0;
+  btc->m_Options = 0x0;
+  btc->m_NodeId = 0;
 
   init( &btc->m_StringTable, btc->m_Allocator );
   init( &btc->m_SymbolTable, btc->m_Allocator );
@@ -55,12 +54,17 @@ void destroy( BehaviorTreeContext btc )
 
 const char* register_string( BehaviorTreeContext btc, const char* str )
 {
-    return register_string( &btc->m_StringTable, str, hashlittle( str ) );
+  if( !str )
+    return 0x0;
+  return register_string( &btc->m_StringTable, str, hashlittle( str ) );
 }
 
-const char* register_string( BehaviorTreeContext btc, const char* str, hash_t hash )
+const char* register_string( BehaviorTreeContext btc, const char* str,
+  hash_t hash )
 {
-    return register_string( &btc->m_StringTable, str, hash );
+  if( !str )
+    return 0x0;
+  return register_string( &btc->m_StringTable, str, hash );
 }
 
 void* allocate_object( BehaviorTreeContext btc )
@@ -249,13 +253,14 @@ Parameter* get_options( BehaviorTreeContext btc )
 
 ParserContext create_parser_context( BehaviorTreeContext btc )
 {
-  SParserContext* pc = &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_ParserContext);
+  SParserContext* pc =
+      &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_ParserContext);
 
-  pc->m_Tree        = btc;
-  pc->m_LineNo      = 0;
-  pc->m_Extra       = 0x0;
-  pc->m_Current     = 0x0;
-  pc->m_Allocator   = btc->m_Allocator;
+  pc->m_Tree = btc;
+  pc->m_LineNo = 0;
+  pc->m_Extra = 0x0;
+  pc->m_Current = 0x0;
+  pc->m_Allocator = btc->m_Allocator;
   init( pc->m_Allocator, &pc->m_Parsed );
   init( pc->m_Allocator, &pc->m_Original );
   memset( &pc->m_Funcs, 0, sizeof(ParserContextFunctions) );
@@ -271,9 +276,10 @@ void destroy( ParserContext pc )
 
 SaverContext create_saver_context( BehaviorTreeContext btc )
 {
-  SSaverContext* sc = &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_SaverContext);
-  sc->m_Tree      = btc;
-  sc->m_Extra     = 0x0;
+  SSaverContext* sc =
+      &(((ObjectFootPrint*)allocate_object( btc->m_Pool ))->m_SaverContext);
+  sc->m_Tree = btc;
+  sc->m_Extra = 0x0;
   sc->m_Allocator = btc->m_Allocator;
   init( sc->m_Allocator, &sc->m_Buffer, 8 * 1024 );
   return sc;
