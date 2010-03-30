@@ -373,6 +373,16 @@ const char* list_as_string( BehaviorTreeContext tree, Parameter* v )
   return ret;
 }
 
+void free_list( BehaviorTreeContext ctx, Parameter* s )
+{
+  while( s )
+  {
+    Parameter* n = s->m_Next;
+    free_object( ctx, s );
+    s = n;
+  }
+}
+
 /*
  * BehaviorTree Functions
  */
