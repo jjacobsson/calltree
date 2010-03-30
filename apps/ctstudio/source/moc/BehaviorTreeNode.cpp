@@ -15,6 +15,7 @@
 #include "ParamConnectorPlug.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
+#include "../SvgCache.h"
 
 #include <other/lookup3.h>
 #include <btree/btree.h>
@@ -32,7 +33,6 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
 
-
 #include <string.h>
 
 BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
@@ -40,8 +40,8 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
   BehaviorTreeSceneItem( ctx, parent ), m_Node( n ), m_DraggingArrow( 0x0 ),
       m_Label( 0x0 )
 {
-  m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type],
-    this );
+  m_Graphics = new QGraphicsSvgItem( this );
+  m_Graphics->setSharedRenderer( SvgCache::get( n ) );
   setupLabel();
   setupTooltip();
 
@@ -65,10 +65,6 @@ void BehaviorTreeNode::setupPropertyEditor()
 {
   QLabel* label = 0x0;
 
-  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*> ( scene() );
-  if( !s )
-    return;
-
   switch( m_Node->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
@@ -83,28 +79,14 @@ void BehaviorTreeNode::setupPropertyEditor()
     label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
     break;
   case E_GRIST_DECORATOR:
-    {
-      NamedSymbol* ns = find_symbol( s->getFullContext(),
-        m_Node->m_Grist.m_Decorator.m_Decorator->m_Id.m_Hash );
-      if( ns && ns->m_Type == E_ST_DECORATOR )
-      {
-        setupPropertyEditorForParamaters(
-          m_Node->m_Grist.m_Decorator.m_Parameters,
-          ns->m_Symbol.m_Decorator->m_Declarations );
-      }
-    }
+    setupPropertyEditorForParamaters(
+      m_Node->m_Grist.m_Decorator.m_Parameters,
+      m_Node->m_Grist.m_Decorator.m_Decorator->m_Declarations );
     break;
   case E_GRIST_ACTION:
-    {
-      NamedSymbol* ns = find_symbol( s->getFullContext(),
-        m_Node->m_Grist.m_Action.m_Action->m_Id.m_Hash );
-      if( ns && ns->m_Type == E_ST_ACTION )
-      {
-        setupPropertyEditorForParamaters(
-          m_Node->m_Grist.m_Action.m_Parameters,
-          ns->m_Symbol.m_Action->m_Declarations );
-      }
-    }
+    setupPropertyEditorForParamaters(
+      m_Node->m_Grist.m_Action.m_Parameters,
+      m_Node->m_Grist.m_Action.m_Action->m_Declarations );
     break;
   case E_MAX_GRIST_TYPES:
     /* Warning killer */

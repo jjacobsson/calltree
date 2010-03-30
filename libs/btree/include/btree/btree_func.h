@@ -65,6 +65,8 @@ bool as_bool( const Parameter& );
 
 const char* list_as_string( BehaviorTreeContext tree, Parameter* start );
 
+void free_list( BehaviorTreeContext ctx, Parameter* start );
+
 /*
  * BehaviorTree Functions
  */
