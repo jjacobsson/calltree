@@ -12,11 +12,13 @@
 #ifndef SVGCACHE_H_INCLUDED
 #define SVGCACHE_H_INCLUDED
 
+struct Node;
 class QSvgRenderer;
 
 namespace SvgCache
 {
   void init();
+  QSvgRenderer* get( Node* );
   QSvgRenderer* get( const char* resource_path );
   void clear();
 };

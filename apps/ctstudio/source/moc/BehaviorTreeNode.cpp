@@ -15,6 +15,7 @@
 #include "ParamConnectorPlug.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
+#include "../SvgCache.h"
 
 #include <other/lookup3.h>
 #include <btree/btree.h>
@@ -40,8 +41,8 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
   BehaviorTreeSceneItem( ctx, parent ), m_Node( n ), m_DraggingArrow( 0x0 ),
       m_Label( 0x0 )
 {
-  m_Graphics = new QGraphicsSvgItem( g_NodeSVGResourcePaths[n->m_Grist.m_Type],
-    this );
+  m_Graphics = new QGraphicsSvgItem( this );
+  m_Graphics->setSharedRenderer( SvgCache::get( n ) );
   setupLabel();
   setupTooltip();
 

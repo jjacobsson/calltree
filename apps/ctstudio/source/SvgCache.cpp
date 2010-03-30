@@ -21,6 +21,9 @@
 #include <malloc.h>
 
 #include <btree/btree_data.h>
+#include <btree/btree_func.h>
+
+#include "standard_resources.h"
 
 namespace SvgCache
 {
@@ -89,6 +92,59 @@ void init()
   g_SvgCache.m_Entries  = 0x0;
   g_SvgCache.m_Size     = 0;
   g_SvgCache.m_Capacity = 0;
+}
+
+QSvgRenderer* get( Node* n )
+{
+  if( !n )
+    return get( g_NodeSVGResourcePaths[E_GRIST_UNKOWN] );
+
+  Parameter* opts = 0x0;
+  int gt = n->m_Grist.m_Type;
+
+  switch( gt )
+  {
+  case E_GRIST_UNKOWN:
+    break;
+  case E_GRIST_SEQUENCE:
+    break;
+  case E_GRIST_SELECTOR:
+    break;
+  case E_GRIST_PARALLEL:
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    break;
+  case E_GRIST_SUCCEED:
+    break;
+  case E_GRIST_FAIL:
+    break;
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_TREE:
+    break;
+  case E_GRIST_ACTION:
+    opts = n->m_Grist.m_Action.m_Action->m_Options;
+    break;
+  case E_GRIST_DECORATOR:
+    opts = n->m_Grist.m_Decorator.m_Decorator->m_Options;
+    break;
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+
+  if( opts )
+    opts = find_by_hash( opts, hashlittle( "cts_icon" ) );
+  if( opts && !safe_to_convert( *opts, E_VART_STRING ) )
+    opts = 0x0;
+
+  QSvgRenderer* svgr = 0x0;
+
+  if( opts )
+    svgr = get( as_string( *opts )->m_Raw );
+  if( !svgr )
+    svgr = get( g_NodeSVGResourcePaths[gt] );
+
+  return svgr;
 }
 
 QSvgRenderer* get( const char* resource_path )
