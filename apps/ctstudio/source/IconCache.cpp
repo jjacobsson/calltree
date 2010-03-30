@@ -19,6 +19,9 @@
 #include <QtGui/QIcon>
 #include <QtSvg/QSvgRenderer>
 
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+
 #include <algorithm>
 
 #include <string.h>
@@ -135,8 +138,13 @@ QIcon* get( NamedSymbol* ns )
 
   if( opts )
   {
-    icon = get( as_string( *opts )->m_Raw );
+    QFileInfo fi( l.m_Buffer );
+    QDir parent_dir( fi.absoluteDir() );
+    QString qstr = parent_dir.absoluteFilePath( QString( as_string( *opts )->m_Raw ) );
+    std::string stdstr( qstr.toStdString() );
+    icon = get( stdstr.c_str() );
   }
+
   if( !icon )
     icon = get( g_NodeSVGResourcePaths[gt] );
 
