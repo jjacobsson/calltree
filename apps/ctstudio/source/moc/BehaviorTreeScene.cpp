@@ -342,6 +342,49 @@ void BehaviorTreeScene::updateClone()
     m_FullContext = clone( m_TreeContext );
   }
 
+  int count = 0;
+  NamedSymbol* ns_start = access_symbols( m_TreeContext, &count );
+  for( int i = 0; i < count; ++i )
+  {
+    NamedSymbol* ns = ns_start + i;
+
+    switch( ns->m_Type )
+    {
+    case E_ST_UNKOWN:
+      break;
+    case E_ST_TREE:
+      break;
+    case E_ST_ACTION:
+      if( !ns->m_Symbol.m_Action->m_Declared )
+      {
+        NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
+        if( ons && ons->m_Type == ns->m_Type )
+        {
+          free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Options );
+          free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Declarations );
+          ns->m_Symbol.m_Action->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Action->m_Options );
+          ns->m_Symbol.m_Action->m_Declarations = clone_list( m_TreeContext, ons->m_Symbol.m_Action->m_Declarations );
+        }
+      }
+      break;
+    case E_ST_DECORATOR:
+      if( ns->m_Symbol.m_Decorator->m_Declared )
+      {
+        NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Decorator->m_Id.m_Hash );
+        if( ons && ons->m_Type == ns->m_Type )
+        {
+          free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Options );
+          free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Declarations );
+          ns->m_Symbol.m_Decorator->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Options );
+          ns->m_Symbol.m_Decorator->m_Declarations = clone_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Declarations );
+        }
+      }
+      break;
+    case E_MAX_SYMBOL_TYPES:
+      break;
+    }
+  }
+
   emit updatedSymbols( m_FullContext );
 }
 
