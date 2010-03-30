@@ -227,10 +227,12 @@ void save( SaverContext, SaverContextFunctions* );
 
 BehaviorTreeContext clone( BehaviorTreeContext );
 void clone( BehaviorTreeContext, Identifier*, Identifier* );
+void clone( BehaviorTreeContext, Locator*, Locator* );
 void clone( BehaviorTreeContext, Include* );
 void clone( BehaviorTreeContext, BehaviorTree* );
 void clone( BehaviorTreeContext, Action* );
 void clone( BehaviorTreeContext, Decorator* );
+
 
 void       clone_symbols( BehaviorTreeContext, NamedSymbol*, int );
 Parameter* clone_list( BehaviorTreeContext, Parameter* );

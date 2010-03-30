@@ -101,6 +101,7 @@ void init()
 QIcon* get( NamedSymbol* ns )
 {
   Parameter* opts = 0x0;
+  Locator l;
   int gt = E_GRIST_UNKOWN;
   switch( ns->m_Type )
   {
@@ -112,10 +113,12 @@ QIcon* get( NamedSymbol* ns )
     break;
   case E_ST_ACTION:
     opts = ns->m_Symbol.m_Action->m_Options;
+    l = ns->m_Symbol.m_Action->m_Locator;
     gt = E_GRIST_ACTION;
     break;
   case E_ST_DECORATOR:
     opts = ns->m_Symbol.m_Decorator->m_Options;
+    l = ns->m_Symbol.m_Decorator->m_Locator;
     gt = E_GRIST_DECORATOR;
     break;
   case E_MAX_SYMBOL_TYPES:
@@ -131,7 +134,9 @@ QIcon* get( NamedSymbol* ns )
   QIcon* icon = 0x0;
 
   if( opts )
+  {
     icon = get( as_string( *opts )->m_Raw );
+  }
   if( !icon )
     icon = get( g_NodeSVGResourcePaths[gt] );
 

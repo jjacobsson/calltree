@@ -81,11 +81,18 @@ void clone( BehaviorTreeContext btc, Identifier* d, Identifier* s )
   d->m_Text = register_string( btc, s->m_Text, s->m_Hash );
 }
 
-void clone( BehaviorTreeContext btc, BehaviorTree* tree )
+void clone( BehaviorTreeContext btc, Locator* d, Locator* s )
 {
-  BehaviorTree* t = look_up_behavior_tree( btc, &tree->m_Id );
-  t->m_Declared = tree->m_Declared;
-  t->m_Root = clone_list( btc, tree->m_Root );
+  *d = *s;
+  d->m_Buffer = register_string( btc, s->m_Buffer );
+}
+
+void clone( BehaviorTreeContext btc, BehaviorTree* src )
+{
+  BehaviorTree* t = look_up_behavior_tree( btc, &src->m_Id );
+  t->m_Declared = src->m_Declared;
+  t->m_Root = clone_list( btc, src->m_Root );
+  clone( btc, &t->m_Locator, &src->m_Locator );
 }
 
 void clone( BehaviorTreeContext btc, Action* src )
@@ -94,6 +101,7 @@ void clone( BehaviorTreeContext btc, Action* src )
   a->m_Declarations = clone_list( btc, src->m_Declarations );
   a->m_Options = clone_list( btc, src->m_Options );
   a->m_Declared = src->m_Declared;
+  clone( btc, &a->m_Locator, &src->m_Locator );
 }
 
 void clone( BehaviorTreeContext btc, Decorator* src )
@@ -102,6 +110,7 @@ void clone( BehaviorTreeContext btc, Decorator* src )
   d->m_Declarations = clone_list( btc, src->m_Declarations );
   d->m_Options = clone_list( btc, src->m_Options );
   d->m_Declared = src->m_Declared;
+  clone( btc, &d->m_Locator, &src->m_Locator );
 }
 
 Parameter* clone_list( BehaviorTreeContext btc, Parameter* v1 )
@@ -115,6 +124,8 @@ Parameter* clone_list( BehaviorTreeContext btc, Parameter* v1 )
     init( v );
 
     clone( btc, &v->m_Id, &v1->m_Id );
+    clone( btc, &v->m_Locator, &v1->m_Locator );
+
     v->m_Data = v1->m_Data;
     v->m_Type = v1->m_Type;
     v->m_ValueSet = v1->m_ValueSet;
@@ -178,6 +189,8 @@ Node* clone_list( BehaviorTreeContext btc, Node* n )
   init( r );
 
   *r = *n;
+
+  clone( btc, &r->m_Locator, &n->m_Locator );
 
   r->m_Next = 0x0;
   r->m_Prev = 0x0;

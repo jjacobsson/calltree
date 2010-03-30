@@ -360,6 +360,7 @@ void BehaviorTreeScene::updateClone()
         NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
         if( ons && ons->m_Type == ns->m_Type )
         {
+          clone( m_TreeContext, &ns->m_Symbol.m_Action->m_Locator, &ons->m_Symbol.m_Action->m_Locator );
           free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Options );
           free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Declarations );
           ns->m_Symbol.m_Action->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Action->m_Options );
@@ -373,6 +374,7 @@ void BehaviorTreeScene::updateClone()
         NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Decorator->m_Id.m_Hash );
         if( ons && ons->m_Type == ns->m_Type )
         {
+          clone( m_TreeContext, &ns->m_Symbol.m_Decorator->m_Locator, &ons->m_Symbol.m_Decorator->m_Locator );
           free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Options );
           free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Declarations );
           ns->m_Symbol.m_Decorator->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Options );
