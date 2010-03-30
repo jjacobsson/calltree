@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-04-24 Joacim Jacobsson.
+ * Copyright (c) 2010-03-30 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,22 +9,17 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#include <QtGui/QApplication>
-#include <QtGui/QMainWindow>
+#ifndef SVGCACHE_H_INCLUDED
+#define SVGCACHE_H_INCLUDED
 
-#include "moc/MainWindow.h"
+class QSvgRenderer;
 
-#include "SvgCache.h"
-
-
-int main(int argc, char *argv[])
+namespace SvgCache
 {
-    QApplication app(argc, argv);
+  void init();
+  QSvgRenderer* get( const char* resource_path );
+  void clear();
+};
 
-    SvgCache::init();
 
-	MainWindow main_window;
-	main_window.show();
-
-    return app.exec();
-}
+#endif /* SVGCACHE_H_INCLUDED */

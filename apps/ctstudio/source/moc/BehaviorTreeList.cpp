@@ -13,7 +13,7 @@
 #include "../BehaviorTreeListItem.h"
 #include "../standard_resources.h"
 #include "../x-node.h"
-
+#include "../IconCache.h"
 
 #include <btree/btree_func.h>
 
@@ -87,7 +87,8 @@ void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
       continue;
 
     QListWidgetItem *nodeItem = new BehaviorTreeListItem( node_data.m_NodeGrist );
-    nodeItem->setIcon( QIcon(g_NodeIcons[node_data.m_NodeGrist]) );
+    QIcon* icon = IconCache::get( ns + i );
+    nodeItem->setIcon( *icon );
     nodeItem->setData( Qt::UserRole + 0,
       QByteArray( (const char*)(&node_data), sizeof(XNodeData)) );
 
@@ -119,7 +120,8 @@ void BehaviorTreeList::setupStandardNodes()
   {
     QListWidgetItem *nodeItem = new BehaviorTreeListItem( 0 );
 
-    nodeItem->setIcon( QIcon(":/icons/tree.png") );
+    QIcon* i = IconCache::get( ":/nodes/tree.svg" );
+    nodeItem->setIcon( *i );
     node_data.m_Type      = E_XNDT_TREE;
     node_data.m_NodeGrist = E_GRIST_UNKOWN;
     node_data.m_FuncId    = 0;
@@ -136,8 +138,8 @@ void BehaviorTreeList::setupStandardNodes()
   for( int i = 1; i < E_GRIST_TREE; ++i )
   {
     QListWidgetItem *nodeItem = new BehaviorTreeListItem( i );
-
-    nodeItem->setIcon( QIcon(g_NodeIcons[i]) );
+    QIcon* icon = IconCache::get( g_NodeSVGResourcePaths[i] );
+    nodeItem->setIcon( *icon );
 
     node_data.m_Type        = E_XNDT_NODE;
     node_data.m_NodeGrist   = i;
