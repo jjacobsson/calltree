@@ -108,7 +108,7 @@ QIcon* get( NamedSymbol* ns )
     /* Warning Killer */
     break;
   case E_ST_TREE:
-    gt = E_GRIST_DECORATOR;
+    gt = E_GRIST_TREE;
     break;
   case E_ST_ACTION:
     opts = ns->m_Symbol.m_Action->m_Options;

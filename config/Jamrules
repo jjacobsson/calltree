@@ -161,12 +161,6 @@ if $(QT_PATH)
 		$(TOOL_QT_RCC) -name $(2:B) $(2) -o $(1) 
 	}
 	
-	actions ConvertSvgToPNG
-	{
-		$(BUILD_BIN_DIR)svg_to_png$(SUFEXE) -i $(2) -o $(1)
-	}
-	
-	
 }
 else
 {
@@ -180,11 +174,6 @@ else
 	}
 	
 	actions qrcCppFile
-	{
-		echo "QT_PATH not set!"
-	}
-	
-	actions ConvertSvgToPNG
 	{
 		echo "QT_PATH not set!"
 	}

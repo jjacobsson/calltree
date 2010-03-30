@@ -14,18 +14,5 @@
 	<file>nodes/tree.svg</file>
 	<file>nodes/include.svg</file>
 	<file>nodes/leaf.svg</file>
- 	<file>icons/unknown.png</file>
-	<file>icons/sequence.png</file>
-	<file>icons/selector.png</file>
-	<file>icons/parallel.png</file>
-	<file>icons/dyn_selector.png</file>
-	<file>icons/succeed.png</file>
-	<file>icons/fail.png</file>
-	<file>icons/work.png</file>
-	<file>icons/decorator.png</file>
-	<file>icons/action.png</file>     
-	<file>icons/tree.png</file>
-	<file>icons/include.png</file>
-	<file>icons/leaf.png</file>
 </qresource>
  </RCC>
