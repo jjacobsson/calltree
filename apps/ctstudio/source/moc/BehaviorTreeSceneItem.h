@@ -14,13 +14,18 @@
 
 #include <QtGui/QGraphicsItem>
 #include <QtCore/QList>
+#include <QtCore/QPointF>
 
 #include "../GraphicsItemTypes.h"
 
 #include <btree/btree_data.h>
 
+// Qt forward declares
+class QGraphicsSvgItem;
+
 // Internal Forward declares
 class NodeToNodeArrow;
+
 
 class BehaviorTreeSceneItem: public QGraphicsObject
 {
@@ -54,6 +59,7 @@ public:
   void addArrow( NodeToNodeArrow* arrow );
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
 
+  virtual QPointF iconPosition() const;
   virtual QRectF layoutBoundingRect() const;
   virtual qreal layoutOffset() const;
   virtual BehaviorTreeSceneItem* getParent();
@@ -79,6 +85,7 @@ signals:
 protected slots:
 
   void deleteThis();
+  void positionIcons();
 
 protected:
 
@@ -104,6 +111,7 @@ protected:
   QList<NodeToNodeArrow*> m_Arrows;
 
   QWidget* m_PropertyWidget;
+  QGraphicsSvgItem* m_BugIcon;
 
   BehaviorTreeContext m_Context;
 };

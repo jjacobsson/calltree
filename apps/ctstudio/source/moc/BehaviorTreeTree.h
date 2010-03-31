@@ -43,6 +43,7 @@ public:
   BehaviorTree* GetTree() { return m_Tree; }
 
   QRectF boundingRect() const;
+  QPointF iconPosition() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
 

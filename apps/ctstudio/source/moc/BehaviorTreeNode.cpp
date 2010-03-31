@@ -42,6 +42,13 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
 {
   m_Graphics = new QGraphicsSvgItem( this );
   m_Graphics->setSharedRenderer( SvgCache::get( n ) );
+
+  {
+    QRectF rect = m_Graphics->boundingRect();
+    qreal scale = 256.0 / (rect.width() > rect.height()?rect.width():rect.height());
+    m_Graphics->setScale( scale );
+  }
+
   setupLabel();
   setupTooltip();
 
@@ -108,6 +115,11 @@ QRectF BehaviorTreeNode::boundingRect() const
   if( m_Label )
     rect |= m_Label->boundingRect().translated( m_Label->pos() );
   return rect;
+}
+
+QPointF BehaviorTreeNode::iconPosition() const
+{
+  return m_Graphics->pos();
 }
 
 QRectF BehaviorTreeNode::layoutBoundingRect() const
@@ -344,6 +356,8 @@ void BehaviorTreeNode::setupLabel()
 
   p.ry() = 256.0;
   m_Label->setPos( p );
+
+  positionIcons();
 }
 
 void BehaviorTreeNode::setupTooltip()

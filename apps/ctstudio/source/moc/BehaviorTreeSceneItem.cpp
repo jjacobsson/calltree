@@ -12,14 +12,17 @@
 #include "BehaviorTreeSceneItem.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
+#include "../SvgCache.h"
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
+#include <QtSvg/QGraphicsSvgItem>
 
 BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent )
   : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
   , m_PropertyWidget( 0x0 )
+  , m_BugIcon( 0x0 )
   , m_Context( ctx )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
@@ -27,6 +30,12 @@ BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphics
   setFlag( QGraphicsItem::ItemStacksBehindParent, false );
 
   setZValue( 0.0 );
+
+  m_BugIcon = new QGraphicsSvgItem( this );
+  m_BugIcon->setSharedRenderer( SvgCache::get( ":/icons/bug.svg" ) );
+  m_BugIcon->setScale( 1.0 / 5.0 );
+  m_BugIcon->setZValue( 10.0 );
+  m_BugIcon->setVisible( false );
 }
 
 BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
@@ -34,6 +43,9 @@ BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
   removeArrows();
   delete m_PropertyWidget;
   m_PropertyWidget = 0x0;
+
+  delete m_BugIcon;
+  m_BugIcon = 0x0;
 
   emit itemDeleted();
 }
@@ -72,6 +84,11 @@ NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* othe
       return arrow;
   }
   return 0x0;
+}
+
+QPointF BehaviorTreeSceneItem::iconPosition() const
+{
+  return QPointF( 0, 0 );
 }
 
 QRectF BehaviorTreeSceneItem::layoutBoundingRect() const
@@ -148,6 +165,11 @@ void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphics
 void BehaviorTreeSceneItem::deleteThis()
 {
   delete this;
+}
+
+void BehaviorTreeSceneItem::positionIcons()
+{
+  m_BugIcon->setPos( iconPosition() );
 }
 
 QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,

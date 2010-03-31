@@ -81,6 +81,11 @@ QRectF BehaviorTreeTree::boundingRect() const
   return rect;
 }
 
+QPointF BehaviorTreeTree::iconPosition() const
+{
+  return m_Graphics->pos();
+}
+
 QRectF BehaviorTreeTree::layoutBoundingRect() const
 {
   return m_Graphics->boundingRect().translated( m_Graphics->pos() );
@@ -160,6 +165,8 @@ void BehaviorTreeTree::setupLabel( const char* str )
 
   p.ry() = -r.height();
   m_Label->setPos( p );
+
+  positionIcons();
 }
 
 void BehaviorTreeTree::setupPropertyEditor()

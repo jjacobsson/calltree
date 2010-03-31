@@ -42,6 +42,11 @@ QRectF BehaviorTreeInclude::boundingRect() const
   return rect;
 }
 
+QPointF BehaviorTreeInclude::iconPosition() const
+{
+  return m_Graphics->pos();
+}
+
 void BehaviorTreeInclude::setupLabel()
 {
   prepareGeometryChange();
@@ -71,6 +76,8 @@ void BehaviorTreeInclude::setupLabel()
 
   p.ry() = -r.height();
   m_Label->setPos( p );
+
+  positionIcons();
 }
 
 

@@ -48,6 +48,8 @@ public:
   void setupPropertyEditor();
 
   QRectF boundingRect() const;
+
+  QPointF iconPosition() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
 
