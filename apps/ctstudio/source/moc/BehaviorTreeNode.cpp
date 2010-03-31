@@ -41,7 +41,7 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
   setupLabel();
   setupTooltip();
 
-  positionIcons();
+
 
   if( m_Node->m_Grist.m_Type == E_GRIST_TREE &&
       m_Node->m_Grist.m_Tree.m_Tree &&
@@ -50,6 +50,8 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
     BehaviorTreeSceneItem* btsi = (BehaviorTreeSceneItem*)(m_Node->m_Grist.m_Tree.m_Tree->m_UserData );
     connect( btsi, SIGNAL(itemDeleted()), this, SLOT(deleteThis()) );
   }
+
+  positionIcons();
 }
 
 BehaviorTreeNode::~BehaviorTreeNode()
@@ -67,6 +69,13 @@ void BehaviorTreeNode::setupPropertyEditor()
   NodePropertyEditor* npe = new NodePropertyEditor( m_Context, m_Node );
   m_Icons[ICON_BUG]->setVisible( npe->hasBuggs() );
   m_PropertyWidget = npe;
+
+  connect(
+    npe,
+    SIGNAL( nodeParametersChanged() ),
+    this,
+    SLOT( paramChanged() )
+  );
 }
 
 QRectF BehaviorTreeNode::boundingRect() const
@@ -191,84 +200,15 @@ void BehaviorTreeNode::dragFail()
   m_DraggingArrow = 0x0;
   BehaviorTreeSceneItem::dragFail();
 }
-/*
-void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
+
+void BehaviorTreeNode::paramChanged()
 {
-  Parameter* p = find_by_hash( get_parameters( m_Node ), hash );
-  BehaviorTreeScene* s = qobject_cast<BehaviorTreeScene*> ( scene() );
-  if( !p || !s )
-    return;
-
-  switch( p->m_Type )
-  {
-  case E_VART_BOOL:
-    {
-      QCheckBox* cb = qobject_cast<QCheckBox*> ( editor );
-      bool checked = cb->checkState() == Qt::Checked;
-      if( checked != p->m_Data.m_Bool )
-      {
-        p->m_Data.m_Bool = checked;
-        signalModified( false );
-      }
-    }
-    break;
-  case E_VART_FLOAT:
-    {
-      QLineEdit* e = qobject_cast<QLineEdit*> ( editor );
-      bool ok;
-      float f = e->text().toFloat( &ok );
-      if( ok && f != p->m_Data.m_Float )
-      {
-        p->m_Data.m_Float = f;
-        signalModified( false );
-      }
-    }
-    break;
-  case E_VART_INTEGER:
-    {
-      QLineEdit* e = qobject_cast<QLineEdit*> ( editor );
-      bool ok;
-      int i = e->text().toInt( &ok );
-      if( ok && i != p->m_Data.m_Integer )
-      {
-        p->m_Data.m_Integer = i;
-        signalModified( false );
-      }
-    }
-    break;
-  case E_VART_STRING:
-    {
-      QLineEdit* e = qobject_cast<QLineEdit*> ( editor );
-      QByteArray ba( e->text().toAscii() );
-      hash_t hash_new, hash_old;
-
-      if( e->text().isEmpty() )
-        hash_new = hashlittle( "" );
-      else
-        hash_new = hashlittle( ba.constData() );
-
-      if( p->m_Data.m_String.m_Raw )
-        hash_old = hashlittle( p->m_Data.m_String.m_Raw );
-      else
-        hash_old = hashlittle( "" );
-
-      if( hash_old != hash_new )
-      {
-        p->m_Data.m_String.m_Raw = register_string( s->getTreeContext(),
-          ba.constData() );
-        p->m_Data.m_String.m_Parsed = p->m_Data.m_String.m_Raw;
-        signalModified( false );
-      }
-    }
-    break;
-  case E_VART_HASH:
-  case E_VART_UNDEFINED:
-  case E_MAX_VARIABLE_TYPE:
-    // Warning Killers
-    break;
-  }
+  signalModified( false );
+  NodePropertyEditor* npe = (NodePropertyEditor*)m_PropertyWidget;
+  m_Icons[ICON_BUG]->setVisible( npe->hasBuggs() );
+  positionIcons();
 }
-*/
+
 void BehaviorTreeNode::setupLabel()
 {
   const char* str = 0x0;

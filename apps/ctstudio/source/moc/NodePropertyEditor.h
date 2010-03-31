@@ -18,6 +18,8 @@
 #include <btree/btree.h>
 
 class NodePropertyDelegate;
+class QStyledItemDelegate;
+class QStandardItem;
 
 class NodePropertyEditor : public QTableView
 {
@@ -31,7 +33,12 @@ public:
 
   bool hasBuggs() const;
 
+signals:
+  void nodeParametersChanged();
+
 private slots:
+
+  void updateNodeParameterData( QStandardItem* );
 
 protected:
 

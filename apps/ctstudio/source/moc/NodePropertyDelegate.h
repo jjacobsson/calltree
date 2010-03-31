@@ -12,12 +12,12 @@
 #ifndef NODEPROPERTYDELEGATE_H_INCLUDED
 #define NODEPROPERTYDELEGATE_H_INCLUDED
 
-#include <QtGui/QItemDelegate>
+#include <QtGui/QStyledItemDelegate>
 #include <QtCore/QModelIndex>
 #include <QtCore/QObject>
 #include <QtCore/QSize>
 
-class NodePropertyDelegate: public QItemDelegate
+class NodePropertyDelegate: public QStyledItemDelegate
 {
 Q_OBJECT
 public:
@@ -31,9 +31,6 @@ public:
 
   void setModelData( QWidget *editor, QAbstractItemModel *model,
     const QModelIndex &index ) const;
-
-  void updateEditorGeometry( QWidget *editor,
-    const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 
 };
 

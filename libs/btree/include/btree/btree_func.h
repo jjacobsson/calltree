@@ -241,10 +241,12 @@ void clone( BehaviorTreeContext, BehaviorTree* );
 void clone( BehaviorTreeContext, Action* );
 void clone( BehaviorTreeContext, Decorator* );
 
+Parameter* clone( BehaviorTreeContext, Parameter* );
+Node*      clone( BehaviorTreeContext, Node* );
 
 void       clone_symbols( BehaviorTreeContext, NamedSymbol*, int );
 Parameter* clone_list( BehaviorTreeContext, Parameter* );
-Node*      clone_list( BehaviorTreeContext, Node* );
+Node*      clone_tree( BehaviorTreeContext, Node* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

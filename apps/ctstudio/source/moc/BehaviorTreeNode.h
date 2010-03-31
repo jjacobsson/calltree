@@ -70,13 +70,12 @@ signals:
 
 private slots:
 
-  //void paramChanged( QObject* editor, hash_t hash );
+  void paramChanged();
 
 private:
 
   void setupLabel();
   void setupTooltip();
-  //void setupPropertyEditorForParamaters( Parameter*, Parameter* );
 
   void setupRelinkage();
   void executeRelinkage();
