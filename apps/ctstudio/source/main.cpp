@@ -15,16 +15,21 @@
 #include "moc/MainWindow.h"
 
 #include "SvgCache.h"
-
+#include "IconCache.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
     SvgCache::init();
+    IconCache::init();
 
 	MainWindow main_window;
 	main_window.show();
+	int r = app.exec();
 
-    return app.exec();
+	SvgCache::clear();
+	IconCache::clear();
+
+    return r;
 }

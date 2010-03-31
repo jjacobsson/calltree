@@ -343,7 +343,7 @@ void BehaviorTreeScene::updateClone()
   }
 
   int count = 0;
-  NamedSymbol* ns_start = access_symbols( m_TreeContext, &count );
+  NamedSymbol* ns_start = access_symbols( m_FullContext, &count );
   for( int i = 0; i < count; ++i )
   {
     NamedSymbol* ns = ns_start + i;
@@ -357,8 +357,14 @@ void BehaviorTreeScene::updateClone()
     case E_ST_ACTION:
       if( !ns->m_Symbol.m_Action->m_Declared )
       {
-        NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
-        if( ons && ons->m_Type == ns->m_Type )
+        NamedSymbol* ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
+        if( !ons )
+        {
+          clone( m_TreeContext, ns->m_Symbol.m_Action );
+          ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
+          ons->m_Symbol.m_Action->m_Declared = false;
+        }
+        else if( ons->m_Declared == false && ons->m_Type == ns->m_Type )
         {
           clone( m_TreeContext, &ns->m_Symbol.m_Action->m_Locator, &ons->m_Symbol.m_Action->m_Locator );
           free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Options );
@@ -371,8 +377,12 @@ void BehaviorTreeScene::updateClone()
     case E_ST_DECORATOR:
       if( ns->m_Symbol.m_Decorator->m_Declared )
       {
-        NamedSymbol* ons = find_symbol( m_FullContext, ns->m_Symbol.m_Decorator->m_Id.m_Hash );
-        if( ons && ons->m_Type == ns->m_Type )
+        NamedSymbol* ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Decorator->m_Id.m_Hash );
+        if( !ons )
+        {
+
+        }
+        else if( ons->m_Declared == false && ons->m_Type == ns->m_Type )
         {
           clone( m_TreeContext, &ns->m_Symbol.m_Decorator->m_Locator, &ons->m_Symbol.m_Decorator->m_Locator );
           free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Options );

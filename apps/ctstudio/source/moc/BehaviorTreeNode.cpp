@@ -12,7 +12,7 @@
 #include "BehaviorTreeScene.h"
 #include "BehaviorTreeNode.h"
 #include "BehaviorTreeTree.h"
-#include "ParamConnectorPlug.h"
+#include "NodePropertyEditor.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
 #include "../SvgCache.h"
@@ -21,17 +21,6 @@
 #include <btree/btree.h>
 
 #include <QtSvg/QGraphicsSvgItem>
-
-#include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDoubleValidator>
-#include <QtGui/QIntValidator>
-
-#include <QtGui/QTableWidget>
-#include <QtGui/QHeaderView>
-#include <QtGui/QVBoxLayout>
 
 #include <string.h>
 
@@ -75,43 +64,9 @@ BehaviorTreeNode::~BehaviorTreeNode()
 
 void BehaviorTreeNode::setupPropertyEditor()
 {
-  QLabel* label = 0x0;
-
-  switch( m_Node->m_Grist.m_Type )
-  {
-  case E_GRIST_UNKOWN:
-  case E_GRIST_SEQUENCE:
-  case E_GRIST_SELECTOR:
-  case E_GRIST_PARALLEL:
-  case E_GRIST_DYN_SELECTOR:
-  case E_GRIST_SUCCEED:
-  case E_GRIST_FAIL:
-  case E_GRIST_WORK:
-  case E_GRIST_TREE:
-    label = new QLabel( g_NodeNames[m_Node->m_Grist.m_Type] );
-    break;
-  case E_GRIST_DECORATOR:
-    setupPropertyEditorForParamaters(
-      m_Node->m_Grist.m_Decorator.m_Parameters,
-      m_Node->m_Grist.m_Decorator.m_Decorator->m_Declarations );
-    break;
-  case E_GRIST_ACTION:
-    setupPropertyEditorForParamaters(
-      m_Node->m_Grist.m_Action.m_Parameters,
-      m_Node->m_Grist.m_Action.m_Action->m_Declarations );
-    break;
-  case E_MAX_GRIST_TYPES:
-    /* Warning killer */
-    break;
-  }
-
-  if( label )
-  {
-    m_PropertyWidget = new QWidget;
-    QBoxLayout* layout = new QBoxLayout( QBoxLayout::TopToBottom,
-      m_PropertyWidget );
-    layout->addWidget( label, 0, Qt::AlignHCenter | Qt::AlignVCenter );
-  }
+  NodePropertyEditor* npe = new NodePropertyEditor( m_Context, m_Node );
+  m_Icons[ICON_BUG]->setVisible( npe->hasBuggs() );
+  m_PropertyWidget = npe;
 }
 
 QRectF BehaviorTreeNode::boundingRect() const
@@ -236,7 +191,7 @@ void BehaviorTreeNode::dragFail()
   m_DraggingArrow = 0x0;
   BehaviorTreeSceneItem::dragFail();
 }
-
+/*
 void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
 {
   Parameter* p = find_by_hash( get_parameters( m_Node ), hash );
@@ -313,7 +268,7 @@ void BehaviorTreeNode::paramChanged( QObject* editor, hash_t hash )
     break;
   }
 }
-
+*/
 void BehaviorTreeNode::setupLabel()
 {
   const char* str = 0x0;
@@ -396,168 +351,6 @@ void BehaviorTreeNode::setupTooltip()
     break;
   }
   setToolTip( str );
-}
-
-void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
-  Parameter* dec )
-{
-  bool parameter_bugs = false;
-
-  QTableWidget* tw = new QTableWidget;
-  m_PropertyWidget = tw;
-
-  tw->setColumnCount( 3 );
-
-  {
-    QStringList headers;
-    headers.push_back( tr( "Param" ) );
-    headers.push_back( tr( "Type" ) );
-    headers.push_back( tr( "Value" ) );
-    tw->setHorizontalHeaderLabels( headers );
-    tw->verticalHeader()->hide();
-  }
-
-  Parameter* it = dec;
-  while( it )
-  {
-    Parameter* v = find_by_hash( set, it->m_Id.m_Hash );
-
-    if( !v )
-      parameter_bugs = true;
-
-    QLabel* l = new QLabel( it->m_Id.m_Text );
-    QLabel* tl = 0x0;
-    QWidget* e = 0x0;
-    switch( it->m_Type )
-    {
-    case E_VART_BOOL:
-      {
-        tl = new QLabel( tr( "bool" ) );
-        QWidget* cb_cont = new QWidget;
-        QCheckBox* cb = new QCheckBox( cb_cont );
-        cb->move( 5, 3 );
-        if( v )
-          cb->setChecked( v->m_Data.m_Bool );
-
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, cb );
-        connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
-          SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( cb, SIGNAL( stateChanged( int ) ), conn,
-          SLOT( checkBoxChanged( int ) ) );
-        e = cb_cont;
-      }
-      break;
-    case E_VART_FLOAT:
-      {
-        tl = new QLabel( tr( "float" ) );
-
-        QLineEdit* le = new QLineEdit;
-        le->setFrame( false );
-        le->setTextMargins( 5, 0, 0, 0 );
-        e = le;
-
-        if( v )
-          le->setText( QString( "%1" ).arg( as_float( *v ) ) );
-
-        le->setValidator( new QDoubleValidator( 0x0 ) );
-
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
-        connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
-          SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
-
-      }
-      break;
-    case E_VART_INTEGER:
-      {
-        tl = new QLabel( tr( "integer" ) );
-
-        QLineEdit* le = new QLineEdit;
-        le->setFrame( false );
-        le->setTextMargins( 5, 0, 0, 0 );
-        e = le;
-
-        if( v )
-          le->setText( QString( "%1" ).arg( as_integer( *v ) ) );
-
-        le->setValidator( new QIntValidator( 0x0 ) );
-
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
-        connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
-          SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
-
-      }
-      break;
-    case E_VART_HASH:
-      if( v && v->m_Type != E_VART_STRING )
-      {
-        v->m_Type = E_VART_STRING;
-        v->m_Data.m_String.m_Parsed = 0x0;
-        v->m_Data.m_String.m_Raw = 0x0;
-      }
-    case E_VART_STRING:
-      {
-        if( it->m_Type == E_VART_STRING )
-          tl = new QLabel( tr( "string" ) );
-        else if( it->m_Type == E_VART_HASH )
-          tl = new QLabel( tr( "hash" ) );
-
-        QLineEdit* le = new QLineEdit;
-        le->setFrame( false );
-        le->setTextMargins( 5, 0, 0, 0 );
-
-        e = le;
-
-        if( v )
-        {
-          le->setText( as_string( *v )->m_Raw );
-          le->setCursorPosition( 0 );
-        }
-
-        ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
-        connect( conn, SIGNAL( dataChanged( QObject*, hash_t ) ), this,
-          SLOT( paramChanged( QObject*, hash_t ) ) );
-        connect( le, SIGNAL( editingFinished() ), conn, SLOT( lineEditChanged() ) );
-
-      }
-      break;
-    case E_VART_UNDEFINED:
-    case E_MAX_VARIABLE_TYPE:
-      // Warning Killers
-      parameter_bugs = true;
-      break;
-    }
-
-    int row = tw->rowCount();
-
-    l->setIndent( 5 );
-    tl->setIndent( 5 );
-
-    tw->setRowCount( row + 1 );
-    tw->setCellWidget( row, 0, l );
-    tw->setCellWidget( row, 1, tl );
-    tw->setCellWidget( row, 2, e );
-
-    it = it->m_Next;
-  }
-
-  tw->resizeRowsToContents();
-  tw->setSelectionMode( QAbstractItemView::NoSelection );
-  {
-    QHeaderView* hw = tw->horizontalHeader();
-    hw->setMinimumSectionSize( 65 );
-    hw->setResizeMode( QHeaderView::ResizeToContents );
-    hw->setStretchLastSection( true );
-    hw->setHighlightSections( false );
-    hw->setClickable( false );
-  }
-
-  if( parameter_bugs )
-  {
-    m_Icons[ICON_BUG]->setVisible( true );
-    positionIcons();
-  }
 }
 
 void BehaviorTreeNode::setupRelinkage()
