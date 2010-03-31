@@ -401,6 +401,8 @@ void BehaviorTreeNode::setupTooltip()
 void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
   Parameter* dec )
 {
+  bool parameter_bugs = false;
+
   QTableWidget* tw = new QTableWidget;
   m_PropertyWidget = tw;
 
@@ -419,6 +421,9 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
   while( it )
   {
     Parameter* v = find_by_hash( set, it->m_Id.m_Hash );
+
+    if( !v )
+      parameter_bugs = true;
 
     QLabel* l = new QLabel( it->m_Id.m_Text );
     QLabel* tl = 0x0;
@@ -453,6 +458,7 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
 
         if( v )
           le->setText( QString( "%1" ).arg( as_float( *v ) ) );
+
         le->setValidator( new QDoubleValidator( 0x0 ) );
 
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
@@ -473,6 +479,7 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
 
         if( v )
           le->setText( QString( "%1" ).arg( as_integer( *v ) ) );
+
         le->setValidator( new QIntValidator( 0x0 ) );
 
         ParamConnectorPlug* conn = new ParamConnectorPlug( it->m_Id.m_Hash, le );
@@ -518,6 +525,7 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_UNDEFINED:
     case E_MAX_VARIABLE_TYPE:
       // Warning Killers
+      parameter_bugs = true;
       break;
     }
 
@@ -543,6 +551,12 @@ void BehaviorTreeNode::setupPropertyEditorForParamaters( Parameter* set,
     hw->setStretchLastSection( true );
     hw->setHighlightSections( false );
     hw->setClickable( false );
+  }
+
+  if( parameter_bugs )
+  {
+    m_Icons[ICON_BUG]->setVisible( true );
+    positionIcons();
   }
 }
 
