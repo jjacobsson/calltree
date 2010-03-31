@@ -10,17 +10,29 @@
  *******************************************************************************/
 
 #include "NodePropertyDelegate.h"
+#include <btree/btree_data.h>
 
 NodePropertyDelegate::NodePropertyDelegate( QObject* parent ) :
-  QStyledItemDelegate( parent )
+  QItemDelegate( parent )
 {
 
 }
 
-QWidget *NodePropertyDelegate::createEditor( QWidget *parent,
+QWidget* NodePropertyDelegate::createEditor( QWidget *parent,
   const QStyleOptionViewItem &option, const QModelIndex &index ) const
 {
-  return 0x0;
+  int type = index.model()->data( index, Qt::UserRole ).toInt();
+
+  QWidget* edit = 0x0;
+
+  switch( type )
+  {
+  case E_VART_BOOL:
+    edit = QItemDelegate::createEditor( parent, option, index );
+    break;
+  }
+
+  return edit;
 }
 
 void NodePropertyDelegate::setEditorData( QWidget *editor,
@@ -28,6 +40,7 @@ void NodePropertyDelegate::setEditorData( QWidget *editor,
 {
 
 }
+
 void NodePropertyDelegate::setModelData( QWidget *editor,
   QAbstractItemModel *model, const QModelIndex &index ) const
 {

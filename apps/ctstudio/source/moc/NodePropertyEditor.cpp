@@ -12,30 +12,31 @@
 #include "NodePropertyEditor.h"
 
 #include <QtGui/QFormLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QCheckBox>
-#include <QtGui/QDoubleValidator>
-#include <QtGui/QIntValidator>
 
+#include <QtGui/QStandardItem>
 
 #include <QtGui/QHeaderView>
-#include <QtGui/QVBoxLayout>
 
 #include "../IconCache.h"
 
+#include "NodePropertyDelegate.h"
+
 NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n,
   QWidget* parent ) :
-  QTableWidget( parent ), m_HasBuggs( false ), m_Context( ctx ), m_Node( n )
+  QTableView( parent ), m_HasBuggs( false ), m_Context( ctx ), m_Node( n )
 {
-  setColumnCount( 3 );
+  setModel( &m_Model );
+  m_Delegate = new NodePropertyDelegate( this );
+
+  m_Model.setColumnCount( 3 );
+  setItemDelegateForColumn( 2, m_Delegate );
+  verticalHeader()->setVisible(false);
 
   QStringList headers;
   headers.push_back( tr( "Param" ) );
   headers.push_back( tr( "Type" ) );
   headers.push_back( tr( "Value" ) );
-  setHorizontalHeaderLabels( headers );
-  verticalHeader()->hide();
+  m_Model.setHorizontalHeaderLabels( headers );
 
   Parameter* params = get_parameters( m_Node );
   Parameter* declar = get_declarations( m_Node );
@@ -52,6 +53,13 @@ NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n,
   hw->setStretchLastSection( true );
   hw->setHighlightSections( false );
   hw->setClickable( false );
+}
+
+NodePropertyEditor::~NodePropertyEditor()
+{
+  setModel( 0x0 );
+  delete m_Delegate;
+  m_Delegate = 0x0;
 }
 
 bool NodePropertyEditor::hasBuggs() const
@@ -73,11 +81,12 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     if( !v )
       param_bugged = true;
 
-    QTableWidgetItem* l  = new QTableWidgetItem( it->m_Id.m_Text );
-    QTableWidgetItem* tl = new QTableWidgetItem;
-    QTableWidgetItem* e  = new QTableWidgetItem;
+    QStandardItem* l  = new QStandardItem( it->m_Id.m_Text );
+    QStandardItem* tl = new QStandardItem;
+    QStandardItem* e  = new QStandardItem;
 
     e->setData( Qt::UserRole, it->m_Id.m_Hash );
+    e->setData( Qt::UserRole + 1, it->m_Type );
 
     switch( it->m_Type )
     {
@@ -127,18 +136,18 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
       break;
     }
 
-    int row = rowCount();
+    int row = m_Model.rowCount();
 
     l->setFlags( Qt::ItemIsEnabled );
     tl->setFlags( Qt::ItemIsEnabled );
 
-    setRowCount( row + 1 );
-    setItem( row, 0, l );
-    setItem( row, 1, tl );
-    setItem( row, 2, e );
+    m_Model.setRowCount( row + 1 );
+    m_Model.setItem( row, 0, l );
+    m_Model.setItem( row, 1, tl );
+    m_Model.setItem( row, 2, e );
 
     if( bug_icon && param_bugged )
-      item( row, 0 )->setIcon( *bug_icon );
+      l->setIcon( *bug_icon );
 
     if( param_bugged )
       m_HasBuggs = true;

@@ -12,11 +12,14 @@
 #ifndef NODEPROPERTYEDITOR_H_INCLUDED
 #define NODEPROPERTYEDITOR_H_INCLUDED
 
-#include <QtGui/QTableWidget>
+#include <QtGui/QTableView>
+#include <QtGui/QStandardItemModel>
 
 #include <btree/btree.h>
 
-class NodePropertyEditor : public QTableWidget
+class NodePropertyDelegate;
+
+class NodePropertyEditor : public QTableView
 {
 
 Q_OBJECT
@@ -24,8 +27,11 @@ Q_OBJECT
 public:
 
   NodePropertyEditor( BehaviorTreeContext, Node*, QWidget* parent = 0x0 );
+  ~NodePropertyEditor();
 
   bool hasBuggs() const;
+
+private slots:
 
 protected:
 
@@ -36,6 +42,9 @@ private:
   bool m_HasBuggs;
   BehaviorTreeContext m_Context;
   Node* m_Node;
+
+  NodePropertyDelegate* m_Delegate;
+  QStandardItemModel m_Model;
 
 };
 
