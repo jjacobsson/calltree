@@ -52,6 +52,8 @@ BehaviorTreeNode::BehaviorTreeNode( BehaviorTreeContext ctx, Node* n,
   setupLabel();
   setupTooltip();
 
+  positionIcons();
+
   if( m_Node->m_Grist.m_Type == E_GRIST_TREE &&
       m_Node->m_Grist.m_Tree.m_Tree &&
       m_Node->m_Grist.m_Tree.m_Tree->m_UserData )
@@ -66,6 +68,9 @@ BehaviorTreeNode::~BehaviorTreeNode()
   unlink_from_parent_and_siblings( m_Node );
   free_node( m_Context, m_Node );
   m_Node = 0x0;
+
+  delete m_Graphics;
+  delete m_Label;
 }
 
 void BehaviorTreeNode::setupPropertyEditor()

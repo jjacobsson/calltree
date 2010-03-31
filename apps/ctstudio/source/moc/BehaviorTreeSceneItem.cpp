@@ -18,11 +18,13 @@
 #include <QtGui/QtGui>
 #include <QtSvg/QGraphicsSvgItem>
 
+const qreal g_IconScale = 1.0 / 3.0;
+const qreal g_IconPad   = 16.0;
+
 BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent )
   : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
   , m_PropertyWidget( 0x0 )
-  , m_BugIcon( 0x0 )
   , m_Context( ctx )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
@@ -31,11 +33,14 @@ BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphics
 
   setZValue( 0.0 );
 
-  m_BugIcon = new QGraphicsSvgItem( this );
-  m_BugIcon->setSharedRenderer( SvgCache::get( ":/icons/bug.svg" ) );
-  m_BugIcon->setScale( 1.0 / 5.0 );
-  m_BugIcon->setZValue( 10.0 );
-  m_BugIcon->setVisible( false );
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    m_Icons[i] = new QGraphicsSvgItem( this );
+    m_Icons[i]->setSharedRenderer( SvgCache::get( g_IconNames[i] ) );
+    m_Icons[i]->setScale( g_IconScale );
+    m_Icons[i]->setZValue( 10.0 );
+    m_Icons[i]->setVisible( false );
+  }
 }
 
 BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
@@ -44,8 +49,11 @@ BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
   delete m_PropertyWidget;
   m_PropertyWidget = 0x0;
 
-  delete m_BugIcon;
-  m_BugIcon = 0x0;
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    delete m_Icons[i];
+    m_Icons[i] = 0x0;
+  }
 
   emit itemDeleted();
 }
@@ -169,7 +177,17 @@ void BehaviorTreeSceneItem::deleteThis()
 
 void BehaviorTreeSceneItem::positionIcons()
 {
-  m_BugIcon->setPos( iconPosition() );
+  QPointF start_pos( iconPosition() );
+  QRectF rect;
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    if( !m_Icons[i]->isVisible() )
+      continue;
+
+    m_Icons[i]->setPos( start_pos );
+    rect = m_Icons[i]->boundingRect();
+    start_pos.rx() += (rect.width() * g_IconScale) + g_IconPad;
+  }
 }
 
 QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,

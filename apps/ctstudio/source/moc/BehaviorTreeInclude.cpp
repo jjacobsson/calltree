@@ -32,6 +32,9 @@ BehaviorTreeInclude::~BehaviorTreeInclude()
 {
   release_include( m_Context, m_Include );
   m_Include = 0x0;
+
+  delete m_Graphics;
+  delete m_Label;
 }
 
 QRectF BehaviorTreeInclude::boundingRect() const

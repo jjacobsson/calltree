@@ -66,6 +66,9 @@ BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree 
 
 BehaviorTreeTree::~BehaviorTreeTree()
 {
+  delete m_Graphics;
+  delete m_Label;
+
   unlink_from_children( m_Tree );
   remove_symbol( m_Context, m_Tree->m_Id.m_Hash );
   free_object( m_Context, m_Tree );

@@ -17,6 +17,7 @@
 #include <QtCore/QPointF>
 
 #include "../GraphicsItemTypes.h"
+#include "../standard_resources.h"
 
 #include <btree/btree_data.h>
 
@@ -111,7 +112,8 @@ protected:
   QList<NodeToNodeArrow*> m_Arrows;
 
   QWidget* m_PropertyWidget;
-  QGraphicsSvgItem* m_BugIcon;
+
+  QGraphicsSvgItem* m_Icons[ ICON_COUNT ];
 
   BehaviorTreeContext m_Context;
 };
