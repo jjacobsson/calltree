@@ -361,16 +361,16 @@ void BehaviorTreeScene::updateClone()
         if( !ons )
         {
           clone( m_TreeContext, ns->m_Symbol.m_Action );
-          ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
+          ons = find_symbol( m_TreeContext , ns->m_Symbol.m_Action->m_Id.m_Hash );
           ons->m_Symbol.m_Action->m_Declared = false;
         }
         else if( ons->m_Declared == false && ons->m_Type == ns->m_Type )
         {
-          clone( m_TreeContext, &ns->m_Symbol.m_Action->m_Locator, &ons->m_Symbol.m_Action->m_Locator );
-          free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Options );
-          free_list( m_TreeContext, ns->m_Symbol.m_Action->m_Declarations );
-          ns->m_Symbol.m_Action->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Action->m_Options );
-          ns->m_Symbol.m_Action->m_Declarations = clone_list( m_TreeContext, ons->m_Symbol.m_Action->m_Declarations );
+          clone( m_TreeContext, &ons->m_Symbol.m_Action->m_Locator, &ns->m_Symbol.m_Action->m_Locator );
+          free_list( m_TreeContext, ons->m_Symbol.m_Action->m_Options );
+          free_list( m_TreeContext, ons->m_Symbol.m_Action->m_Declarations );
+          ons->m_Symbol.m_Action->m_Options = clone_list( m_TreeContext, ns->m_Symbol.m_Action->m_Options );
+          ons->m_Symbol.m_Action->m_Declarations = clone_list( m_TreeContext, ns->m_Symbol.m_Action->m_Declarations );
         }
       }
       break;
