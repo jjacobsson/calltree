@@ -12,9 +12,14 @@
 #include "BehaviorTreeSceneItem.h"
 #include "../NodeToNodeArrow.h"
 #include "../standard_resources.h"
+#include "../SvgCache.h"
 #include <btree/btree.h>
 
 #include <QtGui/QtGui>
+#include <QtSvg/QGraphicsSvgItem>
+
+const qreal g_IconScale = 1.0 / 3.0;
+const qreal g_IconPad   = 16.0;
 
 BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent )
   : QGraphicsObject( parent )
@@ -27,6 +32,15 @@ BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphics
   setFlag( QGraphicsItem::ItemStacksBehindParent, false );
 
   setZValue( 0.0 );
+
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    m_Icons[i] = new QGraphicsSvgItem( this );
+    m_Icons[i]->setSharedRenderer( SvgCache::get( g_IconNames[i] ) );
+    m_Icons[i]->setScale( g_IconScale );
+    m_Icons[i]->setZValue( 10.0 );
+    m_Icons[i]->setVisible( false );
+  }
 }
 
 BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
@@ -34,6 +48,12 @@ BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
   removeArrows();
   delete m_PropertyWidget;
   m_PropertyWidget = 0x0;
+
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    delete m_Icons[i];
+    m_Icons[i] = 0x0;
+  }
 
   emit itemDeleted();
 }
@@ -72,6 +92,11 @@ NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* othe
       return arrow;
   }
   return 0x0;
+}
+
+QPointF BehaviorTreeSceneItem::iconPosition() const
+{
+  return QPointF( 0, 0 );
 }
 
 QRectF BehaviorTreeSceneItem::layoutBoundingRect() const
@@ -148,6 +173,21 @@ void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphics
 void BehaviorTreeSceneItem::deleteThis()
 {
   delete this;
+}
+
+void BehaviorTreeSceneItem::positionIcons()
+{
+  QPointF start_pos( iconPosition() );
+  QRectF rect;
+  for( int i = 0; i < ICON_COUNT; ++i )
+  {
+    if( !m_Icons[i]->isVisible() )
+      continue;
+
+    m_Icons[i]->setPos( start_pos );
+    rect = m_Icons[i]->boundingRect();
+    start_pos.rx() += (rect.width() * g_IconScale) + g_IconPad;
+  }
 }
 
 QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,

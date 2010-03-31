@@ -14,5 +14,6 @@
 	<file>nodes/tree.svg</file>
 	<file>nodes/include.svg</file>
 	<file>nodes/leaf.svg</file>
+	<file>icons/bug.svg</file>
 </qresource>
  </RCC>

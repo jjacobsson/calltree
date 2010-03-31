@@ -81,11 +81,18 @@ void clone( BehaviorTreeContext btc, Identifier* d, Identifier* s )
   d->m_Text = register_string( btc, s->m_Text, s->m_Hash );
 }
 
-void clone( BehaviorTreeContext btc, BehaviorTree* tree )
+void clone( BehaviorTreeContext btc, Locator* d, Locator* s )
 {
-  BehaviorTree* t = look_up_behavior_tree( btc, &tree->m_Id );
-  t->m_Declared = tree->m_Declared;
-  t->m_Root = clone_list( btc, tree->m_Root );
+  *d = *s;
+  d->m_Buffer = register_string( btc, s->m_Buffer );
+}
+
+void clone( BehaviorTreeContext btc, BehaviorTree* src )
+{
+  BehaviorTree* t = look_up_behavior_tree( btc, &src->m_Id );
+  t->m_Declared = src->m_Declared;
+  t->m_Root = clone_tree( btc, src->m_Root );
+  clone( btc, &t->m_Locator, &src->m_Locator );
 }
 
 void clone( BehaviorTreeContext btc, Action* src )
@@ -94,6 +101,7 @@ void clone( BehaviorTreeContext btc, Action* src )
   a->m_Declarations = clone_list( btc, src->m_Declarations );
   a->m_Options = clone_list( btc, src->m_Options );
   a->m_Declared = src->m_Declared;
+  clone( btc, &a->m_Locator, &src->m_Locator );
 }
 
 void clone( BehaviorTreeContext btc, Decorator* src )
@@ -102,49 +110,58 @@ void clone( BehaviorTreeContext btc, Decorator* src )
   d->m_Declarations = clone_list( btc, src->m_Declarations );
   d->m_Options = clone_list( btc, src->m_Options );
   d->m_Declared = src->m_Declared;
+  clone( btc, &d->m_Locator, &src->m_Locator );
 }
 
-Parameter* clone_list( BehaviorTreeContext btc, Parameter* v1 )
+Parameter* clone( BehaviorTreeContext btc, Parameter* o )
 {
+  Parameter* p = (Parameter*)allocate_object( btc );
+  init( p );
 
-  Parameter* v2 = 0x0;
-  Parameter* r = 0x0;
-  while( v1 )
+  clone( btc, &p->m_Id, &o->m_Id );
+  clone( btc, &p->m_Locator, &o->m_Locator );
+
+  p->m_Data = o->m_Data;
+  p->m_Type = o->m_Type;
+  p->m_ValueSet = o->m_ValueSet;
+
+  if( p->m_ValueSet )
   {
-    Parameter* v = (Parameter*)allocate_object( btc );
-    init( v );
-
-    clone( btc, &v->m_Id, &v1->m_Id );
-    v->m_Data = v1->m_Data;
-    v->m_Type = v1->m_Type;
-    v->m_ValueSet = v1->m_ValueSet;
-
-    if( v->m_ValueSet )
+    switch( p->m_Type )
     {
-      switch( v->m_Type )
-      {
-      case E_VART_UNDEFINED:
-      case E_VART_INTEGER:
-      case E_VART_FLOAT:
-        break;
-      case E_VART_STRING:
-        v->m_Data.m_String.m_Parsed = register_string( btc, v1->m_Data.m_String.m_Parsed );
-        v->m_Data.m_String.m_Raw = register_string( btc, v1->m_Data.m_String.m_Raw );
-        break;
-      case E_VART_BOOL:
-      case E_VART_HASH:
-      case E_MAX_VARIABLE_TYPE:
-        break;
-      }
+    case E_VART_UNDEFINED:
+    case E_VART_INTEGER:
+    case E_VART_FLOAT:
+      break;
+    case E_VART_STRING:
+      p->m_Data.m_String.m_Parsed = register_string( btc,
+        o->m_Data.m_String.m_Parsed );
+      p->m_Data.m_String.m_Raw = register_string( btc,
+        o->m_Data.m_String.m_Raw );
+      break;
+    case E_VART_BOOL:
+    case E_VART_HASH:
+    case E_MAX_VARIABLE_TYPE:
+      break;
     }
+  }
+  return p;
+}
 
-    if( v2 )
-      v2->m_Next = v;
+Parameter* clone_list( BehaviorTreeContext btc, Parameter* o )
+{
+  Parameter* prev = 0x0;
+  Parameter* r = 0x0;
+  while( o )
+  {
+    Parameter* v = clone( btc, o );
+    if( prev )
+      prev->m_Next = v;
     else
       r = v;
 
-    v2 = v;
-    v1 = v1->m_Next;
+    prev = v;
+    o = o->m_Next;
   }
   return r;
 }
@@ -169,15 +186,17 @@ void clone_tree_node( BehaviorTreeContext btc, Node* dest, Node* src )
     dest->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( btc, &src->m_Grist.m_Tree.m_Tree->m_Id );
 }
 
-Node* clone_list( BehaviorTreeContext btc, Node* n )
+Node* clone( BehaviorTreeContext btc, Node* o )
 {
-  if( !n )
+  if( !o )
     return 0x0;
 
   Node* r = (Node*)allocate_object( btc );
   init( r );
 
-  *r = *n;
+  *r = *o;
+
+  clone( btc, &r->m_Locator, &o->m_Locator );
 
   r->m_Next = 0x0;
   r->m_Prev = 0x0;
@@ -186,13 +205,13 @@ Node* clone_list( BehaviorTreeContext btc, Node* n )
   switch( r->m_Grist.m_Type )
   {
   case E_GRIST_DECORATOR:
-    clone_decorator_node( btc, r, n );
+    clone_decorator_node( btc, r, o );
     break;
   case E_GRIST_ACTION:
-    clone_action_node( btc, r, n );
+    clone_action_node( btc, r, o );
     break;
   case E_GRIST_TREE:
-    clone_tree_node( btc, r, n );
+    clone_tree_node( btc, r, o );
     break;
   case E_GRIST_UNKOWN:
   case E_GRIST_SEQUENCE:
@@ -207,11 +226,28 @@ Node* clone_list( BehaviorTreeContext btc, Node* n )
     break;
   }
 
-  set_first_child( r, clone_list( btc, get_first_child( n ) ) );
-  set_parent_on_children( r );
-  r->m_Next = clone_list( btc, n->m_Next );
-  if( r->m_Next )
-    r->m_Next->m_Prev = r;
+  return r;
+}
+
+Node* clone_tree( BehaviorTreeContext btc, Node* o )
+{
+  Node* prev = 0x0;
+  Node* r = 0x0;
+  while( o )
+  {
+    Node* n = clone( btc, o );
+
+    set_first_child( n, clone_tree( btc, get_first_child( o ) ) );
+    set_parent_on_children( n );
+
+    if( prev )
+      append_to_end( prev, n );
+    else
+      r = n;
+
+    prev = n;
+    o = o->m_Next;
+  }
 
   return r;
 }

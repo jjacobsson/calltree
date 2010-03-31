@@ -11,6 +11,20 @@
 
 #include <btree/btree_data.h>
 
+#ifndef STANDARD_RESOURCES_H_INCLUDED
+#define STANDARD_RESOURCES_H_INCLUDED
+
+enum NodeStateIcons
+{
+  ICON_BUG,
+  ICON_SUCCESS,
+  ICON_FAIL,
+  ICON_WORK,
+  ICON_COUNT
+};
+
 extern const char* const g_NodeSVGResourcePaths[E_MAX_GRIST_TYPES];
-extern const char* const g_NodeIcons[E_MAX_GRIST_TYPES];
 extern const char* const g_NodeNames[E_MAX_GRIST_TYPES];
+extern const char* const g_IconNames[ICON_COUNT];
+
+#endif /* STANDARD_RESOURCES_H_INCLUDED */

@@ -117,13 +117,21 @@ int count_children( Node* n );
 
 bool accepts_more_children( Node* n );
 
+//Returns the parameter list for this node, if it has one.
 Parameter* get_parameters( Node* n );
+
+//Returns the declaration list for the action/decorator/tree that this node uses, if it exists
+Parameter* get_declarations( Node* n );
+
+//Returns the options list for the action/decorator/tree that this node uses, if it exists
+Parameter* get_options( Node* n );
 
 // Searches up from parent p to find the first BehaviorTree
 BehaviorTree* find_parent_tree( const NodeParent& p );
 
 // Searches down from n to see if a reference to tree can be found.
 bool contains_reference_to_tree( Node* n, BehaviorTree* tree );
+
 
 /*
  * Node Grist Functions
@@ -229,14 +237,18 @@ void save( SaverContext, SaverContextFunctions* );
 
 BehaviorTreeContext clone( BehaviorTreeContext );
 void clone( BehaviorTreeContext, Identifier*, Identifier* );
+void clone( BehaviorTreeContext, Locator*, Locator* );
 void clone( BehaviorTreeContext, Include* );
 void clone( BehaviorTreeContext, BehaviorTree* );
 void clone( BehaviorTreeContext, Action* );
 void clone( BehaviorTreeContext, Decorator* );
 
+Parameter* clone( BehaviorTreeContext, Parameter* );
+Node*      clone( BehaviorTreeContext, Node* );
+
 void       clone_symbols( BehaviorTreeContext, NamedSymbol*, int );
 Parameter* clone_list( BehaviorTreeContext, Parameter* );
-Node*      clone_list( BehaviorTreeContext, Node* );
+Node*      clone_tree( BehaviorTreeContext, Node* );
 
 #endif /* BTREE_FUNCTIONS_H_INCLUDED */
 

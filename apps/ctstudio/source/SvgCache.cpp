@@ -14,6 +14,8 @@
 #include <other/lookup3.h>
 
 #include <QtSvg/QSvgRenderer>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <algorithm>
 
@@ -100,6 +102,7 @@ QSvgRenderer* get( Node* n )
     return get( g_NodeSVGResourcePaths[E_GRIST_UNKOWN] );
 
   Parameter* opts = 0x0;
+  Locator l;
   int gt = n->m_Grist.m_Type;
 
   switch( gt )
@@ -124,9 +127,11 @@ QSvgRenderer* get( Node* n )
     break;
   case E_GRIST_ACTION:
     opts = n->m_Grist.m_Action.m_Action->m_Options;
+    l = n->m_Grist.m_Action.m_Action->m_Locator;
     break;
   case E_GRIST_DECORATOR:
     opts = n->m_Grist.m_Decorator.m_Decorator->m_Options;
+    l = n->m_Grist.m_Decorator.m_Decorator->m_Locator;
     break;
   case E_MAX_GRIST_TYPES:
     break;
@@ -140,7 +145,13 @@ QSvgRenderer* get( Node* n )
   QSvgRenderer* svgr = 0x0;
 
   if( opts )
-    svgr = get( as_string( *opts )->m_Raw );
+  {
+    QFileInfo fi( l.m_Buffer );
+    QDir parent_dir( fi.absoluteDir() );
+    QString qstr = parent_dir.absoluteFilePath( QString( as_string( *opts )->m_Raw ) );
+    std::string stdstr( qstr.toStdString() );
+    svgr = get( stdstr.c_str() );
+  }
   if( !svgr )
     svgr = get( g_NodeSVGResourcePaths[gt] );
 

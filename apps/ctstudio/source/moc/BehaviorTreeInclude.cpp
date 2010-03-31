@@ -32,6 +32,9 @@ BehaviorTreeInclude::~BehaviorTreeInclude()
 {
   release_include( m_Context, m_Include );
   m_Include = 0x0;
+
+  delete m_Graphics;
+  delete m_Label;
 }
 
 QRectF BehaviorTreeInclude::boundingRect() const
@@ -40,6 +43,11 @@ QRectF BehaviorTreeInclude::boundingRect() const
   if( m_Label )
     rect |= m_Label->boundingRect().translated( m_Label->pos() );
   return rect;
+}
+
+QPointF BehaviorTreeInclude::iconPosition() const
+{
+  return m_Graphics->pos();
 }
 
 void BehaviorTreeInclude::setupLabel()
@@ -71,6 +79,8 @@ void BehaviorTreeInclude::setupLabel()
 
   p.ry() = -r.height();
   m_Label->setPos( p );
+
+  positionIcons();
 }
 
 

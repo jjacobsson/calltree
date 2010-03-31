@@ -48,6 +48,8 @@ public:
   void setupPropertyEditor();
 
   QRectF boundingRect() const;
+
+  QPointF iconPosition() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
 
@@ -68,13 +70,12 @@ signals:
 
 private slots:
 
-  void paramChanged( QObject* editor, hash_t hash );
+  void paramChanged();
 
 private:
 
   void setupLabel();
   void setupTooltip();
-  void setupPropertyEditorForParamaters( Parameter*, Parameter* );
 
   void setupRelinkage();
   void executeRelinkage();

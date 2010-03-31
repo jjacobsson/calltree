@@ -721,6 +721,69 @@ Parameter* get_parameters( Node* n )
   return r;
 }
 
+Parameter* get_declarations( Node* n )
+{
+  if( !n )
+    return 0x0;
+  Parameter* r = 0x0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_DECORATOR:
+    if( n->m_Grist.m_Decorator.m_Decorator )
+      r = n->m_Grist.m_Decorator.m_Decorator->m_Declarations;
+    break;
+  case E_GRIST_ACTION:
+    if( n->m_Grist.m_Action.m_Action )
+      r = n->m_Grist.m_Action.m_Action->m_Declarations;
+    break;
+  case E_GRIST_TREE:
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+  return r;
+}
+
+Parameter* get_options( Node* n )
+{
+  if( !n )
+    return 0x0;
+  Parameter* r = 0x0;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_DECORATOR:
+    if( n->m_Grist.m_Decorator.m_Decorator )
+      r = n->m_Grist.m_Decorator.m_Decorator->m_Options;
+    break;
+  case E_GRIST_ACTION:
+    if( n->m_Grist.m_Action.m_Action )
+      r = n->m_Grist.m_Action.m_Action->m_Options;
+    break;
+  case E_GRIST_TREE:
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+  return r;
+}
+
+
 BehaviorTree* find_parent_tree( const NodeParent& p )
 {
   switch( p.m_Type )
@@ -771,6 +834,8 @@ bool contains_reference_to_tree( Node* n, BehaviorTree* tree )
   }
   return false;
 }
+
+
 
 
 /*

@@ -66,6 +66,9 @@ BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree 
 
 BehaviorTreeTree::~BehaviorTreeTree()
 {
+  delete m_Graphics;
+  delete m_Label;
+
   unlink_from_children( m_Tree );
   remove_symbol( m_Context, m_Tree->m_Id.m_Hash );
   free_object( m_Context, m_Tree );
@@ -79,6 +82,11 @@ QRectF BehaviorTreeTree::boundingRect() const
   if( m_Label )
     rect |= m_Label->boundingRect().translated(m_Label->pos());
   return rect;
+}
+
+QPointF BehaviorTreeTree::iconPosition() const
+{
+  return m_Graphics->pos();
 }
 
 QRectF BehaviorTreeTree::layoutBoundingRect() const
@@ -160,6 +168,8 @@ void BehaviorTreeTree::setupLabel( const char* str )
 
   p.ry() = -r.height();
   m_Label->setPos( p );
+
+  positionIcons();
 }
 
 void BehaviorTreeTree::setupPropertyEditor()

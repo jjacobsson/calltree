@@ -43,6 +43,7 @@ public:
 
   void destroyResources( BehaviorTreeContext ctx );
 
+  QPointF iconPosition() const;
   QRectF boundingRect() const;
 
 protected:
