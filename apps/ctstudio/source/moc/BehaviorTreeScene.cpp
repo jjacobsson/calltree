@@ -355,16 +355,16 @@ void BehaviorTreeScene::updateClone()
     case E_ST_TREE:
       break;
     case E_ST_ACTION:
-      if( !ns->m_Symbol.m_Action->m_Declared )
+      if( ns->m_Symbol.m_Action->m_Declared )
       {
-        NamedSymbol* ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Action->m_Id.m_Hash );
+        NamedSymbol* ons = find_symbol( m_TreeContext , ns->m_Symbol.m_Action->m_Id.m_Hash );
         if( !ons )
         {
           clone( m_TreeContext, ns->m_Symbol.m_Action );
           ons = find_symbol( m_TreeContext , ns->m_Symbol.m_Action->m_Id.m_Hash );
           ons->m_Symbol.m_Action->m_Declared = false;
         }
-        else if( ons->m_Declared == false && ons->m_Type == ns->m_Type )
+        else if( ons->m_Symbol.m_Action->m_Declared == false && ons->m_Type == ns->m_Type )
         {
           clone( m_TreeContext, &ons->m_Symbol.m_Action->m_Locator, &ns->m_Symbol.m_Action->m_Locator );
           free_list( m_TreeContext, ons->m_Symbol.m_Action->m_Options );
@@ -380,15 +380,17 @@ void BehaviorTreeScene::updateClone()
         NamedSymbol* ons = find_symbol( m_TreeContext, ns->m_Symbol.m_Decorator->m_Id.m_Hash );
         if( !ons )
         {
-
+          clone( m_TreeContext, ns->m_Symbol.m_Decorator );
+          ons = find_symbol( m_TreeContext , ns->m_Symbol.m_Decorator->m_Id.m_Hash );
+          ons->m_Symbol.m_Action->m_Declared = false;
         }
-        else if( ons->m_Declared == false && ons->m_Type == ns->m_Type )
+        else if( ons->m_Symbol.m_Decorator->m_Declared == false && ons->m_Type == ns->m_Type )
         {
-          clone( m_TreeContext, &ns->m_Symbol.m_Decorator->m_Locator, &ons->m_Symbol.m_Decorator->m_Locator );
-          free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Options );
-          free_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Declarations );
-          ns->m_Symbol.m_Decorator->m_Options = clone_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Options );
-          ns->m_Symbol.m_Decorator->m_Declarations = clone_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Declarations );
+          clone( m_TreeContext, &ons->m_Symbol.m_Decorator->m_Locator, &ns->m_Symbol.m_Decorator->m_Locator );
+          free_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Options );
+          free_list( m_TreeContext, ons->m_Symbol.m_Decorator->m_Declarations );
+          ons->m_Symbol.m_Decorator->m_Options = clone_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Options );
+          ons->m_Symbol.m_Decorator->m_Declarations = clone_list( m_TreeContext, ns->m_Symbol.m_Decorator->m_Declarations );
         }
       }
       break;
