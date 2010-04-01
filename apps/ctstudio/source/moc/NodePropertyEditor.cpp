@@ -17,6 +17,7 @@
 #include <QtGui/QStyledItemDelegate>
 
 #include "../IconCache.h"
+#include "../standard_resources.h"
 
 #include "NodePropertyDelegate.h"
 
@@ -97,7 +98,8 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
 
   if( bugged )
   {
-    m_Model.item( row, 0 )->setIcon( QIcon() );
+    QIcon* icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
+    m_Model.item( row, 0 )->setIcon( *icon );
     item->setData( false, Qt::UserRole + 3 );
   }
 
@@ -161,7 +163,8 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
 void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
   Parameter* dec )
 {
-  QIcon* bug_icon = IconCache::get( ":/icons/bug.svg" );
+  QIcon* bug_icon = IconCache::get( g_IconNames[ICON_BUG] );
+  QIcon* good_icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
   m_HasBuggs = false;
   Parameter* it = dec;
   while( it )
@@ -264,6 +267,9 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
       l->setIcon( *bug_icon );
       e->setData( true, Qt::UserRole + 3 );
     }
+    else
+      l->setIcon( *good_icon );
+
     if( param_bugged )
       m_HasBuggs = true;
 

@@ -16,6 +16,7 @@
 
 enum NodeStateIcons
 {
+  ICON_WARNING,
   ICON_BUG,
   ICON_SUCCESS,
   ICON_FAIL,
