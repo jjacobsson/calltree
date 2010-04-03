@@ -15,6 +15,9 @@
 struct Program;
 struct Node;
 
+int memory_needs( BeahviorTree* );
+int memory_needs( Node* );
+
 int setup_gen( Node* n, Program* p );
 int teardown_gen( Node* n, Program* p );
 
@@ -22,6 +25,7 @@ int gen_con( Node* n, Program* p );
 int gen_exe( Node* n, Program* p );
 int gen_des( Node* n, Program* p );
 
+int memory_needs_sequence( Node* n );
 int gen_setup_sequence( Node* n, Program* p );
 int gen_teardown_sequence( Node* n, Program* p );
 int gen_con_sequence( Node* n, Program* p );
