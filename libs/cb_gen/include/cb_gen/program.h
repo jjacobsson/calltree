@@ -9,29 +9,19 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef PROGRAM_H_INCLUDED
-#define PROGRAM_H_INCLUDED
+#ifndef CB_GEN_PROGRAM_H_INCLUDED
+#define CB_GEN_PROGRAM_H_INCLUDED
 
-#include <vector>
 
-#include <btree/btree.h>
+#include "types.h"
 
 namespace cb_gen {
 
-class Function;
-
-class Program
+struct Program
 {
-public:
-
-  Program( BehaviorTreeContext );
-
-private:
-
-  BehaviorTreeContext m_Context;
-
+  InstList m_Instructions;
 };
 
 }
 
-#endif /* PROGRAM_H_INCLUDED */
+#endif /* CB_GEN_PROGRAM_H_INCLUDED */

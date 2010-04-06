@@ -12,7 +12,6 @@
 #ifndef CB_GEN_H_INCLUDED
 #define CB_GEN_H_INCLUDED
 
-#include "block.h"
 #include "function.h"
 #include "program.h"
 

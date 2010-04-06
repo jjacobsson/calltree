@@ -13,11 +13,6 @@
 
 namespace cb_gen {
 
-Program::Program( BehaviorTreeContext ctx )
-  : m_Context( ctx )
-{
-}
-
 
 }
 
