@@ -4,11 +4,10 @@ if $(_pass) = Declarations
     SetSourceFiles $(_libname) : [ RecursiveDirList $(_libpath) source : *.cpp ] ;
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
     AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
-    
     SetSourceFiles $(_testname) : [ RecursiveDirList $(_libpath) tests : *.cpp ] ;
-    
 }
 else if $(_pass) = Dependencies
 {
-	SetDependantOf $(_testname) : $(_libname) UnitTest++ other ;
+	SetDependantOf $(_libname) : btree callback other ;
+	#SetDependantOf $(_testname) : $(_libname) UnitTest++ other ;
 }

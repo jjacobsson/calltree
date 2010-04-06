@@ -15,9 +15,6 @@
 struct Program;
 struct Node;
 
-int memory_needs( BeahviorTree* );
-int memory_needs( Node* );
-
 int setup_gen( Node* n, Program* p );
 int teardown_gen( Node* n, Program* p );
 

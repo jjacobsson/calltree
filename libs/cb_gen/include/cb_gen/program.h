@@ -26,8 +26,6 @@ public:
 
   Program( BehaviorTreeContext );
 
-  int needed_memory() const;
-
 private:
 
   BehaviorTreeContext m_Context;

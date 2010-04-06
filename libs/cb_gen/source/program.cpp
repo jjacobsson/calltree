@@ -18,10 +18,6 @@ Program::Program( BehaviorTreeContext ctx )
 {
 }
 
-int Program::needed_memory()
-{
-
-}
 
 }
 

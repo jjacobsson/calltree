@@ -36,51 +36,6 @@ int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
 int setup_variable_registry( VariableGenerateData* vd, Parameter* vars,
   Program* p );
 
-int memory_needs( BehaviorTree* tree )
-{
-  Node* n = tree->m_Root;
-  int r = 0;
-  while( n )
-  {
-    int t = memory_needs( n );
-    if( t > r )
-      r = t;
-    n = n->m_Next;
-  }
-  return r;
-}
-
-int memory_needs( Node* n )
-{
-  int r = ~0;
-  switch( n->m_Grist.m_Type )
-  {
-  case E_GRIST_SEQUENCE:
-    r = memory_needs_sequence( n );
-    break;
-  case E_GRIST_SELECTOR:
-    break;
-  case E_GRIST_PARALLEL:
-    break;
-  case E_GRIST_DYN_SELECTOR:
-    break;
-  case E_GRIST_SUCCEED:
-    break;
-  case E_GRIST_FAIL:
-    break;
-  case E_GRIST_WORK:
-    break;
-  case E_GRIST_DECORATOR:
-    break;
-  case E_GRIST_ACTION:
-    break;
-  case E_GRIST_UNKOWN:
-  case E_MAX_GRIST_TYPES:
-    break;
-  }
-  return r;
-}
-
 int setup_gen( Node* n, Program* p )
 {
   int r = 0;
