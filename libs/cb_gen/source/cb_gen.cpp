@@ -57,6 +57,16 @@ void add( Program* p, uchar i, uchar a1, uchar a2, uchar a3 )
   p->m_I.push_back( inst );
 }
 
+void add( Function* f, uchar i, uchar a1, uchar a2, uchar a3 )
+{
+  Instruction inst;
+  inst.i  = i;
+  inst.a1 = a1;
+  inst.a2 = a2;
+  inst.a3 = a3;
+  f->m_I.push_back( inst );
+}
+
 uint jump_target( Program* p, Function* f )
 {
   JumpTarget jt;
@@ -73,7 +83,67 @@ void set_offset( Program* p, uint jt, uint offset )
 
 void generate( Function* f )
 {
+  uint jt_con = jump_target( f->m_P, f );
+  uint jt_exe = jump_target( f->m_P, f );
+  uint jt_des = jump_target( f->m_P, f );
+  uint jt_exi = jump_target( f->m_P, f );
 
+  f->m_I.reserve( 1024 );
+
+  //Load er1 with ACT_CONSTRUCT
+  set_registry( f->m_I, er1, ACT_CONSTRUCT );
+  //Load er2 with the jump target for the execution code
+  load_with_offset( f->m_I, er2, ejt, jt_con );
+  //Jump to construction if er0 (arg 1) is ACT_CONSTRUCT
+  add( f, ijme, er2, er0, er1 );
+  //Load er1 with ACT_EXECUTE
+  set_registry( f->m_I, er1, ACT_EXECUTE );
+  //Load er2 with the jump target for the execution code
+  load_with_offset( f->m_I, er2, ejt, jt_exe );
+  //Jump to execution if er0 (arg 1) is ACT_EXECUTE
+  add( f, ijme, er2, er0, er1 );
+  //Load er1 with ACT_EXECUTE
+  set_registry( f->m_I, er1, ACT_DESTRUCT );
+  //Load er2 with the jump target for the destruction code
+  load_with_offset( f->m_I, er2, ejt, jt_des );
+  //Jump to destruction if er0 (arg 1) is ACT_DESTRUCT
+  add( f, ijme, er2, er0, er1 );
+
+  //Load er2 with exit label
+  load_with_offset( f->m_I, er2, ejt, jt_exi );
+  //Jump to exit
+  add( f, ijmp, er2, 0, 0 );
+
+  // *** Construction Block *** //
+
+  //Set the offset for the "con" jump
+  set_offset( f->m_P, jt_con, f->m_I.size() );
+  //Per node jump-target
+  uint jt = jump_target( f->m_P, f );
+  //Set er2 to the first node's jump target
+  set_registry( f->m_I, er2, jt );
+
+  // *** Execute Block *** //
+  //Set the offset for the "exe" jump
+  set_offset( f->m_P, jt_exe, f->m_I.size() );
+
+  Node* n = f->m_T->m_Root;
+  while( n )
+  {
+    gen_node_con( f, n );
+    gen_node_exe( f, n );
+    gen_node_des( f, n );
+  }
+
+  // *** Destruct Block *** //
+  //Set the offset for the "exe" jump
+  set_offset( f->m_P, jt_des, f->m_I.size() );
+
+
+  //Set the offset for the "exit" jump
+  set_offset( f->m_P, jt_exi, f->m_I.size() );
+  //Return
+  add( f, iret, 0, 0, 0 );
 }
 
 void generate_functions( Program* p )

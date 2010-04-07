@@ -18,6 +18,10 @@ namespace cb_gen {
 
 void create_functions( BehaviorTreeContext, Program* );
 
+void gen_node_con( Function*, Node* );
+void gen_node_exe( Function*, Node* );
+void gen_node_des( Function*, Node* );
+
 }
 
 #endif /* CB_GEN_GEN_BTREE_H_INCLUDED */

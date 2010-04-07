@@ -69,6 +69,11 @@ void create_functions( BehaviorTreeContext ctx, Program* p )
   create_functions( ns->m_Symbol.m_Tree, p );
 }
 
+void gen_node_con( Function* f, Node* n )
+{
+
+}
+
 }
 
 

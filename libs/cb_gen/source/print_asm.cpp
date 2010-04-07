@@ -109,7 +109,7 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case idcall:
     break;
   case ijmp:
-    r += sprintf( buff + r, "%s" );
+    r += sprintf( buff + r, "%s", g_RegNames[inst.a1] );
     break;
   case ijme:
   case ijne:
