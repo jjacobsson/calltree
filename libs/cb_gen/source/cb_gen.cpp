@@ -82,30 +82,36 @@ void generate( Function* f )
 
   f->m_I.reserve( 1024 );
 
-  //Load er1 with ACT_CONSTRUCT
-  set_registry( f->m_I, er1, ACT_CONSTRUCT );
-  //Load er2 with the jump target for the execution code
-  load_with_offset( f->m_I, er2, ejt, jt_con );
+  uchar check_reg = alloc_register( f, 0 );
+  uchar jump_reg = alloc_register( f, 0 );
+
+  //Load check_reg with ACT_CONSTRUCT
+  set_registry( f->m_I, check_reg, ACT_CONSTRUCT );
+  //Load jump_reg with the jump target for the execution code
+  load_with_offset( f->m_I, jump_reg, ejt, jt_con );
   //Jump to construction if er0 (arg 1) is ACT_CONSTRUCT
-  add( f, ijme, er2, er0, er1 );
-  //Load er1 with ACT_EXECUTE
-  set_registry( f->m_I, er1, ACT_EXECUTE );
-  //Load er2 with the jump target for the execution code
-  load_with_offset( f->m_I, er2, ejt, jt_exe );
+  add( f, ijme, jump_reg, er0, check_reg );
+
+  //Load check_reg with ACT_EXECUTE
+  set_registry( f->m_I, check_reg, ACT_EXECUTE );
+  //Load jump_reg with the jump target for the execution code
+  load_with_offset( f->m_I, jump_reg, ejt, jt_exe );
   //Jump to execution if er0 (arg 1) is ACT_EXECUTE
-  add( f, ijme, er2, er0, er1 );
-  //Load er1 with ACT_EXECUTE
-  set_registry( f->m_I, er1, ACT_DESTRUCT );
-  //Load er2 with the jump target for the destruction code
-  load_with_offset( f->m_I, er2, ejt, jt_des );
+  add( f, ijme, jump_reg, er0, check_reg );
+
+  //Load check_reg with ACT_DESTRUCT
+  set_registry( f->m_I, check_reg, ACT_DESTRUCT );
+  //Load jump_reg with the jump target for the destruction code
+  load_with_offset( f->m_I, jump_reg, ejt, jt_des );
   //Jump to destruction if er0 (arg 1) is ACT_DESTRUCT
-  add( f, ijme, er2, er0, er1 );
+  add( f, ijme, jump_reg, er0, check_reg );
 
-  //Load er2 with exit label
-  load_with_offset( f->m_I, er2, ejt, jt_exi );
+  //Load jump_reg with exit label
+  load_with_offset( f->m_I, jump_reg, ejt, jt_exi );
   //Jump to exit
-  add( f, ijmp, er2, 0, 0 );
+  add( f, ijmp, jump_reg, 0, 0 );
 
+  //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
   // *** Construction Block *** //
@@ -120,6 +126,7 @@ void generate( Function* f )
   load_with_offset( f->m_I, er1, ejt, jt_exi );
   //Jump out
   add( f, ijmp, er1, 0, 0 );
+  //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
   // *** Execute Block *** //
@@ -152,12 +159,14 @@ void generate( Function* f )
     n = n->m_Next;
   }
 
+  //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
   // *** Destruct Block *** //
   //Set the offset for the "exe" jump
   set_offset( f->m_P, jt_des, f->m_I.size() );
 
+  //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
   //Set the offset for the "exit" jump
