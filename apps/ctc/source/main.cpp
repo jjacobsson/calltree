@@ -14,15 +14,17 @@
 #include <other/lookup3.h>
 
 #include <btree/btree.h>
-#include "generate/program.h"
+#include <cb_gen/cb_gen.h>
+
 
 FILE* g_outputFile = 0x0;
 char* g_inputFileName = 0x0;
 char* g_outputFileName = 0x0;
 bool g_swapEndian = false;
 bool g_printIncludes = false;
-char* g_asmFileName = 0x0;
 
+FILE* g_asmFile = 0x0;
+char* g_asmFileName = 0x0;
 char* g_asmFileNameMemory = 0x0;
 
 int g_allocs = 0;
@@ -33,6 +35,11 @@ struct ParsingInfo
   FILE* m_File;
   const char* m_Name;
 };
+
+void asm_file_print( const char* buff, unsigned int size )
+{
+  fwrite( buff, 1, size, g_asmFile );
+}
 
 int read_file( ParserContext pc, char* buffer, int maxsize )
 {
@@ -261,92 +268,44 @@ int main( int argc, char** argv )
 
     if( g_outputFileName )
     {
-      NamedSymbol* main = find_symbol( btc, hashlittle(
-        "main" ) );
-      if( !main || main->m_Type != E_ST_TREE
-          || !main->m_Symbol.m_Tree->m_Declared )
+      cb_gen::Program p;
+      cb_gen::init( &p );
+      cb_gen::generate( btc, &p );
+
+      if( !g_asmFileName )
       {
-        printf( "%s(0): error: \"main\" tree has not been declared.\n",
-          g_inputFileName );
-        returnCode = -1;
-      }
-      else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
-      {
-        printf( "%s(%d): error: \"main\" contains zero node's.\n",
-          main->m_Symbol.m_Tree->m_Locator.m_Buffer, main->m_Symbol.m_Tree->m_Locator.m_LineNo );
-        returnCode = -1;
-      }
-
-      if( returnCode == 0 )
-      {
-        Program p;
-
-        unsigned int debug_hash = hashlittle( "debug_info" );
-        Parameter* debug_param = find_by_hash( get_options( btc ), debug_hash );
-        if( debug_param  )
-          p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
-
-        setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
-        returnCode = generate_program( btc, &p );
-        teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
-
-        if( returnCode != 0 )
+        unsigned int hash = hashlittle( "force_asm" );
+        Parameter* force_asm = find_by_hash( get_options( btc ), hash );
+        if( force_asm && as_bool( *force_asm ) )
         {
-          printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
+          unsigned int len = strlen( g_outputFileName );
+          g_asmFileNameMemory = (char*)malloc( len + 5 );
+          memcpy( g_asmFileNameMemory, g_outputFileName, len );
+          g_asmFileNameMemory[len+0] = '.';
+          g_asmFileNameMemory[len+1] = 'a';
+          g_asmFileNameMemory[len+2] = 's';
+          g_asmFileNameMemory[len+3] = 'm';
+          g_asmFileNameMemory[len+4] = 0;
+          g_asmFileName = g_asmFileNameMemory;
+        }
+      }
+
+      if( returnCode == 0 && g_asmFileName )
+      {
+        g_asmFile = fopen( g_asmFileName, "w" );
+        if( !g_asmFile )
+        {
+          printf( "warning: Unable to open assembly file %s for writing.\n",
+            g_asmFileName );
         }
         else
         {
-          g_outputFile = fopen( g_outputFileName, "wb" );
-          if( !g_outputFile )
-          {
-            printf( "error: Unable to open output file %s for writing.\n",
-              g_outputFileName );
-            returnCode = -2;
-          }
-
-          if( returnCode == 0 )
-            returnCode = save_program( g_outputFile, g_swapEndian, &p );
-          if( returnCode != 0 )
-          {
-            printf( "error: Failed to write output file %s.\n",
-              g_outputFileName );
-            returnCode = -5;
-          }
-        }
-
-        if( !g_asmFileName )
-        {
-          unsigned int hash = hashlittle( "force_asm" );
-          Parameter* force_asm = find_by_hash( get_options( btc ), hash );
-          if( force_asm && as_bool( *force_asm ) )
-          {
-            unsigned int len = strlen( g_outputFileName );
-            g_asmFileNameMemory = (char*)malloc( len + 5 );
-            memcpy( g_asmFileNameMemory, g_outputFileName, len );
-            g_asmFileNameMemory[len+0] = '.';
-            g_asmFileNameMemory[len+1] = 'a';
-            g_asmFileNameMemory[len+2] = 's';
-            g_asmFileNameMemory[len+3] = 'm';
-            g_asmFileNameMemory[len+4] = 0;
-            g_asmFileName = g_asmFileNameMemory;
-          }
-        }
-
-        if( returnCode == 0 && g_asmFileName )
-        {
-          FILE* asmFile = fopen( g_asmFileName, "w" );
-          if( !asmFile )
-          {
-            printf( "warning: Unable to open assembly file %s for writing.\n",
-              g_asmFileName );
-          }
-          else
-          {
-            print_program( asmFile, &p );
-            fclose( asmFile );
-          }
+          cb_gen::print_asm( &asm_file_print, &p );
+          fclose( g_asmFile );
         }
       }
+
+      cb_gen::destroy( &p );
     }
 
     destroy( btc );

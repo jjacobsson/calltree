@@ -50,6 +50,8 @@ enum InstructionSet
   isub,          /* */
   imul,          /* */
   idiv,          /* */
+  iinc,          /* */
+  idec,          /* */
   iload,         /* */
   istore,        /* */
   ipush,         /* */
@@ -82,14 +84,14 @@ struct Instruction
 
 enum Register
 {
-  er0,  /* General purpose, volatile */
-  er1,  /* General purpose, volatile */
-  er2,  /* General purpose, volatile */
-  er3,  /* General purpose, volatile */
-  er4,  /* General purpose, persisting */
-  er5,  /* General purpose, persisting */
-  er6,  /* General purpose, persisting */
-  er7,  /* General purpose, persisting */
+  er0,  /* General purpose, persisting */
+  er1,  /* General purpose, persisting */
+  er2,  /* General purpose, persisting */
+  er3,  /* General purpose, persisting */
+  er4,  /* General purpose, volatile */
+  er5,  /* General purpose, volatile */
+  er6,  /* General purpose, volatile */
+  er7,  /* General purpose, volatile */
   err,  /* Return value register */
   efc,  /* Frame counter */
   eic,  /* Instruction counter */

@@ -60,9 +60,7 @@ start_label:
   case icall:
     *(type*)ctx->r[efs] = ctx->r[eip];
     ctx->r[efs] += sizeof(type);
-    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])[
-      ((type)i->a1<<16)|((type)i->a2<<8)|((type)i->a3)
-    ].m_Start;
+    ctx->r[eip] = ((FunctionTableEntry*)ctx->r[eft])[ctx->r[i->a1]].m_Start;
     break;
   case iret:
     ctx->r[efs] -= sizeof(type);
@@ -107,6 +105,12 @@ start_label:
     break;
   case idiv:
     ctx->r[i->a1] = ctx->r[i->a2] / ctx->r[i->a3];
+    break;
+  case iinc:
+    ctx->r[i->a1] += (((type)(i->a2))<<8) + ((type)(i->a3));
+    break;
+  case idec:
+    ctx->r[i->a1] -= (((type)(i->a2))<<8) + ((type)(i->a3));
     break;
   case iload:
     ctx->r[i->a1] = ((type*)(ctx->r[i->a2]))[i->a3];

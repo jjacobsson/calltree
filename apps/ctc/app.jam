@@ -1,5 +1,5 @@
 
-SetDependantOf $(_appname) : btree callback other ;
+SetDependantOf $(_appname) : btree cb_gen callback other ;
 
 local _source_files = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
 

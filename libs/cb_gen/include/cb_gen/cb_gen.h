@@ -21,6 +21,8 @@ namespace cb_gen {
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
+typedef void (*AsmFilePrint)( const char* buff, uint size );
+
 struct Function;
 struct Program;
 
@@ -45,6 +47,7 @@ struct Function
   Program* m_P;
   InstList m_I;
   uint     m_Memory;
+  uint     m_Index;
 };
 
 struct Program
@@ -62,6 +65,12 @@ void destroy( Program* );
 void destroy( Function* );
 
 void generate( BehaviorTreeContext, Program* );
+uint generate( BehaviorTree*, Program* );
+
+uint find_function( Program*, const char* );
+uint find_function( Program*, hash_t );
+
+void print_asm( AsmFilePrint fp, Program* );
 
 }
 

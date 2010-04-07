@@ -106,11 +106,15 @@ TEST_FIXTURE( VirtualMachineFixture, ishftr )
 TEST_FIXTURE( VirtualMachineFixture, icall )
 {
   funt[16].m_Start = 5;
-  inst[0].i  = icall;
-  inst[0].a1 = 0;
+  inst[0].i  = isetl;
+  inst[0].a1 = er0;
   inst[0].a2 = 0;
   inst[0].a3 = 0x10;
-  inst[1].i  = iexit;
+  inst[1].i  = icall;
+  inst[1].a1 = er0;
+  inst[1].a2 = 0;
+  inst[1].a3 = 0;
+  inst[2].i  = iexit;
 
   inst[5].i  = isetl;
   inst[5].a1 = er0;

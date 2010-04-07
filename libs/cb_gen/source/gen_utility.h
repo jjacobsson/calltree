@@ -16,7 +16,13 @@
 
 namespace cb_gen {
 
-void load_with_offset( InstList& i, uchar fr, uchar tr, uint o );
+void load_with_offset( InstList& i, uchar to, uchar from, uint o );
+
+void store_with_offset( InstList& i, uchar to, uchar from, uint o );
+
+void set_registry( InstList& i, uchar reg, uint value );
+
+void dressed_call( InstList& i, uint func_id, uint mem_offset );
 
 }
 
