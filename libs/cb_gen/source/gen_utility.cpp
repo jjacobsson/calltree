@@ -98,7 +98,7 @@ void set_registry( InstList& il, uchar reg, uint value )
   }
 }
 
-void dressed_call( InstList& il, uint func_id, uint mem_offset )
+void dressed_call( InstList& il, uchar reg, uint func_id, uint mem_offset )
 {
   if( mem_offset <= 0xffff )
   {
@@ -109,17 +109,17 @@ void dressed_call( InstList& il, uint func_id, uint mem_offset )
   }
   else
   {
-    //Set the memory offset in er7
-    set_registry( il, er7, mem_offset );
+    //Set the memory offset in reg
+    set_registry( il, reg, mem_offset );
     //Push ems to the stack
     add( il, ipush, ems, 0, 0 );
-    //Set ems = ems + er7
-    add( il, iadd, ems, ems, er7 );
+    //Set ems = ems + reg
+    add( il, iadd, ems, ems, reg );
   }
   //Set er7 to the function id
-  set_registry( il, er7, func_id );
+  set_registry( il, reg, func_id );
   //Call function
-  add( il, icall, er7, 0, 0 );
+  add( il, icall, reg, 0, 0 );
   //Restore ems
   add( il, ipop, ems, 0, 0 );
 }

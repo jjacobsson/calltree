@@ -84,24 +84,37 @@ struct Instruction
 
 enum Register
 {
-  er0,  /* General purpose, persisting */
-  er1,  /* General purpose, persisting */
-  er2,  /* General purpose, persisting */
-  er3,  /* General purpose, persisting */
-  er4,  /* General purpose, volatile */
-  er5,  /* General purpose, volatile */
-  er6,  /* General purpose, volatile */
-  er7,  /* General purpose, volatile */
-  err,  /* Return value register */
-  efc,  /* Frame counter */
-  eic,  /* Instruction counter */
-  eip,  /* Instruction pointer */
-  esp,  /* Stack pointer */
-  efs,  /* Call stack pointer */
-  eds,  /* Data section */
-  ems,  /* Memory section */
-  eft,  /* Function Lookup Table */
-  ejt,  /* Jump target lookup table */
+  er0,   /* 00 General purpose */
+  er1,   /* 02 General purpose */
+  er2,   /* 03 General purpose */
+  er3,   /* 04 General purpose */
+  er4,   /* 05 General purpose */
+  er5,   /* 06 General purpose */
+  er6,   /* 07 General purpose */
+  er7,   /* 08 General purpose */
+  er8,   /* 09 General purpose */
+  er9,   /* 10 General purpose */
+  er10,  /* 11 General purpose */
+  er11,  /* 12 General purpose */
+  er12,  /* 13 General purpose */
+  er13,  /* 14 General purpose */
+  er14,  /* 15 General purpose */
+  er15,  /* 16 General purpose */
+  er16,  /* 17 General purpose */
+  er17,  /* 18 General purpose */
+  er18,  /* 19 General purpose */
+  er19,  /* 20 General purpose */
+  er20,  /* 21 General purpose */
+  err,   /* 22 Return value register */
+  efc,   /* 23 Frame counter */
+  eic,   /* 24 Instruction counter */
+  eip,   /* 25 Instruction pointer */
+  esp,   /* 26 Stack pointer */
+  efs,   /* 27 Call stack pointer */
+  eds,   /* 28 Data section */
+  ems,   /* 29 Memory section */
+  eft,   /* 30 Function Lookup Table */
+  ejt,   /* 31 Jump target lookup table */
   reg_count
 };
 

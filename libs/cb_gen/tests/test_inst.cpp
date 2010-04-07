@@ -28,11 +28,11 @@ TEST_FIXTURE( VirtualMachineFixture, load_with_offset )
   data[66500] = 0xabababab;
   data[70000] = 0xfefefefe;
 
-  load_with_offset( ilist, eds, er0, 64 );
-  load_with_offset( ilist, eds, er1, 786 );
-  load_with_offset( ilist, eds, er2, 272 );
-  load_with_offset( ilist, eds, er3, 66500 );
-  load_with_offset( ilist, eds, er4, 70000 );
+  load_with_offset( ilist, er0, eds, 64 );
+  load_with_offset( ilist, er1, eds, 786 );
+  load_with_offset( ilist, er2, eds, 272 );
+  load_with_offset( ilist, er3, eds, 66500 );
+  load_with_offset( ilist, er4, eds, 70000 );
 
   Instruction i;
   i.i  = iexit;

@@ -28,7 +28,7 @@ struct Program;
 
 struct FunctionEntry
 {
-  Function* m_Function;
+  Function* m_F;
   hash_t    m_Id;
 };
 
@@ -44,10 +44,11 @@ typedef std::vector<JumpTarget> JumpTargets;
 
 struct Function
 {
-  Program* m_P;
-  InstList m_I;
-  uint     m_Memory;
-  uint     m_Index;
+  InstList      m_I;
+  BehaviorTree* m_T;
+  Program*      m_P;
+  uint          m_Memory;
+  uint          m_Index;
 };
 
 struct Program
@@ -65,7 +66,6 @@ void destroy( Program* );
 void destroy( Function* );
 
 void generate( BehaviorTreeContext, Program* );
-uint generate( BehaviorTree*, Program* );
 
 uint find_function( Program*, const char* );
 uint find_function( Program*, hash_t );

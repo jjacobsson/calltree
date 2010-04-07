@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-04-03 Joacim Jacobsson.
+ * Copyright (c) 2010-04-07 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,24 +57,37 @@ const char* const g_InstNames[cb::inst_count] =
 
 const char* const g_RegNames[cb::reg_count] =
 {
-  "r0", /* General purpose", persisting */
-  "r1", /* General purpose", persisting */
-  "r2", /* General purpose", persisting */
-  "r3", /* General purpose", persisting */
-  "r4", /* General purpose", volatile */
-  "r5", /* General purpose", volatile */
-  "r6", /* General purpose", volatile */
-  "r7", /* General purpose", volatile */
-  "rr", /* Return value register */
-  "fc", /* Frame counter */
-  "ic", /* Instruction counter */
-  "ip", /* Instruction pointer */
-  "sp", /* Stack pointer */
-  "fs", /* Call stack pointer */
-  "ds", /* Data section */
-  "ms", /* Memory section */
-  "ft", /* Function Lookup Table */
-  "jt", /* Jump target lookup table */
+  "r0",
+  "r1",
+  "r2",
+  "r3",
+  "r4",
+  "r5",
+  "r6",
+  "r7",
+  "r8",
+  "r9",
+  "r10",
+  "r11",
+  "r12",
+  "r13",
+  "r14",
+  "r15",
+  "r16",
+  "r17",
+  "r18",
+  "r19",
+  "r20",
+  "rr",
+  "fc",
+  "ic",
+  "ip",
+  "sp",
+  "fs",
+  "ds",
+  "ms",
+  "ft",
+  "jt"
 };
 
 int print_inst( char* buff, cb::Instruction inst, uint line )
@@ -155,11 +168,38 @@ void print_asm( AsmFilePrint afp, Program* p )
   num = sprintf( tb, "%-12s%s\n", "Line", "Instruction" );
   afp( tb, num );
 
-  uint i = 0;
-  InstList::iterator it, it_e( p->m_I.end() );
-  for( it = p->m_I.begin(); it != it_e; ++it, ++i )
+  uint line = 0;
+
   {
-    num = print_inst( tb, *it, i );
+    InstList::iterator it, it_e( p->m_I.end() );
+    for( it = p->m_I.begin(); it != it_e; ++it, ++line )
+    {
+      num = print_inst( tb, *it, line );
+      afp( tb, num );
+    }
+  }
+  num = sprintf( tb, "\n" );
+  afp( tb, num );
+
+  FunctionList::iterator it,it_e( p->m_F.end() );
+  for( it = p->m_F.begin(); it != it_e; ++it )
+  {
+    Function* f = it->m_F;
+
+    num = sprintf( tb, "%s\n", f->m_T->m_Id.m_Text );
+    afp( tb, num );
+    num = sprintf( tb, "%-12s%s\n", "Line", "Instruction" );
+    afp( tb, num );
+
+    {
+      InstList::iterator iti, iti_e( f->m_I.end() );
+      for( iti = f->m_I.begin(); iti != iti_e; ++iti, ++line )
+      {
+        num = print_inst( tb, *iti, line );
+        afp( tb, num );
+      }
+    }
+    num = sprintf( tb, "\n" );
     afp( tb, num );
   }
 }

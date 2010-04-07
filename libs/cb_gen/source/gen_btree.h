@@ -9,21 +9,15 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef CB_GEN_GEN_UTILITY_H_INCLUDED
-#define CB_GEN_GEN_UTILITY_H_INCLUDED
+#ifndef CB_GEN_GEN_BTREE_H_INCLUDED
+#define CB_GEN_GEN_BTREE_H_INCLUDED
 
 #include <cb_gen/cb_gen.h>
 
 namespace cb_gen {
 
-void load_with_offset( InstList& i, uchar to, uchar from, uint o );
-
-void store_with_offset( InstList& i, uchar to, uchar from, uint o );
-
-void set_registry( InstList& i, uchar reg, uint value );
-
-void dressed_call( InstList& i, uchar reg, uint func_id, uint mem_offset );
+void create_functions( BehaviorTreeContext, Program* );
 
 }
 
-#endif /* CB_GEN_GEN_UTILITY_H_INCLUDED */
+#endif /* CB_GEN_GEN_BTREE_H_INCLUDED */
