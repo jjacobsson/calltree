@@ -16,6 +16,12 @@
 
 namespace cb_gen {
 
+uchar alloc_register( Function*, uint prio );
+void free_register( Function*, uchar );
+
+void add( Program* p, uchar i, uchar a1, uchar a2, uchar a3 );
+void add( Function* f, uchar i, uchar a1, uchar a2, uchar a3 );
+
 void load_with_offset( InstList& i, uchar to, uchar from, uint o );
 
 void store_with_offset( InstList& i, uchar to, uchar from, uint o );

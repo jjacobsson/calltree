@@ -11,11 +11,54 @@
 
 #include "gen_utility.h"
 
-namespace cb_gen {
-
 using namespace cb;
 
-void add( InstList& il, uchar i, uchar a1, uchar a2, uchar a3 )
+namespace cb_gen {
+
+uchar alloc_register( Function* f, uint prio )
+{
+  uchar r = ~0;
+  uint bp = ~0;
+  for( int i = (gen_reg_count-1); i >= 0; --i )
+  {
+    uint cp = 0;
+
+    if( !f->m_Reg[i].m_Prio.empty() )
+      cp = f->m_Reg[i].m_Prio.back();
+
+    if( f->m_Reg[i].m_InUse && cp < prio && cp < bp )
+    {
+      bp = cp;
+      r  = i;
+    }
+    else if( !f->m_Reg[i].m_InUse )
+    {
+      r = i;
+      break;
+    }
+  }
+
+  if( r < gen_reg_count )
+  {
+    if( f->m_Reg[r].m_InUse )
+    {
+      add( f, ipush, r, 0, 0 );
+      f->m_Reg[r].m_Stack++;
+    }
+
+    f->m_Reg[r].m_Prio.push_back( prio );
+    f->m_Reg[r].m_InUse = true;
+  }
+
+  return r;
+}
+
+void free_register( Function* f, uchar r )
+{
+
+}
+
+inline void add( InstList& il, uchar i, uchar a1, uchar a2, uchar a3 )
 {
   Instruction inst;
   inst.i  = i;
@@ -23,6 +66,16 @@ void add( InstList& il, uchar i, uchar a1, uchar a2, uchar a3 )
   inst.a2 = a2;
   inst.a3 = a3;
   il.push_back( inst );
+}
+
+void add( Program* p, uchar i, uchar a1, uchar a2, uchar a3 )
+{
+  add( p->m_I, i, a1, a2, a3 );
+}
+
+void add( Function* f, uchar i, uchar a1, uchar a2, uchar a3 )
+{
+  add( f->m_I, i, a1, a2, a3 );
 }
 
 void load_with_offset( InstList& il, uchar to, uchar from, uint index )
@@ -123,6 +176,5 @@ void dressed_call( InstList& il, uchar reg, uint func_id, uint mem_offset )
   //Restore ems
   add( il, ipop, ems, 0, 0 );
 }
-
 
 }

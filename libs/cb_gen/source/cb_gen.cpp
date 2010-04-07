@@ -17,11 +17,18 @@
 
 using namespace cb;
 
-namespace cb_gen {
+namespace cb_gen
+{
 
 void init( Program* p )
 {
   p->m_Memory = 0;
+}
+
+void init( RegState* r )
+{
+  r->m_InUse = false;
+  r->m_Stack = 0;
 }
 
 void init( Function* f )
@@ -29,7 +36,12 @@ void init( Function* f )
   f->m_T = 0;
   f->m_P = 0;
   f->m_Memory = 0;
-  f->m_Index  = 0;
+  f->m_Index = 0;
+
+  for( int i = 0; i < cb::gen_reg_count; ++i )
+    init( &(f->m_Reg[i]) );
+
+  f->m_Reg[er0].m_InUse = true;
 }
 
 void destroy( Program* p )
@@ -47,31 +59,11 @@ void destroy( Function* f )
 
 }
 
-void add( Program* p, uchar i, uchar a1, uchar a2, uchar a3 )
-{
-  Instruction inst;
-  inst.i  = i;
-  inst.a1 = a1;
-  inst.a2 = a2;
-  inst.a3 = a3;
-  p->m_I.push_back( inst );
-}
-
-void add( Function* f, uchar i, uchar a1, uchar a2, uchar a3 )
-{
-  Instruction inst;
-  inst.i  = i;
-  inst.a1 = a1;
-  inst.a2 = a2;
-  inst.a3 = a3;
-  f->m_I.push_back( inst );
-}
-
 uint jump_target( Program* p, Function* f )
 {
   JumpTarget jt;
   jt.m_Function = f;
-  jt.m_Offset   = ~0;
+  jt.m_Offset = ~0;
   p->m_J.push_back( jt );
   return p->m_J.size() - 1;
 }
@@ -114,31 +106,59 @@ void generate( Function* f )
   //Jump to exit
   add( f, ijmp, er2, 0, 0 );
 
+  add( f, inop, 0, 0, 0 );
+
   // *** Construction Block *** //
 
   //Set the offset for the "con" jump
   set_offset( f->m_P, jt_con, f->m_I.size() );
-  //Per node jump-target
-  uint jt = jump_target( f->m_P, f );
-  //Set er2 to the first node's jump target
-  set_registry( f->m_I, er2, jt );
+  //Set er2 to "uninitialized"
+  set_registry( f->m_I, er2, 0xffffffff );
+  //"clear" entry point memory
+  store_with_offset( f->m_I, ems, er2, 0 );
+  //Get the exit jump
+  load_with_offset( f->m_I, er1, ejt, jt_exi );
+  //Jump out
+  add( f, ijmp, er1, 0, 0 );
+  add( f, inop, 0, 0, 0 );
 
   // *** Execute Block *** //
   //Set the offset for the "exe" jump
   set_offset( f->m_P, jt_exe, f->m_I.size() );
 
+  //Load jump target from memory
+  load_with_offset( f->m_I, ems, er2, 0 );
+  //Set er1 to "uninitialized"
+  set_registry( f->m_I, er1, 0xffffffff );
+  //Jump to the remembered node if it is initialized
+  add( f, ijne, er2, er2, er1 );
+
   Node* n = f->m_T->m_Root;
   while( n )
   {
+    //Generate construction code for the node
     gen_node_con( f, n );
+    //Get a jump target for node entry
+    uint jt = jump_target( f->m_P, f );
+    //Set er1 to jump target
+    set_registry( f->m_I, er1, jt );
+    //Store er1 in memory for re-entry
+    store_with_offset( f->m_I, ems, er1, 0 );
+    //Set the offset for the jump target
+    set_offset( f->m_P, jt, f->m_I.size() );
+    //Generate the node's execution code
     gen_node_exe( f, n );
     gen_node_des( f, n );
+    n = n->m_Next;
   }
+
+  add( f, inop, 0, 0, 0 );
 
   // *** Destruct Block *** //
   //Set the offset for the "exe" jump
   set_offset( f->m_P, jt_des, f->m_I.size() );
 
+  add( f, inop, 0, 0, 0 );
 
   //Set the offset for the "exit" jump
   set_offset( f->m_P, jt_exi, f->m_I.size() );
@@ -148,7 +168,7 @@ void generate( Function* f )
 
 void generate_functions( Program* p )
 {
-  FunctionList::iterator it,it_e( p->m_F.end() );
+  FunctionList::iterator it, it_e( p->m_F.end() );
   for( it = p->m_F.begin(); it != it_e; ++it )
   {
     Function* f = it->m_F;

@@ -105,7 +105,8 @@ enum Register
   er18,  /* 19 General purpose */
   er19,  /* 20 General purpose */
   er20,  /* 21 General purpose */
-  err,   /* 22 Return value register */
+  gen_reg_count,
+  err = gen_reg_count,   /* 22 Return value register */
   efc,   /* 23 Frame counter */
   eic,   /* 24 Instruction counter */
   eip,   /* 25 Instruction pointer */

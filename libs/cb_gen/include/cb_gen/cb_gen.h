@@ -41,6 +41,14 @@ struct JumpTarget
 typedef std::vector<cb::Instruction> InstList;
 typedef std::vector<FunctionEntry> FunctionList;
 typedef std::vector<JumpTarget> JumpTargets;
+typedef std::vector<uint> PrioList;
+
+struct RegState
+{
+  PrioList  m_Prio;
+  uint      m_Stack;
+  bool      m_InUse;
+};
 
 struct Function
 {
@@ -49,6 +57,7 @@ struct Function
   Program*      m_P;
   uint          m_Memory;
   uint          m_Index;
+  RegState      m_Reg[cb::gen_reg_count];
 };
 
 struct Program

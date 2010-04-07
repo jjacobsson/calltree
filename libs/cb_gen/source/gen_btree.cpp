@@ -73,6 +73,14 @@ void gen_node_con( Function* f, Node* n )
 {
 
 }
+void gen_node_exe( Function*, Node* )
+{
+
+}
+void gen_node_des( Function*, Node* )
+{
+
+}
 
 }
 

@@ -97,7 +97,6 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   switch( inst.i )
   {
   case inop:
-    r += sprintf( buff + r, "0x%02x 0x%02x 0x%02x", inst.a1, inst.a2, inst.a3 );
     break;
   case icall:
     r += sprintf( buff + r, "%s", g_RegNames[inst.a1] );
