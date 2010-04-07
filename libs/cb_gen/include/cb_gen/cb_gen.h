@@ -19,6 +19,7 @@
 namespace cb_gen {
 
 typedef unsigned int uint;
+typedef unsigned char uchar;
 
 struct Function;
 struct Program;
@@ -35,7 +36,7 @@ struct JumpTarget
   unsigned int m_Offset;
 };
 
-typedef std::vector<Instruction> InstList;
+typedef std::vector<cb::Instruction> InstList;
 typedef std::vector<FunctionEntry> FunctionList;
 typedef std::vector<JumpTarget> JumpTargets;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-04-03 Joacim Jacobsson.
+ * Copyright (c) 2010-04-07 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,39 +9,11 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#include <cb_gen/cb_gen.h>
+#include <UnitTest++.h>
+#include <TestReporterStdout.h>
 
-namespace cb_gen {
 
-void init( Program* p )
+int main(int, char const *[])
 {
-  p->m_Memory = 0;
+    return UnitTest::RunAllTests();
 }
-
-void init( Function* f )
-{
-  f->m_Memory = 0;
-}
-
-void destroy( Program* p )
-{
-  FunctionList::iterator it, it_e( p->m_F.end() );
-  for( it = p->m_F.begin(); it != it_e; ++it )
-  {
-    destroy( it->m_Function );
-    delete it->m_Function;
-  }
-}
-
-void destroy( Function* f )
-{
-
-}
-
-void generate( BehaviorTreeContext ctx, Program* p )
-{
-
-}
-
-}
-

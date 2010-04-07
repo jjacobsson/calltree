@@ -130,6 +130,31 @@ TEST_FIXTURE( VirtualMachineFixture, icall )
   CHECK( ctx->r[er0] == 0xcafebabe );
 }
 
+TEST_FIXTURE( VirtualMachineFixture, iload )
+{
+  (data+(0x7c8/4))[16] = 0xcafebabe;
+
+  inst[0].i  = isetl;
+  inst[0].a1 = er0;
+  inst[0].a2 = 0x07;
+  inst[0].a3 = 0xc8;
+  inst[1].i  = iadd;
+  inst[1].a1 = er0;
+  inst[1].a2 = er0;
+  inst[1].a3 = eds;
+  inst[2].i  = iload;
+  inst[2].a1 = er0;
+  inst[2].a2 = er0;
+  inst[2].a3 = 16;
+  inst[3].i  = iexit;
+  inst[3].a1 = 0;
+  inst[3].a2 = 0;
+  inst[3].a3 = 0;
+
+  run_program( &cp );
+  CHECK( ctx->r[er0] == 0xcafebabe );
+}
+
 
 
 
