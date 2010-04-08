@@ -1,6 +1,10 @@
 
+; Options
+
+
 ; Includes
 
+(include "cbrun.bth")
 
 ; Actions
 
@@ -10,8 +14,27 @@
 
 ; Trees
 
-(deftree main '(
-  (succeed)
+(deftree main (
+  (sequence (
+    (action 'act_set_gc ((value 5)))
+    (dyn_selector (
+      (sequence (
+        (action 'act_check_gc_smlr ((value 1)))
+        (action 'act_print ((str "This is where it's interesting.")))
+        (action 'act_exit null)
+       )
+      )
+      (parallel (
+        (action 'act_print ((str "Not very interesting.")))
+        (action 'act_dec_gc null)
+        (work)
+       )
+      )
+     )
+    )
+    (action 'act_print ((str "poop")))
+   )
+  )
  )
 )
 

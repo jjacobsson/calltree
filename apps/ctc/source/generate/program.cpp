@@ -230,8 +230,8 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 8;
-  i.m_A2 = 0;
-  i.m_A3 = 0;
+  i.m_A3 = (n->m_NodeId&0xffff0000)>>16;
+  i.m_A2 = (n->m_NodeId&0x0000ffff);
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
@@ -268,8 +268,8 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 8;
-  i.m_A2 = 0;
-  i.m_A3 = 0;
+  i.m_A3 = (n->m_NodeId&0xffff0000)>>16;
+  i.m_A2 = (n->m_NodeId&0x0000ffff);
   m_Inst.push_back( i );
   i.m_I  = INST__STORE_C_IN_B;
   i.m_A1 = m_BssStart + 12;
