@@ -77,7 +77,7 @@ Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, cons
     Node*          m_Node;
     Action*        m_Action;
     Decorator*     m_Decorator;
-    Parameter*      m_Parameter;
+    Parameter*     m_Parameter;
     StringData     m_String;
     int            m_Integer;
     float          m_Float;
