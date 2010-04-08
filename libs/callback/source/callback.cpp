@@ -14,6 +14,26 @@
 namespace cb
 {
 
+bool act_flag_set( unsigned int f, unsigned int a )
+{
+  return ((unsigned int)(f & 0x000f)) == a;
+}
+
+bool std_flag_set( unsigned int f )
+{
+  return (f & E_STANDARD_NODE) != 0;
+}
+
+bool exi_flag_set( unsigned int f )
+{
+  return (f & E_EXIT_SCOPE) != 0;
+}
+
+bool ent_flag_set( unsigned int f )
+{
+  return (f & E_ENTER_SCOPE) != 0;
+}
+
 int run_program( CallbackProgram* info )
 {
 
