@@ -41,6 +41,7 @@ const char* const g_NodeNames[E_MAX_GRIST_TYPES] = {
 };
 
 const char* const g_IconNames[ICON_COUNT] = {
+  ":/icons/warning.svg",
   ":/icons/bug.svg",
   ":/nodes/succeed.svg",
   ":/nodes/fail.svg",

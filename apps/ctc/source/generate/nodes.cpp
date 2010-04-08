@@ -877,9 +877,9 @@ int gen_exe_dynselector( Node* n, Program* p )
     //Set jump back after construction target.
     p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, p->m_I.Count()
         + 2, 0 );
-    //Jump to construction code *if* this child is NOT working.
+    //Jump to construction code *if* this child is E_NODE_UNDEFINED.
     cons_jumps.push_back( p->m_I.Count() );
-    p->m_I.Push( INST_JABC_C_DIFF_B, 0xffffffff, E_NODE_WORKING,
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_UNDEFINED,
       bss_current_child );
 
     //Set this as the "new" executing branch.
@@ -943,11 +943,16 @@ int gen_exe_dynselector( Node* n, Program* p )
     p->m_I.SetA2( dest_jumps[0 + i * 2], p->m_I.Count() );
     //Patch jump to destruction instruction
     p->m_I.SetA1( dest_jumps[1 + i * 2], p->m_I.Count() );
+    //Jump past the destruct code if the branch state is undefined
+    int patch = p->m_I.Count();
+    p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_UNDEFINED, bss_current_child );
     //call child-node destruction code
     if( (err = gen_des( c, p )) != 0 )
       return err;
     //Set childs stored return value to undefined
     p->m_I.Push( INST__STORE_C_IN_B, bss_current_child, E_NODE_UNDEFINED, 0 );
+    //Patch the jump
+    p->m_I.SetA1( patch, p->m_I.Count() );
     //Jump back to calling code
     p->m_I.Push( INST_JABB_BSSVALUE, nd->m_bss_JumpBackTarget, 0, 0 );
     //Iterate
@@ -963,8 +968,8 @@ int gen_exe_dynselector( Node* n, Program* p )
   for( int i = 0; i < s; ++i )
     p->m_I.SetA1( exit_jumps[i], exit_point );
 
-  //Jump past all this crap if "old branch" is uninitialized
-  true_exit_jumps.push_back( p->m_I.Count() );
+  //Jump past "destroy old branch" if "old branch" is uninitialized
+  int patch = p->m_I.Count();
   p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, 0xffffffff, nd->m_bss_OldBranch );
   //set jump back after destruction target
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget,
@@ -972,6 +977,8 @@ int gen_exe_dynselector( Node* n, Program* p )
   //Jump to destruction code of "old branch" *if* it differs from "new branch"
   p->m_I.Push( INST_JABB_B_DIFF_B, nd->m_bss_OldBranch, nd->m_bss_NewBranch,
     nd->m_bss_OldBranch );
+  //Patch the jump past
+  p->m_I.SetA1( patch, p->m_I.Count() );
   //Copy "new branch" into "old branch"
   p->m_I.Push( INST__STORE_B_IN_B, nd->m_bss_OldBranch, nd->m_bss_NewBranch, 0 );
   //Set new branch to uninitialized
