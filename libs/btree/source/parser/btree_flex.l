@@ -101,17 +101,17 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                 }
 {INTEGER}       {
                     sscanf( yytext, "%d", &((*yylval).m_Integer) ); 
-                    printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
+                    //printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
                     return T_INT32_VALUE;
                 }
 {HEX_INTEGER}   {
                     sscanf( yytext, "%x", &((*yylval).m_Integer) ); 
-                    printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
+                    //printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
                     return T_INT32_VALUE;
                 }
 {FLOAT}         {
                     sscanf( yytext, "%f", &((*yylval).m_Float) );
-                    printf( "%s scaned to %.20f\n", yytext, yylval->m_Float );
+                    //printf( "%s scaned to %.20f\n", yytext, yylval->m_Float );
                     return T_FLOAT_VALUE;
                 }
 {NEWLINE}       {
