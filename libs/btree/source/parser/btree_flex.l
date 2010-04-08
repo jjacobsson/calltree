@@ -35,14 +35,9 @@
 		
 %}
 
-CHAR            ([a-zA-Z_])
-ID              {CHAR}([a-zA-Z0-9_])*
-WHITESPACE      ([\t\r ])
-NEWLINE         ([\n])
-INTEGER         -{0,1}([[:digit:]])+
-HEX_INTEGER     0[xX][[:xdigit:]]+
-PPINCSTART      (\"|\<)
-PPINCSTOP       (\"|\>)
+ucn             ((\\u([[:xdigit:]]{4}))|(\\U([[:xdigit:]]{8})))
+nondigit        [_[:alpha:]]
+c99_id          ([_[:alpha:]]|{ucn})([_[:alnum:]]|{ucn})*
 
 dseq            ([[:digit:]]+)
 dseq_opt        ([[:digit:]]*)
@@ -59,7 +54,13 @@ bexp            ([pP][+-]?{dseq})
 dfc             (({frac}{exp_opt}{fsuff_opt})|({dseq}{exp}{fsuff_opt}))
 hfc             (({hpref}{hfrac}{bexp}{fsuff_opt})|({hpref}{hdseq}{bexp}{fsuff_opt}))
 
-FLOAT           ({dfc}|{hfc})
+ID              {c99_id}
+WHITESPACE      ([\t\r ])
+NEWLINE         ([\n])
+FLOAT           [+-]{0,1}({dfc}|{hfc})
+INTEGER         [+-]{0,1}[[:digit:]]+ 
+HEX_INTEGER     0[xX][[:xdigit:]]+ 
+
 
 %x string
 
@@ -100,14 +101,17 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
                 }
 {INTEGER}       {
                     sscanf( yytext, "%d", &((*yylval).m_Integer) ); 
+                    printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
                     return T_INT32_VALUE;
                 }
 {HEX_INTEGER}   {
                     sscanf( yytext, "%x", &((*yylval).m_Integer) ); 
+                    printf( "%s scaned to %d\n", yytext, yylval->m_Integer );
                     return T_INT32_VALUE;
                 }
 {FLOAT}         {
                     sscanf( yytext, "%f", &((*yylval).m_Float) );
+                    printf( "%s scaned to %.20f\n", yytext, yylval->m_Float );
                     return T_FLOAT_VALUE;
                 }
 {NEWLINE}       {
@@ -122,7 +126,11 @@ false           { yylval->m_Bool = false; return T_BOOL_VALUE; }
 
 \"              { BEGIN(string); }
 
-.               { yyerror( yyget_extra(yyscanner), "unrecognized character." ); }
+.               {
+					char tmp[512];
+					sprintf( tmp, "unrecognized character: %s", yytext ); 
+					yyerror( yyget_extra(yyscanner), tmp ); 
+				}
 
 <string>{
 
