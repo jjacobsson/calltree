@@ -55,15 +55,7 @@ public:
 
   void setStartAndEnd( BehaviorTreeSceneItem *start, BehaviorTreeSceneItem *end );
   void setDashed( bool dashed );
-
-public slots:
-
   void updatePosition();
-
-protected:
-
-  void paint( QPainter *painter, const QStyleOptionGraphicsItem *option,
-    QWidget *widget = 0 );
 
 private:
   BehaviorTreeSceneItem *m_Start;

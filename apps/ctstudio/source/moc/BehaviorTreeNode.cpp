@@ -397,10 +397,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
-      {
         m_DraggingArrow->setStartAndEnd( this, item );
-        m_DraggingArrow->setVisible( true );
-      }
       m_Relinkage = t;
     }
     else if( btsi->isType( BehaviorTreeTree::Type ) )
@@ -420,10 +417,7 @@ void BehaviorTreeNode::lookForRelinkTarget()
       t.m_BeforeSibling = true;
 
       if( m_DraggingArrow )
-      {
         m_DraggingArrow->setStartAndEnd( this, item );
-        m_DraggingArrow->setVisible( true );
-      }
       m_Relinkage = t;
 
     }

@@ -65,7 +65,6 @@ protected:
   void setupPropertyEditor();
 
   BehaviorTree* m_Tree;
-  QGraphicsSvgItem* m_Graphics;
   QGraphicsTextItem* m_Label;
 };
 

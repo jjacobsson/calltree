@@ -24,12 +24,14 @@ const qreal g_IconPad   = 16.0;
 BehaviorTreeSceneItem::BehaviorTreeSceneItem( BehaviorTreeContext ctx, QGraphicsObject* parent )
   : QGraphicsObject( parent )
   , m_MouseState( E_MS_NONE )
+  , m_Graphics( 0x0 )
   , m_PropertyWidget( 0x0 )
   , m_Context( ctx )
 {
   setFlag( QGraphicsItem::ItemIsMovable, true );
   setFlag( QGraphicsItem::ItemIsSelectable, true );
   setFlag( QGraphicsItem::ItemStacksBehindParent, false );
+  setFlag( QGraphicsItem::ItemSendsGeometryChanges, true );
 
   setZValue( 0.0 );
 
@@ -92,6 +94,36 @@ NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* othe
       return arrow;
   }
   return 0x0;
+}
+
+void BehaviorTreeSceneItem::positionArrows()
+{
+  foreach( NodeToNodeArrow *arrow, m_Arrows )
+  {
+    arrow->updatePosition();
+  }
+  QList<QGraphicsItem*> children( childItems() );
+  foreach( QGraphicsItem* gitem, children )
+  {
+    BehaviorTreeSceneItem* item = qgraphicsitem_cast<BehaviorTreeSceneItem*>( gitem );
+    if( !item )
+      continue;
+    item->positionArrows();
+  }
+}
+
+QPointF BehaviorTreeSceneItem::arrowAnchor() const
+{
+  QPointF r( scenePos() );
+  if( m_Graphics )
+  {
+    QRectF  br( m_Graphics->boundingRect() );
+    QPointF p( m_Graphics->scenePos() );
+    p.rx() += br.width() / 2.0;
+    p.ry() += br.height() / 2.0;
+    r = p;
+  }
+  return r;
 }
 
 QPointF BehaviorTreeSceneItem::iconPosition() const
@@ -201,6 +233,9 @@ QVariant BehaviorTreeSceneItem::itemChange( GraphicsItemChange change,
       emit itemSelected( m_PropertyWidget );
     else
       emit itemSelected( 0x0 );
+    break;
+  case ItemPositionHasChanged:
+    positionArrows();
     break;
   default:
     break;
