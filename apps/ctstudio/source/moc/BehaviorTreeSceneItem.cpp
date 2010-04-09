@@ -96,6 +96,17 @@ NodeToNodeArrow* BehaviorTreeSceneItem::findArrowTo( BehaviorTreeSceneItem* othe
   return 0x0;
 }
 
+bool BehaviorTreeSceneItem::toCloseForArrow( const BehaviorTreeSceneItem* other ) const
+{
+  const QGraphicsItem* i1 = this;
+  const QGraphicsItem* i2 = other;
+  if( m_Graphics )
+    i1 = m_Graphics;
+  if( other->m_Graphics )
+    i2 = other->m_Graphics;
+  return i1->collidesWithItem( i2 );
+}
+
 void BehaviorTreeSceneItem::positionArrows()
 {
   foreach( NodeToNodeArrow *arrow, m_Arrows )

@@ -61,7 +61,9 @@ public:
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
   void positionArrows();
 
+  virtual bool toCloseForArrow( const BehaviorTreeSceneItem* other ) const;
   virtual QPointF arrowAnchor() const;
+
   virtual QPointF iconPosition() const;
   virtual QRectF layoutBoundingRect() const;
   virtual qreal layoutOffset() const;

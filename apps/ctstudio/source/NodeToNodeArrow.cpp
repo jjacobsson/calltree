@@ -55,14 +55,14 @@ void NodeToNodeArrow::updatePosition()
   if( !m_Start || !m_End )
     return;
 
-  if( m_Start->collidesWithItem( m_End ) )
+  if( m_Start->toCloseForArrow( m_End ) )
   {
     setVisible( false );
   }
   else
   {
     setVisible( true );
-    prepareGeometryChange();
+    //prepareGeometryChange();
     setLine( QLineF( m_Start->arrowAnchor(), m_End->arrowAnchor() ) );
   }
 }
