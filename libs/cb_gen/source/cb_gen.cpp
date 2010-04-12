@@ -59,11 +59,10 @@ void destroy( Function* f )
 
 }
 
-uint jump_target( Program* p, Function* f, const char* n )
+uint jump_target( Program* p, Function* f )
 {
   JumpTarget jt;
   jt.m_F = f;
-  jt.m_N = n;
   jt.m_R = ~0;
   jt.m_A = ~0;
   p->m_J.push_back( jt );
@@ -77,10 +76,10 @@ void set_offset( Program* p, uint jt, uint offset )
 
 void generate( Function* f )
 {
-  uint jt_con = jump_target( f->m_P, f, 0x0 );
-  uint jt_exe = jump_target( f->m_P, f, 0x0 );
-  uint jt_des = jump_target( f->m_P, f, 0x0 );
-  uint jt_exi = jump_target( f->m_P, f, 0x0 );
+  uint jt_con = jump_target( f->m_P, f );
+  uint jt_exe = jump_target( f->m_P, f );
+  uint jt_des = jump_target( f->m_P, f );
+  uint jt_exi = jump_target( f->m_P, f );
 
   f->m_I.reserve( 1024 );
 
@@ -148,7 +147,7 @@ void generate( Function* f )
     //Generate construction code for the node
     gen_node_con( f, n );
     //Get a jump target for node entry
-    uint jt = jump_target( f->m_P, f, 0x0 );
+    uint jt = jump_target( f->m_P, f );
     //Set er1 to jump target
     set_registry( f->m_I, er1, jt );
     //Store er1 in memory for re-entry
@@ -214,9 +213,9 @@ void generate( BehaviorTreeContext ctx, Program* p )
   //Set the memory need's for this program
   p->m_Memory = p->m_F[mef].m_F->m_Memory + 4;
   //"Jump To Execute" jump target
-  uint jte = jump_target( p, 0x0, "__stub_execute" );
+  uint jte = jump_target( p, 0x0 );
   //"Jump To EXit" jump target
-  uint jtex = jump_target( p, 0x0, "__stub_exit" );
+  uint jtex = jump_target( p, 0x0 );
 
   //Set r0 to ACT_CONSTRUCT
   set_registry( p->m_I, er0, ACT_CONSTRUCT );

@@ -35,7 +35,6 @@ struct FunctionEntry
 struct JumpTarget
 {
   Function*    m_F; //Owning function (if any)
-  const char*  m_N; //Name
   unsigned int m_R; //Relative
   unsigned int m_A; //Absolute
 };

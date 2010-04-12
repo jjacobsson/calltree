@@ -175,11 +175,7 @@ int print_labels( Program* p, int line, char* buff )
   {
     if( jit->m_A != line )
       continue;
-    if( !jit->m_N )
-      num += sprintf( buff + num, "jt(0x%04x), ",  i );
-    else
-      num += sprintf( buff + num, "@%s, ", jit->m_N );
-
+    num += sprintf( buff + num, "jt(0x%04x), ",  i );
   }
   if( num > 0 )
   {
