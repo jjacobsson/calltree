@@ -1636,7 +1636,7 @@ int store_variables_in_data_section(
   for( it = dec; it != 0x0; it = it->m_Next )
   {
     Parameter* v = find_by_hash( vars, it->m_Id.m_Hash );
-    if( v && safe_to_convert( *v, dec->m_Type ) )
+    if( v && safe_to_convert( *v, it->m_Type ) )
       continue;
 
     errors = true;
