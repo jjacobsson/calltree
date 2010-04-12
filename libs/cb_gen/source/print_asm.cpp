@@ -92,6 +92,9 @@ const char* const g_RegNames[cb::reg_count] =
 
 int print_inst( char* buff, cb::Instruction inst, uint line )
 {
+  char op[1024];
+  int opc = 0;
+  op[0] = 0;
   int r = sprintf( buff, "0x%08x  0x%08x    %-13s", line, *((unsigned int*)(&inst)), g_InstNames[inst.i] );
 
   switch( inst.i )
@@ -99,7 +102,7 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case inop:
     break;
   case icall:
-    r += sprintf( buff + r, "%s", g_RegNames[inst.a1] );
+    opc += sprintf( op, "%s", g_RegNames[inst.a1] );
     break;
   case iret:
     break;
@@ -108,11 +111,11 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case idcall:
     break;
   case ijmp:
-    r += sprintf( buff + r, "%s", g_RegNames[inst.a1] );
+    opc += sprintf( op, "%s", g_RegNames[inst.a1] );
     break;
   case ijme:
   case ijne:
-    r += sprintf( buff + r, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
+    opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
   case imov:
     break;
@@ -120,30 +123,30 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case isub:
   case imul:
   case idiv:
-    r += sprintf( buff + r, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
+    opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
   case iinc:
   case idec:
-    r += sprintf( buff + r, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
+    opc += sprintf( op, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
     break;
   case iload:
-    r += sprintf( buff + r, "%s,%s(0x%02x)", g_RegNames[inst.a1],g_RegNames[inst.a2], inst.a3 );
+    opc += sprintf( op, "%s,%s(0x%04x)", g_RegNames[inst.a1],g_RegNames[inst.a2], sizeof(unsigned int)*inst.a3 );
     break;
   case istore:
-    r += sprintf( buff + r, "%s(0x%02x),%s", g_RegNames[inst.a1], inst.a2, g_RegNames[inst.a3] );
+    opc += sprintf( op, "%s(0x%04x),%s", g_RegNames[inst.a1], sizeof(unsigned int)*inst.a2, g_RegNames[inst.a3] );
     break;
   case ipush:
   case ipop:
-    r += sprintf( buff + r, "%s", g_RegNames[inst.a1] );
+    opc += sprintf( op, "%s", g_RegNames[inst.a1] );
     break;
   case ishftl:
   case ishftr:
-    r += sprintf( buff + r, "%s,%s(0x%02x)", g_RegNames[inst.a1],g_RegNames[inst.a2], inst.a3 );
+    opc += sprintf( op, "%s,%s(0x%02x)", g_RegNames[inst.a1],g_RegNames[inst.a2], inst.a3 );
     break;
   case iand:
   case ior:
   case ixor:
-    r += sprintf( buff + r, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
+    opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
   case isetl:
   case iseth:
@@ -153,29 +156,60 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case iorh:
   case ixorl:
   case ixorh:
-    r += sprintf( buff + r, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
+    opc += sprintf( op, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
     break;
   case iexit:
     break;
   }
-  r += sprintf( buff + r, "\n" );
+  r += sprintf( buff + r, "%-16s", op );
   return r;
+}
+
+int print_labels( Program* p, int line, char* buff )
+{
+  JumpTargets::iterator jit, jit_e( p->m_J.end() );
+
+  int num = 0;
+  int i = 0;
+  for( jit = p->m_J.begin(); jit != jit_e; ++jit, i+=sizeof(unsigned int) )
+  {
+    if( jit->m_A != line )
+      continue;
+    if( !jit->m_N )
+      num += sprintf( buff + num, "jt(0x%04x), ",  i );
+    else
+      num += sprintf( buff + num, "@%s, ", jit->m_N );
+
+  }
+  if( num > 0 )
+  {
+    num -= 2;
+    buff[num] = 0;
+  }
+
+  num += sprintf( buff + num, "\n" );
+  return num;
 }
 
 void print_asm( AsmFilePrint afp, Program* p )
 {
   char tb[4096];
   int num = 0;
-  num = sprintf( tb, "%-12s%-14s%-13s%s\n", "Line" , "Machine Code", "Instruction", "Operands" );
+  num = sprintf( tb, "__stub (mem: %d)\n", p->m_Memory );
+  afp( tb, num );
+  num = sprintf( tb, "%-12s%-14s%-13s%-16s%s\n", "Line" , "Machine Code", "Instruction", "Operands", "Labels" );
   afp( tb, num );
 
   uint line = 0;
+
 
   {
     InstList::iterator it, it_e( p->m_I.end() );
     for( it = p->m_I.begin(); it != it_e; ++it, ++line )
     {
       num = print_inst( tb, *it, line );
+      afp( tb, num );
+      num = print_labels( p, line, tb );
       afp( tb, num );
     }
   }
@@ -187,9 +221,9 @@ void print_asm( AsmFilePrint afp, Program* p )
   {
     Function* f = it->m_F;
 
-    num = sprintf( tb, "%s\n", f->m_T->m_Id.m_Text );
+    num = sprintf( tb, "%s (mem: %d)\n", f->m_T->m_Id.m_Text, f->m_Memory );
     afp( tb, num );
-    num = sprintf( tb, "%-12s%-14s%-13s%s\n", "Line" , "Machine Code", "Instruction", "Operands" );
+    num = sprintf( tb, "%-12s%-14s%-13s%-16s%s\n", "Line" , "Machine Code", "Instruction", "Operands", "Labels" );
     afp( tb, num );
 
     {
@@ -197,6 +231,8 @@ void print_asm( AsmFilePrint afp, Program* p )
       for( iti = f->m_I.begin(); iti != iti_e; ++iti, ++line )
       {
         num = print_inst( tb, *iti, line );
+        afp( tb, num );
+        num = print_labels( p, line, tb );
         afp( tb, num );
       }
     }

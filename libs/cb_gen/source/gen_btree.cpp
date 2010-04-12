@@ -46,6 +46,8 @@ void create_functions( BehaviorTree* t, Program* p )
   f->m_T = t;
   f->m_P = p;
 
+  t->m_UserData = f;
+
   FunctionEntry fe;
   fe.m_F  = f;
   fe.m_Id = t->m_Id.m_Hash;
@@ -80,6 +82,158 @@ void gen_node_exe( Function*, Node* )
 void gen_node_des( Function*, Node* )
 {
 
+}
+
+int sequence_memory_needed( Node* n )
+{
+  Node* c = get_first_child( n );
+  if( !c )
+    return 0;
+
+  int mem = sizeof( unsigned int ) * 2;
+  int max = 0;
+  while( c )
+  {
+    int t = memory_needed( c );
+    if( t > max )
+      max = t;
+    c = c->m_Next;
+  }
+  return mem + max;
+}
+
+int selector_memory_needed( Node* n )
+{
+  Node* c = get_first_child( n );
+  if( !c )
+    return 0;
+
+  int mem = sizeof( unsigned int ) * 2;
+  int max = 0;
+  while( c )
+  {
+    int t = memory_needed( c );
+    if( t > max )
+      max = t;
+    c = c->m_Next;
+  }
+  return mem + max;
+}
+
+int parallel_memory_needed( Node* n )
+{
+  Node* c = get_first_child( n );
+  if( !c )
+    return 0;
+
+  int mem = sizeof( unsigned int ) * 2;
+  while( c )
+  {
+    mem += memory_needed( c );
+    c = c->m_Next;
+  }
+  return mem;
+}
+
+int dyn_selector_memory_needed( Node* n )
+{
+  Node* c = get_first_child( n );
+  if( !c )
+    return 0;
+
+  int mem = sizeof( unsigned int ) * 2;
+  while( c )
+  {
+    mem += memory_needed( c );
+    c = c->m_Next;
+  }
+  return mem;
+}
+
+int tree_memory_needed( Node* n )
+{
+  Function* f = (Function*)n->m_Grist.m_Tree.m_Tree->m_UserData;
+  count_memory( f );
+  return f->m_Memory;
+}
+
+int action_memory_needed( Node* n )
+{
+  return
+    sizeof( cb::CallData ) +
+    sizeof( unsigned int ) * count_elements( get_parameters( n ) );
+}
+
+int decorator_memory_needed( Node* n )
+{
+  Node* c = get_first_child( n );
+  if(!c)
+    return 0;
+
+  return
+    sizeof( cb::CallData ) +
+    sizeof( unsigned int ) * count_elements( get_parameters( n ) ) +
+    memory_needed( c );
+}
+
+int memory_needed( BehaviorTree* t )
+{
+  int max = 0;
+  Node* c = t->m_Root;
+
+  while( c )
+  {
+    int t = memory_needed( c );
+    if( t > max )
+      max = t;
+    c = c->m_Next;
+  }
+  return max;
+}
+
+int memory_needed( Node* n )
+{
+  int r = 0xffffffff;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_UNKOWN:
+    /* Warning killer */
+    break;
+  case E_GRIST_SEQUENCE:
+    r = sequence_memory_needed( n );
+    break;
+  case E_GRIST_SELECTOR:
+    r = selector_memory_needed( n );
+    break;
+  case E_GRIST_PARALLEL:
+    r = parallel_memory_needed( n );
+    break;
+  case E_GRIST_DYN_SELECTOR:
+    r = dyn_selector_memory_needed( n );
+    break;
+  case E_GRIST_SUCCEED:
+    r = 0;
+    break;
+  case E_GRIST_FAIL:
+    r = 0;
+    break;
+  case E_GRIST_WORK:
+    r = 0;
+    break;
+  case E_GRIST_TREE:
+    r = tree_memory_needed( n );
+    break;
+  case E_GRIST_ACTION:
+    r = action_memory_needed( n );
+    break;
+  case E_GRIST_DECORATOR:
+    r = decorator_memory_needed( n );
+    break;
+  case E_MAX_GRIST_TYPES:
+    /* Warning killer */
+    break;
+  }
+  return r;
 }
 
 }

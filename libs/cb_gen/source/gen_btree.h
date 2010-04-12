@@ -22,6 +22,9 @@ void gen_node_con( Function*, Node* );
 void gen_node_exe( Function*, Node* );
 void gen_node_des( Function*, Node* );
 
+int memory_needed( BehaviorTree* );
+int memory_needed( Node* );
+
 }
 
 #endif /* CB_GEN_GEN_BTREE_H_INCLUDED */

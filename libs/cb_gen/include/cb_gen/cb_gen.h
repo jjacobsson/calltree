@@ -34,8 +34,10 @@ struct FunctionEntry
 
 struct JumpTarget
 {
-  Function*    m_Function;
-  unsigned int m_Offset;
+  Function*    m_F; //Owning function (if any)
+  const char*  m_N; //Name
+  unsigned int m_R; //Relative
+  unsigned int m_A; //Absolute
 };
 
 typedef std::vector<cb::Instruction> InstList;
@@ -76,10 +78,15 @@ void destroy( Function* );
 
 void generate( BehaviorTreeContext, Program* );
 
+void count_memory( Function* f );
+void count_memory( Program* p );
+
 uint find_function( Program*, const char* );
 uint find_function( Program*, hash_t );
 
 void print_asm( AsmFilePrint fp, Program* );
+
+void translate_jump_labels( Program* );
 
 }
 

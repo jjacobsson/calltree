@@ -59,26 +59,28 @@ void destroy( Function* f )
 
 }
 
-uint jump_target( Program* p, Function* f )
+uint jump_target( Program* p, Function* f, const char* n )
 {
   JumpTarget jt;
-  jt.m_Function = f;
-  jt.m_Offset = ~0;
+  jt.m_F = f;
+  jt.m_N = n;
+  jt.m_R = ~0;
+  jt.m_A = ~0;
   p->m_J.push_back( jt );
   return p->m_J.size() - 1;
 }
 
 void set_offset( Program* p, uint jt, uint offset )
 {
-  p->m_J[jt].m_Offset = offset;
+  p->m_J[jt].m_R = offset;
 }
 
 void generate( Function* f )
 {
-  uint jt_con = jump_target( f->m_P, f );
-  uint jt_exe = jump_target( f->m_P, f );
-  uint jt_des = jump_target( f->m_P, f );
-  uint jt_exi = jump_target( f->m_P, f );
+  uint jt_con = jump_target( f->m_P, f, 0x0 );
+  uint jt_exe = jump_target( f->m_P, f, 0x0 );
+  uint jt_des = jump_target( f->m_P, f, 0x0 );
+  uint jt_exi = jump_target( f->m_P, f, 0x0 );
 
   f->m_I.reserve( 1024 );
 
@@ -146,7 +148,7 @@ void generate( Function* f )
     //Generate construction code for the node
     gen_node_con( f, n );
     //Get a jump target for node entry
-    uint jt = jump_target( f->m_P, f );
+    uint jt = jump_target( f->m_P, f, 0x0 );
     //Set er1 to jump target
     set_registry( f->m_I, er1, jt );
     //Store er1 in memory for re-entry
@@ -185,17 +187,36 @@ void generate_functions( Program* p )
   }
 }
 
+void count_memory( Function* f )
+{
+  int mem = sizeof( unsigned int ) * 2;
+  f->m_Memory = mem + memory_needed( f->m_T );
+}
+
+void count_memory( Program* p )
+{
+  FunctionList::iterator it, it_e( p->m_F.end() );
+  for( it = p->m_F.begin(); it != it_e; ++it )
+  {
+    Function* f = it->m_F;
+    count_memory( f );
+  }
+}
+
 void generate( BehaviorTreeContext ctx, Program* p )
 {
   create_functions( ctx, p );
   generate_functions( p );
+  count_memory( p );
 
   //"Main Entry Function" function index
   uint mef = find_function( p, "main" );
+  //Set the memory need's for this program
+  p->m_Memory = p->m_F[mef].m_F->m_Memory + 4;
   //"Jump To Execute" jump target
-  uint jte = jump_target( p, 0x0 );
+  uint jte = jump_target( p, 0x0, "__stub_execute" );
   //"Jump To EXit" jump target
-  uint jtex = jump_target( p, 0x0 );
+  uint jtex = jump_target( p, 0x0, "__stub_exit" );
 
   //Set r0 to ACT_CONSTRUCT
   set_registry( p->m_I, er0, ACT_CONSTRUCT );
@@ -241,6 +262,8 @@ void generate( BehaviorTreeContext ctx, Program* p )
 
   //Exit
   add( p, iexit, 0, 0, 0 );
+
+  translate_jump_labels( p );
 }
 
 uint find_function( Program* p, const char* name )
@@ -263,6 +286,28 @@ uint find_function( Program* p, hash_t h )
     i = ~0;
 
   return i;
+}
+
+void translate_jump_labels( Program* p )
+{
+  JumpTargets::iterator jit, jit_e( p->m_J.end() );
+  for( jit = p->m_J.begin(); jit != jit_e; ++jit )
+  {
+    if( jit->m_F == 0x0 )
+      jit->m_A = jit->m_R;
+  }
+
+  unsigned int offset = p->m_I.size();
+  FunctionList::iterator fit, fit_e( p->m_F.end() );
+  for( fit = p->m_F.begin(); fit != fit_e; ++fit )
+  {
+    for( jit = p->m_J.begin(); jit != jit_e; ++jit )
+    {
+      if( jit->m_F == fit->m_F )
+        jit->m_A = offset + jit->m_R;
+    }
+    offset += fit->m_F->m_I.size();
+  }
 }
 
 }
