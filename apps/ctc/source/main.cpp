@@ -286,15 +286,16 @@ int main( int argc, char** argv )
         if( debug_param  )
           p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
 
-        setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
-        returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
+        returnCode = setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
+        if( returnCode == 0 )
+        {
+          returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
+          if( returnCode != 0 )
+            printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
+        }
         teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
 
-        if( returnCode != 0 )
-        {
-          printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
-        }
-        else
+        if( returnCode == 0 )
         {
           g_outputFile = fopen( g_outputFileName, "wb" );
           if( !g_outputFile )

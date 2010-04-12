@@ -29,12 +29,26 @@ struct VariableGenerateData
   IntVector m_Data;
 };
 
-int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
-  Parameter* dec, Program* p );
-int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
-  Program* p );
-int setup_variable_registry( VariableGenerateData* vd, Parameter* vars,
-  Program* p );
+int store_variables_in_data_section(
+    VariableGenerateData* vd,
+    Node* vars_n,
+    Parameter* vars,
+    NamedSymbol* dec_s,
+    Parameter* dec,
+    Program* p
+  );
+
+int generate_variable_instructions(
+    VariableGenerateData* vd,
+    Parameter* vars,
+    Program* p
+  );
+
+int setup_variable_registry(
+    VariableGenerateData* vd,
+    Parameter* vars,
+    Program* p
+  );
 
 int setup_gen( Node* n, Program* p )
 {
@@ -1132,9 +1146,18 @@ int gen_setup_decorator( Node* n, Program* p )
     nd->m_bssModPos = (nd->m_bssPos + bss_need) - 4;
   }
 
-  //Store the variable values in the data section.
-  store_variables_in_data_section( &nd->m_VD,
-    n->m_Grist.m_Decorator.m_Parameters, d->m_Declarations, p );
+
+  {
+    NamedSymbol tns;
+    tns.m_Type = E_ST_DECORATOR;
+    tns.m_Symbol.m_Decorator = d;
+    //Store the variable values in the data section.
+    int r = store_variables_in_data_section( &nd->m_VD, n,
+      n->m_Grist.m_Decorator.m_Parameters, &tns, d->m_Declarations, p );
+
+    if( r != 0 )
+      return -1;
+  }
 
   return setup_gen( c, p );
 }
@@ -1358,9 +1381,17 @@ int gen_setup_action( Node* n, Program* p )
   if( bss > 0 )
     nd->m_bssPos = p->m_B.Push( bss, 4 );
 
-  //Store the variable values in the data section.
-  store_variables_in_data_section( &nd->m_VD, n->m_Grist.m_Action.m_Parameters,
-    a->m_Declarations, p );
+  {
+    NamedSymbol tns;
+    tns.m_Type = E_ST_ACTION;
+    tns.m_Symbol.m_Action = a;
+    //Store the variable values in the data section.
+    int r = store_variables_in_data_section( &nd->m_VD, n,
+      n->m_Grist.m_Action.m_Parameters, &tns, a->m_Declarations, p );
+
+    if( r != 0 )
+      return -1;
+  }
 
   return 0;
 }
@@ -1484,25 +1515,145 @@ int gen_des_action( Node* n, Program* p )
   return 0;
 }
 
-int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
-  Parameter* dec, Program* p )
+void print_missing_param_error( Node* n, Parameter* d, NamedSymbol* ns )
 {
-  if( !vars || !dec )
+  const char* use_buff = n->m_Locator.m_Buffer;
+  int use_line         = n->m_Locator.m_LineNo;
+  const char* sym_t_str = "";
+  const char* sym_str = "";
+  Locator* ns_loc = 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_ACTION:
+    sym_t_str = "action";
+    sym_str = ns->m_Symbol.m_Action->m_Id.m_Text;
+    ns_loc = &ns->m_Symbol.m_Action->m_Locator;
+    break;
+  case E_ST_DECORATOR:
+    sym_t_str = "decorator";
+    sym_str = ns->m_Symbol.m_Decorator->m_Id.m_Text;
+    ns_loc = &ns->m_Symbol.m_Decorator->m_Locator;
+    break;
+  case E_ST_TREE:
+    sym_t_str = "tree";
+    sym_str = ns->m_Symbol.m_Tree->m_Id.m_Text;
+    ns_loc = &ns->m_Symbol.m_Tree->m_Locator;
+    break;
+  case E_ST_UNKOWN:
+    sym_t_str = "unknown";
+    sym_str = "<unknown>";
+    ns_loc = 0x0;
+    break;
+  }
+
+  printf( "%s(%d) : error : parameter \"%s\" for %s \"%s\" is missing.\n",
+    use_buff,
+    use_line,
+    d->m_Id.m_Text,
+    sym_t_str,
+    sym_str
+  );
+
+  if( ns_loc )
+  {
+    printf( "%s(%d) : error : see declaration for parameter \"%s\" for %s \"%s\".\n",
+      ns_loc->m_Buffer,
+      ns_loc->m_LineNo,
+      d->m_Id.m_Text,
+      sym_t_str,
+      sym_str
+    );
+  }
+}
+
+void print_unable_to_convert_param_error( Node* n, Parameter* v, Parameter* d, NamedSymbol* ns )
+{
+  const char* use_buff = n->m_Locator.m_Buffer;
+  int use_line         = n->m_Locator.m_LineNo;
+  const char* vt_str = "";
+  const char* dt_str = "";
+
+  switch( v->m_Type )
+  {
+  case E_VART_UNDEFINED: vt_str = "undefined"; break;
+  case E_VART_INTEGER: vt_str = "int32"; break;
+  case E_VART_FLOAT: vt_str = "float"; break;
+  case E_VART_STRING: vt_str = "string"; break;
+  case E_VART_BOOL: vt_str = "bool"; break;
+  case E_VART_HASH: vt_str = "hash"; break;
+  case E_MAX_VARIABLE_TYPE: break;
+  }
+
+  switch( d->m_Type )
+  {
+  case E_VART_UNDEFINED: dt_str = "undefined"; break;
+  case E_VART_INTEGER: dt_str = "int32"; break;
+  case E_VART_FLOAT: dt_str = "float"; break;
+  case E_VART_STRING: dt_str = "string"; break;
+  case E_VART_BOOL: dt_str = "bool"; break;
+  case E_VART_HASH: dt_str = "hash"; break;
+  case E_MAX_VARIABLE_TYPE: break;
+  }
+
+  printf( "%s(%d) : error : parameter \"%s\" can't be converted from type %s to %s.\n",
+    use_buff,
+    use_line,
+    d->m_Id.m_Text,
+    vt_str,
+    dt_str
+  );
+}
+
+int store_variables_in_data_section(
+    VariableGenerateData* vd,
+    Node* vars_n,
+    Parameter* vars,
+    NamedSymbol* dec_s,
+    Parameter* dec,
+    Program* p
+  )
+{
+  if( !vars && !dec )
     return 0;
+
+  if( !dec )
+    return 0;
+
+  if( !vars )
+  {
+    Parameter* it;
+    for( it = dec; it != 0x0; it = it->m_Next )
+      print_missing_param_error( vars_n, it, dec_s );
+    return -1;
+  }
 
   vd->m_Data.clear();
   vd->m_bssStart = p->m_B.Push( sizeof(void*) * count_elements( dec ),
     sizeof(void*) );
 
-  DataSection& d = p->m_D;
+  bool errors = false;
   Parameter* it;
   for( it = dec; it != 0x0; it = it->m_Next )
   {
     Parameter* v = find_by_hash( vars, it->m_Id.m_Hash );
+    if( v && safe_to_convert( *v, dec->m_Type ) )
+      continue;
+
+    errors = true;
 
     if( !v )
-      return -1;
+      print_missing_param_error( vars_n, it, dec_s );
+    else
+      print_unable_to_convert_param_error( vars_n, v, it, dec_s );
+  }
 
+  if( errors )
+    return -1;
+
+  DataSection& d = p->m_D;
+  for( it = dec; it != 0x0; it = it->m_Next )
+  {
+    Parameter* v = find_by_hash( vars, it->m_Id.m_Hash );
     switch( it->m_Type )
     {
     case E_VART_INTEGER:
@@ -1526,9 +1677,9 @@ int store_variables_in_data_section( VariableGenerateData* vd, Parameter* vars,
       break;
     }
   }
-
   return 0;
 }
+
 int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
   Program* p )
 {
