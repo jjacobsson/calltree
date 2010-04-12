@@ -195,7 +195,7 @@ int as_integer( const Parameter& v )
     r = (int)v.m_Data.m_Float;
     break;
   case E_VART_BOOL:
-    r = v.m_Data.m_Bool ? 1 : 0;
+    r = v.m_Data.m_Bool ? 0xffffffff : 0x00000000;
     break;
   case E_VART_HASH:
     r = (int)v.m_Data.m_Hash;

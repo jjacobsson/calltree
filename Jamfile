@@ -29,6 +29,7 @@ rule CompileBehaviourTrees
 	local _sources = [ GLOB $(1) : *.bts ] ;
 	local _headers = [ GLOB $(1) : *.h ] ;
 	local _source ;
+	local _bth = [ GLOB $(1) : *.bth ] ;
 	for _source in $(_sources)
 	{
 		Includes $(_source) : $(_headers) ;
@@ -36,7 +37,8 @@ rule CompileBehaviourTrees
 		local _path = $(_btc:P) ;
 		
 		ctc $(_btc) : $(_source) ;
-		
+	
+		Includes $(_source) : $(_bth) ;	
 		Depends $(_btc) : $(CTC_EXE) ;
 		Depends $(_btc) : $(_path) ;
 		Depends $(_btc)	: $(_source) ;

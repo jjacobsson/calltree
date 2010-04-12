@@ -312,7 +312,7 @@ TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToBool )
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToInteger )
 {
-	CHECK( 1 == as_integer( v ) );
+	CHECK( 0xffffffff == as_integer( v ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToFloat )

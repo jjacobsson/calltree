@@ -51,7 +51,6 @@ protected:
   void setupLabel();
 
   Include* m_Include;
-  QGraphicsSvgItem* m_Graphics;
   QGraphicsTextItem* m_Label;
 };
 

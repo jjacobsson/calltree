@@ -103,7 +103,6 @@ private:
   } m_BeforeRelinkage;
 
   NodeToNodeArrow* m_DraggingArrow; // This arrow is the one used to indicate where the node will be linked while dragging.
-  QGraphicsSvgItem*  m_Graphics;
   QGraphicsTextItem* m_Label;
 };
 

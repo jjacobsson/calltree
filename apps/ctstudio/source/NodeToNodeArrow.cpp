@@ -14,18 +14,22 @@
 
 #include <QtGui/QtGui>
 
+const QPen g_RegularPen( QPen( Qt::darkGray, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+const QPen g_DashedPen( QPen( Qt::darkGray, 16.0, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin ) );
+
 NodeToNodeArrow::NodeToNodeArrow(
     BehaviorTreeSceneItem* start,
     BehaviorTreeSceneItem* end,
     QGraphicsScene* scene
   )
-  : QGraphicsLineItem( start, scene )
+  : QGraphicsLineItem( 0x0 )
   , m_Start( start )
   , m_End( end )
 {
+  scene->addItem( this );
   setFlag( QGraphicsItem::ItemIsSelectable, false );
   setFlag( QGraphicsItem::ItemStacksBehindParent, true );
-  setPen( QPen( Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+  setPen( g_RegularPen );
   setZValue( -1000.0 );
 }
 
@@ -35,21 +39,15 @@ void NodeToNodeArrow::setStartAndEnd(
 {
   m_Start = start;
   m_End = end;
-
-  if( m_Start )
-    setParentItem( m_Start );
-  else
-    setParentItem( 0x0 );
-
-  update();
+  updatePosition();
 }
 
 void NodeToNodeArrow::setDashed( bool dashed )
 {
   if( dashed )
-    setPen( QPen( Qt::black, 16.0, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setPen( g_DashedPen );
   else
-    setPen( QPen( Qt::black, 16.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setPen( g_RegularPen );
 }
 
 void NodeToNodeArrow::updatePosition()
@@ -57,24 +55,15 @@ void NodeToNodeArrow::updatePosition()
   if( !m_Start || !m_End )
     return;
 
-  QPointF s, e;
-  QRectF sr( m_Start->boundingRect() );
-  QRectF er( m_End->boundingRect() );
-  s = mapFromItem( m_Start, sr.width() / 2.0, sr.height() / 2.0 );
-  e = mapFromItem( m_End, er.width() / 2.0, er.height() / 2.0 );
-  setLine( QLineF( s, e ) );
-}
-
-void NodeToNodeArrow::paint( QPainter *painter,
-  const QStyleOptionGraphicsItem *, QWidget * )
-{
-  if( !m_Start || !m_End )
-    return;
-
-  if( m_Start->collidesWithItem( m_End ) )
-    return;
-  updatePosition();
-  painter->setPen( pen() );
-  painter->drawLine( line() );
+  if( m_Start->toCloseForArrow( m_End ) )
+  {
+    setVisible( false );
+  }
+  else
+  {
+    setVisible( true );
+    //prepareGeometryChange();
+    setLine( QLineF( m_Start->arrowAnchor(), m_End->arrowAnchor() ) );
+  }
 }
 

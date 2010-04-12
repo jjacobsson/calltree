@@ -59,6 +59,10 @@ public:
   void removeArrows();
   void addArrow( NodeToNodeArrow* arrow );
   NodeToNodeArrow* findArrowTo( BehaviorTreeSceneItem* other );
+  void positionArrows();
+
+  virtual bool toCloseForArrow( const BehaviorTreeSceneItem* other ) const;
+  virtual QPointF arrowAnchor() const;
 
   virtual QPointF iconPosition() const;
   virtual QRectF layoutBoundingRect() const;
@@ -113,6 +117,7 @@ protected:
 
   QWidget* m_PropertyWidget;
 
+  QGraphicsSvgItem* m_Graphics;
   QGraphicsSvgItem* m_Icons[ ICON_COUNT ];
 
   BehaviorTreeContext m_Context;

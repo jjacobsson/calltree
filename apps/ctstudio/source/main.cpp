@@ -9,6 +9,7 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
+#include <QtCore/QLocale>
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
 
@@ -20,6 +21,8 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    QLocale::setDefault( QLocale::c() );
 
     SvgCache::init();
     IconCache::init();

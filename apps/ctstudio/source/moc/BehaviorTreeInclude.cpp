@@ -20,7 +20,6 @@
 BehaviorTreeInclude::BehaviorTreeInclude( BehaviorTreeContext ctx, Include* i )
   : BehaviorTreeSceneItem( ctx, 0x0 )
   , m_Include( i )
-  , m_Graphics( 0x0 )
   , m_Label( 0x0 )
 {
   setFlag( QGraphicsItem::ItemIsMovable, false );
