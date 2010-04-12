@@ -92,7 +92,7 @@ const char* const g_RegNames[cb::reg_count] =
 
 int print_inst( char* buff, cb::Instruction inst, uint line )
 {
-  int r = sprintf( buff, "0x%08x  %-6s", line, g_InstNames[inst.i] );
+  int r = sprintf( buff, "0x%08x  0x%08x    %-13s", line, *((unsigned int*)(&inst)), g_InstNames[inst.i] );
 
   switch( inst.i )
   {
@@ -127,8 +127,10 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
     r += sprintf( buff + r, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
     break;
   case iload:
-  case istore:
     r += sprintf( buff + r, "%s,%s(0x%02x)", g_RegNames[inst.a1],g_RegNames[inst.a2], inst.a3 );
+    break;
+  case istore:
+    r += sprintf( buff + r, "%s(0x%02x),%s", g_RegNames[inst.a1], inst.a2, g_RegNames[inst.a3] );
     break;
   case ipush:
   case ipop:
@@ -164,7 +166,7 @@ void print_asm( AsmFilePrint afp, Program* p )
 {
   char tb[4096];
   int num = 0;
-  num = sprintf( tb, "%-12s%s\n", "Line", "Instruction" );
+  num = sprintf( tb, "%-12s%-14s%-13s%s\n", "Line" , "Machine Code", "Instruction", "Operands" );
   afp( tb, num );
 
   uint line = 0;
@@ -187,7 +189,7 @@ void print_asm( AsmFilePrint afp, Program* p )
 
     num = sprintf( tb, "%s\n", f->m_T->m_Id.m_Text );
     afp( tb, num );
-    num = sprintf( tb, "%-12s%s\n", "Line", "Instruction" );
+    num = sprintf( tb, "%-12s%-14s%-13s%s\n", "Line" , "Machine Code", "Instruction", "Operands" );
     afp( tb, num );
 
     {
