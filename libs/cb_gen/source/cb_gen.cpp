@@ -83,34 +83,39 @@ void generate( Function* f )
 
   f->m_I.reserve( 1024 );
 
-  uchar check_reg = alloc_register( f, 0 );
-  uchar jump_reg = alloc_register( f, 0 );
+  uchar r_arg0    = er0;
+  uchar r_br_cmp  = alloc_register( f, 0 );
+  uchar r_br_node = alloc_register( f, 0 );
+  uchar r_br_exit = alloc_register( f, 0 );
 
-  //Load check_reg with ACT_CONSTRUCT
-  set_registry( f->m_I, check_reg, ACT_CONSTRUCT );
-  //Load jump_reg with the jump target for the execution code
-  load_with_offset( f->m_I, jump_reg, ejt, jt_con );
-  //Jump to construction if er0 (arg 1) is ACT_CONSTRUCT
-  add( f, ijme, jump_reg, er0, check_reg );
+  //Load r_br_exit with the exit function jump target
+  load_with_offset( f->m_I, r_br_exit, ejt, jt_exi );
 
-  //Load check_reg with ACT_EXECUTE
-  set_registry( f->m_I, check_reg, ACT_EXECUTE );
-  //Load jump_reg with the jump target for the execution code
-  load_with_offset( f->m_I, jump_reg, ejt, jt_exe );
-  //Jump to execution if er0 (arg 1) is ACT_EXECUTE
-  add( f, ijme, jump_reg, er0, check_reg );
+  //Load r_br_cmp with ACT_CONSTRUCT
+  set_registry( f->m_I, r_br_cmp, ACT_CONSTRUCT );
+  //Load r_br_node with the jump target for the execution code
+  load_with_offset( f->m_I, r_br_node, ejt, jt_con );
+  //Jump to construction if r_arg0 is ACT_CONSTRUCT
+  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
 
-  //Load check_reg with ACT_DESTRUCT
-  set_registry( f->m_I, check_reg, ACT_DESTRUCT );
-  //Load jump_reg with the jump target for the destruction code
-  load_with_offset( f->m_I, jump_reg, ejt, jt_des );
-  //Jump to destruction if er0 (arg 1) is ACT_DESTRUCT
-  add( f, ijme, jump_reg, er0, check_reg );
+  //Load r_br_cmp with ACT_EXECUTE
+  set_registry( f->m_I, r_br_cmp, ACT_EXECUTE );
+  //Load r_br_node with the jump target for the execution code
+  load_with_offset( f->m_I, r_br_node, ejt, jt_exe );
+  //Jump to execution if r_arg0 is ACT_EXECUTE
+  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
 
-  //Load jump_reg with exit label
-  load_with_offset( f->m_I, jump_reg, ejt, jt_exi );
+  //Load r_br_cmp with ACT_DESTRUCT
+  set_registry( f->m_I, r_br_cmp, ACT_DESTRUCT );
+  //Load r_br_node with the jump target for the destruction code
+  load_with_offset( f->m_I, r_br_node, ejt, jt_des );
+  //Jump to destruction if r_arg0 is ACT_DESTRUCT
+  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
+
+  //Load r_br_node with exit label
+  load_with_offset( f->m_I, r_br_node, ejt, jt_exi );
   //Jump to exit
-  add( f, ijmp, jump_reg, 0, 0 );
+  add( f, ibr, r_br_node, 0, 0 );
 
   //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
@@ -119,14 +124,14 @@ void generate( Function* f )
 
   //Set the offset for the "con" jump
   set_offset( f->m_P, jt_con, f->m_I.size() );
-  //Set er2 to "uninitialized"
-  set_registry( f->m_I, er2, 0xffffffff );
+  //Set r_br_node to "uninitialized"
+  set_registry( f->m_I, r_br_node, 0xffffffff );
   //"clear" entry point memory
-  store_with_offset( f->m_I, ems, er2, 0 );
+  store_with_offset( f->m_I, ems, r_br_node, 0 );
   //Get the exit jump
   load_with_offset( f->m_I, er1, ejt, jt_exi );
   //Jump out
-  add( f, ijmp, er1, 0, 0 );
+  add( f, ibr, er1, 0, 0 );
   //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
@@ -139,7 +144,7 @@ void generate( Function* f )
   //Set er1 to "uninitialized"
   set_registry( f->m_I, er1, 0xffffffff );
   //Jump to the remembered node if it is initialized
-  add( f, ijne, er2, er2, er1 );
+  add( f, ibrne, er2, er2, er1 );
 
   Node* n = f->m_T->m_Root;
   while( n )
@@ -156,6 +161,7 @@ void generate( Function* f )
     set_offset( f->m_P, jt, f->m_I.size() );
     //Generate the node's execution code
     gen_node_exe( f, n );
+    //Jump out of the function if "working" or "fail"
     gen_node_des( f, n );
     n = n->m_Next;
   }
@@ -224,7 +230,7 @@ void generate( BehaviorTreeContext ctx, Program* p )
   //Setup the jump target in er2
   load_with_offset( p->m_I, er2, ejt, jte );
   //Jump past call if already constructed
-  add( p, ijne, er0, er1, er2 );
+  add( p, ibrne, er2, er1, er0 );
   //Call the "main" tree's function
   dressed_call( p->m_I, er20, mef, 4 );
 
@@ -244,7 +250,7 @@ void generate( BehaviorTreeContext ctx, Program* p )
   //Setup er1 with the return value we want to check
   set_registry( p->m_I, er1, E_NODE_WORKING );
   //Jump past destruction if the tree is "non-finished"
-  add( p, ijme, er0, er1, err );
+  add( p, ibre, er0, er1, err );
 
   //Setup er0 to tell the tree to destruct
   set_registry( p->m_I, er0, ACT_DESTRUCT );

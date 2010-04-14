@@ -102,13 +102,13 @@ start_label:
         ctx
       );
     break;
-  case ijmp:
+  case ibr:
     ctx->r[eip] = ctx->r[i->a1];
     break;
-  case ijme:
+  case ibre:
     ctx->r[eip] = ctx->r[i->a1]==ctx->r[i->a2]?ctx->r[i->a3]:ctx->r[eip];
     break;
-  case ijne:
+  case ibrne:
     ctx->r[eip] = ctx->r[i->a1]!=ctx->r[i->a2]?ctx->r[i->a3]:ctx->r[eip];
     break;
   case imov:

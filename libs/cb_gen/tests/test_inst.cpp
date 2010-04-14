@@ -22,17 +22,25 @@ TEST_FIXTURE( VirtualMachineFixture, load_with_offset )
   InstList ilist;
   ilist.reserve( 4096 );
 
-  data[64]    = 0xcafebabe;
-  data[786]   = 0xdeadbeef;
-  data[272]   = 0xcdcdcdcd;
-  data[66500] = 0xabababab;
-  data[70000] = 0xfefefefe;
+  const int case_1_b = 0x46;
+  const int case_2_b = 0xffff;
+  const int case_3_b = 0x103fb;
+  const int case_4_b = 0x10400;
 
-  load_with_offset( ilist, er0, eds, 64 );
-  load_with_offset( ilist, er1, eds, 786 );
-  load_with_offset( ilist, er2, eds, 272 );
-  load_with_offset( ilist, er3, eds, 66500 );
-  load_with_offset( ilist, er4, eds, 70000 );
+  const int case_1   = case_1_b / sizeof( int );
+  const int case_2   = case_2_b / sizeof( int );
+  const int case_3   = case_3_b / sizeof( int );
+  const int case_4   = case_4_b / sizeof( int );
+
+  data[case_1] = 0xcafebabe;
+  data[case_2] = 0xcdcdcdcd;
+  data[case_3] = 0xdeadbeef;
+  data[case_4] = 0xabababab;
+
+  load_with_offset( ilist, er0, eds, case_1 );
+  load_with_offset( ilist, er1, eds, case_2 );
+  load_with_offset( ilist, er2, eds, case_3 );
+  load_with_offset( ilist, er3, eds, case_4 );
 
   Instruction i;
   i.i  = iexit;
@@ -46,12 +54,58 @@ TEST_FIXTURE( VirtualMachineFixture, load_with_offset )
   run_program( &cp );
 
   CHECK( ctx->r[er0] == 0xcafebabe );
-  CHECK( ctx->r[er1] == 0xdeadbeef );
-  CHECK( ctx->r[er2] == 0xcdcdcdcd );
+  CHECK( ctx->r[er1] == 0xcdcdcdcd );
+  CHECK( ctx->r[er2] == 0xdeadbeef );
   CHECK( ctx->r[er3] == 0xabababab );
-  CHECK( ctx->r[er4] == 0xfefefefe );
 }
 
+
+TEST_FIXTURE( VirtualMachineFixture, store_with_offset )
+{
+  InstList ilist;
+  ilist.reserve( 4096 );
+
+  const int case_1_b = 0x46;
+  const int case_2_b = 0xffff;
+  const int case_3_b = 0x103fb;
+  const int case_4_b = 0x10408;
+
+  const int case_1 = (case_1_b / sizeof( int )) - 1;
+  const int case_2 = (case_2_b / sizeof( int )) - 1;
+  const int case_3 = (case_3_b / sizeof( int )) - 1;
+  const int case_4 = (case_4_b / sizeof( int )) - 1;
+
+  data[case_1] = 0xcafebabe;
+  data[case_2] = 0xcdcdcdcd;
+  data[case_3] = 0xdeadbeef;
+  data[case_4] = 0xabababab;
+
+  load_with_offset( ilist, er0, eds, case_1 );
+  load_with_offset( ilist, er1, eds, case_2 );
+  load_with_offset( ilist, er2, eds, case_3 );
+  load_with_offset( ilist, er3, eds, case_4 );
+
+  store_with_offset( ilist, eds, er0, case_1 + 1 );
+  store_with_offset( ilist, eds, er1, case_2 + 1 );
+  store_with_offset( ilist, eds, er2, case_3 + 1 );
+  store_with_offset( ilist, eds, er3, case_4 + 1 );
+
+  Instruction i;
+  i.i  = iexit;
+  i.a1 = 0;
+  i.a2 = 0;
+  i.a3 = 0;
+  ilist.push_back( i );
+
+  memcpy( inst, &ilist[0], sizeof(cb::Instruction) * ilist.size() );
+
+  run_program( &cp );
+
+  CHECK( data[case_1+1] == 0xcafebabe );
+  CHECK( data[case_2+1] == 0xcdcdcdcd );
+  CHECK( data[case_3+1] == 0xdeadbeef );
+  CHECK( data[case_4+1] == 0xabababab );
+}
 
 
 

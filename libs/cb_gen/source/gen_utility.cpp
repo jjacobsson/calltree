@@ -82,7 +82,7 @@ void load_with_offset( InstList& il, uchar to, uchar from, uint index )
 {
   const uint suint = sizeof( uint );
   uint bo = index * suint;
-  if( index <= 0xff )
+  if( bo <= 0xff )
   {
     add( il, iload, to, from, (uchar)index );
   }
@@ -94,10 +94,10 @@ void load_with_offset( InstList& il, uchar to, uchar from, uint index )
   }
   else if( bo <= (0xffff + (suint*0xff)) )
   {
-    uint r = (bo - 0xffff) / suint;
-    add( il, isetl, to, 0xff, 0xff );
+    uint in = bo - (0xff * suint);
+    add( il, isetl, to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
     add( il, iadd,  to, to, from );
-    add( il, iload, to, to, (uchar)(r&0x000000ff) );
+    add( il, iload, to, to, 0xff );
   }
   else
   {
@@ -114,27 +114,31 @@ void store_with_offset( InstList& il, uchar to, uchar from, uint index )
   uint bo = index * suint;
   if( index <= 0xff )
   {
-    add( il, istore, to, from, (uchar)index );
+    add( il, istore, to, (uchar)index, from );
   }
   else if( bo <= 0xffff )
   {
-    add( il, isetl,  to, (uchar)((bo&0x0000ff00)>>8), (uchar)((bo&0x000000ff)) );
-    add( il, iadd,   to, to, from );
-    add( il, istore, to, to, 0 );
+    add( il, iinc,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
+    add( il, istore, to, 0, from );
+    add( il, idec,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
   }
   else if( bo <= (0xffff + (suint*0xff)) )
   {
-    uint r = (bo - 0xffff) / suint;
-    add( il, isetl,  to, 0xff, 0xff );
-    add( il, iadd,   to, to, from );
-    add( il, istore, to, to, (uchar)(r&0x000000ff) );
+    uint in = bo - (0xff * suint);
+    add( il, iinc,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
+    add( il, istore, to, 0xff, from );
+    add( il, idec,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
   }
   else
   {
-    add( il, iseth,  to, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
-    add( il, iorl,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
+    add( il, ipush,  to,   0, 0 );
+    add( il, ipush,  from, 0, 0 );
+    add( il, isetl,  from, (uchar)((bo&0x0000ff00)>>8),  (uchar)(bo&0x000000ff) );
+    add( il, iorh,   from, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
     add( il, iadd,   to, to, from );
-    add( il, istore, to, to, 0 );
+    add( il, ipop,   from, 0, 0 );
+    add( il, istore, to, 0, from );
+    add( il, ipop,   to, 0, 0 );
   }
 }
 

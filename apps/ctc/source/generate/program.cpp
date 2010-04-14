@@ -548,7 +548,7 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   //Generate instructions to store jump_to_exec in er2, respecting the size of jump_to_exec
   load_jump_target_index_to_register( f, er2, jump_to_exec );
   // Jump to r2 if r0 != r1
-  ADD( ijne, er0, er1, er2 );
+  ADD( ibrne, er0, er1, er2 );
   // Call the tree's construction function
   ADD( icall, (unsigned char)(tree_cons_func&0x00ff0000)>>16, (unsigned char)(tree_cons_func&0x0000ff00)>>8, (unsigned char)(tree_cons_func&0x000000ff) );
   // Set r0 to the current tree state (ACT_EXECUTE)

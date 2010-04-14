@@ -20,39 +20,39 @@ using namespace cb;
 
 const char* const g_InstNames[cb::inst_count] =
 {
-  "nop",          /* No-Op */
-  "call",         /* push "p+1 to sp and set "p to toc[a1] */
-  "ret",          /* pop sp to "p */
-  "ccall",        /* */
-  "dcall",        /* */
-  "jmp",          /* */
-  "jme",          /* */
-  "jne",          /* */
-  "mov",          /* */
-  "add",          /* */
-  "sub",          /* */
-  "mul",          /* */
-  "div",          /* */
-  "inc",          /* */
-  "dec",          /* */
-  "load",         /* */
-  "store",        /* */
-  "push",         /* */
-  "pop",          /* */
-  "shftl",        /* */
-  "shftr",        /* */
-  "and",          /* */
-  "or",           /* */
-  "xor",          /* */
-  "setl",         /* */
-  "seth",         /* */
-  "andl",         /* */
-  "andh",         /* */
-  "orl",          /* */
-  "orh",          /* */
-  "xorl",         /* */
-  "xorh",         /* */
-  "exit",         /* */
+  "nop",
+  "call",
+  "ret",
+  "ccall",
+  "dcall",
+  "br",
+  "bre",
+  "brne",
+  "mov",
+  "add",
+  "sub",
+  "mul",
+  "div",
+  "inc",
+  "dec",
+  "load",
+  "store",
+  "push",
+  "pop",
+  "shftl",
+  "shftr",
+  "and",
+  "or",
+  "xor",
+  "setl",
+  "seth",
+  "andl",
+  "andh",
+  "orl",
+  "orh",
+  "xorl",
+  "xorh",
+  "exit",
 };
 
 const char* const g_RegNames[cb::reg_count] =
@@ -110,11 +110,11 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
     break;
   case idcall:
     break;
-  case ijmp:
+  case ibr:
     opc += sprintf( op, "%s", g_RegNames[inst.a1] );
     break;
-  case ijme:
-  case ijne:
+  case ibre:
+  case ibrne:
     opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
   case imov:
