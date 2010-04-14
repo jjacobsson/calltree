@@ -380,7 +380,7 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
-		Includes $(_i) : config$(SLASH)Jamrules ;
+		#Includes $(_i) : [ FDirName config Jamrules ] ;
 
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
@@ -626,7 +626,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
+			#Includes [ FDirName config Jamrules ] : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -650,7 +650,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_app_file) ;
+			#Includes [ FDirName config Jamrules ] : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;

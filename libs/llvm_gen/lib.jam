@@ -1,0 +1,13 @@
+if $(_pass) = Declarations
+{
+	SetSearchPaths $(_libname) : $(_libpath) include ;
+    SetSourceFiles $(_libname) : [ RecursiveDirList $(_libpath) source : *.cpp ] ;
+    AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
+    AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
+    
+    SetExtDependantOf $(_libname) : llvm ;
+}
+else if $(_pass) = Dependencies
+{
+	SetDependantOf $(_libname) : btree callback other ;
+}

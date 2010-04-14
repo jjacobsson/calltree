@@ -7,8 +7,7 @@ AddFilesToTag $(_source_files) ;
 AddFilesToTag [ RecursiveDirList $(_apppath) source : *.h ] ;
 
 SetSourceFiles $(_appname) : $(_source_files) ;
-
-
+SetExtDependantOf $(_appname) : llvm ;
 
 
 
