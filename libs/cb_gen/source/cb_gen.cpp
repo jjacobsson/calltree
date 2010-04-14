@@ -84,7 +84,7 @@ void generate( Function* f )
   f->m_I.reserve( 1024 );
 
   uchar r_arg0    = er0;
-  uchar r_br_cmp  = alloc_register( f, 0 );
+  uchar r_br_comp = alloc_register( f, 0 );
   uchar r_br_node = alloc_register( f, 0 );
   uchar r_br_exit = alloc_register( f, 0 );
   uchar r_rr_comp = alloc_register( f, 0 );
@@ -96,26 +96,26 @@ void generate( Function* f )
   add( f, imov, r_ms, ems, 0 );
   add( f, iinc, ems, 0x00, 0x04 );
 
-  //Load r_br_cmp with ACT_CONSTRUCT
-  set_registry( f->m_I, r_br_cmp, ACT_CONSTRUCT );
+  //Load r_br_comp with ACT_CONSTRUCT
+  set_registry( f->m_I, r_br_comp, ACT_CONSTRUCT );
   //Load r_br_node with the jump target for the execution code
   load_with_offset( f->m_I, r_br_node, ejt, jt_con );
   //Jump to construction if r_arg0 is ACT_CONSTRUCT
-  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
+  add( f, ibre, r_br_node, r_arg0, r_br_comp );
 
-  //Load r_br_cmp with ACT_EXECUTE
-  set_registry( f->m_I, r_br_cmp, ACT_EXECUTE );
+  //Load r_br_comp with ACT_EXECUTE
+  set_registry( f->m_I, r_br_comp, ACT_EXECUTE );
   //Load r_br_node with the jump target for the execution code
   load_with_offset( f->m_I, r_br_node, ejt, jt_exe );
   //Jump to execution if r_arg0 is ACT_EXECUTE
-  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
+  add( f, ibre, r_br_node, r_arg0, r_br_comp );
 
-  //Load r_br_cmp with ACT_DESTRUCT
-  set_registry( f->m_I, r_br_cmp, ACT_DESTRUCT );
+  //Load r_br_comp with ACT_DESTRUCT
+  set_registry( f->m_I, r_br_comp, ACT_DESTRUCT );
   //Load r_br_node with the jump target for the destruction code
   load_with_offset( f->m_I, r_br_node, ejt, jt_des );
   //Jump to destruction if r_arg0 is ACT_DESTRUCT
-  add( f, ibre, r_br_node, r_arg0, r_br_cmp );
+  add( f, ibre, r_br_node, r_arg0, r_br_comp );
 
   //Load r_br_node with exit label
   load_with_offset( f->m_I, r_br_node, ejt, jt_exi );
@@ -132,7 +132,7 @@ void generate( Function* f )
   //Set r_br_node to "uninitialized"
   set_registry( f->m_I, r_br_node, 0xffffffff );
   //"clear" entry point memory
-  store_with_offset( f->m_I, r_ms, r_br_node, 0 );
+  store_with_offset( f->m_I, r_ms, 0, r_br_node );
   //Get the exit jump
   load_with_offset( f->m_I, er1, ejt, jt_exi );
   //Jump out
@@ -147,30 +147,30 @@ void generate( Function* f )
   set_registry( f->m_I, r_rr_comp, E_NODE_SUCCESS );
   //Load jump target from memory
   load_with_offset( f->m_I, r_ms, r_br_node, 0 );
-  //Set r_br_cmp to "uninitialized"
-  set_registry( f->m_I, r_br_cmp, 0xffffffff );
+  //Set r_br_comp to "uninitialized"
+  set_registry( f->m_I, r_br_comp, 0xffffffff );
   //Jump to the remembered node if it is initialized
-  add( f, ibrne, r_br_node, r_br_node, r_br_cmp );
+  add( f, ibrne, r_br_node, r_br_node, r_br_comp );
 
   Node* n = f->m_T->m_Root;
   while( n )
   {
     //Generate construction code for the node
-    gen_node_con( f, n );
+    gen_node_con( f, n, 1 );
     //Get a jump target for node entry
     uint jt = jump_target( f->m_P, f );
     //Set er1 to jump target
     set_registry( f->m_I, r_br_node, jt );
-    //Store er1 in memory for re-entry
-    store_with_offset( f->m_I, r_ms, r_br_node, 0 );
+    //Store r_ms in memory for re-entry
+    store_with_offset( f->m_I, r_ms, 0, r_br_node );
     //Set the offset for the jump target
     set_offset( f->m_P, jt, f->m_I.size() );
     //Generate the node's execution code
-    gen_node_exe( f, n );
+    gen_node_exe( f, n, 1 );
     //Jump out of the function if "working" or "fail"
     add( f, ibrne, r_br_exit, err, r_rr_comp );
     //Destroy the child node
-    gen_node_des( f, n );
+    gen_node_des( f, n, 1 );
     //And advance to the next node
     n = n->m_Next;
   }
@@ -184,7 +184,7 @@ void generate( Function* f )
   //Set r_br_node to "uninitialized"
   set_registry( f->m_I, r_br_node, 0xffffffff );
   //"clear" entry point memory
-  store_with_offset( f->m_I, r_ms, r_br_node, 0 );
+  store_with_offset( f->m_I, r_ms, 0, r_br_node );
 
   //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
@@ -192,11 +192,11 @@ void generate( Function* f )
   //Set the offset for the "exit" jump
   set_offset( f->m_P, jt_exi, f->m_I.size() );
   //Free all registers
-  free_register( f, r_br_cmp  );
-  free_register( f, r_br_node );
-  free_register( f, r_br_exit );
-  free_register( f, r_rr_comp );
   free_register( f, r_ms );
+  free_register( f, r_rr_comp );
+  free_register( f, r_br_exit );
+  free_register( f, r_br_node );
+  free_register( f, r_br_comp );
   //Restore the ms register
   add( f, imov, ems, r_ms, 0 );
   //Return
@@ -261,7 +261,7 @@ void generate( BehaviorTreeContext ctx, Program* p )
   //Set er0 to ACT_EXECUTE
   set_registry( p->m_I, er0, ACT_EXECUTE );
   //Store er0 (ACT_EXECUTE) in the state memory
-  store_with_offset( p->m_I, er0, ems, 0 );
+  store_with_offset( p->m_I, er0, 0, ems );
 
   //Call the "main" tree's function
   dressed_call( p->m_I, er20, mef, 4 );
@@ -281,7 +281,7 @@ void generate( BehaviorTreeContext ctx, Program* p )
   //Setup er0 to ACT_CONSTRUCT
   set_registry( p->m_I, er0, ACT_CONSTRUCT );
   //Store er0 in state memory
-  store_with_offset( p->m_I, er0, ems, 0 );
+  store_with_offset( p->m_I, er0, 0, ems );
 
   //Set the jtex offset
   set_offset( p, jtex, p->m_I.size() );

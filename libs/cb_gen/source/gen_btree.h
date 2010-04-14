@@ -18,9 +18,9 @@ namespace cb_gen {
 
 void create_functions( BehaviorTreeContext, Program* );
 
-void gen_node_con( Function*, Node* );
-void gen_node_exe( Function*, Node* );
-void gen_node_des( Function*, Node* );
+void gen_node_con( Function*, Node*, uint );
+void gen_node_exe( Function*, Node*, uint );
+void gen_node_des( Function*, Node*, uint );
 
 int memory_needed( BehaviorTree* );
 int memory_needed( Node* );

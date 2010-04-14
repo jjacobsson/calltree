@@ -85,10 +85,10 @@ TEST_FIXTURE( VirtualMachineFixture, store_with_offset )
   load_with_offset( ilist, er2, eds, case_3 );
   load_with_offset( ilist, er3, eds, case_4 );
 
-  store_with_offset( ilist, eds, er0, case_1 + 1 );
-  store_with_offset( ilist, eds, er1, case_2 + 1 );
-  store_with_offset( ilist, eds, er2, case_3 + 1 );
-  store_with_offset( ilist, eds, er3, case_4 + 1 );
+  store_with_offset( ilist, eds, case_1 + 1, er0 );
+  store_with_offset( ilist, eds, case_2 + 1, er1 );
+  store_with_offset( ilist, eds, case_3 + 1, er2 );
+  store_with_offset( ilist, eds, case_4 + 1, er3 );
 
   Instruction i;
   i.i  = iexit;

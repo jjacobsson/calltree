@@ -55,7 +55,17 @@ uchar alloc_register( Function* f, uint prio )
 
 void free_register( Function* f, uchar r )
 {
+  if( f->m_Reg[r].m_Stack > 0 )
+  {
+    add( f, ipop, r, 0, 0 );
+    f->m_Reg[r].m_Stack--;
+  }
 
+  if( !f->m_Reg[r].m_Prio.empty() )
+    f->m_Reg[r].m_Prio.pop_back();
+
+  if( f->m_Reg[r].m_Prio.empty() )
+    f->m_Reg[r].m_InUse = false;
 }
 
 inline void add( InstList& il, uchar i, uchar a1, uchar a2, uchar a3 )
@@ -108,7 +118,7 @@ void load_with_offset( InstList& il, uchar to, uchar from, uint index )
   }
 }
 
-void store_with_offset( InstList& il, uchar to, uchar from, uint index )
+void store_with_offset( InstList& il, uchar to, uint index, uchar from )
 {
   const uint suint = sizeof( uint );
   uint bo = index * suint;

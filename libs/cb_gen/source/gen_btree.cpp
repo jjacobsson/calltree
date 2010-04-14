@@ -13,6 +13,11 @@
 
 namespace cb_gen {
 
+int sequence_memory_needed( Node* n );
+void gen_sequence_con( Function*, Node*, uint );
+void gen_sequence_exe( Function*, Node*, uint );
+void gen_sequence_des( Function*, Node*, uint );
+
 void create_functions( Node* n, Program* p );
 void create_functions( BehaviorTree* t, Program* p );
 
@@ -71,36 +76,35 @@ void create_functions( BehaviorTreeContext ctx, Program* p )
   create_functions( ns->m_Symbol.m_Tree, p );
 }
 
-void gen_node_con( Function* f, Node* n )
+void gen_node_con( Function* f, Node* n, uint prio )
 {
-
-}
-void gen_node_exe( Function*, Node* )
-{
-
-}
-void gen_node_des( Function*, Node* )
-{
-
-}
-
-int sequence_memory_needed( Node* n )
-{
-  Node* c = get_first_child( n );
-  if( !c )
-    return 0;
-
-  int mem = sizeof( unsigned int ) * 2;
-  int max = 0;
-  while( c )
+  switch( n->m_Grist.m_Type )
   {
-    int t = memory_needed( c );
-    if( t > max )
-      max = t;
-    c = c->m_Next;
+  case E_GRIST_SEQUENCE:
+    gen_sequence_con( f, n, prio );
+    break;
   }
-  return mem + max;
 }
+void gen_node_exe( Function* f, Node* n, uint prio )
+{
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+    gen_sequence_exe( f, n, prio );
+    break;
+  }
+}
+void gen_node_des( Function* f, Node* n, uint prio )
+{
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+    gen_sequence_des( f, n, prio );
+    break;
+  }
+}
+
+
 
 int selector_memory_needed( Node* n )
 {

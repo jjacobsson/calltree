@@ -24,7 +24,7 @@ void add( Function* f, uchar i, uchar a1, uchar a2, uchar a3 );
 
 void load_with_offset( InstList& i, uchar to, uchar from, uint o );
 
-void store_with_offset( InstList& i, uchar to, uchar from, uint o );
+void store_with_offset( InstList& i, uchar to, uint o, uchar from );
 
 void set_registry( InstList& i, uchar reg, uint value );
 
