@@ -118,6 +118,7 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
     opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
   case imov:
+    opc += sprintf( op, "%s,%s", g_RegNames[inst.a1], g_RegNames[inst.a2] );
     break;
   case iadd:
   case isub:

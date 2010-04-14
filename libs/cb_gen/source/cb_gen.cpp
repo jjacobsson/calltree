@@ -87,9 +87,14 @@ void generate( Function* f )
   uchar r_br_cmp  = alloc_register( f, 0 );
   uchar r_br_node = alloc_register( f, 0 );
   uchar r_br_exit = alloc_register( f, 0 );
+  uchar r_rr_comp = alloc_register( f, 0 );
+  uchar r_ms      = alloc_register( f, 0 );
 
   //Load r_br_exit with the exit function jump target
   load_with_offset( f->m_I, r_br_exit, ejt, jt_exi );
+
+  add( f, imov, r_ms, ems, 0 );
+  add( f, iinc, ems, 0x00, 0x04 );
 
   //Load r_br_cmp with ACT_CONSTRUCT
   set_registry( f->m_I, r_br_cmp, ACT_CONSTRUCT );
@@ -127,7 +132,7 @@ void generate( Function* f )
   //Set r_br_node to "uninitialized"
   set_registry( f->m_I, r_br_node, 0xffffffff );
   //"clear" entry point memory
-  store_with_offset( f->m_I, ems, r_br_node, 0 );
+  store_with_offset( f->m_I, r_ms, r_br_node, 0 );
   //Get the exit jump
   load_with_offset( f->m_I, er1, ejt, jt_exi );
   //Jump out
@@ -138,13 +143,14 @@ void generate( Function* f )
   // *** Execute Block *** //
   //Set the offset for the "exe" jump
   set_offset( f->m_P, jt_exe, f->m_I.size() );
-
+  //Set comparison registry to "success"
+  set_registry( f->m_I, r_rr_comp, E_NODE_SUCCESS );
   //Load jump target from memory
-  load_with_offset( f->m_I, ems, er2, 0 );
-  //Set er1 to "uninitialized"
-  set_registry( f->m_I, er1, 0xffffffff );
+  load_with_offset( f->m_I, r_ms, r_br_node, 0 );
+  //Set r_br_cmp to "uninitialized"
+  set_registry( f->m_I, r_br_cmp, 0xffffffff );
   //Jump to the remembered node if it is initialized
-  add( f, ibrne, er2, er2, er1 );
+  add( f, ibrne, r_br_node, r_br_node, r_br_cmp );
 
   Node* n = f->m_T->m_Root;
   while( n )
@@ -154,15 +160,18 @@ void generate( Function* f )
     //Get a jump target for node entry
     uint jt = jump_target( f->m_P, f );
     //Set er1 to jump target
-    set_registry( f->m_I, er1, jt );
+    set_registry( f->m_I, r_br_node, jt );
     //Store er1 in memory for re-entry
-    store_with_offset( f->m_I, ems, er1, 0 );
+    store_with_offset( f->m_I, r_ms, r_br_node, 0 );
     //Set the offset for the jump target
     set_offset( f->m_P, jt, f->m_I.size() );
     //Generate the node's execution code
     gen_node_exe( f, n );
     //Jump out of the function if "working" or "fail"
+    add( f, ibrne, r_br_exit, err, r_rr_comp );
+    //Destroy the child node
     gen_node_des( f, n );
+    //And advance to the next node
     n = n->m_Next;
   }
 
@@ -170,14 +179,26 @@ void generate( Function* f )
   add( f, inop, 0, 0, 0 );
 
   // *** Destruct Block *** //
-  //Set the offset for the "exe" jump
+  //Set the offset for the "des" jump
   set_offset( f->m_P, jt_des, f->m_I.size() );
+  //Set r_br_node to "uninitialized"
+  set_registry( f->m_I, r_br_node, 0xffffffff );
+  //"clear" entry point memory
+  store_with_offset( f->m_I, r_ms, r_br_node, 0 );
 
   //Only here to "break" the asm so it's more clear
   add( f, inop, 0, 0, 0 );
 
   //Set the offset for the "exit" jump
   set_offset( f->m_P, jt_exi, f->m_I.size() );
+  //Free all registers
+  free_register( f, r_br_cmp  );
+  free_register( f, r_br_node );
+  free_register( f, r_br_exit );
+  free_register( f, r_rr_comp );
+  free_register( f, r_ms );
+  //Restore the ms register
+  add( f, imov, ems, r_ms, 0 );
   //Return
   add( f, iret, 0, 0, 0 );
 }

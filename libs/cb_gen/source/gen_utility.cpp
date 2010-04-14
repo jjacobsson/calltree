@@ -133,8 +133,8 @@ void store_with_offset( InstList& il, uchar to, uchar from, uint index )
   {
     add( il, ipush,  to,   0, 0 );
     add( il, ipush,  from, 0, 0 );
-    add( il, isetl,  from, (uchar)((bo&0x0000ff00)>>8),  (uchar)(bo&0x000000ff) );
-    add( il, iorh,   from, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
+    add( il, iseth,  from, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
+    add( il, iorl,   from, (uchar)((bo&0x0000ff00)>>8),  (uchar)(bo&0x000000ff) );
     add( il, iadd,   to, to, from );
     add( il, ipop,   from, 0, 0 );
     add( il, istore, to, 0, from );
