@@ -26,7 +26,6 @@ extern "C" void LLVMInitializeCallbackTarget() {
 
 }
 
-
 CallbackTargetMachine::CallbackTargetMachine(const Target &t, const std::string &tt,
   const std::string &fs )
   : LLVMTargetMachine( t, tt )
