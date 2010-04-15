@@ -15,7 +15,7 @@
 
 #include <btree/btree.h>
 #include <cb_gen/cb_gen.h>
-
+#include <llvm_gen/llvm_gen.h>
 
 FILE* g_outputFile = 0x0;
 char* g_inputFileName = 0x0;
@@ -272,34 +272,40 @@ int main( int argc, char** argv )
       cb_gen::init( &p );
       cb_gen::generate( btc, &p );
 
-        if( !g_asmFileName )
-        {
-          unsigned int hash = hashlittle( "force_asm" );
-          Parameter* force_asm = find_by_hash( get_options( btc ), hash );
-          if( force_asm && as_bool( *force_asm ) )
-          {
-            unsigned int len = strlen( g_outputFileName );
-            g_asmFileNameMemory = (char*)malloc( len + 5 );
-            memcpy( g_asmFileNameMemory, g_outputFileName, len );
-            g_asmFileNameMemory[len+0] = '.';
-            g_asmFileNameMemory[len+1] = 'a';
-            g_asmFileNameMemory[len+2] = 's';
-            g_asmFileNameMemory[len+3] = 'm';
-            g_asmFileNameMemory[len+4] = 0;
-            g_asmFileName = g_asmFileNameMemory;
-          }
-        }
+      {
+        llvm_gen::Program lp;
+        llvm_gen::init( &lp );
+        llvm_gen::generate( btc, &lp );
+      }
 
-        if( returnCode == 0 && g_asmFileName )
+      if( !g_asmFileName )
+      {
+        unsigned int hash = hashlittle( "force_asm" );
+        Parameter* force_asm = find_by_hash( get_options( btc ), hash );
+        if( force_asm && as_bool( *force_asm ) )
         {
+          unsigned int len = strlen( g_outputFileName );
+          g_asmFileNameMemory = (char*)malloc( len + 5 );
+          memcpy( g_asmFileNameMemory, g_outputFileName, len );
+          g_asmFileNameMemory[len + 0] = '.';
+          g_asmFileNameMemory[len + 1] = 'a';
+          g_asmFileNameMemory[len + 2] = 's';
+          g_asmFileNameMemory[len + 3] = 'm';
+          g_asmFileNameMemory[len + 4] = 0;
+          g_asmFileName = g_asmFileNameMemory;
+        }
+      }
+
+      if( returnCode == 0 && g_asmFileName )
+      {
         g_asmFile = fopen( g_asmFileName, "w" );
         if( !g_asmFile )
-          {
-            printf( "warning: Unable to open assembly file %s for writing.\n",
-              g_asmFileName );
-          }
-          else
-          {
+        {
+          printf( "warning: Unable to open assembly file %s for writing.\n",
+            g_asmFileName );
+        }
+        else
+        {
           cb_gen::print_asm( &asm_file_print, &p );
           fclose( g_asmFile );
         }
