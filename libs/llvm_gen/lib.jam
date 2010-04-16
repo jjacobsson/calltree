@@ -5,6 +5,9 @@ if $(_pass) = Declarations
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
     AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
     
+    TableGen banan.keps : [ FDirName $(_libpath) source backend Callback.td ] ;
+    Depends $(_libname) : banan.keps ;
+    
     SetExtDependantOf $(_libname) : llvm ;
 }
 else if $(_pass) = Dependencies

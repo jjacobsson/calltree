@@ -42,15 +42,19 @@ if $(QT_PATH)
 
 }
 
-llvm_ext_link_search_paths = [ FDirName "c:" llvm-2.6 Release lib ] ;
-llvm_ext_include_search_paths = [ FDirName "c:" llvm-2.6 include ] ;
+llvm_base_path = [ FDirName "c:" llvm-2.6 ] ;
+llvm_bin_path  = [ FDirName $(llvm_base_path) Release bin ] ;
+llvm_ext_link_search_paths    = [ FDirName $(llvm_base_path) Release lib ] ;
+llvm_ext_include_search_paths = [ FDirName $(llvm_base_path) include ] ;
+
+LLVM_TBLGEN = [ FDirName $(llvm_bin_path) tblgen$(SUFEXE) ] ;
 
 llvm_ext_defines = ;
 llvm_ext_defines += _GNU_SOURCE ;
 llvm_ext_defines += __STDC_LIMIT_MACROS ;
 llvm_ext_defines += __STDC_CONSTANT_MACROS ;
 
-llvm_ext_library_files= ;
+llvm_ext_library_files = ;
 llvm_ext_library_files += LLVMCore ;
 llvm_ext_library_files += LLVMSupport ;
 llvm_ext_library_files += LLVMSystem ;
@@ -58,4 +62,14 @@ llvm_ext_library_files += ffi ;
 llvm_ext_library_files += psapi ;
 llvm_ext_library_files += imagehlp ;
 llvm_ext_library_files += m ;
-
+ 
+rule TableGen
+{
+	Depends $(1) : $(2) ;
+	Clean clean : $(1) ;
+}
+ 
+actions TableGen
+{
+	$(LLVM_TBLGEN) -I=$(llvm_ext_include_search_paths) -I=$(2:P) -o=$(1) $(2)
+}
