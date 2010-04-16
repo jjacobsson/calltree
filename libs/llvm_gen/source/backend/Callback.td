@@ -12,8 +12,9 @@
 
 include "llvm/Target/Target.td"
 
-let Namespace = "llvm_gen" in {
-
 include "CallbackRegisterInfo.td"
 
+def Callback : Target {
+
 }
+
