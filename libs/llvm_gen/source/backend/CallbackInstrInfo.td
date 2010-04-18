@@ -1,5 +1,5 @@
 //*******************************************************************************
-// * Copyright (c) 2010-04-16 Joacim Jacobsson.
+// * Copyright (c) 2010-04-18 Joacim Jacobsson.
 // * All rights reserved. This program and the accompanying materials
 // * are made available under the terms of the Eclipse Public License v1.0
 // * which accompanies this distribution, and is available at
@@ -9,17 +9,7 @@
 // *    Joacim Jacobsson - first implementation
 // *******************************************************************************/
 
+include "CallbackInstrFormats.td"
 
-include "llvm/Target/Target.td"
-
-include "CallbackRegisterInfo.td"
-include "CallbackInstrInfo.td"
-
-def CallbackInstrInfo : InstrInfo {
-}
-
-def Callback : Target {
-  // Pull in Instruction Info:
-  let InstructionSet = CallbackInstrInfo;
-}
-
+def nop : CbInst<"nop">;
+def addi : CbInst<"addi">;

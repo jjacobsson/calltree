@@ -1,5 +1,5 @@
 //*******************************************************************************
-// * Copyright (c) 2010-04-16 Joacim Jacobsson.
+// * Copyright (c) 2010-04-18 Joacim Jacobsson.
 // * All rights reserved. This program and the accompanying materials
 // * are made available under the terms of the Eclipse Public License v1.0
 // * which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // *    Joacim Jacobsson - first implementation
 // *******************************************************************************/
 
-
-include "llvm/Target/Target.td"
-
-include "CallbackRegisterInfo.td"
-include "CallbackInstrInfo.td"
-
-def CallbackInstrInfo : InstrInfo {
+class CbInst<string asmStr> : Instruction {
+  let AsmString = asmStr;
+  let Namespace = "CB";
+  field bits<32> Inst;
+  bits<8> Op;
+  bits<8> A1;
+  bits<8> A2;
+  bits<8> A3;
+  
+  let Inst{31-24} = Op;
+  let Inst{23-16} = A1;
+  let Inst{15-8} = A2;
+  let Inst{7-0} = A3;
 }
-
-def Callback : Target {
-  // Pull in Instruction Info:
-  let InstructionSet = CallbackInstrInfo;
-}
-

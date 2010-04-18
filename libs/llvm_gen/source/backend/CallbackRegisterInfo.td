@@ -10,9 +10,9 @@
 // *******************************************************************************/
 
 class Reg<bits<8> num, string n> : Register<n> {
-  let Namespace = "llvm_gen";
   field bits<8> Num;
   let Num = num;
+  let Namespace = "CB";
 }
 
 def r0  : Reg<  0, "r0">,  DwarfRegNum<[0]>;
@@ -48,7 +48,7 @@ def ms  : Reg< 29, "ms">,  DwarfRegNum<[29]>;
 def ft  : Reg< 30, "ft">,  DwarfRegNum<[30]>;
 def jt  : Reg< 31, "jt">,  DwarfRegNum<[31]>;
 
-def RegClass : RegisterClass<"llvm_gen", [i32], 32, 
+def CbRegs : RegisterClass<"CB", [i32], 32, 
     [ r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, r20, r21,
       rr, fc, ic, ip, sp, fs, ds, ms, ft, jt ]> {
   let MethodProtos = [{

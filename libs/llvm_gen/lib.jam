@@ -1,13 +1,14 @@
 if $(_pass) = Declarations
 {
+	local _source = [ RecursiveDirList $(_libpath) source : *.cpp ] ;
 	SetSearchPaths $(_libname) : $(_libpath) include ;
-    SetSourceFiles $(_libname) : [ RecursiveDirList $(_libpath) source : *.cpp ] ;
+    SetSourceFiles $(_libname) : $(_source) ;
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
     AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
     
     local _cb_tdh = [ TableGen [ FDirName $(_libpath) source backend Callback.td ] ] ;
-    
-    Depends $(_libname) : $(_cb_tdh) ;
+
+    Includes $(_source) : $(_cb_tdh) ;
     
     SetExtDependantOf $(_libname) : llvm ;
 }
