@@ -9,17 +9,15 @@
 // *    Joacim Jacobsson - first implementation
 // *******************************************************************************/
 
-class CbInst<string asmStr> : Instruction {
+class CbInst<string asmStr, dag outs, dag ins> : Instruction {
   let AsmString = asmStr;
   let Namespace = "CB";
+  
+  dag OutOperandList = outs;
+  dag InOperandList = ins;
+  
   field bits<32> Inst;
   bits<8> Op;
-  bits<8> A1;
-  bits<8> A2;
-  bits<8> A3;
   
   let Inst{31-24} = Op;
-  let Inst{23-16} = A1;
-  let Inst{15-8} = A2;
-  let Inst{7-0} = A3;
 }

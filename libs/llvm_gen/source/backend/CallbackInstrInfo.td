@@ -11,5 +11,5 @@
 
 include "CallbackInstrFormats.td"
 
-def nop : CbInst<"nop">;
-def addi : CbInst<"addi">;
+def nop : CbInst<"nop", (outs CbRegs:$dst), (ins CbRegs:$src) >;
+def addi : CbInst<"addi", (outs CbRegs:$dst), (ins CbRegs:$src) >;
