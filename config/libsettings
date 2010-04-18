@@ -65,11 +65,43 @@ llvm_ext_library_files += m ;
  
 rule TableGen
 {
-	Depends $(1) : $(2) ;
-	Clean clean : $(1) ;
+	local _ret = ;
+	local _t = ;
+	local _f = ;
+	local _p = $(1:B) ;
+	_p = [ FDirName $(1:P) $(_p) ] ;
+
+	_t += RegisterNames.h.inc ;
+	_t += RegisterInfo.h.inc ;
+	#_t += RegisterInfo.inc ;
+	_t += InstrNames.inc ;
+	_t += InstrInfo.inc ;
+	
+	_f += -gen-register-enums ;
+	_f += -gen-register-desc-header ;
+	_f += -gen-register-desc ;
+	_f += -gen-instr-enums ;
+	_f += -gen-instr-desc ;
+	
+	for _i in $(_t) 
+	{
+		local _full = $(_p)$(_i) ;
+		_ret += $(_full) ;
+	}
+	
+	#-gen-register-enums
+	
+	TBLGEN_FLAGS on $(_ret) : $(_f) ;
+	
+	Depends $(_ret) : $(1) ;
+	tblgen $(_ret) : $(1) ;
+	
+	Clean clean : $(_ret) ;
+	return $(_ret) ;
 }
  
-actions TableGen
+actions tblgen
 {
-	$(LLVM_TBLGEN) -I=$(llvm_ext_include_search_paths) -I=$(2:P) -o=$(1) $(2)
+	echo $(TBLGEN_FLAGS) ;
+	$(LLVM_TBLGEN) -I=$(llvm_ext_include_search_paths) -I=$(2:P) $(TBLGEN_FLAGS) -o=$(1) $(2)
 }

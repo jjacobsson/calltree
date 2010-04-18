@@ -5,9 +5,8 @@ if $(_pass) = Declarations
     AddFilesToTag [ RecursiveDirList $(_libpath) source : *.cpp *.h ] ;    
     AddFilesToTag [ RecursiveDirList $(_libpath) include : *.h ] ;
     
-    local _cb_tdh = [ FDirName $(_libpath) source backend CallbackTarget.gen.h ] ;
+    local _cb_tdh = [ TableGen [ FDirName $(_libpath) source backend Callback.td ] ] ;
     
-    TableGen $(_cb_tdh) : [ FDirName $(_libpath) source backend Callback.td ] ;
     Depends $(_libname) : $(_cb_tdh) ;
     
     SetExtDependantOf $(_libname) : llvm ;

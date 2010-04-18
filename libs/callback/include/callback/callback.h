@@ -38,13 +38,13 @@ enum NodeReturns
 enum InstructionSet
 {
   inop,          /* No-Op */
-  icall,         /* push ip+1 to sp and set ip to toc[a1] */
-  iret,          /* pop sp to ip */
+  icall,         /* */
+  iret,          /* */
   iccall,        /* */
   idcall,        /* */
-  ibr,          /* */
+  ibr,           /* */
   ibre,          /* */
-  ibrne,          /* */
+  ibrne,         /* */
   imov,          /* */
   iadd,          /* */
   isub,          /* */

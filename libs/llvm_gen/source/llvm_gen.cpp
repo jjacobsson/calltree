@@ -67,9 +67,9 @@ void generate( BehaviorTreeContext btc, Program* p )
 
   builder.CreateRet(tmp2);
 
-  PassManager PM;
-  PM.add(createPrintModulePass(&outs()));
-  PM.run(*mod);
+  //PassManager PM;
+  //PM.add(createPrintModulePass(&outs()));
+  //PM.run(*mod);
 }
 
 }
