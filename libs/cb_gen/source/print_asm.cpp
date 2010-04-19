@@ -33,8 +33,10 @@ const char* const g_InstNames[cb::inst_count] =
   "sub",
   "mul",
   "div",
-  "inc",
-  "dec",
+  "addi",
+  "subi",
+  "muli",
+  "divi",
   "load",
   "store",
   "push",
@@ -126,22 +128,22 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case idiv:
     opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
-  case iinc:
-  case idec:
+  case iaddi:
+  case isubi:
     opc += sprintf( op, "%s,0x%04x", g_RegNames[inst.a1], (((uint)(inst.a2))<<8) | inst.a3 );
     break;
-  case iload:
+  case ild:
     opc += sprintf( op, "%s,%s(0x%04x)", g_RegNames[inst.a1],g_RegNames[inst.a2], sizeof(unsigned int)*inst.a3 );
     break;
-  case istore:
+  case ist:
     opc += sprintf( op, "%s(0x%04x),%s", g_RegNames[inst.a1], sizeof(unsigned int)*inst.a2, g_RegNames[inst.a3] );
     break;
   case ipush:
   case ipop:
     opc += sprintf( op, "%s", g_RegNames[inst.a1] );
     break;
-  case ishftl:
-  case ishftr:
+  case ishli:
+  case ishri:
     opc += sprintf( op, "%s,%s(0x%02x)", g_RegNames[inst.a1],g_RegNames[inst.a2], inst.a3 );
     break;
   case iand:
@@ -149,8 +151,8 @@ int print_inst( char* buff, cb::Instruction inst, uint line )
   case ixor:
     opc += sprintf( op, "%s,%s,%s", g_RegNames[inst.a1],g_RegNames[inst.a2], g_RegNames[inst.a3] );
     break;
-  case isetl:
-  case iseth:
+  case islszi:
+  case ishszi:
   case iandl:
   case iandh:
   case iorl:

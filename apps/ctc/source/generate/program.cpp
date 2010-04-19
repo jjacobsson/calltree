@@ -486,20 +486,20 @@ void load_jump_target_index_to_register( Function* f, unsigned char reg, unsigne
 {
   if( jt <= 0xff )
   {
-    ADD( iload, reg, ejt, (unsigned char)jt );
+    ADD( ild, reg, ejt, (unsigned char)jt );
   }
   else if( jt <= 0xffff )
   {
-    ADD( isetl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
+    ADD( islszi, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
     ADD( iadd, reg, reg, ejt );
-    ADD( iload, reg, reg, 0 );
+    ADD( ild, reg, reg, 0 );
   }
   else
   {
-    ADD( iseth, reg, (unsigned char)(jt&0xff000000)>>24, (unsigned char)(jt&0x00ff0000)>>16 );
+    ADD( ishszi, reg, (unsigned char)(jt&0xff000000)>>24, (unsigned char)(jt&0x00ff0000)>>16 );
     ADD( iorl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
     ADD( iadd, reg, reg, ejt );
-    ADD( iload, reg, reg, 0 );
+    ADD( ild, reg, reg, 0 );
   }
 }
 
@@ -542,9 +542,9 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   unsigned int jump_to_exit = p->m_Jumps.add( f );
 
   // Set r0 to ACT_CONSTRUCT
-  ADD( isetl, er0, 0, ACT_CONSTRUCT );
+  ADD( islszi, er0, 0, ACT_CONSTRUCT );
   // Load the current tree state from memory into r1
-  ADD( iload, er1, ems, 0 );
+  ADD( ild, er1, ems, 0 );
   //Generate instructions to store jump_to_exec in er2, respecting the size of jump_to_exec
   load_jump_target_index_to_register( f, er2, jump_to_exec );
   // Jump to r2 if r0 != r1
@@ -552,9 +552,9 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   // Call the tree's construction function
   ADD( icall, (unsigned char)(tree_cons_func&0x00ff0000)>>16, (unsigned char)(tree_cons_func&0x0000ff00)>>8, (unsigned char)(tree_cons_func&0x000000ff) );
   // Set r0 to the current tree state (ACT_EXECUTE)
-  ADD( isetl, er0, 0, ACT_EXECUTE );
+  ADD( islszi, er0, 0, ACT_EXECUTE );
   // Store the state in memory
-  ADD( istore, ems, 0, er0 );
+  ADD( ist, ems, 0, er0 );
 
   p->m_Jumps.set_jump_target( jump_to_exec, f->size() );
 

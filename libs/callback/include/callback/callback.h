@@ -50,19 +50,21 @@ enum InstructionSet
   isub,          /* */
   imul,          /* */
   idiv,          /* */
-  iinc,          /* */
-  idec,          /* */
-  iload,         /* */
-  istore,        /* */
+  iaddi,         /* */
+  isubi,         /* */
+  imuli,         /* */
+  idivi,         /* */
+  ild,           /* */
+  ist,           /* */
   ipush,         /* */
   ipop,          /* */
-  ishftl,        /* */
-  ishftr,        /* */
+  ishli,         /* */
+  ishri,         /* */
   iand,          /* */
   ior,           /* */
   ixor,          /* */
-  isetl,         /* */
-  iseth,         /* */
+  islszi,        /* */
+  ishszi,         /* */
   iandl,         /* */
   iandh,         /* */
   iorl,          /* */

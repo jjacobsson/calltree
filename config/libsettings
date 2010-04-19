@@ -42,9 +42,9 @@ if $(QT_PATH)
 
 }
 
-llvm_base_path = [ FDirName "c:" llvm-2.6 ] ;
-llvm_bin_path  = [ FDirName $(llvm_base_path) Release bin ] ;
-llvm_ext_link_search_paths    = [ FDirName $(llvm_base_path) Release lib ] ;
+llvm_base_path = [ FDirName "c:" msys 1.0 ] ;
+llvm_bin_path  = [ FDirName $(llvm_base_path) bin ] ;
+llvm_ext_link_search_paths    = [ FDirName $(llvm_base_path) lib ] ;
 llvm_ext_include_search_paths = [ FDirName $(llvm_base_path) include ] ;
 
 LLVM_TBLGEN = [ FDirName $(llvm_bin_path) tblgen$(SUFEXE) ] ;
