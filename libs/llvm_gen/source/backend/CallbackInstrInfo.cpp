@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-04-16 Joacim Jacobsson.
+ * Copyright (c) 2010-04-20 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,13 +9,16 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
+#include "CallbackInstrInfo.h"
+#include "CallbackInstrInfo.inc"
 
-#ifndef CALLBACKINSTRUCTIONINFO_H_INCLUDED
-#define CALLBACKINSTRUCTIONINFO_H_INCLUDED
-
-namespace llvm_gen
+namespace llvm
 {
 
+CallbackInstrInfo::CallbackInstrInfo()
+  : TargetInstrInfoImpl( CallbackInsts, array_lengthof(CallbackInsts) )
+  , m_RI( *this )
+{
 }
 
-#endif /* CALLBACKINSTRUCTIONINFO_H_INCLUDED */
+}

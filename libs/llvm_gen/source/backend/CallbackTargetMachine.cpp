@@ -14,8 +14,7 @@
 #include <llvm/PassManager.h>
 #include <llvm/Target/TargetRegistry.h>
 
-using namespace llvm_gen;
-using namespace llvm;
+namespace llvm {
 
 Target TheCallbackTarget;
 
@@ -36,3 +35,6 @@ CallbackTargetMachine::CallbackTargetMachine(const Target &t, const std::string 
 {
 
 }
+
+}
+

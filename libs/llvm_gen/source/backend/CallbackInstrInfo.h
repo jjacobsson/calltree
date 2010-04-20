@@ -10,26 +10,23 @@
  *******************************************************************************/
 
 
-#ifndef CALLBACKREGISTERINFO_H_INCLUDED
-#define CALLBACKREGISTERINFO_H_INCLUDED
+#ifndef CALLBACKINSTRUCTIONINFO_H_INCLUDED
+#define CALLBACKINSTRUCTIONINFO_H_INCLUDED
 
-#include <llvm/Target/TargetRegisterInfo.h>
-#include "CallbackRegisterInfo.h.inc"
+#include <llvm/Target/TargetInstrInfo.h>
+#include "CallbackRegisterInfo.h"
 
 namespace llvm
 {
 
-class TargetInstrInfo;
-
-class CallbackRegisterInfo : public CallbackGenRegisterInfo
+class CallbackInstrInfo : public TargetInstrInfoImpl
 {
 public:
-  CallbackRegisterInfo( const TargetInstrInfo& tii );
-
+  CallbackInstrInfo();
 private:
-  const TargetInstrInfo& m_TII;
+  const CallbackRegisterInfo m_RI;
 };
 
 }
 
-#endif /* CALLBACKREGISTERINFO_H_INCLUDED */
+#endif /* CALLBACKINSTRUCTIONINFO_H_INCLUDED */

@@ -18,9 +18,9 @@
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetFrameInfo.h>
 
-using namespace llvm;
+#include "CallbackInstrInfo.h"
 
-namespace llvm_gen {
+namespace llvm {
 
 class CallbackTargetMachine : public LLVMTargetMachine
 {

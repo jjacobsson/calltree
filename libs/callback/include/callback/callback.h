@@ -37,41 +37,41 @@ enum NodeReturns
 
 enum InstructionSet
 {
-  inop,          /* No-Op */
-  icall,         /* */
-  iret,          /* */
-  iccall,        /* */
-  idcall,        /* */
-  ibr,           /* */
-  ibre,          /* */
-  ibrne,         /* */
-  imov,          /* */
-  iadd,          /* */
-  isub,          /* */
-  imul,          /* */
-  idiv,          /* */
-  iaddi,         /* */
-  isubi,         /* */
-  imuli,         /* */
-  idivi,         /* */
-  ild,           /* */
-  ist,           /* */
-  ipush,         /* */
-  ipop,          /* */
-  ishli,         /* */
-  ishri,         /* */
-  iand,          /* */
-  ior,           /* */
-  ixor,          /* */
-  islszi,        /* */
-  ishszi,         /* */
-  iandl,         /* */
-  iandh,         /* */
-  iorl,          /* */
-  iorh,          /* */
-  ixorl,         /* */
-  ixorh,         /* */
-  iexit,         /* */
+  inop,          /* 0 No-Op */
+  icall,         /* 1 */
+  iret,          /* 2 */
+  iccall,        /* 3 */
+  idcall,        /* 4 */
+  ibr,           /* 5 */
+  ibre,          /* 6 */
+  ibrne,         /* 7 */
+  imov,          /* 8 */
+  iadd,          /* 9 */
+  isub,          /* 10 */
+  imul,          /* 11 */
+  idiv,          /* 12 */
+  iaddi,         /* 13 */
+  isubi,         /* 14 */
+  imuli,         /* 15 */
+  idivi,         /* 16 */
+  ild,           /* 17 */
+  ist,           /* 18 */
+  ipush,         /* 19 */
+  ipop,          /* 20 */
+  ishli,         /* 21 */
+  ishri,         /* 22 */
+  iand,          /* 23 */
+  ior,           /* 24 */
+  ixor,          /* 25 */
+  islszi,        /* 26 */
+  ishszi,        /* 27 */
+  iandl,         /* 28 */
+  iandh,         /* 29 */
+  iorl,          /* 30 */
+  iorh,          /* 31 */
+  ixorl,         /* 32 */
+  ixorh,         /* 33 */
+  iexit,         /* 34 */
   inst_count
 };
 
