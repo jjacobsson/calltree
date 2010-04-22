@@ -1116,6 +1116,7 @@ struct DecoratorNodeData
 {
   int m_bssPos;
   int m_bssModPos;
+  bool m_usesBss;
   VariableGenerateData m_VD;
 };
 
@@ -1127,6 +1128,11 @@ int gen_setup_decorator( Node* n, Program* p )
 
   //Alloc space needed for code generation
   DecoratorNodeData* nd = new DecoratorNodeData;
+
+  //init the bss members
+  nd->m_bssPos      = 0;
+  nd->m_bssModPos   = 0;
+  nd->m_usesBss     = false;
 
   //Store needed generation data in the node's UserData pointer
   n->m_UserData = nd;
@@ -1142,8 +1148,9 @@ int gen_setup_decorator( Node* n, Program* p )
 
   if( bss_need > 0 )
   {
-    nd->m_bssPos = p->m_B.Push( bss_need, 4 );
+    nd->m_bssPos    = p->m_B.Push( bss_need, 4 );
     nd->m_bssModPos = (nd->m_bssPos + bss_need) - 4;
+    nd->m_usesBss   = true;
   }
 
 
@@ -1207,8 +1214,16 @@ int gen_con_decorator( Node* n, Program* p )
       n->m_Grist.m_Decorator.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1254,8 +1269,16 @@ int gen_exe_decorator( Node* n, Program* p )
       n->m_Grist.m_Decorator.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1288,8 +1311,16 @@ int gen_exe_decorator( Node* n, Program* p )
       n->m_Grist.m_Decorator.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1338,8 +1369,16 @@ int gen_des_decorator( Node* n, Program* p )
       n->m_Grist.m_Decorator.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1362,6 +1401,7 @@ int gen_des_decorator( Node* n, Program* p )
 struct ActionNodeData
 {
   int m_bssPos;
+  bool m_usesBss;
   VariableGenerateData m_VD;
 };
 
@@ -1369,7 +1409,9 @@ int gen_setup_action( Node* n, Program* p )
 {
   //Alloc space needed for code generation
   ActionNodeData* nd = new ActionNodeData;
-
+  //Set the bss pointer to zero.
+  nd->m_bssPos = 0;
+  nd->m_usesBss = false;
   //Store needed generation data in the node's UserData pointer
   n->m_UserData = nd;
   //Obtain action declaration
@@ -1379,7 +1421,10 @@ int gen_setup_action( Node* n, Program* p )
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "bss" ) );
   int bss = t ? as_integer( *t ) : 0;
   if( bss > 0 )
-    nd->m_bssPos = p->m_B.Push( bss, 4 );
+  {
+    nd->m_bssPos    = p->m_B.Push( bss, 4 );
+    nd->m_usesBss   = true;
+  }
 
   {
     NamedSymbol tns;
@@ -1433,8 +1478,16 @@ int gen_con_action( Node* n, Program* p )
       p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the callback id register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1467,8 +1520,16 @@ int gen_exe_action( Node* n, Program* p )
       n->m_Grist.m_Action.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the callback id register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
@@ -1500,8 +1561,16 @@ int gen_des_action( Node* n, Program* p )
       n->m_Grist.m_Action.m_Parameters, p );
     if( err != 0 )
       return err;
-    // Load bss register with bss pointer
-    p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    if( nd->m_usesBss )
+    {
+      // Load bss register with bss pointer
+      p->m_I.Push( INST_STORE_PB_IN_R, 1, nd->m_bssPos, 0 );
+    }
+    else
+    {
+      // Reset the bss register
+      p->m_I.Push( INST_LOAD_REGISTRY, 1, 0, 0 );
+    }
     // Load the callback id register with the correct id
     p->m_I.Push( INST_LOAD_REGISTRY, 0, (fid >> 16) & 0x0000ffff, fid
         & 0x0000ffff );
