@@ -1041,28 +1041,28 @@ int gen_des_dynselector( Node* n, Program* p )
  *
  */
 
-int gen_setup_succeed( Node* n, Program* p )
+int gen_setup_succeed( Node* , Program*  )
 {
   return 0;
 }
 
-int gen_teardown_succeed( Node* n, Program* p )
+int gen_teardown_succeed( Node*, Program* )
 {
   return 0;
 }
 
-int gen_con_succeed( Node* n, Program* p )
+int gen_con_succeed( Node*, Program* )
 {
   return 0;
 }
 
-int gen_exe_succeed( Node* n, Program* p )
+int gen_exe_succeed( Node*, Program* p )
 {
   //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_SUCCESS, 0, 0 );
   return 0;
 }
 
-int gen_des_succeed( Node* n, Program* p )
+int gen_des_succeed( Node*, Program* )
 {
   return 0;
 }
@@ -1073,24 +1073,24 @@ int gen_des_succeed( Node* n, Program* p )
  *
  */
 
-int gen_setup_fail( Node* n, Program* p )
+int gen_setup_fail( Node*, Program* )
 {
   return 0;
 }
-int gen_teardown_fail( Node* n, Program* p )
+int gen_teardown_fail( Node*, Program* )
 {
   return 0;
 }
-int gen_con_fail( Node* n, Program* p )
+int gen_con_fail( Node*, Program* )
 {
   return 0;
 }
-int gen_exe_fail( Node* n, Program* p )
+int gen_exe_fail( Node*, Program* p )
 {
   //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_FAIL, 0, 0 );
   return 0;
 }
-int gen_des_fail( Node* n, Program* p )
+int gen_des_fail( Node*, Program* )
 {
   return 0;
 }
@@ -1101,28 +1101,28 @@ int gen_des_fail( Node* n, Program* p )
  *
  */
 
-int gen_setup_work( Node* n, Program* p )
+int gen_setup_work( Node*, Program* )
 {
   return 0;
 }
 
-int gen_teardown_work( Node* n, Program* p )
+int gen_teardown_work( Node*, Program* )
 {
   return 0;
 }
 
-int gen_con_work( Node* n, Program* p )
+int gen_con_work( Node*, Program* )
 {
   return 0;
 }
 
-int gen_exe_work( Node* n, Program* p )
+int gen_exe_work( Node*, Program* p )
 {
   //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_WORKING, 0, 0 );
   return 0;
 }
 
-int gen_des_work( Node* n, Program* p )
+int gen_des_work( Node*, Program* )
 {
   return 0;
 }
@@ -1467,7 +1467,7 @@ int gen_setup_action( Node* n, Program* p )
   return 0;
 }
 
-int gen_teardown_action( Node* n, Program* p )
+int gen_teardown_action( Node* n, Program* )
 {
   //Free the space used when generating code.
   delete ((ActionNodeData*)n->m_UserData);
@@ -1665,7 +1665,7 @@ void print_missing_param_error( Node* n, Parameter* d, NamedSymbol* ns )
   }
 }
 
-void print_unable_to_convert_param_error( Node* n, Parameter* v, Parameter* d, NamedSymbol* ns )
+void print_unable_to_convert_param_error( Node* n, Parameter* v, Parameter* d, NamedSymbol* )
 {
   const char* use_buff = n->m_Locator.m_Buffer;
   int use_line         = n->m_Locator.m_LineNo;
@@ -1713,6 +1713,9 @@ int store_variables_in_data_section(
   )
 {
 /*
+  vd->m_Data.clear();
+  vd->m_bssStart = 0;
+
   if( !vars && !dec )
     return 0;
 
@@ -1727,7 +1730,6 @@ int store_variables_in_data_section(
     return -1;
   }
 
-  vd->m_Data.clear();
   vd->m_bssStart = p->m_B.Push( sizeof(void*) * count_elements( dec ),
     sizeof(void*) );
 
@@ -1748,7 +1750,11 @@ int store_variables_in_data_section(
   }
 
   if( errors )
+  {
+    vd->m_bssStart = 0;
+    vd->m_Data.clear();
     return -1;
+  }
 
   DataSection& d = p->m_D;
   for( it = dec; it != 0x0; it = it->m_Next )
@@ -1781,7 +1787,7 @@ int store_variables_in_data_section(
   return 0;
 }
 
-int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
+int generate_variable_instructions( VariableGenerateData* vd, Parameter*,
   Program* p )
 {
   /*
@@ -1797,7 +1803,7 @@ int generate_variable_instructions( VariableGenerateData* vd, Parameter* vars,
   return 0;
 }
 
-int setup_variable_registry( VariableGenerateData* vd, Parameter* vars,
+int setup_variable_registry( VariableGenerateData* vd, Parameter*,
   Program* p )
 {
   /*
