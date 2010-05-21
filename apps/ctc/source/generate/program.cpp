@@ -444,6 +444,8 @@ int setup_before_generate( Node* n, Program* p )
 {
   //Alloc storage area for bss header
   p->m_bss_Header = p->m_B.Push( sizeof(BssHeader), 4 );
+  //Alloc storage area for "destroy" command.
+  p->m_bss_Destruct = p->m_B.Push( sizeof(int), 4 );
   //Alloc storage area for child-node return value.
   p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
 
@@ -467,6 +469,9 @@ int generate_program( Node* n, Program* p )
   //Jump past construction code if tree is already running
   p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_WORKING, p->m_bss_Return );
 
+  //Jump to destruction code if set to do so.
+  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, ACT_DESTRUCT, p->m_bss_Destruct );
+
   //Generate tree construction code
   if( (err = gen_con( n, p )) != 0 )
     return err;
@@ -484,6 +489,11 @@ int generate_program( Node* n, Program* p )
   //Jump past destruciton code if tree is running
   int patch_jump_out = p->m_I.Count();
   p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_WORKING, 0 );
+
+  //Patch jump to destruction code
+  p->m_I.SetA1( 1, p->m_I.Count() );
+  //Reset the destruct command
+  p->m_I.Push( INST__STORE_C_IN_B, p->m_bss_Destruct, 0, 0 );
 
   //Generate destruction code
   if( (err = gen_des( n, p )) != 0 )

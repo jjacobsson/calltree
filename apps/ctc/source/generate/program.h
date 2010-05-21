@@ -142,6 +142,7 @@ private:
 struct Program
 {
 	int m_bss_Header;
+	int m_bss_Destruct;
 	int m_bss_Return;
 	CodeSection m_I;
 	BSSSection	m_B;

@@ -312,15 +312,15 @@ void save_dyn_selector( SaverContext sc, Node* n, int depth )
   append( &sc->m_Buffer, ")\n" );
 }
 
-void save_succeed( SaverContext sc, Node* n, int depth )
+void save_succeed( SaverContext sc, Node*, int )
 {
   append( &sc->m_Buffer, "(succeed)\n" );
 }
-void save_fail( SaverContext sc, Node* n, int depth )
+void save_fail( SaverContext sc, Node*, int )
 {
   append( &sc->m_Buffer, "(fail)\n" );
 }
-void save_work( SaverContext sc, Node* n, int depth )
+void save_work( SaverContext sc, Node*, int )
 {
   append( &sc->m_Buffer, "(work)\n" );
 }
@@ -346,7 +346,7 @@ void save_decorator( SaverContext sc, Node* n, int depth )
   append( &sc->m_Buffer, ")\n" );
 }
 
-void save_action( SaverContext sc, Node* n, int depth )
+void save_action( SaverContext sc, Node* n, int )
 {
   append( &sc->m_Buffer, "(action '" );
   append( &sc->m_Buffer, n->m_Grist.m_Action.m_Action->m_Id.m_Text );
@@ -355,7 +355,7 @@ void save_action( SaverContext sc, Node* n, int depth )
   append( &sc->m_Buffer, ")\n" );
 }
 
-void save_tree( SaverContext sc, Node* n, int depth )
+void save_tree( SaverContext sc, Node* n, int )
 {
   append( &sc->m_Buffer, "(tree '" );
   append( &sc->m_Buffer, n->m_Grist.m_Tree.m_Tree->m_Id.m_Text );
