@@ -110,7 +110,17 @@ options: T_OPTIONS vlist
        }
        ;
 
-deftree: T_DEFTREE T_ID nlist
+deftree: T_DEFTREE T_ID vdlist nlist
+       {
+		BehaviorTree* t = look_up_behavior_tree( ctx->m_Tree, &$2 );
+		t->m_Declarations = $3;
+		t->m_Root = $4;
+		t->m_Declared = true;
+		t->m_Locator.m_Buffer = ctx->m_Current;
+		t->m_Locator.m_LineNo = ctx->m_LineNo;
+		set_parent_on_children( t );
+       }
+       | T_DEFTREE T_ID nlist
        {
 		BehaviorTree* t = look_up_behavior_tree( ctx->m_Tree, &$2 );
 		t->m_Root = $3;
@@ -256,7 +266,15 @@ action: T_ACTION T_QUOTE T_ID vlist
       }
       ;
 
-tree: T_TREE T_QUOTE T_ID 
+tree: T_TREE T_QUOTE T_ID vlist
+    {
+    	Node* n = ALLOCATE_NODE( E_GRIST_TREE, 0x0 );
+    	$$ = n;
+    	n->m_Grist.m_Tree.m_Parameters = $4;
+    	n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( ctx->m_Tree, &$3 );
+    }
+    |
+ 	T_TREE T_QUOTE T_ID
     {
     	Node* n = ALLOCATE_NODE( E_GRIST_TREE, 0x0 );
     	$$ = n;

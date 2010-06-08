@@ -259,93 +259,73 @@ int main( int argc, char** argv )
       include = include->m_Next;
     }
 
-    if( g_outputFileName )
+    if( g_outputFileName && returnCode == 0 )
     {
-      NamedSymbol* main = find_symbol( btc, hashlittle(
-        "main" ) );
-      if( !main || main->m_Type != E_ST_TREE
-          || !main->m_Symbol.m_Tree->m_Declared )
+      Program p;
+
+      unsigned int debug_hash = hashlittle( "debug_info" );
+      Parameter* debug_param = find_by_hash( get_options( btc ), debug_hash );
+      if( debug_param )
+        p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
+
+      returnCode = setup( btc, &p );
+      if( returnCode == 0 )
       {
-        printf( "%s(0): error: \"main\" tree has not been declared.\n",
-          g_inputFileName );
-        returnCode = -1;
+        returnCode = generate( &p );
+        if( returnCode != 0 )
+          printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
       }
-      else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
-      {
-        printf( "%s(%d): error: \"main\" contains zero node's.\n",
-          main->m_Symbol.m_Tree->m_Locator.m_Buffer, main->m_Symbol.m_Tree->m_Locator.m_LineNo );
-        returnCode = -1;
-      }
+      teardown( &p );
 
       if( returnCode == 0 )
       {
-        Program p;
-
-        unsigned int debug_hash = hashlittle( "debug_info" );
-        Parameter* debug_param = find_by_hash( get_options( btc ), debug_hash );
-        if( debug_param  )
-          p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
-
-        returnCode = setup_before_generate( main->m_Symbol.m_Tree->m_Root, &p );
-        if( returnCode == 0 )
+        g_outputFile = fopen( g_outputFileName, "wb" );
+        if( !g_outputFile )
         {
-          returnCode = generate_program( main->m_Symbol.m_Tree->m_Root, &p );
-          if( returnCode != 0 )
-            printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
+          printf( "error: Unable to open output file %s for writing.\n",
+            g_outputFileName );
+          returnCode = -2;
         }
-        teardown_after_generate( main->m_Symbol.m_Tree->m_Root, &p );
 
         if( returnCode == 0 )
+          returnCode = save_program( g_outputFile, g_swapEndian, &p );
+        if( returnCode != 0 )
         {
-          g_outputFile = fopen( g_outputFileName, "wb" );
-          if( !g_outputFile )
-          {
-            printf( "error: Unable to open output file %s for writing.\n",
-              g_outputFileName );
-            returnCode = -2;
-          }
-
-          if( returnCode == 0 )
-            returnCode = save_program( g_outputFile, g_swapEndian, &p );
-          if( returnCode != 0 )
-          {
-            printf( "error: Failed to write output file %s.\n",
-              g_outputFileName );
-            returnCode = -5;
-          }
+          printf( "error: Failed to write output file %s.\n", g_outputFileName );
+          returnCode = -5;
         }
+      }
 
-        if( !g_asmFileName )
+      if( !g_asmFileName )
+      {
+        unsigned int hash = hashlittle( "force_asm" );
+        Parameter* force_asm = find_by_hash( get_options( btc ), hash );
+        if( force_asm && as_bool( *force_asm ) )
         {
-          unsigned int hash = hashlittle( "force_asm" );
-          Parameter* force_asm = find_by_hash( get_options( btc ), hash );
-          if( force_asm && as_bool( *force_asm ) )
-          {
-            unsigned int len = strlen( g_outputFileName );
-            g_asmFileNameMemory = (char*)malloc( len + 5 );
-            memcpy( g_asmFileNameMemory, g_outputFileName, len );
-            g_asmFileNameMemory[len+0] = '.';
-            g_asmFileNameMemory[len+1] = 'a';
-            g_asmFileNameMemory[len+2] = 's';
-            g_asmFileNameMemory[len+3] = 'm';
-            g_asmFileNameMemory[len+4] = 0;
-            g_asmFileName = g_asmFileNameMemory;
-          }
+          unsigned int len = strlen( g_outputFileName );
+          g_asmFileNameMemory = (char*)malloc( len + 5 );
+          memcpy( g_asmFileNameMemory, g_outputFileName, len );
+          g_asmFileNameMemory[len + 0] = '.';
+          g_asmFileNameMemory[len + 1] = 'a';
+          g_asmFileNameMemory[len + 2] = 's';
+          g_asmFileNameMemory[len + 3] = 'm';
+          g_asmFileNameMemory[len + 4] = 0;
+          g_asmFileName = g_asmFileNameMemory;
         }
+      }
 
-        if( returnCode == 0 && g_asmFileName )
+      if( returnCode == 0 && g_asmFileName )
+      {
+        FILE* asmFile = fopen( g_asmFileName, "w" );
+        if( !asmFile )
         {
-          FILE* asmFile = fopen( g_asmFileName, "w" );
-          if( !asmFile )
-          {
-            printf( "warning: Unable to open assembly file %s for writing.\n",
-              g_asmFileName );
-          }
-          else
-          {
-            print_program( asmFile, &p );
-            fclose( asmFile );
-          }
+          printf( "warning: Unable to open assembly file %s for writing.\n",
+            g_asmFileName );
+        }
+        else
+        {
+          print_program( asmFile, &p );
+          fclose( asmFile );
         }
       }
     }

@@ -149,9 +149,12 @@ bool id_hashes_are_unique_in_list( Parameter* s )
   return true;
 }
 
-bool safe_to_convert( const Parameter& v, int to_type )
+bool safe_to_convert( const Parameter* v, int to_type )
 {
-  switch( v.m_Type )
+  if( !v )
+    return false;
+
+  switch( v->m_Type )
   {
   case E_VART_INTEGER:
     if( to_type == E_VART_INTEGER || to_type == E_VART_FLOAT || to_type
@@ -391,6 +394,7 @@ void init( BehaviorTree* t )
 {
   init( &t->m_Id );
   init( &t->m_Locator );
+  t->m_Declarations = 0x0;
   t->m_Root = 0x0;
   t->m_UserData = 0x0;
   t->m_Declared = false;
@@ -714,12 +718,44 @@ Parameter* get_parameters( Node* n )
     r = n->m_Grist.m_Action.m_Parameters;
     break;
   case E_GRIST_TREE:
+    r = n->m_Grist.m_Tree.m_Parameters;
+    break;
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:
     break;
   }
   return r;
 }
+
+void set_parameters( Node* n, Parameter* p )
+{
+  if( !n )
+    return;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_DECORATOR:
+    n->m_Grist.m_Decorator.m_Parameters = p;
+    break;
+  case E_GRIST_ACTION:
+    n->m_Grist.m_Action.m_Parameters = p;
+    break;
+  case E_GRIST_TREE:
+    n->m_Grist.m_Tree.m_Parameters = p;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+}
+
 
 Parameter* get_declarations( Node* n )
 {
@@ -745,6 +781,9 @@ Parameter* get_declarations( Node* n )
       r = n->m_Grist.m_Action.m_Action->m_Declarations;
     break;
   case E_GRIST_TREE:
+    if( n->m_Grist.m_Tree.m_Tree )
+      r = n->m_Grist.m_Tree.m_Tree->m_Declarations;
+    break;
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:
     break;
@@ -835,8 +874,31 @@ bool contains_reference_to_tree( Node* n, BehaviorTree* tree )
   return false;
 }
 
+void remove_declaration( BehaviorTreeContext ctx, BehaviorTree* tree, hash_t id )
+{
+  Parameter* p = 0x0;
+  Parameter* s = tree->m_Declarations;
+  Parameter* n = 0x0;
+  while( s )
+  {
+    n = s->m_Next;
+    if( s->m_Id.m_Hash == id )
+    {
+      if( p )
+        p->m_Next = n;
+      else
+        tree->m_Declarations = n;
 
-
+      free_object( ctx, s );
+      s = n;
+    }
+    else
+    {
+      p = s;
+      s = n;
+    }
+  }
+}
 
 /*
  * Node Grist functions

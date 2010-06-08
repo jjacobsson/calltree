@@ -139,7 +139,7 @@ QSvgRenderer* get( Node* n )
 
   if( opts )
     opts = find_by_hash( opts, hashlittle( "cts_icon" ) );
-  if( opts && !safe_to_convert( *opts, E_VART_STRING ) )
+  if( opts && !safe_to_convert( opts, E_VART_STRING ) )
     opts = 0x0;
 
   QSvgRenderer* svgr = 0x0;

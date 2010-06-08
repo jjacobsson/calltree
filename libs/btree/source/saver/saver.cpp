@@ -160,6 +160,8 @@ void save_trees( SaverContext sc )
     append( &sc->m_Buffer, "(deftree " );
     append( &sc->m_Buffer, t->m_Id.m_Text );
     append( &sc->m_Buffer, ' ' );
+    save_parameter_list( sc, t->m_Declarations );
+    append( &sc->m_Buffer, ' ' );
     save_node_list( sc, t->m_Root, 1 );
     append( &sc->m_Buffer, ")\n\n" );
 
@@ -359,6 +361,8 @@ void save_tree( SaverContext sc, Node* n, int )
 {
   append( &sc->m_Buffer, "(tree '" );
   append( &sc->m_Buffer, n->m_Grist.m_Tree.m_Tree->m_Id.m_Text );
+  append( &sc->m_Buffer, ' ' );
+  save_parameter_list( sc, n->m_Grist.m_Tree.m_Parameters );
   append( &sc->m_Buffer, ")\n" );
 }
 
@@ -409,15 +413,13 @@ void save_node( SaverContext sc, Node* n, int depth )
 
 void save_node_list( SaverContext sc, Node* n, int depth )
 {
-  append( &sc->m_Buffer, "(" );
-
   if( !n )
   {
-    append( &sc->m_Buffer, "null)" );
+    append( &sc->m_Buffer, "null" );
     return;
   }
 
-  append( &sc->m_Buffer, '\n' );
+  append( &sc->m_Buffer, "(\n" );
 
   Node* it = n;
   while( it )

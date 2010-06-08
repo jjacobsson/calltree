@@ -66,13 +66,16 @@ public:
   }
 
 signals:
+;
   void modified();
   void updatedSymbols( BehaviorTreeContext );
   void itemSelected( QWidget* );
 
 public slots:
+;
   void layout();
   void itemModified( bool geometry_changed );
+  void itemSymbolChanged( unsigned int hash_id );
   void deleteSelected();
   void nodeSelected( QWidget* );
   void updateClone();

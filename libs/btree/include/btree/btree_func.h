@@ -51,7 +51,7 @@ int count_occourances_of_hash_in_list( Parameter* start, hash_t hash );
 
 bool id_hashes_are_unique_in_list( Parameter* start );
 
-bool safe_to_convert( const Parameter&, int to_type );
+bool safe_to_convert( const Parameter*, int to_type );
 
 int as_integer( const Parameter& );
 
@@ -120,6 +120,9 @@ bool accepts_more_children( Node* n );
 //Returns the parameter list for this node, if it has one.
 Parameter* get_parameters( Node* n );
 
+//Set's the parameter list on this node. Old parameters leaked if they exist. p leaked is this node does not accept parameters.
+void set_parameters( Node* n, Parameter* p );
+
 //Returns the declaration list for the action/decorator/tree that this node uses, if it exists
 Parameter* get_declarations( Node* n );
 
@@ -132,6 +135,14 @@ BehaviorTree* find_parent_tree( const NodeParent& p );
 // Searches down from n to see if a reference to tree can be found.
 bool contains_reference_to_tree( Node* n, BehaviorTree* tree );
 
+/**
+ * @brief Removes all declaration parameters in tree by hash id. Free's resources back to ctx.
+ * @param ctx The context that "owns" tree
+ * @param tree The tree structure to remove the declaration parameter from
+ * @param id The id of the parameter to be removed
+ */
+
+void remove_declaration( BehaviorTreeContext ctx, BehaviorTree* tree, hash_t id );
 
 /*
  * Node Grist Functions

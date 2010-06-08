@@ -185,6 +185,11 @@ void BehaviorTreeSceneItem::dragFail()
 
 }
 
+void BehaviorTreeSceneItem::symbolChanged( unsigned int hash_id )
+{
+
+}
+
 void BehaviorTreeSceneItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
 {
   if(!(option->state & QStyle::State_Selected))

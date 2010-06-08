@@ -3,17 +3,14 @@ if $(QT_PATH)
 	SetDependantOf $(_appname) : btree other ;
 	SetExtDependantOf $(_appname) : qt ;
 
-	local _source_files  = [ RecursiveDirList $(_apppath) source : *.cpp ] ;
+	local _source_files  = [ DirList $(_apppath) source : *.cpp ] ;
+	local _libsrc_files  = [ RecursiveDirList $(_apppath) source moc : *.cpp ] ;
 	local _moc_headers   = [ RecursiveDirList $(_apppath) source moc : *.h ] ;
 	local _ui_headers    = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
 	local _moc_sources   = [ mocHeaders $(_moc_headers) ] ;
 	local _qrc_svgs      = [ RecursiveDirList $(_apppath) resources : *.svg ] ;
 	local _qrc_file		 = [ FDirName $(_apppath) resources cts_resources.qrc ] ;
 	local _qrc_sources   = [ qrcFile $(_qrc_file) : $(_qrc_svgs) ] ;
-
-	_source_files = [ StripAllCommon $(_source_files) : $(_moc_sources) ] ;
-	_source_files += $(_moc_sources) ;
-	_source_files += $(_qrc_sources) ;
 
 	local _main_cpp         = [ FDirName $(_apppath) source main.cpp ] ;
 	local _nodetonode_h		= [ FDirName $(_apppath) source NodeToNodeArrow.h ] ;
@@ -45,7 +42,15 @@ if $(QT_PATH)
 	Includes $(_btreenode_h)     : [ FDirName $(_apppath) source GraphicsItemTypes.h ] ;
 	Includes $(_nodetonode_h)    : [ FDirName $(_apppath) source GraphicsItemTypes.h ] ;
 
+	_source_files += $(_main_window_cpp) ;
+	_source_files += $(_qrc_sources) ;
+	
+	_libsrc_files = [ StripAllCommon $(_libsrc_files) : $(_moc_sources) ] ;
+	_libsrc_files = [ StripAllCommon $(_libsrc_files) : $(_main_window_cpp) ] ;
+	_libsrc_files += $(_moc_sources) ;
+
 	SetSourceFiles $(_appname) : $(_source_files) ;
+	SetSourceFiles $(_appname)_alib : $(_libsrc_files) ;
 
 	if $(HOST) = win32
 	{	

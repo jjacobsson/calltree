@@ -141,6 +141,7 @@ struct ActionGrist
 struct TreeGrist
 {
   BehaviorTree* m_Tree;
+  Parameter* m_Parameters;
 };
 
 struct NodeGrist
@@ -188,6 +189,7 @@ struct BehaviorTree
 {
   Identifier m_Id;
   Locator m_Locator;
+  Parameter* m_Declarations;
   Node* m_Root;
   void* m_UserData;
   bool m_Declared;

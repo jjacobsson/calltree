@@ -91,6 +91,7 @@ void clone( BehaviorTreeContext btc, BehaviorTree* src )
 {
   BehaviorTree* t = look_up_behavior_tree( btc, &src->m_Id );
   t->m_Declared = src->m_Declared;
+  t->m_Declarations = clone_list( btc, src->m_Declarations );
   t->m_Root = clone_tree( btc, src->m_Root );
   clone( btc, &t->m_Locator, &src->m_Locator );
 }
@@ -182,6 +183,7 @@ void clone_action_node( BehaviorTreeContext btc, Node* dest, Node* src )
 
 void clone_tree_node( BehaviorTreeContext btc, Node* dest, Node* src )
 {
+  dest->m_Grist.m_Tree.m_Parameters = clone_list( btc, src->m_Grist.m_Tree.m_Parameters );
   if( src->m_Grist.m_Tree.m_Tree )
     dest->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( btc, &src->m_Grist.m_Tree.m_Tree->m_Id );
 }

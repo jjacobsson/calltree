@@ -131,7 +131,7 @@ QIcon* get( NamedSymbol* ns )
 
   if( opts )
     opts = find_by_hash( opts, hashlittle( "cts_icon" ) );
-  if( opts && !safe_to_convert( *opts, E_VART_STRING ) )
+  if( opts && !safe_to_convert( opts, E_VART_STRING ) )
     opts = 0x0;
 
   QIcon* icon = 0x0;
