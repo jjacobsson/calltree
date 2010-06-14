@@ -114,6 +114,8 @@ protected:
   void setupActionNode( Node*, const XNodeData& );
   void setupTreeNode( Node*, const XNodeData& );
 
+  void clearGraphics();
+
   BehaviorTreeContext m_TreeContext;
   BehaviorTreeContext m_FullContext;
   QMainWindow* m_MainWindow;

@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include <stdio.h>
+
 struct Program;
 
 class CodeSection
@@ -28,7 +30,7 @@ public:
 
     typedef unsigned int TIn;
 
-    void    SetGenerateDebugInfo( bool onoff );
+    void    SetGenerateDebugInfo( int debug_level );
 
     void    Setup( Program* p );
 
@@ -43,8 +45,8 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action );
-    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
+    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
 
 private:
 
@@ -52,7 +54,7 @@ private:
 
     typedef std::vector<callback::Instruction> Instructions;
     Instructions m_Inst;
-    bool         m_DebugInfo;
+    int          m_DebugLevel;
 };
 
 class DataSection

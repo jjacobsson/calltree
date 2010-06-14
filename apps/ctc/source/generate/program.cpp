@@ -24,11 +24,9 @@
 
 using namespace callback;
 
-
 void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
 {
   char func[16], glob[16], a1[16], a2[16], a3[16];
-
 
   sprintf( func, "0x%04x", f );
   sprintf( glob, "0x%04x", g );
@@ -37,20 +35,16 @@ void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
   sprintf( a3, "0x%04x", inst.m_A3 );
   fprintf( outFile, "%-8s%-8s%-20s", glob, func, g_InstructionNames[inst.m_I] );
 
-
   switch( inst.m_I )
   {
   case INST_JABC_R_EQUA_C:
-    fprintf( outFile, "%-9s%-9s%-9s", a1,
-      g_NodeReturnsNames[inst.m_A2], a3 );
+    fprintf( outFile, "%-9s%-9s%-9s", a1, g_NodeReturnsNames[inst.m_A2], a3 );
     break;
   case INST_JABC_R_DIFF_C:
-    fprintf( outFile, "%-9s%-9s%-9s", a1,
-      g_NodeReturnsNames[inst.m_A2], a3 );
+    fprintf( outFile, "%-9s%-9s%-9s", a1, g_NodeReturnsNames[inst.m_A2], a3 );
     break;
   case INST__STORE_C_IN_R:
-    fprintf( outFile, "%-9s%-9s%-9s",
-      g_NodeReturnsNames[inst.m_A1], a2, a3 );
+    fprintf( outFile, "%-9s%-9s%-9s", g_NodeReturnsNames[inst.m_A1], a2, a3 );
     break;
   default:
     fprintf( outFile, "%-9s%-9s%-9s", a1, a2, a3 );
@@ -58,14 +52,14 @@ void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
   }
 }
 
-CodeSection::CodeSection()
-  : m_DebugInfo( false )
+CodeSection::CodeSection() :
+  m_DebugLevel( 0 )
 {
 }
 
-void CodeSection::SetGenerateDebugInfo( bool onoff )
+void CodeSection::SetGenerateDebugInfo( int debug_level )
 {
-  m_DebugInfo = onoff;
+  m_DebugLevel = debug_level;
 }
 
 void CodeSection::Setup( Program* p )
@@ -80,8 +74,8 @@ void CodeSection::Print( FILE* outFile, Program* p ) const
   int s = btl->m_FirstInst;
 
   fprintf( outFile, "__entry_stub\n" );
-  fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n",
-    "Global", "Func", "Instruction", "A1", "A2", "A3" );
+  fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n", "Global", "Func",
+    "Instruction", "A1", "A2", "A3" );
 
   f = 0;
 
@@ -100,8 +94,8 @@ void CodeSection::Print( FILE* outFile, Program* p ) const
       s = Count();
 
     fprintf( outFile, "\n%s\n", btl->m_Tree->m_Id.m_Text );
-    fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n",
-      "Global", "Func", "Instruction", "A1", "A2", "A3" );
+    fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n", "Global", "Func",
+      "Instruction", "A1", "A2", "A3" );
 
     f = 0;
 
@@ -114,7 +108,8 @@ void CodeSection::Print( FILE* outFile, Program* p ) const
     btl = btl->m_Next;
   }
 
-  fprintf( outFile, "\nCode:\t%d (%d instructions)\n", s * sizeof(Instruction), s );
+  fprintf( outFile, "\nCode:\t%d (%d instructions)\n", s * sizeof(Instruction),
+    s );
 }
 
 int CodeSection::Count() const
@@ -170,7 +165,7 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
 
 int StringFromAction( Program* p, NodeAction action )
 {
-  return p->m_D.PushString( g_CBActionNames[ action ] );
+  return p->m_D.PushString( g_CBActionNames[action] );
 }
 
 int StringFromNode( Program* p, Node* n )
@@ -241,105 +236,133 @@ bool StandardNode( Node* n )
   return true;
 }
 
-void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
+bool UseDebugInfo( int level, Node* n )
 {
-  if( !m_DebugInfo )
+  bool r = false;
+  switch( level )
+  {
+  case 0:
+    r = false;
+    break;
+  case 1:
+    r = (n->m_Grist.m_Type == E_GRIST_ACTION) || (n->m_Grist.m_Type
+        == E_GRIST_DECORATOR);
+    break;
+  case 2:
+    r = (n->m_Grist.m_Type == E_GRIST_ACTION) || (n->m_Grist.m_Type
+        == E_GRIST_DECORATOR) || (n->m_Grist.m_Type == E_GRIST_TREE);
+    break;
+  default:
+    r = false;
+    break;
+  }
+  return r;
+}
+
+void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action, int debug_level )
+{
+  if( m_DebugLevel < debug_level )
     return;
 
-  unsigned int flags = (unsigned int)(action & 0x0000000f);
-  if( StandardNode( n ) )
-    flags |= E_STANDARD_NODE;
-  flags |= E_ENTER_SCOPE;
+  bool standard = StandardNode( n );
+  bool composite = n->m_Grist.m_Type == E_GRIST_TREE;
 
-  if( n->m_Grist.m_Type == E_GRIST_TREE )
+  unsigned int flags = (unsigned int)(action & 0x0000000f);
+  if( standard )
+    flags |= E_STANDARD_NODE;
+  if( composite )
     flags |= E_COMPOSITE_NODE;
+
+  flags |= E_ENTER_SCOPE;
 
   unsigned int t;
   Instruction i;
   t = StringFromAction( p, action );
-  i.m_I  = INST_LOAD_REGISTRY;
+  i.m_I = INST_LOAD_REGISTRY;
   i.m_A1 = 0;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = StringFromNode( p, n );
-  i.m_I  = INST_LOAD_REGISTRY;
+  i.m_I = INST_LOAD_REGISTRY;
   i.m_A1 = 1;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = n->m_NodeId;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 2;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = flags;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 3;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = n->m_Locator.m_LineNo;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 4;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_I = INST_CALL_DEBUG_FN;
   i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
 }
 
-void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
+void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action, int debug_level )
 {
-  if( !m_DebugInfo )
+  if( m_DebugLevel < debug_level )
     return;
 
-  unsigned int flags = (unsigned int)(action & 0x0000000f);
-  if( StandardNode( n ) )
-    flags |= E_STANDARD_NODE;
-  flags |= E_EXIT_SCOPE;
+  bool standard = StandardNode( n );
+  bool composite = n->m_Grist.m_Type == E_GRIST_TREE;
 
-  if( n->m_Grist.m_Type == E_GRIST_TREE )
+  unsigned int flags = (unsigned int)(action & 0x0000000f);
+  if( standard )
+    flags |= E_STANDARD_NODE;
+  if( composite )
     flags |= E_COMPOSITE_NODE;
 
+  flags |= E_EXIT_SCOPE;
 
   unsigned int t;
   Instruction i;
   t = StringFromAction( p, action );
-  i.m_I  = INST_LOAD_REGISTRY;
+  i.m_I = INST_LOAD_REGISTRY;
   i.m_A1 = 0;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = StringFromNode( p, n );
-  i.m_I  = INST_LOAD_REGISTRY;
+  i.m_I = INST_LOAD_REGISTRY;
   i.m_A1 = 1;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = n->m_NodeId;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 2;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = flags;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 3;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   t = n->m_Locator.m_LineNo;
-  i.m_I  = INST__SET_REGISTRY;
+  i.m_I = INST__SET_REGISTRY;
   i.m_A1 = 4;
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_I = INST_CALL_DEBUG_FN;
   i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
@@ -503,7 +526,7 @@ void parser_warning( ParserContext pc, const char* msg );
 
 int setup( BehaviorTreeContext ctx, Program* p )
 {
-  NamedSymbol* main = find_symbol( ctx, hashlittle("main" ) );
+  NamedSymbol* main = find_symbol( ctx, hashlittle( "main" ) );
 
   if( !main || main->m_Type != E_ST_TREE || !main->m_Symbol.m_Tree->m_Declared )
   {
@@ -523,8 +546,8 @@ int setup( BehaviorTreeContext ctx, Program* p )
   p->m_I.Setup( p );
 
   p->m_Memory = 0;
-  p->m_Memory += sizeof( BssHeader );
-  p->m_Memory += sizeof( CallFrame );
+  p->m_Memory += sizeof(BssHeader);
+  p->m_Memory += sizeof(CallFrame);
   p->m_Memory += memory_need_btree( btl->m_Tree );
 
   while( btl )

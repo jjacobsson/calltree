@@ -33,7 +33,7 @@ enum NodeGristType
 
 enum SymbolTypes
 {
-  E_ST_UNKOWN, E_ST_TREE, E_ST_ACTION, E_ST_DECORATOR, E_MAX_SYMBOL_TYPES
+  E_ST_UNKOWN, E_ST_TREE, E_ST_ACTION, E_ST_DECORATOR, E_ST_TYPE, E_MAX_SYMBOL_TYPES
 };
 
 enum ParameterType
@@ -44,6 +44,7 @@ enum ParameterType
   E_VART_STRING,
   E_VART_BOOL,
   E_VART_HASH,
+  E_VART_LIST,
   E_MAX_VARIABLE_TYPE
 };
 
@@ -65,12 +66,15 @@ struct StringData
   const char* m_Raw;
 };
 
+struct Parameter;
+
 union ParameterData
 {
   int m_Integer;
   hash_t m_Hash;
   float m_Float;
   StringData m_String;
+  Parameter* m_List;
   bool m_Bool;
 };
 
@@ -82,6 +86,7 @@ struct Parameter
   ParameterData m_Data;
   Parameter* m_Next;
   bool m_ValueSet;
+  bool m_Declared;
 };
 
 struct Action
@@ -210,6 +215,7 @@ union SymbolTypeData
   BehaviorTree* m_Tree;
   Action* m_Action;
   Decorator* m_Decorator;
+  Parameter* m_Type;
 };
 
 struct NamedSymbol

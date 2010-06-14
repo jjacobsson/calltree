@@ -150,7 +150,7 @@ rule DirList
 	return [ GLOB $(_dir) : $(2) ] ;
 }
 
-if $(QT_PATH)
+if $(QTPATH)
 {
 	actions mocFile
 	{
@@ -188,8 +188,11 @@ else
 
 rule mocHeader
 {
-	local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
+	local _moc_output = [ FDirName build moc $(1:P) $(MOCPREFIX)$(1:B).cpp ] ;
+	local _moc_path = $(_moc_output:P) ;
 	
+	MkDir $(_moc_path) ;
+	Depends $(_moc_output) : $(_moc_path) ;
 	mocFile $(_moc_output) : $(1) ;
 	Depends $(_moc_output) : $(1) ;
 	

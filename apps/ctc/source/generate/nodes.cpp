@@ -19,6 +19,22 @@
 
 #include <vector>
 
+const int ACTION_CONSTRUCT_DBGLVL = 4;
+const int ACTION_DESTRUCT_DBGLVL  = 4;
+const int ACTION_EXECUTE_DBGLVL   = 1;
+
+const int DECORATOR_CONSTRUCT_DBGLVL = 4;
+const int DECORATOR_DESTRUCT_DBGLVL  = 4;
+const int DECORATOR_EXECUTE_DBGLVL   = 1;
+
+const int TREE_CONSTRUCT_DBGLVL = 5;
+const int TREE_DESTRUCT_DBGLVL  = 5;
+const int TREE_EXECUTE_DBGLVL   = 2;
+
+const int STANDARD_NODE_CONSTRUCT_DBGLVL = 6;
+const int STANDARD_NODE_DESTRUCT_DBGLVL  = 6;
+const int STANDARD_NODE_EXECUTE_DBGLVL   = 3;
+
 using namespace callback;
 
 typedef std::vector<int> IntVector;
@@ -470,7 +486,7 @@ int gen_con_sequence( Node* n, Program* p )
 {
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
 
   //Set jump-back pointer value to uninitialized
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, 0xffffffff, 0 );
@@ -479,7 +495,7 @@ int gen_con_sequence( Node* n, Program* p )
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_ReEntry, 0xffffffff, 0 );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
 
   return 0;
 }
@@ -489,7 +505,7 @@ int gen_exe_sequence( Node* n, Program* p )
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   IntVector exit_working;
   IntVector exit_fail;
@@ -582,7 +598,7 @@ int gen_exe_sequence( Node* n, Program* p )
     p->m_I.SetA1( exit_working[i], exit_working_point );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
   return 0;
 }
 
@@ -591,7 +607,7 @@ int gen_des_sequence( Node* n, Program* p )
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   //Jump past destruction code if m_bss_JumpBackTarget is uninitialized
   p->m_I.Push( INST_JABC_C_EQUA_B, p->m_I.Count() + 2, 0xffffffff,
@@ -601,7 +617,7 @@ int gen_des_sequence( Node* n, Program* p )
     nd->m_bss_JumpBackTarget, p->m_I.Count() + 1 );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   return 0;
 }
@@ -691,7 +707,7 @@ int gen_con_selector( Node* n, Program* p )
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
 
   //Set re-entry pointer value to uninitialized
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_ReEntry, 0xffffffff, 0 );
@@ -700,7 +716,7 @@ int gen_con_selector( Node* n, Program* p )
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget, 0xffffffff, 0 );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
 
   return 0;
 }
@@ -710,7 +726,7 @@ int gen_exe_selector( Node* n, Program* p )
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   IntVector exit_working;
   IntVector exit_success;
@@ -803,7 +819,7 @@ int gen_exe_selector( Node* n, Program* p )
     p->m_I.SetA1( exit_working[i], exit_working_point );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   return 0;
 }
@@ -812,7 +828,7 @@ int gen_des_selector( Node* n, Program* p )
 {
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   //Jump past destruction code if nd->m_bss_JumpBackTarget is uninitialized
   p->m_I.Push( INST_JABC_C_EQUA_B, p->m_I.Count() + 2, 0xffffffff,
@@ -822,7 +838,7 @@ int gen_des_selector( Node* n, Program* p )
     nd->m_bss_JumpBackTarget, p->m_I.Count() + 1 );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   return 0;
 }
@@ -902,7 +918,7 @@ int gen_con_parallel( Node* n, Program* p )
 {
   //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
 
   int err;
   Node* c = get_first_child( n );
@@ -916,7 +932,7 @@ int gen_con_parallel( Node* n, Program* p )
   }
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
   return 0;
 }
 
@@ -924,7 +940,7 @@ int gen_exe_parallel( Node* n, Program* p )
 {
   ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   //Set the success counter to 0
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_SuccessCounter, 0, 0 );
@@ -969,7 +985,7 @@ int gen_exe_parallel( Node* n, Program* p )
     p->m_I.SetA1( exit_fail[i], exit_point );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
   return 0;
 }
 
@@ -977,7 +993,7 @@ int gen_des_parallel( Node* n, Program* p )
 {
   //ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   int err;
   Node* c = get_first_child( n );
@@ -991,7 +1007,7 @@ int gen_des_parallel( Node* n, Program* p )
   }
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1071,7 +1087,7 @@ int gen_con_dynselector( Node* n, Program* p )
 {
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
   int i = 0;
   Node* c = get_first_child( n );
   while( c )
@@ -1090,7 +1106,7 @@ int gen_con_dynselector( Node* n, Program* p )
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_OldBranch, 0xffffffff, 0 );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1098,7 +1114,7 @@ int gen_exe_dynselector( Node* n, Program* p )
 {
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   IntVector exit_jumps, true_exit_jumps, cons_jumps, exec_jumps, dest_jumps;
   int i = 0;
@@ -1225,7 +1241,7 @@ int gen_exe_dynselector( Node* n, Program* p )
     p->m_I.SetA1( true_exit_jumps[i], exit_point );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
   return 0;
 }
 
@@ -1233,7 +1249,7 @@ int gen_des_dynselector( Node* n, Program* p )
 {
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
   //Jump past all this crap if "old branch" is uninitialized
   int patch_exit = p->m_I.Count();
@@ -1248,7 +1264,7 @@ int gen_des_dynselector( Node* n, Program* p )
   p->m_I.SetA1( patch_exit, p->m_I.Count() );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1436,11 +1452,11 @@ int gen_con_tree( Node* n, Program* p )
 {
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, TREE_CONSTRUCT_DBGLVL );
   //Clear the tree argument
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_Call + sizeof(CallFrame), 0, 0 );
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, TREE_CONSTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1448,13 +1464,13 @@ int gen_exe_tree( Node* n, Program* p )
 {
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, TREE_EXECUTE_DBGLVL );
   //Store the call instruction to patch.
   nd->m_CallPatch = p->m_I.Count();
   //Make the call
   p->m_I.Push( INST_SCRIPT_C, 0xffffffff, nd->m_bss_Call, 0 );
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, TREE_EXECUTE_DBGLVL );
   return 0;
 }
 
@@ -1462,7 +1478,7 @@ int gen_des_tree( Node* n, Program* p )
 {
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, TREE_DESTRUCT_DBGLVL );
   //Set the tree argument to destroy
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_Call + sizeof(CallFrame), ACT_DESTRUCT, 0 );
   //Store the call instruction to patch.
@@ -1470,7 +1486,7 @@ int gen_des_tree( Node* n, Program* p )
   //Make the call
   p->m_I.Push( INST_SCRIPT_C, 0xffffffff, nd->m_bss_Call, 0 );
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, TREE_DESTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1568,10 +1584,10 @@ int gen_con_decorator( Node* n, Program* p )
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
   Parameter* t = find_by_hash( d->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : d->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, DECORATOR_CONSTRUCT_DBGLVL );
 
   int err;
 
@@ -1611,7 +1627,7 @@ int gen_con_decorator( Node* n, Program* p )
     return err;
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, DECORATOR_CONSTRUCT_DBGLVL );
   return 0;
 }
 
@@ -1625,10 +1641,10 @@ int gen_exe_decorator( Node* n, Program* p )
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
   Parameter* t = find_by_hash( d->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : d->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
 
   int err;
   int jump_out = -1;
@@ -1637,7 +1653,7 @@ int gen_exe_decorator( Node* n, Program* p )
   if( t && as_bool( *t ) )
   {
     // Enter Debug scope
-    p->m_I.PushDebugScope( p, n, ACT_PRUNE );
+    p->m_I.PushDebugScope( p, n, ACT_PRUNE, DECORATOR_EXECUTE_DBGLVL );
 
     //Setup the register for the data pointer
     err = setup_variable_registry( &nd->m_VD,
@@ -1661,7 +1677,7 @@ int gen_exe_decorator( Node* n, Program* p )
     p->m_I.Push( INST_CALL_PRUN_FUN, 0, 1, 2 );
 
     // Exit Debug scope
-    p->m_I.PopDebugScope( p, n, ACT_PRUNE );
+    p->m_I.PopDebugScope( p, n, ACT_PRUNE, DECORATOR_EXECUTE_DBGLVL );
 
     //Jump out if non-success.
     jump_out = p->m_I.Count();
@@ -1676,7 +1692,7 @@ int gen_exe_decorator( Node* n, Program* p )
   if( t && as_bool( *t ) )
   {
     // Enter Debug scope
-    p->m_I.PushDebugScope( p, n, ACT_MODIFY );
+    p->m_I.PushDebugScope( p, n, ACT_MODIFY, DECORATOR_EXECUTE_DBGLVL );
 
     //Copy return value to bss section
     p->m_I.Push( INST__STORE_R_IN_B, nd->m_bssModPos, 0, 0 );
@@ -1703,14 +1719,14 @@ int gen_exe_decorator( Node* n, Program* p )
     p->m_I.Push( INST_CALL_MODI_FUN, 0, 1, 2 );
 
     // Exit Debug scope
-    p->m_I.PopDebugScope( p, n, ACT_MODIFY );
+    p->m_I.PopDebugScope( p, n, ACT_MODIFY, DECORATOR_EXECUTE_DBGLVL );
   }
 
   if( jump_out != -1 )
     p->m_I.SetA1( jump_out, p->m_I.Count() );
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+  p->m_I.PopDebugScope( p, n, ACT_EXECUTE, DECORATOR_EXECUTE_DBGLVL );
 
   return 0;
 }
@@ -1725,10 +1741,10 @@ int gen_des_decorator( Node* n, Program* p )
   Decorator* d = n->m_Grist.m_Decorator.m_Decorator;
 
   Parameter* t = find_by_hash( d->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : d->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, DECORATOR_DESTRUCT_DBGLVL );
 
   int err;
 
@@ -1762,7 +1778,7 @@ int gen_des_decorator( Node* n, Program* p )
   }
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, DECORATOR_DESTRUCT_DBGLVL );
 
   return 0;
 }
@@ -1861,10 +1877,10 @@ int gen_con_action( Node* n, Program* p )
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : a->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, ACTION_CONSTRUCT_DBGLVL );
 
   int err;
 
@@ -1900,7 +1916,7 @@ int gen_con_action( Node* n, Program* p )
   }
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, ACTION_CONSTRUCT_DBGLVL );
 
   return 0;
 }
@@ -1912,13 +1928,13 @@ int gen_exe_action( Node* n, Program* p )
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : a->m_Id.m_Hash;
 
   t = find_by_hash( a->m_Options, hashlittle( "execute" ) );
   if( !t || as_bool( *t ) )
   {
     // Enter Debug scope
-    p->m_I.PushDebugScope( p, n, ACT_EXECUTE );
+    p->m_I.PushDebugScope( p, n, ACT_EXECUTE, ACTION_EXECUTE_DBGLVL );
     //Setup the register for the data pointer
     int err = setup_variable_registry( &nd->m_VD,
       n->m_Grist.m_Action.m_Parameters, p );
@@ -1940,7 +1956,7 @@ int gen_exe_action( Node* n, Program* p )
     // Call the destruction callback
     p->m_I.Push( INST_CALL_EXEC_FUN, 0, 1, 2 );
     // Exit Debug scope
-    p->m_I.PopDebugScope( p, n, ACT_EXECUTE );
+    p->m_I.PopDebugScope( p, n, ACT_EXECUTE, ACTION_EXECUTE_DBGLVL );
   }
   return 0;
 }
@@ -1952,10 +1968,10 @@ int gen_des_action( Node* n, Program* p )
   Action* a = n->m_Grist.m_Action.m_Action;
   //Get the actions function id
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "id" ) );
-  int fid = t ? as_integer( *t ) : ~0;
+  int fid = t ? as_integer( *t ) : a->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, ACTION_DESTRUCT_DBGLVL );
 
   t = find_by_hash( a->m_Options, hashlittle( "destruct" ) );
   if( t && as_bool( *t ) )
@@ -1983,7 +1999,7 @@ int gen_des_action( Node* n, Program* p )
   }
 
   // Exit Debug scope
-  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT );
+  p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, ACTION_DESTRUCT_DBGLVL );
 
   return 0;
 }

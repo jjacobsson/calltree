@@ -27,8 +27,6 @@
 #define YYMALLOC ctx->m_Allocator.m_Alloc
 #define YYFREE ctx->m_Allocator.m_Free
 
-bool declare_action( SParserContext* ctx, const Identifier& id, Parameter* vars, Parameter* args );
-bool declare_decorator( SParserContext* ctx, const Identifier& id, Parameter* vars, Parameter* args );
 Node* allocate_node( BehaviorTreeContext ctx, NodeGristType type, Node* child, const char* buffer, unsigned int line_no );
 Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, const Identifier& id, const char* buffer, unsigned int line_no );
 
@@ -45,6 +43,7 @@ Parameter* allocate_parameter( BehaviorTreeContext ctx, ParameterType type, cons
 %token            T_DEFTREE      /* literal string "deftree" */
 %token            T_DEFACT       /* literal string "defact" */
 %token            T_DEFDEC       /* literal string "defdec" */
+%token            T_DEFTYPE      /* literal string "deftype" */
 %token            T_TREE         /* literal string "tree" */
 %token            T_INCLUDE      /* literal string "include" */
 %token            T_SEQUENCE     /* literal string "sequence" */
@@ -99,6 +98,7 @@ atom: options
     | include
     | defact
     | defdec
+    | deftype
     ;
 
 options: T_OPTIONS vlist
@@ -162,6 +162,16 @@ defdec: T_DEFDEC T_ID vlist vdlist
       	d->m_Locator.m_LineNo = ctx->m_LineNo;
       }
       ;
+
+deftype: T_DEFTYPE T_ID vdlist
+       {
+       	Parameter* p = look_up_type( ctx->m_Tree, &$2 );
+       	p->m_Data.m_List = $3;
+       	p->m_Declared = true;
+       	p->m_Locator.m_Buffer = ctx->m_Current;
+       	p->m_Locator.m_LineNo = ctx->m_LineNo;
+       }
+       ;
 
 node: T_LPARE sequence T_RPARE  { $$ = $2; }
     | T_LPARE selector T_RPARE  { $$ = $2; }
@@ -279,7 +289,7 @@ tree: T_TREE T_QUOTE T_ID vlist
     	Node* n = ALLOCATE_NODE( E_GRIST_TREE, 0x0 );
     	$$ = n;
     	n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( ctx->m_Tree, &$3 );
-    }
+    }    
     ;
 
 vlist: T_LPARE vmember T_RPARE         { $$ = $2; }
@@ -299,6 +309,7 @@ vtypes: T_ID T_INT32_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $1 ); $$-
       | T_ID T_STRING_VALUE { $$ = ALLOCATE_PARAMETER( E_VART_STRING, $1 );  $$->m_Data.m_String = $2; $$->m_ValueSet = true; }
       | T_ID T_BOOL_VALUE   { $$ = ALLOCATE_PARAMETER( E_VART_BOOL, $1 );    $$->m_Data.m_Bool = $2; $$->m_ValueSet = true; }
       | T_ID T_FLOAT_VALUE  { $$ = ALLOCATE_PARAMETER( E_VART_FLOAT, $1 );   $$->m_Data.m_Float = $2; $$->m_ValueSet = true; }
+      | T_ID vlist          { $$ = ALLOCATE_PARAMETER( E_VART_LIST, $1 );    $$->m_Data.m_List = $2; $$->m_ValueSet = true; }
       ;
 
 vdlist: T_LPARE vdmember T_RPARE         { $$ = $2; } 
@@ -319,6 +330,7 @@ vdtypes: T_INT32 T_ID  { $$ = ALLOCATE_PARAMETER( E_VART_INTEGER, $2 ); }
        | T_BOOL T_ID   { $$ = ALLOCATE_PARAMETER( E_VART_BOOL, $2 ); }
        | T_FLOAT T_ID  { $$ = ALLOCATE_PARAMETER( E_VART_FLOAT, $2 ); }
        | T_HASH T_ID   { $$ = ALLOCATE_PARAMETER( E_VART_HASH, $2 ); }
+       | T_ID T_ID     { $$ = ALLOCATE_PARAMETER( E_VART_LIST, $2 ); $$->m_Data.m_List = look_up_type( ctx->m_Tree, &$1 ) ; }
        ;
 
 %%

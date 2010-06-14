@@ -55,6 +55,7 @@ public:
     return false;
   }
 
+  void dropArrows();
   void removeArrow( NodeToNodeArrow* arrow );
   void removeArrows();
   void addArrow( NodeToNodeArrow* arrow );

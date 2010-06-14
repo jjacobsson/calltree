@@ -178,33 +178,11 @@ void BehaviorTreeTree::setupPropertyEditor()
   }
 
   {
-    TreePropertyEditor* tpe = new TreePropertyEditor( m_Context, m_Tree, m_PropertyWidget );
-    box->addWidget( tpe );
-
-    connect( tpe, SIGNAL( changed() ), this, SLOT( propertyChanged() ) );
+//    TreePropertyEditor* tpe = new TreePropertyEditor( m_Context, m_Tree, m_PropertyWidget );
+//    box->addWidget( tpe );
+//    connect( tpe, SIGNAL( changed() ), this, SLOT( propertyChanged() ) );
   }
 
-/*
-  {
-    QTableWidget* tw = new QTableWidget( 3, 3 );
-    tw->verticalHeader()->setVisible( false );
-    box->addWidget( tw );
-    QComboBox* cb = new QComboBox;
-    cb->addItem( "Integer" );
-    cb->addItem( "Float" );
-    cb->addItem( "String" );
-    cb->addItem( "Bool" );
-    cb->addItem( "Hash" );
-    tw->setCellWidget( 1, 2, cb );
-
-    tw->setSelectionMode( QAbstractItemView::NoSelection );
-    tw->setAlternatingRowColors( true );
-    tw->horizontalHeader()->setResizeMode( QHeaderView::Fixed );
-    tw->horizontalHeader()->setResizeMode( 2, QHeaderView::Stretch );
-    //tw->resizeColumnsToContents();
-    tw->resizeRowsToContents();
-  }
-*/
 }
 
 

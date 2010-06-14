@@ -60,6 +60,11 @@ BehaviorTreeSceneItem::~BehaviorTreeSceneItem()
   emit itemDeleted();
 }
 
+void BehaviorTreeSceneItem::dropArrows()
+{
+  m_Arrows.clear();
+}
+
 void BehaviorTreeSceneItem::removeArrow(NodeToNodeArrow *arrow)
 {
     int index = m_Arrows.indexOf(arrow);

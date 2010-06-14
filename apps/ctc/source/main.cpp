@@ -16,12 +16,15 @@
 #include <btree/btree.h>
 #include "generate/program.h"
 
+#include <string.h>
+
 FILE* g_outputFile = 0x0;
 char* g_inputFileName = 0x0;
 char* g_outputFileName = 0x0;
 bool g_swapEndian = false;
 bool g_printIncludes = false;
 char* g_asmFileName = 0x0;
+char* g_outputHeaderName = 0x0;
 
 char* g_asmFileNameMemory = 0x0;
 
@@ -34,95 +37,14 @@ struct ParsingInfo
   const char* m_Name;
 };
 
-int read_file( ParserContext pc, char* buffer, int maxsize )
-{
-  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
-  if( !pi )
-    return 0;
-  if( feof( pi->m_File ) )
-    return 0;
-  return (int)fread( buffer, 1, maxsize, pi->m_File );
-}
+int print_header( FILE* outfile, const char* file_name, BehaviorTreeContext ctx );
 
-void parser_error( ParserContext pc, const char* msg )
-{
-  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
-  if( pi )
-  {
-    printf( "%s(%d) : error : %s\n", pi->m_Name, get_line_no( pc ),
-      msg );
-  }
-  else
-  {
-    printf( "%s: error : %s\n", g_inputFileName, msg );
-  }
-}
-
-void parser_warning( ParserContext pc, const char* msg )
-{
-  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
-  if( pi )
-  {
-    printf( "%s(%d): warning : %s\n", pi->m_Name, get_line_no( pc ),
-      msg );
-  }
-  else
-  {
-    printf( "%s: warning : %s\n", g_inputFileName, msg );
-  }
-}
-
-void* allocate_memory( mem_size_t size )
-{
-  g_allocs++;
-  return malloc( size );
-}
-
-void free_memory( void* ptr )
-{
-  if( ptr )
-  {
-    g_frees++;
-    free( ptr );
-  }
-}
-
-const char* parser_translate_include( ParserContext pc, const char* include )
-{
-  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
-  BehaviorTreeContext btc = get_bt_context( pc );
-
-  Allocator a;
-  a.m_Alloc = &allocate_memory;
-  a.m_Free = &free_memory;
-
-  StringBuffer sb;
-  init( a, &sb );
-
-  if( pi->m_Name )
-  {
-    char backslash = '\\';
-    char frontslash = '/';
-
-    int s = 0, last = -1;
-    const char* p = pi->m_Name;
-    while( p && *p )
-    {
-      if( *p == backslash || *p == frontslash )
-        last = s;
-      ++p;
-      ++s;
-    }
-    if( last != -1 )
-      append( &sb, pi->m_Name, last + 1 );
-  }
-
-  append( &sb, include );
-  const char* ret = register_string( btc, sb.m_Str );
-  destroy( &sb );
-
-  return ret;
-}
+int read_file( ParserContext pc, char* buffer, int maxsize );
+void parser_error( ParserContext pc, const char* msg );
+void parser_warning( ParserContext pc, const char* msg );
+void* allocate_memory( mem_size_t size );
+void free_memory( void* ptr );
+const char* parser_translate_include( ParserContext pc, const char* include );
 
 int main( int argc, char** argv )
 {
@@ -130,7 +52,7 @@ int main( int argc, char** argv )
   init_getopt_context( &ctx );
   char c;
 
-  while( (c = getopt( argc, argv, "?i:o:a:de:x:lcr", &ctx )) != -1 )
+  while( (c = getopt( argc, argv, "?i:o:a:de:x:lcrh:", &ctx )) != -1 )
   {
     switch( c )
     {
@@ -160,6 +82,9 @@ int main( int argc, char** argv )
       break;
     case 'c':
       /* don't ask. */
+      break;
+    case 'h':
+      g_outputHeaderName = ctx.optarg;
       break;
     case '?':
       fprintf( stdout, "calltree compiler Version 0.1\n\n" );
@@ -259,6 +184,21 @@ int main( int argc, char** argv )
       include = include->m_Next;
     }
 
+    if( g_outputHeaderName && returnCode == 0 )
+    {
+      FILE* header = fopen( g_outputHeaderName, "w" );
+      if( !header )
+      {
+        printf( "error: Unable to open output file %s for writing.\n", g_outputHeaderName );
+        returnCode = -1;
+      }
+      else
+      {
+        returnCode = print_header( header, g_inputFileName, btc );
+        fclose( header );
+      }
+    }
+
     if( g_outputFileName && returnCode == 0 )
     {
       Program p;
@@ -266,7 +206,7 @@ int main( int argc, char** argv )
       unsigned int debug_hash = hashlittle( "debug_info" );
       Parameter* debug_param = find_by_hash( get_options( btc ), debug_hash );
       if( debug_param )
-        p.m_I.SetGenerateDebugInfo( as_bool( *debug_param ) );
+        p.m_I.SetGenerateDebugInfo( as_integer( *debug_param ) );
 
       returnCode = setup( btc, &p );
       if( returnCode == 0 )
@@ -343,4 +283,162 @@ int main( int argc, char** argv )
     fclose( g_outputFile );
 
   return returnCode;
+}
+
+const char* get_string_from_parameter_list( Parameter* pl, unsigned int hash )
+{
+  Parameter* p = find_by_hash( pl, hash );
+  if( !p || !safe_to_convert( p, E_VART_STRING ) )
+    return 0x0;
+  return as_string( *p )->m_Parsed;
+}
+
+void print_header_entry( FILE* f, const char* symbol, const char* name, unsigned int value )
+{
+  if( symbol )
+  {
+    char tmp[1024];
+    sprintf( tmp, "%s%s", symbol, name );
+    fprintf( f, "const unsigned int %-60s = 0x%08x;\n", tmp, value );
+  }
+  else
+  {
+    fprintf( f, "const unsigned int %-60s = 0x%08x;\n", name, value );
+  }
+}
+
+int print_header( FILE* f, const char* file_name, BehaviorTreeContext ctx )
+{
+  Parameter* opts = get_options( ctx );
+
+  unsigned int header_hash = hashlittle( "ctc_h_header" );
+  unsigned int footer_hash = hashlittle( "ctc_h_footer" );
+  unsigned int symbol_hash = hashlittle( "ctc_h_symbol_prefix" );
+  unsigned int id_hash     = hashlittle( "id" );
+
+  const char* header = get_string_from_parameter_list( opts, header_hash );
+  const char* footer = get_string_from_parameter_list( opts, footer_hash );
+  const char* symbol = get_string_from_parameter_list( opts, symbol_hash );
+  fprintf( f, "/*\n * This file is auto generated by ctc from %s.\n * Manual edits will be lost when regenerated.\n */\n\n", file_name );
+
+
+  if( header )
+    fprintf( f, "%s\n\n", header );
+
+  int count;
+  NamedSymbol* ns = access_symbols( ctx, &count );
+  for( int i = 0; i < count; ++i )
+  {
+    if( ns[i].m_Type == E_ST_ACTION )
+    {
+      Parameter* p = find_by_hash( ns[i].m_Symbol.m_Action->m_Options, id_hash );
+      if( p && safe_to_convert( p, E_VART_INTEGER ) )
+        print_header_entry( f, symbol, ns[i].m_Symbol.m_Action->m_Id.m_Text, as_integer( *p ) );
+      else
+        print_header_entry( f, symbol, ns[i].m_Symbol.m_Action->m_Id.m_Text, ns[i].m_Symbol.m_Action->m_Id.m_Hash );
+    }
+    else if( ns[i].m_Type == E_ST_DECORATOR )
+    {
+      Parameter* p = find_by_hash( ns[i].m_Symbol.m_Decorator->m_Options, id_hash );
+      if( p && safe_to_convert( p, E_VART_INTEGER ) )
+        print_header_entry( f, symbol, ns[i].m_Symbol.m_Decorator->m_Id.m_Text, as_integer( *p ) );
+      else
+        print_header_entry( f, symbol, ns[i].m_Symbol.m_Decorator->m_Id.m_Text, ns[i].m_Symbol.m_Action->m_Id.m_Hash );
+    }
+  }
+
+  if( footer )
+    fprintf( f, "\n%s\n", footer );
+
+  return 0;
+}
+
+int read_file( ParserContext pc, char* buffer, int maxsize )
+{
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  if( !pi )
+    return 0;
+  if( feof( pi->m_File ) )
+    return 0;
+  return (int)fread( buffer, 1, maxsize, pi->m_File );
+}
+
+void parser_error( ParserContext pc, const char* msg )
+{
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  if( pi )
+  {
+    printf( "%s(%d) : error : %s\n", pi->m_Name, get_line_no( pc ),
+      msg );
+  }
+  else
+  {
+    printf( "%s: error : %s\n", g_inputFileName, msg );
+  }
+}
+
+void parser_warning( ParserContext pc, const char* msg )
+{
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  if( pi )
+  {
+    printf( "%s(%d): warning : %s\n", pi->m_Name, get_line_no( pc ),
+      msg );
+  }
+  else
+  {
+    printf( "%s: warning : %s\n", g_inputFileName, msg );
+  }
+}
+
+void* allocate_memory( mem_size_t size )
+{
+  g_allocs++;
+  return malloc( size );
+}
+
+void free_memory( void* ptr )
+{
+  if( ptr )
+  {
+    g_frees++;
+    free( ptr );
+  }
+}
+
+const char* parser_translate_include( ParserContext pc, const char* include )
+{
+  ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
+  BehaviorTreeContext btc = get_bt_context( pc );
+
+  Allocator a;
+  a.m_Alloc = &allocate_memory;
+  a.m_Free = &free_memory;
+
+  StringBuffer sb;
+  init( a, &sb );
+
+  if( pi->m_Name )
+  {
+    char backslash = '\\';
+    char frontslash = '/';
+
+    int s = 0, last = -1;
+    const char* p = pi->m_Name;
+    while( p && *p )
+    {
+      if( *p == backslash || *p == frontslash )
+        last = s;
+      ++p;
+      ++s;
+    }
+    if( last != -1 )
+      append( &sb, pi->m_Name, last + 1 );
+  }
+
+  append( &sb, include );
+  const char* ret = register_string( btc, sb.m_Str );
+  destroy( &sb );
+
+  return ret;
 }

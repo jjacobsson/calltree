@@ -21,6 +21,7 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "deftree" ),
   hashlittle( "defact" ),
   hashlittle( "defdec" ),
+  hashlittle( "deftype" ),
   hashlittle( "tree" ),
   hashlittle( "sequence" ),
   hashlittle( "selector" ),
@@ -85,6 +86,7 @@ void init( Parameter* v )
   v->m_Data.m_String.m_Raw = 0x0;
   v->m_Next = 0x0;
   v->m_ValueSet = false;
+  v->m_Declared = false;
   init( &v->m_Id );
   init( &v->m_Locator );
 }

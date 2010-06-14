@@ -12,6 +12,7 @@
 #include "sym_table.h"
 #include <algorithm>
 #include <stdlib.h>
+#include <string.h>
 
 #define ST_ALLOC_MACRO( _size ) st->m_Allocator.m_Alloc(_size)
 #define ST_FREE_MACRO( _ptr ) st->m_Allocator.m_Free(_ptr)
@@ -31,6 +32,9 @@ struct NamedSymbolPredicate
       break;
     case E_ST_DECORATOR:
       r = s.m_Symbol.m_Decorator->m_Id.m_Hash;
+      break;
+    case E_ST_TYPE:
+      r = s.m_Symbol.m_Type->m_Id.m_Hash;
       break;
     case E_ST_UNKOWN:
     case E_MAX_SYMBOL_TYPES:

@@ -51,7 +51,7 @@ BehaviorTreeScene::~BehaviorTreeScene()
 
 void BehaviorTreeScene::newTree()
 {
-  clear();
+  clearGraphics();
 
   destroy( m_TreeContext );
   m_TreeContext = 0x0;
@@ -65,7 +65,7 @@ void BehaviorTreeScene::newTree()
 
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
-  clear();
+  clearGraphics();
 
   destroy( m_TreeContext );
   m_TreeContext = 0x0;
@@ -798,4 +798,19 @@ void BehaviorTreeScene::setupTreeNode( Node* n, const XNodeData& xnd )
   }
 
   n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( m_TreeContext, &declared->m_Id );
+}
+
+void BehaviorTreeScene::clearGraphics()
+{
+  typedef QList<QGraphicsItem *> ItemList;
+  ItemList children( items() );
+  ItemList::iterator it, it_e = children.end();
+  for( it = children.begin() ; it != it_e; ++it )
+  {
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    if( !btsi )
+      continue;
+    btsi->dropArrows();
+  }
+  clear();
 }
