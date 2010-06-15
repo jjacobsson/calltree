@@ -1,4 +1,4 @@
-!http://github.com/jjacobsson/calltree/blob/master/ctsss.png!
+!http://jjacobsson.github.com/calltree/ctsss.png!
 
 This is "calltree". 
 
