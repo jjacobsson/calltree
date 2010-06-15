@@ -1,0 +1,24 @@
+!ctsss.png!
+
+This is "calltree". 
+
+Calltree is an implementation of Behaviour Tree's intended for use in game development.
+It attempts to be as small as possible in needed run time, code size and memory overhead 
+leaving the user more resources left over to do the actual heavy lifting.
+
+Any code found in the '3rd' directory is supporting code that other's have written, in
+some cases with very slight modifications done by me. This is only used during 
+compilitaion (UnitTest++ for tests), in the "offline" tool 'btcomp' or in the example 
+runtime 'cbrun'.
+
+That code is not needed if you are only interested in using 'callback' in closed 
+source binary where you want to use Behaviour Tree's built with btcomp.
+
+The code currently builds with jam on Linux, needing Bison & Flex. It should be a 
+no-brainer to get it to build and run under other platforms. I recomend getting 
+mingw & msys for Bison & Flex.
+
+
+Anyone who wants to get their hands dirty with the code all I can say is: 
+
+get your hands dirty.
