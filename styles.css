@@ -1,0 +1,113 @@
+body {
+	font:				76% Verdana, Arial, Helvetica, sans-serif;
+	background-color:	white;
+	background-image: 	url(body_bg.png);
+	color:				black;
+	margin:				0;
+	padding:			0;
+}
+
+body img.right_bg {
+	position:		absolute;
+	right:			0px;
+	top:			10px;
+	margin:			0;
+	padding:		0;
+	z-index:		0;
+}
+
+body img.left_bg {
+	position:		absolute;
+	left:			0px;
+	top:			10px;
+	margin:			0;
+	padding:		0;
+	z-index:		0;
+}
+
+.page {
+	position:			relative;
+	background-color:	white;
+	border:				1px solid #7f7f7f;
+	text-align:			left;
+}
+
+table {
+	position:				relative;
+	margin:					0;
+	width:					100%;
+}
+
+.header {
+	font-size:				14px;
+	font-weight:			bold;
+	padding:				10px 0 5px 0;
+}
+
+td {
+	font-size:				12px;
+	font-weight:			noraml;
+}
+
+li {
+	list-style-type:		square;
+}
+
+dt {
+	font-size:				10px;
+	padding:				5px 0 0 0;
+	font-weight:			bold;
+}
+
+dd {
+	font-size:				12px;
+}
+
+.group_real_name {
+	text-align:			right;
+}
+
+.group_description {
+	padding-bottom:		1em;
+}
+
+.page .tl {
+	background-image: 		url(page_tl.png);
+	background-position:	0% 0%;
+	background-repeat: 		no-repeat;
+	position:				relative;
+	top: 					-1px;
+	left: 					-1px;
+}
+
+.page .tr {
+	background-image: 		url(page_tr.png);
+	background-position: 	100% 0%;
+	background-repeat: 		no-repeat;
+	position:				relative;
+	left: 					2px;
+}
+
+.page .br {
+	background-image:		url(page_br.png);
+	background-position:	100% 100%;
+	background-repeat:		no-repeat;
+	position:				relative;
+	top:					2px;
+}
+
+.page .bl {
+	background-image:		url(page_bl.png);
+	background-position:	0% 100%;
+	background-repeat:		no-repeat;
+	position:				relative;
+	left:					-2px;
+}
+
+.page {
+	margin:	10px auto;
+	width:	750px;
+}
+#content {
+	padding: 15px 10px 15px 10px;
+}
