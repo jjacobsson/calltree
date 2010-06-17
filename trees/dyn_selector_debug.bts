@@ -1,0 +1,56 @@
+
+; Options
+
+
+; Includes
+
+(include "cbrun.bth")
+
+
+; Types
+
+
+; Actions
+
+
+; Decorators
+
+
+; Trees
+
+(deftree tree_b null (
+  (parallel (
+    (action 'act_dec_gc null)
+    (work)
+   )
+  )
+ )
+)
+
+(deftree main null (
+  (sequence (
+    (action 'act_set_gc ((value 2)))
+    (parallel (
+      (dyn_selector (
+        (tree 'tree_a null)
+        (tree 'tree_b null)
+        (work)
+       )
+      )
+      (work)
+     )
+    )
+   )
+  )
+ )
+)
+
+(deftree tree_a null (
+  (sequence (
+    (action 'act_check_gc_smlr ((value 1)))
+    (action 'act_set_gc ((value 2)))
+   )
+  )
+ )
+)
+

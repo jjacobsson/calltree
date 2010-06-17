@@ -47,6 +47,8 @@ int count_elements( Parameter* start );
 
 Parameter* find_by_hash( Parameter* start, hash_t hash );
 
+Parameter* find_child_by_hash( Parameter* start, hash_t hash );
+
 int count_occourances_of_hash_in_list( Parameter* start, hash_t hash );
 
 bool id_hashes_are_unique_in_list( Parameter* start );
@@ -66,6 +68,8 @@ bool as_bool( const Parameter& );
 const char* list_as_string( BehaviorTreeContext tree, Parameter* start );
 
 void free_list( BehaviorTreeContext ctx, Parameter* start );
+
+const char* get_type_name( Parameter* p );
 
 /*
  * BehaviorTree Functions
@@ -191,6 +195,12 @@ Action* look_up_action( BehaviorTreeContext, Identifier* );
 Parameter* look_up_type( BehaviorTreeContext, Identifier* );
 
 Parameter* get_options( BehaviorTreeContext );
+
+Parameter* get_options( NamedSymbol* ns  );
+
+Locator* get_locator( NamedSymbol* ns  );
+
+NodeGristType get_grist_type( NamedSymbol* ns );
 
 /*
  * String Buffer Functions

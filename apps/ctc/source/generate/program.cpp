@@ -236,29 +236,6 @@ bool StandardNode( Node* n )
   return true;
 }
 
-bool UseDebugInfo( int level, Node* n )
-{
-  bool r = false;
-  switch( level )
-  {
-  case 0:
-    r = false;
-    break;
-  case 1:
-    r = (n->m_Grist.m_Type == E_GRIST_ACTION) || (n->m_Grist.m_Type
-        == E_GRIST_DECORATOR);
-    break;
-  case 2:
-    r = (n->m_Grist.m_Type == E_GRIST_ACTION) || (n->m_Grist.m_Type
-        == E_GRIST_DECORATOR) || (n->m_Grist.m_Type == E_GRIST_TREE);
-    break;
-  default:
-    r = false;
-    break;
-  }
-  return r;
-}
-
 void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action, int debug_level )
 {
   if( m_DebugLevel < debug_level )

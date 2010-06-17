@@ -70,8 +70,15 @@ void MainWindow::open()
 {
   if( okToContinue() )
   {
+    QString path(".");
+    if( !m_CurrentFile.isEmpty() )
+    {
+      QFileInfo fi( m_CurrentFile );
+      path = fi.absolutePath();
+    }
+
     QString fileName = QFileDialog::getOpenFileName( this, tr(
-      "Open Behavior Tree" ), ".", tr( "Behavior Tree files (*.bts)" ) );
+      "Open Behavior Tree" ), path, tr( "Behavior Tree files (*.bts *.bth)" ) );
     if( !fileName.isEmpty() )
       loadFile( fileName );
   }
@@ -88,9 +95,16 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
+  QString path(".");
+  if( !m_CurrentFile.isEmpty() )
+  {
+    QFileInfo fi( m_CurrentFile );
+    path = fi.absolutePath();
+  }
+
   QString fileName = QFileDialog::getSaveFileName(this,
-    tr("Save Behavior Tree"), ".",
-    tr("Behavior Tree files (*.bts)"));
+    tr("Save Behavior Tree"), path,
+    tr("Behavior Tree File (*.bts);;Behavior Tree Header (*.bth)"));
   if( fileName.isEmpty() )
     return false;
   return saveFile( fileName );

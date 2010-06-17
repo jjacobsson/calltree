@@ -142,6 +142,10 @@ Parameter* clone( BehaviorTreeContext btc, Parameter* o )
       break;
     case E_VART_BOOL:
     case E_VART_HASH:
+      break;
+    case E_VART_LIST:
+      p->m_Data.m_List = clone_list( btc, o->m_Data.m_List );
+      break;
     case E_MAX_VARIABLE_TYPE:
       break;
     }

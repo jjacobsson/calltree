@@ -364,10 +364,18 @@ int gen_btree( BehaviorTree* t, Program* p )
 
   BehaviorTreeNodeData* nd = (BehaviorTreeNodeData*)t->m_UserData;
 
-  int patch;
+  int patch_jmp_to_exec;
+  int patch_jmp_to_dest;
+  int patch_jmp_to_exit[2];
 
   //Store the jump instruction to patch
-  patch = p->m_I.Count();
+  patch_jmp_to_dest = p->m_I.Count();
+
+  //Jump to destruction code if set to do so.
+  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, ACT_DESTRUCT, nd->m_bss_Destruct );
+
+  //Store the jump instruction to patch
+  patch_jmp_to_exec = p->m_I.Count();
 
   //Jump past construction code if tree is already running
   p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_WORKING, nd->m_bss_Return );
@@ -377,13 +385,7 @@ int gen_btree( BehaviorTree* t, Program* p )
     return err;
 
   //Patch jump past construction code instruction
-  p->m_I.SetA1( patch, p->m_I.Count() );
-
-  //Store the jump instruction to patch
-  patch = p->m_I.Count();
-
-  //Jump to destruction code if set to do so.
-  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, ACT_DESTRUCT, nd->m_bss_Destruct );
+  p->m_I.SetA1( patch_jmp_to_exec, p->m_I.Count() );
 
   //Generate tree execution code
   if( (err = gen_exe( t->m_Root, p )) != 0 )
@@ -392,22 +394,36 @@ int gen_btree( BehaviorTree* t, Program* p )
   //Store return value in bss.
   p->m_I.Push( INST__STORE_R_IN_B, nd->m_bss_Return, 0, 0 );
 
-  //Jump past destruction code if tree is running
-  int patch_jump_out = p->m_I.Count();
+  //Jump past destruction code if tree is working
+  patch_jmp_to_exit[0] = p->m_I.Count();
   p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_WORKING, 0 );
 
+  //This is a bit tricky. If we get here the tree is *not* working,
+  //but we need the destruction code to think that it is.
+  p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_Return, E_NODE_WORKING, 0 );
+
   //Patch jump to destruction code
-  p->m_I.SetA1( patch, p->m_I.Count() );
+  p->m_I.SetA1( patch_jmp_to_dest, p->m_I.Count() );
 
   //Reset the destruction command
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_Destruct, 0, 0 );
+
+  //Store the jump to exit patch
+  patch_jmp_to_exit[1] = p->m_I.Count();
+
+  //Skip destruction if the tree state is anything other than E_NODE_WORKING
+  p->m_I.Push( INST_JABC_C_DIFF_B, 0xffffffff, E_NODE_WORKING, nd->m_bss_Return );
 
   //Generate destruction code
   if( (err = gen_des( t->m_Root, p )) != 0 )
     return err;
 
-  //Patch jump past destruction code instruction
-  p->m_I.SetA1( patch_jump_out, p->m_I.Count() );
+  //Set the tree-state to uninitialized.
+  p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_Return, E_NODE_UNDEFINED, 0 );
+
+  //Patch jump to exit code instructions
+  p->m_I.SetA1( patch_jmp_to_exit[0], p->m_I.Count() );
+  p->m_I.SetA1( patch_jmp_to_exit[1], p->m_I.Count() );
 
   //Return out
   p->m_I.Push( INST_SCRIPT_R, 0, 0, 0 );
@@ -1251,17 +1267,12 @@ int gen_des_dynselector( Node* n, Program* p )
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
 
-  //Jump past all this crap if "old branch" is uninitialized
-  int patch_exit = p->m_I.Count();
-  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, 0xffffffff, nd->m_bss_OldBranch );
   //set jump back after destruction target
   p->m_I.Push( INST__STORE_C_IN_B, nd->m_bss_JumpBackTarget,
     p->m_I.Count() + 2, 0 );
   //Jump to destruction code of "old branch" if it is set to a valid value
   p->m_I.Push( INST_JABB_C_DIFF_B, nd->m_bss_OldBranch, 0xffffffff,
     nd->m_bss_OldBranch );
-  //Patch the jump instruction
-  p->m_I.SetA1( patch_exit, p->m_I.Count() );
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );

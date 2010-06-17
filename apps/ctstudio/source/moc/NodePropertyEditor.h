@@ -12,16 +12,13 @@
 #ifndef NODEPROPERTYEDITOR_H_INCLUDED
 #define NODEPROPERTYEDITOR_H_INCLUDED
 
-#include <QtGui/QTableView>
-#include <QtGui/QStandardItemModel>
+#include <QtGui/QTableWidget>
 
 #include <btree/btree.h>
 
 class NodePropertyDelegate;
-class QStyledItemDelegate;
-class QStandardItem;
 
-class NodePropertyEditor : public QTableView
+class NodePropertyEditor : public QTableWidget
 {
 
 Q_OBJECT
@@ -45,13 +42,10 @@ signals:
 
   void nodeParametersChanged();
 
-private slots:
-
-  void updateNodeParameterData( QStandardItem* );
-
 protected:
 
-  void setupPropertyEditorForParamaters( Parameter*, Parameter* );
+  void setupProperties( Parameter* opt, Parameter* dec, Parameter* par );
+  QWidget* createEditor( Parameter* opt, Parameter* dec, Parameter* par );
   void validateParameters();
 
 private:
@@ -60,9 +54,6 @@ private:
   bool m_HasWarnings;
   BehaviorTreeContext m_Context;
   Node* m_Node;
-
-  NodePropertyDelegate* m_Delegate;
-  QStandardItemModel m_Model;
 };
 
 #endif /* NODEPROPERTYEDITOR_H_INCLUDED */

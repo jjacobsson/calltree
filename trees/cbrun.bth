@@ -16,7 +16,9 @@
 (defact test null ((vector pos)))
 
 (defact act_exit
-	((id 0)) 
+	(
+		(id 0)
+	) 
 	null
 )
 (defact act_check_exit

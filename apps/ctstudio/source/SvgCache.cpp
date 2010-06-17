@@ -101,11 +101,11 @@ QSvgRenderer* get( Node* n )
   if( !n )
     return get( g_NodeSVGResourcePaths[E_GRIST_UNKOWN] );
 
-  Parameter* opts = 0x0;
+  Parameter* opts = get_options( n );
   Locator l;
   int gt = n->m_Grist.m_Type;
 
-  switch( gt )
+  switch( n->m_Grist.m_Type )
   {
   case E_GRIST_UNKOWN:
     break;
@@ -126,19 +126,17 @@ QSvgRenderer* get( Node* n )
   case E_GRIST_TREE:
     break;
   case E_GRIST_ACTION:
-    opts = n->m_Grist.m_Action.m_Action->m_Options;
     l = n->m_Grist.m_Action.m_Action->m_Locator;
     break;
   case E_GRIST_DECORATOR:
-    opts = n->m_Grist.m_Decorator.m_Decorator->m_Options;
     l = n->m_Grist.m_Decorator.m_Decorator->m_Locator;
     break;
   case E_MAX_GRIST_TYPES:
     break;
   }
 
-  if( opts )
-    opts = find_by_hash( opts, hashlittle( "cts_icon" ) );
+  opts = find_by_hash( opts, hashlittle( "cts" ) );
+  opts = find_child_by_hash( opts, hashlittle( "icon" ) );
   if( opts && !safe_to_convert( opts, E_VART_STRING ) )
     opts = 0x0;
 

@@ -43,6 +43,16 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "null" )
 };
 
+const char* g_parameter_type_names[E_MAX_VARIABLE_TYPE] = {
+  "undefined",
+  "int32",
+  "float",
+  "string",
+  "bool",
+  "hash",
+  "list"
+};
+
 bool is_btree_keyword( const char* str )
 {
   hash_t t = hashlittle( str );
@@ -125,6 +135,13 @@ Parameter* find_by_hash( Parameter* s, hash_t hash )
       return s;
     s = s->m_Next;
   }
+  return 0x0;
+}
+
+Parameter* find_child_by_hash( Parameter* s, hash_t hash )
+{
+  if( s && s->m_Type == E_VART_LIST )
+    return find_by_hash( s->m_Data.m_List, hash );
   return 0x0;
 }
 
@@ -383,10 +400,20 @@ void free_list( BehaviorTreeContext ctx, Parameter* s )
   while( s )
   {
     Parameter* n = s->m_Next;
+    if( s->m_Type == E_VART_LIST )
+      free_list( ctx, s->m_Data.m_List );
     free_object( ctx, s );
     s = n;
   }
 }
+
+const char* get_type_name( Parameter* p )
+{
+  if( !p )
+    return g_parameter_type_names[0];
+  return g_parameter_type_names[p->m_Type];
+}
+
 
 /*
  * BehaviorTree Functions
@@ -824,6 +851,80 @@ Parameter* get_options( Node* n )
   return r;
 }
 
+Parameter* get_options( NamedSymbol* ns  )
+{
+  if( !ns )
+    return 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    /* Warning Killer */
+    break;
+  case E_ST_ACTION:
+    return ns->m_Symbol.m_Action->m_Options;
+    break;
+  case E_ST_DECORATOR:
+    return ns->m_Symbol.m_Decorator->m_Options;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return 0x0;
+}
+
+Locator* get_locator( NamedSymbol* ns  )
+{
+  if( !ns )
+    return 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    /* Warning Killer */
+    break;
+  case E_ST_ACTION:
+    return &ns->m_Symbol.m_Action->m_Locator;
+    break;
+  case E_ST_DECORATOR:
+    return &ns->m_Symbol.m_Decorator->m_Locator;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return 0x0;
+}
+
+NodeGristType get_grist_type( NamedSymbol* ns )
+{
+  if( !ns )
+    return E_GRIST_UNKOWN;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    return E_GRIST_TREE;
+    break;
+  case E_ST_ACTION:
+    return E_GRIST_ACTION;
+    break;
+  case E_ST_DECORATOR:
+    return E_GRIST_DECORATOR;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return E_GRIST_UNKOWN;
+}
 
 BehaviorTree* find_parent_tree( const NodeParent& p )
 {

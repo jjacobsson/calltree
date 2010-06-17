@@ -11,8 +11,6 @@
 
 #include "TreePropertyEditor.h"
 
-#include <QtCore/QSignalMapper>
-
 #include <QtGui/QFormLayout>
 #include <QtGui/QStandardItem>
 #include <QtGui/QHeaderView>
