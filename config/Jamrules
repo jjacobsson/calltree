@@ -144,7 +144,7 @@ rule RecursiveDirList
 	return [ RecursiveDir $(_dir) : $(2) ] ;
 }
 
-if $(QT_PATH)
+if $(QTPATH)
 {
 	actions mocFile
 	{
@@ -166,16 +166,16 @@ else
 {
 	actions mocFile
 	{
-		echo "QT_PATH not set!"
+		echo "QTPATH not set!"
 	}
 	actions uiHeader
 	{
-		echo "QT_PATH not set!"
+		echo "QTPATH not set!"
 	}
 	
 	actions qrcCppFile
 	{
-		echo "QT_PATH not set!"
+		echo "QTPATH not set!"
 	}
 	
 }

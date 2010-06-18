@@ -42,9 +42,9 @@ enum InstructionSet
   iret,          /* pop sp to ip */
   iccall,        /* */
   idcall,        /* */
-  ibr,          /* */
+  ibr,           /* */
   ibre,          /* */
-  ibrne,          /* */
+  ibrne,         /* */
   imov,          /* */
   iadd,          /* */
   isub,          /* */

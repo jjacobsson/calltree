@@ -462,6 +462,8 @@ int setup_before_generate( Node* n, Program* p )
 {
   //Alloc storage area for bss header
   p->m_bss_Header = p->m_B.Push( sizeof(Context), 4 );
+  //Alloc storage area for "destroy" command.
+  p->m_bss_Destruct = p->m_B.Push( sizeof(int), 4 );
   //Alloc storage area for child-node return value.
   p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
 
@@ -490,14 +492,14 @@ void load_jump_target_index_to_register( Function* f, unsigned char reg, unsigne
   }
   else if( jt <= 0xffff )
   {
-    ADD( isetl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
+    ADD( isetl, reg, (unsigned char)((jt&0x0000ff00)>>8), (unsigned char)(jt&0x000000ff) );
     ADD( iadd, reg, reg, ejt );
     ADD( iload, reg, reg, 0 );
   }
   else
   {
-    ADD( iseth, reg, (unsigned char)(jt&0xff000000)>>24, (unsigned char)(jt&0x00ff0000)>>16 );
-    ADD( iorl, reg, (unsigned char)(jt&0x0000ff00)>>8, (unsigned char)(jt&0x000000ff) );
+    ADD( iseth, reg, (unsigned char)((jt&0xff000000)>>24), (unsigned char)((jt&0x00ff0000)>>16) );
+    ADD( iorl, reg, (unsigned char)((jt&0x0000ff00)>>8), (unsigned char)(jt&0x000000ff) );
     ADD( iadd, reg, reg, ejt );
     ADD( iload, reg, reg, 0 );
   }
@@ -520,7 +522,7 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   }
 
   if( mts->m_Type != E_ST_TREE )
-  {
+{
     // TODO: Report error, "main" is not a tree.
     return -1;
   }
@@ -550,7 +552,7 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   // Jump to r2 if r0 != r1
   ADD( ibrne, er0, er1, er2 );
   // Call the tree's construction function
-  ADD( icall, (unsigned char)(tree_cons_func&0x00ff0000)>>16, (unsigned char)(tree_cons_func&0x0000ff00)>>8, (unsigned char)(tree_cons_func&0x000000ff) );
+  ADD( icall, (unsigned char)((tree_cons_func&0x00ff0000)>>16), (unsigned char)((tree_cons_func&0x0000ff00)>>8), (unsigned char)(tree_cons_func&0x000000ff) );
   // Set r0 to the current tree state (ACT_EXECUTE)
   ADD( isetl, er0, 0, ACT_EXECUTE );
   // Store the state in memory
@@ -564,6 +566,9 @@ int generate_program( BehaviorTreeContext btc, Program* p )
 
   //Jump past construction code if tree is already running
   p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_WORKING, p->m_bss_Return );
+
+  //Jump to destruction code if set to do so.
+  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, ACT_DESTRUCT, p->m_bss_Destruct );
 
   //Generate tree construction code
   if( (err = gen_con( n, p )) != 0 )
@@ -582,6 +587,11 @@ int generate_program( BehaviorTreeContext btc, Program* p )
   //Jump past destruciton code if tree is running
   int patch_jump_out = p->m_I.Count();
   p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_WORKING, 0 );
+
+  //Patch jump to destruction code
+  p->m_I.SetA1( 1, p->m_I.Count() );
+  //Reset the destruct command
+  p->m_I.Push( INST__STORE_C_IN_B, p->m_bss_Destruct, 0, 0 );
 
   //Generate destruction code
   if( (err = gen_des( n, p )) != 0 )

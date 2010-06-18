@@ -1,4 +1,4 @@
-if $(QT_PATH)
+if $(QTPATH)
 {
 	SetDependantOf $(_appname) : btree other ;
 	SetExtDependantOf $(_appname) : qt ;
