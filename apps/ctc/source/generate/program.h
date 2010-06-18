@@ -12,6 +12,7 @@
 #ifndef PROGRAM_H_INCLUDED
 #define PROGRAM_H_INCLUDED
 
+#include <callback/instructions.h>
 #include <callback/callback.h>
 #include <btree/btree_data.h>
 
@@ -20,85 +21,6 @@
 #include <stdio.h>
 
 struct Program;
-
-class Function
-{
-public:
-
-  Function( BehaviorTreeContext btc, const char* name );
-
-  typedef std::vector<cb::Instruction> Instructions;
-
-  inline void add( const cb::Instruction& i )
-  {
-    m_Inst.push_back( i );
-  }
-
-  inline void add( unsigned char i, unsigned char a1, unsigned char a2, unsigned char a3 )
-  {
-    cb::Instruction inst;
-    inst.i  = i;
-    inst.a1 = a1;
-    inst.a2 = a2;
-    inst.a3 = a3;
-    add( inst );
-  }
-
-  inline unsigned int size() const
-  {
-    return (unsigned int)m_Inst.size();
-  }
-
-  Identifier    m_Id;
-  Instructions  m_Inst;
-};
-
-class FunctionTable
-{
-public:
-
-  typedef std::vector<Function*> Functions;
-
-  ~FunctionTable()
-  {
-    Functions::iterator it, it_e( m_Functions.end() );
-    for( it = m_Functions.begin(); it != it_e; ++it )
-      delete *it;
-  }
-
-  unsigned int find_function_index( const char* name );
-
-  Functions m_Functions;
-};
-
-class JumpTargetTable
-{
-public:
-
-  struct JumpTarget
-  {
-    Function*       m_Func;
-    unsigned int    m_Inst;
-  };
-
-  unsigned int add( Function* f )
-  {
-    unsigned int r = m_Targets.size();
-    JumpTarget jt;
-    jt.m_Func = f;
-    jt.m_Inst = 0x00000000;
-    m_Targets.push_back( jt );
-    return r;
-  }
-
-  void set_jump_target( unsigned int jump_target, unsigned int inst_offset )
-  {
-    m_Targets[jump_target].m_Inst = inst_offset;
-  }
-
-  typedef std::vector<JumpTarget> JumpTargets;
-  JumpTargets m_Targets;
-};
 
 class CodeSection
 {
@@ -123,34 +45,16 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( Program* p, Node* n, cb::NodeAction action, int dbg_lvl );
-    void    PopDebugScope( Program* p, Node* n, cb::NodeAction action, int dbg_lvl );
+    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
+    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
 
 private:
 
-    typedef std::vector<cb::Instruction> Instructions;
+    unsigned int SafeConvert( TIn i ) const;
+
+    typedef std::vector<callback::Instruction> Instructions;
     Instructions m_Inst;
     int          m_DebugLevel;
-};
-
-class BSSSection
-{
-public:
-
-    BSSSection();
-
-    void Print( FILE* outFile );
-    int Push( int size, int alignment = 4 );
-
-    int Size() const { return m_Max; }
-
-    void PushScope();
-    void PopScope();
-
-private:
-    int m_Max;
-    int m_Current;
-    std::vector<int> m_ScopeStack;
 };
 
 class DataSection
@@ -226,14 +130,8 @@ struct BehaviorTreeList
 
 struct Program
 {
-	int m_bss_Header;
-	int m_bss_Destruct;
-	int m_bss_Return;
-	FunctionTable      m_Funcs;
-	JumpTargetTable    m_Jumps;
-	CodeSection m_I;
-	DataSection m_D;
-	BSSSection m_B;
+	CodeSection  m_I;
+	DataSection  m_D;
 	unsigned int m_Memory;
 	BehaviorTreeContext m_Context;
 	BehaviorTreeList* m_First;

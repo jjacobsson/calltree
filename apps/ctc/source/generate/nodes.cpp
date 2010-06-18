@@ -35,7 +35,7 @@ const int STANDARD_NODE_CONSTRUCT_DBGLVL = 6;
 const int STANDARD_NODE_DESTRUCT_DBGLVL  = 6;
 const int STANDARD_NODE_EXECUTE_DBGLVL   = 3;
 
-using namespace cb;
+using namespace callback;
 
 typedef std::vector<int> IntVector;
 
@@ -109,10 +109,6 @@ int setup_gen( Node* n, Program* p, int mo )
   case E_GRIST_ACTION:
     r = gen_setup_action( n, p, mo );
     break;
-  case E_GRIST_UNKOWN:
-  case E_MAX_GRIST_TYPES:
-    r = -1;
-    break;
   }
   return r;
 }
@@ -151,10 +147,6 @@ int teardown_gen( Node* n, Program* p )
     break;
   case E_GRIST_ACTION:
     r = gen_teardown_action( n, p );
-    break;
-  case E_GRIST_UNKOWN:
-  case E_MAX_GRIST_TYPES:
-    r = -1;
     break;
   }
   return r;
@@ -365,8 +357,6 @@ int gen_teardown_btree( BehaviorTree* t, Program* p )
 
 int gen_btree( BehaviorTree* t, Program* p )
 {
-  return -1;
-  /*
   if( !t || !p )
     return -1;
 
@@ -439,7 +429,6 @@ int gen_btree( BehaviorTree* t, Program* p )
   p->m_I.Push( INST_SCRIPT_R, 0, 0, 0 );
 
   return 0;
-  */
 }
 
 int memory_need_btree( BehaviorTree* bt )
@@ -511,7 +500,6 @@ int gen_teardown_sequence( Node* n, Program* p )
 
 int gen_con_sequence( Node* n, Program* p )
 {
-  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
@@ -524,13 +512,12 @@ int gen_con_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
 int gen_exe_sequence( Node* n, Program* p )
 {
-  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -628,13 +615,11 @@ int gen_exe_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
-  */
   return 0;
 }
 
 int gen_des_sequence( Node* n, Program* p )
 {
-  /*
   SequenceNodeData* nd = (SequenceNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -649,7 +634,7 @@ int gen_des_sequence( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
@@ -735,7 +720,6 @@ int gen_teardown_selector( Node* n, Program* p )
 
 int gen_con_selector( Node* n, Program* p )
 {
-  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -749,13 +733,12 @@ int gen_con_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
 int gen_exe_selector( Node* n, Program* p )
 {
-  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
 
   // Enter Debug scope
@@ -853,13 +836,12 @@ int gen_exe_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
-  */
+
   return 0;
 }
 
 int gen_des_selector( Node* n, Program* p )
 {
-  /*
   SelectorNodeData* nd = (SelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
@@ -873,7 +855,7 @@ int gen_des_selector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
@@ -972,7 +954,6 @@ int gen_con_parallel( Node* n, Program* p )
 
 int gen_exe_parallel( Node* n, Program* p )
 {
-  /*
   ParallelNodeData* nd = (ParallelNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
@@ -1021,7 +1002,6 @@ int gen_exe_parallel( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
-  */
   return 0;
 }
 
@@ -1121,7 +1101,6 @@ int gen_teardown_dynselector( Node* n, Program* p )
 
 int gen_con_dynselector( Node* n, Program* p )
 {
-  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
@@ -1144,13 +1123,11 @@ int gen_con_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, STANDARD_NODE_CONSTRUCT_DBGLVL );
-  */
   return 0;
 }
 
 int gen_exe_dynselector( Node* n, Program* p )
 {
-  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
@@ -1281,13 +1258,11 @@ int gen_exe_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
-  */
   return 0;
 }
 
 int gen_des_dynselector( Node* n, Program* p )
 {
-  /*
   DynamicSelectorNodeData* nd = (DynamicSelectorNodeData*)n->m_UserData;
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
@@ -1301,7 +1276,6 @@ int gen_des_dynselector( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, STANDARD_NODE_DESTRUCT_DBGLVL );
-  */
   return 0;
 }
 
@@ -1344,7 +1318,7 @@ int gen_con_succeed( Node*, Program* )
 
 int gen_exe_succeed( Node*, Program* p )
 {
-  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_SUCCESS, 0, 0 );
+  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_SUCCESS, 0, 0 );
   return 0;
 }
 
@@ -1379,7 +1353,7 @@ int gen_con_fail( Node*, Program* )
 }
 int gen_exe_fail( Node*, Program* p )
 {
-  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_FAIL, 0, 0 );
+  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_FAIL, 0, 0 );
   return 0;
 }
 int gen_des_fail( Node*, Program* )
@@ -1415,7 +1389,7 @@ int gen_con_work( Node*, Program* )
 
 int gen_exe_work( Node*, Program* p )
 {
-  //p->m_I.Push( INST__STORE_C_IN_R, E_NODE_WORKING, 0, 0 );
+  p->m_I.Push( INST__STORE_C_IN_R, E_NODE_WORKING, 0, 0 );
   return 0;
 }
 
@@ -1487,8 +1461,6 @@ int gen_teardown_tree( Node* n, Program* p )
 
 int gen_con_tree( Node* n, Program* p )
 {
-  return -1;
-  /*
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_CONSTRUCT, TREE_CONSTRUCT_DBGLVL );
@@ -1497,13 +1469,10 @@ int gen_con_tree( Node* n, Program* p )
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, TREE_CONSTRUCT_DBGLVL );
   return 0;
-  */
 }
 
 int gen_exe_tree( Node* n, Program* p )
 {
-  return -1;
-  /*
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_EXECUTE, TREE_EXECUTE_DBGLVL );
@@ -1514,13 +1483,10 @@ int gen_exe_tree( Node* n, Program* p )
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, TREE_EXECUTE_DBGLVL );
   return 0;
-  */
 }
 
 int gen_des_tree( Node* n, Program* p )
 {
-  return -1;
-  /*
   TreeNodeData* nd = ((TreeNodeData*)n->m_UserData);
   // Enter Debug scope
   p->m_I.PushDebugScope( p, n, ACT_DESTRUCT, TREE_DESTRUCT_DBGLVL );
@@ -1533,7 +1499,6 @@ int gen_des_tree( Node* n, Program* p )
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, TREE_DESTRUCT_DBGLVL );
   return 0;
-  */
 }
 
 int memory_need_tree( Node* n )
@@ -1621,7 +1586,6 @@ int gen_teardown_decorator( Node* n, Program* p )
 
 int gen_con_decorator( Node* n, Program* p )
 {
-  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1675,13 +1639,11 @@ int gen_con_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, DECORATOR_CONSTRUCT_DBGLVL );
-  */
   return 0;
 }
 
 int gen_exe_decorator( Node* n, Program* p )
 {
-  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1776,13 +1738,12 @@ int gen_exe_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_EXECUTE, DECORATOR_EXECUTE_DBGLVL );
-  */
+
   return 0;
 }
 
 int gen_des_decorator( Node* n, Program* p )
 {
-  /*
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1829,7 +1790,7 @@ int gen_des_decorator( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, DECORATOR_DESTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
@@ -1896,7 +1857,7 @@ int gen_setup_action( Node* n, Program* p, int mo )
   if( bss > 0 )
   {
     nd->m_bssPos  = mo; mo += bss;
-    nd->m_usesBss   = true;
+    nd->m_usesBss = true;
   }
 
   {
@@ -1922,7 +1883,6 @@ int gen_teardown_action( Node* n, Program* )
 
 int gen_con_action( Node* n, Program* p )
 {
-  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -1968,13 +1928,12 @@ int gen_con_action( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_CONSTRUCT, ACTION_CONSTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
 int gen_exe_action( Node* n, Program* p )
 {
-  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -2010,13 +1969,11 @@ int gen_exe_action( Node* n, Program* p )
     // Exit Debug scope
     p->m_I.PopDebugScope( p, n, ACT_EXECUTE, ACTION_EXECUTE_DBGLVL );
   }
-*/
   return 0;
 }
 
 int gen_des_action( Node* n, Program* p )
 {
-  /*
   ActionNodeData* nd = (ActionNodeData*)n->m_UserData;
   //Obtain action declaration
   Action* a = n->m_Grist.m_Action.m_Action;
@@ -2054,7 +2011,7 @@ int gen_des_action( Node* n, Program* p )
 
   // Exit Debug scope
   p->m_I.PopDebugScope( p, n, ACT_DESTRUCT, ACTION_DESTRUCT_DBGLVL );
-  */
+
   return 0;
 }
 
@@ -2211,7 +2168,6 @@ int store_variables_in_data_section(
     int mo
   )
 {
-/*
   vd->m_Data.clear();
   vd->m_bssStart = 0;
 
@@ -2282,14 +2238,12 @@ int store_variables_in_data_section(
       break;
     }
   }
-  */
   return mo;
 }
 
 int generate_variable_instructions( VariableGenerateData* vd, Parameter*,
   Program* p )
 {
-  /*
   IntVector::iterator it, it_e( vd->m_Data.end() );
   int i = 0;
   for( it = vd->m_Data.begin(); it != it_e; ++it, ++i )
@@ -2298,14 +2252,12 @@ int generate_variable_instructions( VariableGenerateData* vd, Parameter*,
     p->m_I.Push( INST_STORE_PD_IN_B, vd->m_bssStart + (sizeof(void*) * i), *it,
       0 );
   }
-  */
   return 0;
 }
 
 int setup_variable_registry( VariableGenerateData* vd, Parameter*,
   Program* p )
 {
-  /*
   if( !vd->m_Data.empty() )
   {
     // Load the user data register with a pointer to the bss structure for variables
@@ -2316,7 +2268,6 @@ int setup_variable_registry( VariableGenerateData* vd, Parameter*,
     //Load the user data register with a null pointer
     p->m_I.Push( INST__SET_REGISTRY, 2, 0, 0 );
   }
-  */
   return 0;
 }
 

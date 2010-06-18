@@ -155,7 +155,7 @@ enum DebugFlagBits
   E_STANDARD_NODE  = 1 << 4, // 1 bit
   E_COMPOSITE_NODE = 1 << 5, // 1 bit
   E_ENTER_SCOPE    = 1 << 6, // 1 bit
-  E_EXIT_SCOPE     = 1 << 7, // 1 bit
+  E_EXIT_SCOPE     = 1 << 7  // 1 bit
 };
 
 bool act_flag_set( unsigned int, unsigned int );
@@ -170,6 +170,7 @@ struct DebugData
   const char* m_Name;
   unsigned int m_NodeId;
   unsigned int m_Flags;
+  unsigned int m_LineNo;
 };
 
 struct CallData

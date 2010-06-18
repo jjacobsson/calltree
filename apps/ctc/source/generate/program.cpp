@@ -24,24 +24,39 @@
 
 using namespace cb;
 
-Function::Function( BehaviorTreeContext ctx, const char* name )
-{
-  init( &m_Id );
-  m_Id.m_Hash = hashlittle( name );
-  m_Id.m_Text = register_string( ctx, name, m_Id.m_Hash );
-}
-
-unsigned int FunctionTable::find_function_index( const char* name )
-{
-  return 0x00ffffff;
-}
-
 void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
 {
+
+  char func[16], glob[16], a1[16], a2[16], a3[16];
+
+  sprintf( func, "0x%04x", f );
+  sprintf( glob, "0x%04x", g );
+  sprintf( a1, "0x%04x", inst.m_A1 );
+  sprintf( a2, "0x%04x", inst.m_A2 );
+  sprintf( a3, "0x%04x", inst.m_A3 );
+  fprintf( outFile, "%-8s%-8s%-20s", glob, func, g_InstructionNames[inst.m_I] );
+
+  switch( inst.m_I )
+  {
+/*
+  case INST_JABC_R_EQUA_C:
+    fprintf( outFile, "%-9s%-9s%-9s", a1, g_NodeReturnsNames[inst.m_A2], a3 );
+    break;
+  case INST_JABC_R_DIFF_C:
+    fprintf( outFile, "%-9s%-9s%-9s", a1, g_NodeReturnsNames[inst.m_A2], a3 );
+    break;
+  case INST__STORE_C_IN_R:
+    fprintf( outFile, "%-9s%-9s%-9s", g_NodeReturnsNames[inst.m_A1], a2, a3 );
+    break;
+*/
+  default:
+    fprintf( outFile, "%-9s%-9s%-9s", a1, a2, a3 );
+    break;
+  }
 }
 
-CodeSection::CodeSection() :
-  m_DebugLevel( 0 )
+CodeSection::CodeSection()
+  : m_DebugLevel( 0 )
 {
 }
 
@@ -56,6 +71,48 @@ void CodeSection::Setup( Program* p )
 
 void CodeSection::Print( FILE* outFile, Program* p ) const
 {
+  BehaviorTreeList* btl = p->m_First;
+
+  int f = 0;
+  int s = btl->m_FirstInst;
+
+  fprintf( outFile, "__entry_stub\n" );
+  fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n", "Global", "Func",
+    "Instruction", "A1", "A2", "A3" );
+
+  f = 0;
+
+  for( int i = 0; i < s; ++i, ++f )
+  {
+    const Instruction& inst = m_Inst[i];
+    print_instruction( outFile, inst, i, f );
+    fprintf( outFile, "\n" );
+  }
+
+  while( btl )
+  {
+    if( btl->m_Next )
+      s = btl->m_Next->m_FirstInst;
+    else
+      s = Count();
+
+    fprintf( outFile, "\n%s\n", btl->m_Tree->m_Id.m_Text );
+    fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n", "Global", "Func",
+      "Instruction", "A1", "A2", "A3" );
+
+    f = 0;
+
+    for( int i = btl->m_FirstInst; i < s; ++i, ++f )
+    {
+      const Instruction& inst = m_Inst[i];
+      print_instruction( outFile, inst, i, f );
+      fprintf( outFile, "\n" );
+    }
+    btl = btl->m_Next;
+  }
+
+  fprintf( outFile, "\nCode:\t%d (%d instructions)\n", s * sizeof(Instruction),
+    s );
 }
 
 int CodeSection::Count() const
@@ -65,26 +122,32 @@ int CodeSection::Count() const
 
 void CodeSection::Push( TIn inst, TIn A1, TIn A2, TIn A3 )
 {
+  Instruction i;
+  i.m_I = SafeConvert( inst );
+  i.m_A1 = SafeConvert( A1 );
+  i.m_A2 = SafeConvert( A2 );
+  i.m_A3 = SafeConvert( A3 );
+  m_Inst.push_back( i );
 }
 
 void CodeSection::SetA1( int i, TIn A1 )
 {
- // m_Inst[i].m_A1 = SafeConvert( A1 );
+  m_Inst[i].m_A1 = SafeConvert( A1 );
 }
 void CodeSection::SetA2( int i, TIn A2 )
 {
- // m_Inst[i].m_A2 = SafeConvert( A2 );
+  m_Inst[i].m_A2 = SafeConvert( A2 );
 }
 void CodeSection::SetA3( int i, TIn A3 )
 {
- // m_Inst[i].m_A3 = SafeConvert( A3 );
+  m_Inst[i].m_A3 = SafeConvert( A3 );
 }
 
 bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
 {
   if( m_Inst.empty() )
     return true;
-/*
+
   Instructions t( m_Inst );
   size_t s = t.size();
 
@@ -101,13 +164,11 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
   size_t write = sizeof(Instruction) * s;
   size_t written = fwrite( &(t[0]), 1, write, outFile );
   return written == write;
-*/
-  return false;
 }
 
 int StringFromAction( Program* p, NodeAction action )
 {
-  return p->m_D.PushString( g_CBActionNames[ action ] );
+  return p->m_D.PushString( g_CBActionNames[action] );
 }
 
 int StringFromNode( Program* p, Node* n )
@@ -226,7 +287,7 @@ void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action, int de
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_I = INST_CALL_DEBUG_FN;
   i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
@@ -282,48 +343,17 @@ void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action, int deb
   i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
   i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_CALL_DEBUG_FN;
+  i.m_I = INST_CALL_DEBUG_FN;
   i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
-  */
+*/
 }
 
-
-BSSSection::BSSSection()
-  : m_Max( 0 )
-  , m_Current( 0 )
+unsigned int CodeSection::SafeConvert( TIn i ) const
 {
-}
-
-void BSSSection::Print( FILE* outFile )
-{
-  fprintf( outFile, ".bss:\t%d\n", m_Max );
-}
-
-int BSSSection::Push( int size, int align )
-{
-  if( (m_Current % align) != 0 )
-    m_Current += (align - (m_Current % align));
-
-  int r = m_Current;
-  m_Current += size;
-
-  m_Max = std::max( m_Max, m_Current );
-
-  return r;
-}
-
-void BSSSection::PushScope()
-{
-  //m_ScopeStack.push_back( m_Current );
-}
-
-void BSSSection::PopScope()
-{
-  //m_Current = m_ScopeStack.back();
-  //m_ScopeStack.pop_back();
+  return static_cast<unsigned int> ( i );
 }
 
 void DataSection::Print( FILE* outFile )
@@ -339,7 +369,7 @@ void DataSection::Print( FILE* outFile )
     switch( (*it).m_Type )
     {
     case E_DT_INTEGER:
-      fprintf( outFile, "0x%08x", *(int*)(&m_Data[(*it).m_Index]) );
+      fprintf( outFile, "%d", *(int*)(&m_Data[(*it).m_Index]) );
       break;
     case E_DT_FLOAT:
       fprintf( outFile, "%f", *(float*)(&m_Data[(*it).m_Index]) );
@@ -441,156 +471,6 @@ int DataSection::PushData( const char* data, int count )
   return start;
 }
 
-int setup_before_generate( Node* n, Program* p )
-{
-  //Alloc storage area for bss header
-  p->m_bss_Header = p->m_B.Push( sizeof(Context), 4 );
-  //Alloc storage area for "destroy" command.
-  p->m_bss_Destruct = p->m_B.Push( sizeof(int), 4 );
-  //Alloc storage area for child-node return value.
-  p->m_bss_Return = p->m_B.Push( sizeof(NodeReturns), 4 );
-
-  p->m_I.Setup( p );
-
-  return setup_gen( n, p, 0 );
-}
-
-int teardown_after_generate( Node* n, Program* p )
-{
-  return teardown_gen( n, p );
-}
-
-bool generate_functions( BehaviorTreeContext btc, Program* p, BehaviorTree* tree )
-{
-  return true;
-}
-
-#define ADD( I, A1, A2, A3 ) f->add(I, A1, A2, A3)
-
-void load_jump_target_index_to_register( Function* f, unsigned char reg, unsigned int jt )
-{
-  if( jt <= 0xff )
-  {
-    ADD( iload, reg, ejt, (unsigned char)jt );
-  }
-  else if( jt <= 0xffff )
-  {
-    ADD( isetl, reg, (unsigned char)((jt&0x0000ff00)>>8), (unsigned char)(jt&0x000000ff) );
-    ADD( iadd, reg, reg, ejt );
-    ADD( iload, reg, reg, 0 );
-  }
-  else
-  {
-    ADD( iseth, reg, (unsigned char)((jt&0xff000000)>>24), (unsigned char)((jt&0x00ff0000)>>16) );
-    ADD( iorl, reg, (unsigned char)((jt&0x0000ff00)>>8), (unsigned char)(jt&0x000000ff) );
-    ADD( iadd, reg, reg, ejt );
-    ADD( iload, reg, reg, 0 );
-  }
-}
-
-int generate_program( BehaviorTreeContext btc, Program* p )
-{
-  if( !btc || !p )
-  {
-    // TODO: Report error, internal compiler error
-    return -1;
-  }
-
-  NamedSymbol* mts = find_symbol( btc, "main" );
-
-  if( !mts )
-  {
-    // TODO: Report error, main missing
-    return -1;
-  }
-
-  if( mts->m_Type != E_ST_TREE )
-{
-    // TODO: Report error, "main" is not a tree.
-    return -1;
-  }
-
-  BehaviorTree* mt = mts->m_Symbol.m_Tree;
-
-  // Put the entry function first in the function table...
-  Function* f = new Function( btc, "__standard_entry" );
-  p->m_Funcs.m_Functions.push_back( f );
-
-  if( !generate_functions( btc, p, mt ) )
-    return -1; // Error should already be reported.
-
-  unsigned int tree_cons_func = p->m_Funcs.find_function_index( "main_construct" );
-  unsigned int tree_exec_func = p->m_Funcs.find_function_index( "main_execute" );
-  unsigned int tree_dest_func = p->m_Funcs.find_function_index( "main_destruct" );
-
-  unsigned int jump_to_exec = p->m_Jumps.add( f );
-  unsigned int jump_to_exit = p->m_Jumps.add( f );
-
-  // Set r0 to ACT_CONSTRUCT
-  ADD( isetl, er0, 0, ACT_CONSTRUCT );
-  // Load the current tree state from memory into r1
-  ADD( iload, er1, ems, 0 );
-  //Generate instructions to store jump_to_exec in er2, respecting the size of jump_to_exec
-  load_jump_target_index_to_register( f, er2, jump_to_exec );
-  // Jump to r2 if r0 != r1
-  ADD( ibrne, er0, er1, er2 );
-  // Call the tree's construction function
-  ADD( icall, (unsigned char)((tree_cons_func&0x00ff0000)>>16), (unsigned char)((tree_cons_func&0x0000ff00)>>8), (unsigned char)(tree_cons_func&0x000000ff) );
-  // Set r0 to the current tree state (ACT_EXECUTE)
-  ADD( isetl, er0, 0, ACT_EXECUTE );
-  // Store the state in memory
-  ADD( istore, ems, 0, er0 );
-
-  p->m_Jumps.set_jump_target( jump_to_exec, f->size() );
-
-
-/*
-  int err;
-
-  //Jump past construction code if tree is already running
-  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, E_NODE_WORKING, p->m_bss_Return );
-
-  //Jump to destruction code if set to do so.
-  p->m_I.Push( INST_JABC_C_EQUA_B, 0xffffffff, ACT_DESTRUCT, p->m_bss_Destruct );
-
-  //Generate tree construction code
-  if( (err = gen_con( n, p )) != 0 )
-    return err;
-
-  //Patch jump past construction code instruction
-  p->m_I.SetA1( 0, p->m_I.Count() );
-
-  //Generate tree execution code
-  if( (err = gen_exe( n, p )) != 0 )
-    return err;
-
-  //Store return value in bss.
-  p->m_I.Push( INST__STORE_R_IN_B, p->m_bss_Return, 0, 0 );
-
-  //Jump past destruciton code if tree is running
-  int patch_jump_out = p->m_I.Count();
-  p->m_I.Push( INST_JABC_R_EQUA_C, 0xffffffff, E_NODE_WORKING, 0 );
-
-  //Patch jump to destruction code
-  p->m_I.SetA1( 1, p->m_I.Count() );
-  //Reset the destruct command
-  p->m_I.Push( INST__STORE_C_IN_B, p->m_bss_Destruct, 0, 0 );
-
-  //Generate destruction code
-  if( (err = gen_des( n, p )) != 0 )
-    return err;
-
-  //Patch jump past destruction code instruction
-  p->m_I.SetA1( patch_jump_out, p->m_I.Count() );
-
-  //Suspend execution
-  p->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
-*/
-  return 0;
-}
-
-#undef ADD
-
 int print_program( FILE* outFile, Program* p )
 {
   p->m_I.Print( outFile, p );
@@ -601,8 +481,6 @@ int print_program( FILE* outFile, Program* p )
 
 int save_program( FILE* outFile, bool swapEndian, Program* p )
 {
-  return -1;
-/*
   ProgramHeader h;
   h.m_IC = p->m_I.Count();
   h.m_DS = p->m_D.Size();
@@ -623,14 +501,13 @@ int save_program( FILE* outFile, bool swapEndian, Program* p )
   if( !p->m_D.Save( outFile, swapEndian ) )
     return -1;
   return 0;
-*/
 }
+
 void parser_error( ParserContext pc, const char* msg );
 void parser_warning( ParserContext pc, const char* msg );
 
 int setup( BehaviorTreeContext ctx, Program* p )
 {
-/*
   NamedSymbol* main = find_symbol( ctx, hashlittle( "main" ) );
 
   if( !main || main->m_Type != E_ST_TREE || !main->m_Symbol.m_Tree->m_Declared )
@@ -664,7 +541,7 @@ int setup( BehaviorTreeContext ctx, Program* p )
 
     btl = btl->m_Next;
   }
-*/
+
   return 0;
 }
 
@@ -702,5 +579,4 @@ int generate( Program* p )
   return 0;
 */
 }
-
 
