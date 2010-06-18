@@ -18,6 +18,7 @@
 
 void save_options( SaverContext );
 void save_includes( SaverContext );
+void save_types( SaverContext );
 void save_actions( SaverContext );
 void save_decorators( SaverContext );
 void save_trees( SaverContext );
@@ -49,6 +50,8 @@ void save( SaverContext sc, SaverContextFunctions* funcs )
   save_options( sc );
   append( &sc->m_Buffer, "\n; Includes\n\n" );
   save_includes( sc );
+  append( &sc->m_Buffer, "\n; Types\n\n" );
+  save_types( sc );
   append( &sc->m_Buffer, "; Actions\n\n" );
   save_actions( sc );
   append( &sc->m_Buffer, "; Decorators\n\n" );
@@ -84,6 +87,32 @@ void save_includes( SaverContext sc )
       flush_buffer( sc );
 
     i = i->m_Next;
+  }
+  append( &sc->m_Buffer, '\n' );
+}
+
+void save_types( SaverContext sc )
+{
+  int count;
+  NamedSymbol* s = access_symbols( sc->m_Tree, &count );
+  for( int i = 0; i < count; ++i )
+  {
+    if( s[i].m_Type != E_ST_TYPE )
+      continue;
+    if( !s[i].m_Symbol.m_Type->m_Declared )
+      continue;
+    Parameter* p = s[i].m_Symbol.m_Type;
+    append( &sc->m_Buffer, "(deftype " );
+    append( &sc->m_Buffer, p->m_Id.m_Text );
+    append( &sc->m_Buffer, "\n " );
+
+    save_parameter_list( sc, p->m_Data.m_List );
+    append( &sc->m_Buffer, "\n " );
+
+    append( &sc->m_Buffer, ")\n\n" );
+
+    if( sc->m_Buffer.m_Size >= SAVE_BUFFER_FLUSH_LIMIT )
+      flush_buffer( sc );
   }
   append( &sc->m_Buffer, '\n' );
 }
@@ -160,6 +189,8 @@ void save_trees( SaverContext sc )
     append( &sc->m_Buffer, "(deftree " );
     append( &sc->m_Buffer, t->m_Id.m_Text );
     append( &sc->m_Buffer, ' ' );
+    save_parameter_list( sc, t->m_Declarations );
+    append( &sc->m_Buffer, ' ' );
     save_node_list( sc, t->m_Root, 1 );
     append( &sc->m_Buffer, ")\n\n" );
 
@@ -191,6 +222,14 @@ void save_parameter_declaration( SaverContext sc, Parameter* v )
     break;
   case E_VART_BOOL:
     append( &sc->m_Buffer, "bool " );
+    append( &sc->m_Buffer, v->m_Id.m_Text );
+    break;
+  case E_VART_LIST:
+    if( v->m_Data.m_List )
+      append( &sc->m_Buffer, v->m_Data.m_List->m_Id.m_Text );
+    else
+      append( &sc->m_Buffer, "null" );
+    append( &sc->m_Buffer, ' ' );
     append( &sc->m_Buffer, v->m_Id.m_Text );
     break;
   case E_VART_UNDEFINED:
@@ -231,6 +270,11 @@ void save_variable_assignment( SaverContext sc, Parameter* v )
     append( &sc->m_Buffer, v->m_Id.m_Text );
     append( &sc->m_Buffer, ' ' );
     append( &sc->m_Buffer, as_bool( *v ) ? "true" : "false" );
+    break;
+  case E_VART_LIST:
+    append( &sc->m_Buffer, v->m_Id.m_Text );
+    append( &sc->m_Buffer, ' ' );
+    save_parameter_list( sc, v->m_Data.m_List );
     break;
   case E_VART_UNDEFINED:
   case E_MAX_VARIABLE_TYPE:
@@ -359,6 +403,8 @@ void save_tree( SaverContext sc, Node* n, int )
 {
   append( &sc->m_Buffer, "(tree '" );
   append( &sc->m_Buffer, n->m_Grist.m_Tree.m_Tree->m_Id.m_Text );
+  append( &sc->m_Buffer, ' ' );
+  save_parameter_list( sc, n->m_Grist.m_Tree.m_Parameters );
   append( &sc->m_Buffer, ")\n" );
 }
 
@@ -409,15 +455,13 @@ void save_node( SaverContext sc, Node* n, int depth )
 
 void save_node_list( SaverContext sc, Node* n, int depth )
 {
-  append( &sc->m_Buffer, "(" );
-
   if( !n )
   {
-    append( &sc->m_Buffer, "null)" );
+    append( &sc->m_Buffer, "null" );
     return;
   }
 
-  append( &sc->m_Buffer, '\n' );
+  append( &sc->m_Buffer, "(\n" );
 
   Node* it = n;
   while( it )

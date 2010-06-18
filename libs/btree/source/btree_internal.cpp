@@ -251,6 +251,28 @@ Action* look_up_action( BehaviorTreeContext btc, Identifier* id )
   return a;
 }
 
+Parameter* look_up_type( BehaviorTreeContext btc, Identifier* id )
+{
+  {
+    NamedSymbol* s = find_symbol( btc, id->m_Hash );
+    if( s )
+    {
+      if( s->m_Type != E_ST_TYPE )
+        return 0x0;
+      return s->m_Symbol.m_Type;
+    }
+  }
+  Parameter* p = (Parameter*)allocate_object( btc );
+  init( p );
+  clone( btc, &p->m_Id, id );
+
+  NamedSymbol s;
+  s.m_Type = E_ST_TYPE;
+  s.m_Symbol.m_Type = p;
+  register_symbol( btc, s );
+  return p;
+}
+
 Parameter* get_options( BehaviorTreeContext btc )
 {
   return btc->m_Options;

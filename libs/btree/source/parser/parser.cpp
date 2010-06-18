@@ -15,7 +15,9 @@
 
 void* get_extra( ParserContext pc )
 {
+  if( pc )
   return pc->m_Extra;
+  return 0x0;
 }
 
 void set_extra( ParserContext pc, void* extra )

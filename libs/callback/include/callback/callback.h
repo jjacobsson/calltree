@@ -141,18 +141,26 @@ struct FunctionTableEntry
   unsigned int m_Start; /* Instruction index where the function starts */
 };
 
+struct CallFrame
+{
+  char* m_Bss;
+  int   m_IP;
+};
+
 struct CallbackProgram;
 
 enum DebugFlagBits
 {
-  E_NODE_ACTION   = 0,      // 4 bits
-  E_STANDARD_NODE = 1 << 4, // 1 bit
-  E_ENTER_SCOPE   = 1 << 5, // 1 bit
-  E_EXIT_SCOPE    = 1 << 6, // 1 bit
+  E_NODE_ACTION    = 0,      // 4 bits
+  E_STANDARD_NODE  = 1 << 4, // 1 bit
+  E_COMPOSITE_NODE = 1 << 5, // 1 bit
+  E_ENTER_SCOPE    = 1 << 6, // 1 bit
+  E_EXIT_SCOPE     = 1 << 7, // 1 bit
 };
 
 bool act_flag_set( unsigned int, unsigned int );
 bool std_flag_set( unsigned int );
+bool com_flag_set( unsigned int );
 bool exi_flag_set( unsigned int );
 bool ent_flag_set( unsigned int );
 

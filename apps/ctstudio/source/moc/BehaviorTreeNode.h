@@ -49,7 +49,6 @@ public:
 
   QRectF boundingRect() const;
 
-  QPointF iconPosition() const;
   QRectF layoutBoundingRect() const;
   qreal layoutOffset() const;
 
@@ -63,6 +62,7 @@ public:
   void dragBegin();
   void dragEnd();
   void dragFail();
+  void symbolChanged( unsigned int hash_id );
 
 signals:
 

@@ -36,67 +36,26 @@ unsigned int FunctionTable::find_function_index( const char* name )
   return 0x00ffffff;
 }
 
-void print_instruction( FILE* outFile, const Instruction& inst, int i )
-{
-  /*
-  fprintf( outFile, "0x%04x\t%-20s\t", i, g_InstructionNames[inst.m_I] );
-
-  switch( inst.m_I )
-  {
-  case INST_JABC_R_EQUA_C:
-    fprintf( outFile, "0x%04x    \t%-10s\t0x%04x", inst.m_A1,
-      g_NodeReturnsNames[inst.m_A2], inst.m_A3 );
-    break;
-  case INST_JABC_R_DIFF_C:
-    fprintf( outFile, "0x%04x    \t%-10s\t0x%04x", inst.m_A1,
-      g_NodeReturnsNames[inst.m_A2], inst.m_A3 );
-    break;
-  case INST__STORE_C_IN_R:
-    fprintf( outFile, "%-10s\t0x%04x    \t0x%04x",
-      g_NodeReturnsNames[inst.m_A1], inst.m_A2, inst.m_A3 );
-    break;
-  default:
-    fprintf( outFile, "0x%04x    \t0x%04x    \t0x%04x", inst.m_A1, inst.m_A2,
-      inst.m_A3 );
-    break;
-  }
-  */
-}
-
-CodeSection::CodeSection()
-  : m_BssStart( 0 )
-  , m_DebugInfo( false )
+void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
 {
 }
 
-void CodeSection::SetGenerateDebugInfo( bool onoff )
+CodeSection::CodeSection() :
+  m_DebugLevel( 0 )
 {
-  m_DebugInfo = onoff;
+}
+
+void CodeSection::SetGenerateDebugInfo( int debug_level )
+{
+  m_DebugLevel = debug_level;
 }
 
 void CodeSection::Setup( Program* p )
 {
-  if( !m_DebugInfo )
-    return;
-
-  m_BssStart = p->m_B.Push( sizeof(DebugData), 4 );
 }
 
-void CodeSection::Print( FILE* outFile ) const
+void CodeSection::Print( FILE* outFile, Program* p ) const
 {
-  /*
-  int s = Count();
-  fprintf( outFile, "%-6s\t%-20s\t%-10s\t%-10s\t%s\n", "Line", "Instruction",
-    "A1", "A2", "A3" );
-  for( int i = 0; i < s; ++i )
-  {
-    const Instruction& inst = m_Inst[i];
-    print_instruction( outFile, inst, i );
-    fprintf( outFile, "\n" );
-  }
-  fprintf( outFile, "\nCode:\t%d (%d instructions)\n", s * sizeof(Instruction),
-    s );
-  */
 }
 
 int CodeSection::Count() const
@@ -106,14 +65,6 @@ int CodeSection::Count() const
 
 void CodeSection::Push( TIn inst, TIn A1, TIn A2, TIn A3 )
 {
-/*
-  Instruction i;
-  i.m_I = SafeConvert( inst );
-  i.m_A1 = SafeConvert( A1 );
-  i.m_A2 = SafeConvert( A2 );
-  i.m_A3 = SafeConvert( A3 );
-  m_Inst.push_back( i );
-*/
 }
 
 void CodeSection::SetA1( int i, TIn A1 )
@@ -227,78 +178,112 @@ bool StandardNode( Node* n )
   return true;
 }
 
-void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action )
+void CodeSection::PushDebugScope( Program* p, Node* n, NodeAction action, int debug_level )
 {
-  if( !m_DebugInfo )
+  if( m_DebugLevel < debug_level )
     return;
 /*
-  unsigned short flags = (unsigned short)(action & 0x0000000f);
-  if( StandardNode( n ) )
+  bool standard = StandardNode( n );
+  bool composite = n->m_Grist.m_Type == E_GRIST_TREE;
+
+  unsigned int flags = (unsigned int)(action & 0x0000000f);
+  if( standard )
     flags |= E_STANDARD_NODE;
+  if( composite )
+    flags |= E_COMPOSITE_NODE;
+
   flags |= E_ENTER_SCOPE;
 
+  unsigned int t;
   Instruction i;
-  i.m_I  = INST_STORE_PD_IN_B;
-  i.m_A1 = m_BssStart + 0;
-  i.m_A2 = StringFromAction( p, action );
-  i.m_A3 = 0;
+  t = StringFromAction( p, action );
+  i.m_I = INST_LOAD_REGISTRY;
+  i.m_A1 = 0;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_STORE_PD_IN_B;
-  i.m_A1 = m_BssStart + 4;
-  i.m_A2 = StringFromNode( p, n );
-  i.m_A3 = 0;
+  t = StringFromNode( p, n );
+  i.m_I = INST_LOAD_REGISTRY;
+  i.m_A1 = 1;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST__STORE_C_IN_B;
-  i.m_A1 = m_BssStart + 8;
-  i.m_A3 = (n->m_NodeId&0xffff0000)>>16;
-  i.m_A2 = (n->m_NodeId&0x0000ffff);
+  t = n->m_NodeId;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 2;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST__STORE_C_IN_B;
-  i.m_A1 = m_BssStart + 12;
-  i.m_A2 = flags;
-  i.m_A3 = 0;
+  t = flags;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 3;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
+  m_Inst.push_back( i );
+  t = n->m_Locator.m_LineNo;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 4;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
-  i.m_A1 = m_BssStart;
+  i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
 */
 }
 
-void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action )
+void CodeSection::PopDebugScope( Program* p, Node* n, NodeAction action, int debug_level )
 {
-  if( !m_DebugInfo )
+  if( m_DebugLevel < debug_level )
     return;
 /*
-  unsigned short flags = (unsigned char)(action & 0x0000000f);
-  if( StandardNode( n ) )
+  bool standard = StandardNode( n );
+  bool composite = n->m_Grist.m_Type == E_GRIST_TREE;
+
+  unsigned int flags = (unsigned int)(action & 0x0000000f);
+  if( standard )
     flags |= E_STANDARD_NODE;
+  if( composite )
+    flags |= E_COMPOSITE_NODE;
+
   flags |= E_EXIT_SCOPE;
 
+  unsigned int t;
   Instruction i;
-  i.m_I  = INST_STORE_PD_IN_B;
-  i.m_A1 = m_BssStart + 0;
-  i.m_A2 = StringFromAction( p, action );
-  i.m_A3 = 0;
+  t = StringFromAction( p, action );
+  i.m_I = INST_LOAD_REGISTRY;
+  i.m_A1 = 0;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST_STORE_PD_IN_B;
-  i.m_A1 = m_BssStart + 4;
-  i.m_A2 = StringFromNode( p, n );
-  i.m_A3 = 0;
+  t = StringFromNode( p, n );
+  i.m_I = INST_LOAD_REGISTRY;
+  i.m_A1 = 1;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST__STORE_C_IN_B;
-  i.m_A1 = m_BssStart + 8;
-  i.m_A3 = (n->m_NodeId&0xffff0000)>>16;
-  i.m_A2 = (n->m_NodeId&0x0000ffff);
+  t = n->m_NodeId;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 2;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
-  i.m_I  = INST__STORE_C_IN_B;
-  i.m_A1 = m_BssStart + 12;
-  i.m_A2 = flags;
-  i.m_A3 = 0;
+  t = flags;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 3;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
+  m_Inst.push_back( i );
+  t = n->m_Locator.m_LineNo;
+  i.m_I = INST__SET_REGISTRY;
+  i.m_A1 = 4;
+  i.m_A2 = (unsigned short)((t & 0xffff0000) >> 16);
+  i.m_A3 = (unsigned short)((t & 0x0000ffff));
   m_Inst.push_back( i );
   i.m_I  = INST_CALL_DEBUG_FN;
-  i.m_A1 = m_BssStart;
+  i.m_A1 = 0;
   i.m_A2 = 0;
   i.m_A3 = 0;
   m_Inst.push_back( i );
@@ -456,8 +441,6 @@ int DataSection::PushData( const char* data, int count )
   return start;
 }
 
-
-
 int setup_before_generate( Node* n, Program* p )
 {
   //Alloc storage area for bss header
@@ -469,7 +452,7 @@ int setup_before_generate( Node* n, Program* p )
 
   p->m_I.Setup( p );
 
-  return setup_gen( n, p );
+  return setup_gen( n, p, 0 );
 }
 
 int teardown_after_generate( Node* n, Program* p )
@@ -610,8 +593,8 @@ int generate_program( BehaviorTreeContext btc, Program* p )
 
 int print_program( FILE* outFile, Program* p )
 {
-  p->m_I.Print( outFile );
-  p->m_B.Print( outFile );
+  p->m_I.Print( outFile, p );
+  fprintf( outFile, "\nMemory: %u bytes.\n", p->m_Memory );
   p->m_D.Print( outFile );
   return 0;
 }
@@ -619,11 +602,11 @@ int print_program( FILE* outFile, Program* p )
 int save_program( FILE* outFile, bool swapEndian, Program* p )
 {
   return -1;
-  /*
+/*
   ProgramHeader h;
   h.m_IC = p->m_I.Count();
   h.m_DS = p->m_D.Size();
-  h.m_BS = p->m_B.Size();
+  h.m_BS = p->m_Memory;
 
   if( swapEndian )
   {
@@ -640,5 +623,84 @@ int save_program( FILE* outFile, bool swapEndian, Program* p )
   if( !p->m_D.Save( outFile, swapEndian ) )
     return -1;
   return 0;
-  */
+*/
 }
+void parser_error( ParserContext pc, const char* msg );
+void parser_warning( ParserContext pc, const char* msg );
+
+int setup( BehaviorTreeContext ctx, Program* p )
+{
+/*
+  NamedSymbol* main = find_symbol( ctx, hashlittle( "main" ) );
+
+  if( !main || main->m_Type != E_ST_TREE || !main->m_Symbol.m_Tree->m_Declared )
+  {
+    parser_error( 0x0, "\"main\" tree has not been declared." );
+    return -1;
+  }
+  else if( main->m_Symbol.m_Tree->m_Root == 0x0 )
+  {
+    parser_error( 0x0, "\"main\" contains zero node's." );
+    return -1;
+  }
+  BehaviorTreeList* btl = new BehaviorTreeList;
+  btl->m_Next = 0x0;
+  btl->m_Tree = main->m_Symbol.m_Tree;
+  p->m_First = btl;
+
+  p->m_I.Setup( p );
+
+  p->m_Memory = 0;
+  p->m_Memory += sizeof(BssHeader);
+  p->m_Memory += sizeof(CallFrame);
+  p->m_Memory += memory_need_btree( btl->m_Tree );
+
+  while( btl )
+  {
+    int mem_alloc = gen_setup_btree( btl->m_Tree, p, 0 );
+    int mem_needs = memory_need_btree( btl->m_Tree );
+    if( mem_alloc < 0 || mem_alloc != mem_needs )
+      return -1;
+
+    btl = btl->m_Next;
+  }
+*/
+  return 0;
+}
+
+int teardown( Program* p )
+{
+  return 0;
+}
+
+int generate( Program* p )
+{
+  return -1;
+/*
+  if( p->m_First == 0x0 )
+    return -1;
+
+  p->m_I.Push( INST_SCRIPT_C, 2, 0, 0 );
+  p->m_I.Push( INST_______SUSPEND, 0, 0, 0 );
+
+  BehaviorTreeList* btl = p->m_First;
+  while( btl )
+  {
+    btl->m_FirstInst = p->m_I.Count();
+    if( gen_btree( btl->m_Tree, p ) != 0 )
+      return -1;
+    btl = btl->m_Next;
+  }
+
+  btl = p->m_First;
+  while( btl )
+  {
+    patch_calls( btl->m_Tree->m_Root, p );
+    btl = btl->m_Next;
+  }
+
+  return 0;
+*/
+}
+
+

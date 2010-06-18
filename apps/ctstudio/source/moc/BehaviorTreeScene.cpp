@@ -51,7 +51,7 @@ BehaviorTreeScene::~BehaviorTreeScene()
 
 void BehaviorTreeScene::newTree()
 {
-  clear();
+  clearGraphics();
 
   destroy( m_TreeContext );
   m_TreeContext = 0x0;
@@ -65,7 +65,7 @@ void BehaviorTreeScene::newTree()
 
 bool BehaviorTreeScene::readFile( const QString& qt_filename )
 {
-  clear();
+  clearGraphics();
 
   destroy( m_TreeContext );
   m_TreeContext = 0x0;
@@ -260,6 +260,21 @@ void BehaviorTreeScene::itemModified( bool geometry_changed )
     layout();
 }
 
+void BehaviorTreeScene::itemSymbolChanged( unsigned int hash_id )
+{
+  typedef QList<QGraphicsItem *> ItemList;
+  ItemList children( items() );
+  ItemList::iterator it, it_e = children.end();
+  for( it = children.begin() ; it != it_e; ++it )
+  {
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    if( !btsi )
+      continue;
+    btsi->symbolChanged( hash_id );
+  }
+  emit modified();
+}
+
 void BehaviorTreeScene::deleteSelected()
 {
   typedef QList<QGraphicsItem *> ItemList;
@@ -416,6 +431,7 @@ void BehaviorTreeScene::createGraphics()
     connect( tree, SIGNAL(modified(bool)), this, SLOT(itemModified(bool)) );
     connect( tree, SIGNAL(itemSelected(QWidget*)), this, SLOT(nodeSelected(QWidget*)) );
     connect( tree, SIGNAL(symbolsChanged()), this, SLOT(updateClone()));
+    connect( tree, SIGNAL(itemSymbolChanged(unsigned int)), this, SLOT(itemSymbolChanged(unsigned int)));
     createGraphics( s[i].m_Symbol.m_Tree->m_Root, tree );
   }
 
@@ -772,5 +788,29 @@ void BehaviorTreeScene::setupTreeNode( Node* n, const XNodeData& xnd )
   NamedSymbol* ns;
   ns = find_symbol( m_FullContext, xnd.m_FuncId );
   BehaviorTree* declared = ns->m_Symbol.m_Tree;
-  n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( m_TreeContext, &declared->m_Id );;
+  n->m_Grist.m_Tree.m_Parameters = clone_list( m_TreeContext, declared->m_Declarations );
+
+  Parameter* v = n->m_Grist.m_Action.m_Parameters;
+  while( v )
+  {
+    v->m_ValueSet = true;
+    v = v->m_Next;
+  }
+
+  n->m_Grist.m_Tree.m_Tree = look_up_behavior_tree( m_TreeContext, &declared->m_Id );
+}
+
+void BehaviorTreeScene::clearGraphics()
+{
+  typedef QList<QGraphicsItem *> ItemList;
+  ItemList children( items() );
+  ItemList::iterator it, it_e = children.end();
+  for( it = children.begin() ; it != it_e; ++it )
+  {
+    BehaviorTreeSceneItem* btsi = qgraphicsitem_cast<BehaviorTreeSceneItem*>( *it );
+    if( !btsi )
+      continue;
+    btsi->dropArrows();
+  }
+  clear();
 }

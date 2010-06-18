@@ -24,6 +24,11 @@ bool std_flag_set( unsigned int f )
   return (f & E_STANDARD_NODE) != 0;
 }
 
+bool com_flag_set( unsigned int f )
+{
+  return (f & E_COMPOSITE_NODE) != 0;
+}
+
 bool exi_flag_set( unsigned int f )
 {
   return (f & E_EXIT_SCOPE) != 0;

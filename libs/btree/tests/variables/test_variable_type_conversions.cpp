@@ -29,27 +29,27 @@ public:
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToUndefined )
 {
-	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( &v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToInteger )
 {
-	CHECK( !safe_to_convert( v, E_VART_INTEGER ) );
+	CHECK( !safe_to_convert( &v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToFloat )
 {
-	CHECK( !safe_to_convert( v, E_VART_FLOAT ) );
+	CHECK( !safe_to_convert( &v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToString )
 {
-	CHECK( !safe_to_convert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( &v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeUndefinedFixture, CantConvertToBool )
 {
-	CHECK( !safe_to_convert( v, E_VART_BOOL ) );
+	CHECK( !safe_to_convert( &v, E_VART_BOOL ) );
 }
 
 /*
@@ -69,27 +69,27 @@ public:
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToUndefined )
 {
-	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( &v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToInteger )
 {
-	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( &v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToFloat )
 {
-	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( &v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CantConvertToString )
 {
-	CHECK( !safe_to_convert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( &v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, CanConvertToBool )
 {
-	CHECK( safe_to_convert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( &v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeIntegerFixture, IntegerToIntegerConversionReturnsCorrectValue )
@@ -158,27 +158,27 @@ public:
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToUndefined )
 {
-	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( &v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToInteger )
 {
-	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( &v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToFloat )
 {
-	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( &v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCantConvertToString )
 {
-	CHECK( !safe_to_convert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( &v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatCanConvertToBool )
 {
-	CHECK( safe_to_convert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( &v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeFloatFixture, FloatConvertToIntegerReturnsCorrectValue )
@@ -227,27 +227,27 @@ public:
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToUndefined )
 {
-	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( &v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToInteger )
 {
-	CHECK( !safe_to_convert( v, E_VART_INTEGER ) );
+	CHECK( !safe_to_convert( &v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToFloat )
 {
-	CHECK( !safe_to_convert( v, E_VART_FLOAT ) );
+	CHECK( !safe_to_convert( &v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCanConvertToString )
 {
-	CHECK( safe_to_convert( v, E_VART_STRING ) );
+	CHECK( safe_to_convert( &v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringCantConvertToBool )
 {
-	CHECK( !safe_to_convert( v, E_VART_BOOL ) );
+	CHECK( !safe_to_convert( &v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeStringFixture, StringConvertsToZeroInteger )
@@ -287,27 +287,27 @@ public:
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToUndefined )
 {
-	CHECK( !safe_to_convert( v, E_VART_UNDEFINED ) );
+	CHECK( !safe_to_convert( &v, E_VART_UNDEFINED ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToInteger )
 {
-	CHECK( safe_to_convert( v, E_VART_INTEGER ) );
+	CHECK( safe_to_convert( &v, E_VART_INTEGER ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToFloat )
 {
-	CHECK( safe_to_convert( v, E_VART_FLOAT ) );
+	CHECK( safe_to_convert( &v, E_VART_FLOAT ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCantConvertToString )
 {
-	CHECK( !safe_to_convert( v, E_VART_STRING ) );
+	CHECK( !safe_to_convert( &v, E_VART_STRING ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolCanConvertToBool )
 {
-	CHECK( safe_to_convert( v, E_VART_BOOL ) );
+	CHECK( safe_to_convert( &v, E_VART_BOOL ) );
 }
 
 TEST_FIXTURE( VariableTypeBoolFixture, BoolConvertsCorrectlyToInteger )

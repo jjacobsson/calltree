@@ -36,41 +36,11 @@
 (deftree main (
   (sequence (
     (action 'act_set_gc ((value 100000)))
-    (action 'act_count_to_zero ((start 1000)))
     (action 'act_print ((str "We're under attack! A vast, ye swabs! Repel the invaders!")))
-    (selector (
-      (sequence (
-        (parallel (
-          (action 'act_count_to_zero ((start 1000000)))
-          (action 'act_check_gc_grtr ((value 0)))
-          (decorator 'dec_modify_return ((s 1) (r 1) (f 1))
-            (sequence (
-              (selector (
-                (decorator 'dec_modify_return ((s 2) (r 2) (f 0))
-                  (action 'act_check_gc_grtr ((value 66666)))
-                 )
-                (action 'act_dec_gc null)
-               )
-              )
-              (tree 'cutscene)
-              (selector (
-                (decorator 'dec_modify_return ((s 2) (r 2) (f 0))
-                  (action 'act_check_gc_grtr ((value 33333)))
-                 )
-                (action 'act_dec_gc null)
-               )
-              )
-              (tree 'cutscene)
-             )
-            )
-           )
-         )
-        )
-       )
-      )
-      (action 'act_print ((str "uuuuealrlghgghg gurgle gurgle argh. (Mr.Smite is no more)")))
-     )
-    )
+    (tree 'cutscene)
+    (tree 'cutscene)
+    (tree 'cutscene)
+    (action 'act_exit null)
    )
   )
  )

@@ -9,4 +9,4 @@
 ; *    Joacim Jacobsson - first implementation
 ; *******************************************************************************/
 
-(options ((debug_info true)))
+(options ((debug_info 6)))

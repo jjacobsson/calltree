@@ -14,7 +14,10 @@
 
 #include <callback/callback.h>
 #include <btree/btree_data.h>
+
 #include <vector>
+
+#include <stdio.h>
 
 struct Program;
 
@@ -105,11 +108,11 @@ public:
 
     typedef unsigned int TIn;
 
-    void    SetGenerateDebugInfo( bool onoff );
+    void    SetGenerateDebugInfo( int debug_level );
 
     void    Setup( Program* p );
 
-    void    Print( FILE* outFile ) const;
+    void    Print( FILE* outFile, Program* p ) const;
 
     int     Count() const;
     void    Push( TIn inst, TIn A1, TIn A2, TIn A3 );
@@ -120,15 +123,14 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( Program* p, Node* n, cb::NodeAction action );
-    void    PopDebugScope( Program* p, Node* n, cb::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, cb::NodeAction action, int dbg_lvl );
+    void    PopDebugScope( Program* p, Node* n, cb::NodeAction action, int dbg_lvl );
 
 private:
 
     typedef std::vector<cb::Instruction> Instructions;
     Instructions m_Inst;
-    int          m_BssStart;
-    bool         m_DebugInfo;
+    int          m_DebugLevel;
 };
 
 class BSSSection
@@ -215,6 +217,13 @@ private:
     StringTable  m_String;
 };
 
+struct BehaviorTreeList
+{
+  BehaviorTreeList* m_Next;
+  BehaviorTree*     m_Tree;
+  int               m_FirstInst;
+};
+
 struct Program
 {
 	int m_bss_Header;
@@ -223,16 +232,16 @@ struct Program
 	FunctionTable      m_Funcs;
 	JumpTargetTable    m_Jumps;
 	CodeSection m_I;
-	BSSSection	m_B;
 	DataSection m_D;
+	BSSSection m_B;
+	unsigned int m_Memory;
+	BehaviorTreeContext m_Context;
+	BehaviorTreeList* m_First;
 };
 
-
-int setup_before_generate( Node* n, Program* p );
-
-int teardown_after_generate( Node* n, Program* p );
-
-int generate_program( BehaviorTreeContext btc, Program* p );
+int setup( BehaviorTreeContext ctx, Program* p );
+int teardown( Program* p );
+int generate( Program* p );
 
 int print_program( FILE* outfile, Program* p );
 

@@ -14,59 +14,161 @@
 #include <QtGui/QFormLayout>
 #include <QtGui/QStandardItem>
 #include <QtGui/QHeaderView>
-#include <QtGui/QStyledItemDelegate>
+#include <QtGui/QToolButton>
+#include <QtGui/QPushButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QTableWidgetItem>
+#include <QtGui/QSpinBox>
+#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QComboBox>
 
 #include "../IconCache.h"
 #include "../standard_resources.h"
 
-#include "NodePropertyDelegate.h"
+#include <float.h>
 
-NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n,
-  QWidget* parent ) :
-  QTableView( parent ), m_HasBuggs( false ), m_Context( ctx ), m_Node( n )
+#include <other/lookup3.h>
+
+typedef QWidget* (*EditorFactoryFunction)( Parameter* o, Parameter* p, Parameter* d );
+
+QVariant ParameterValueAsVariant( Parameter* p )
 {
-  setModel( &m_Model );
-  setWordWrap( false );
-  m_Delegate = new NodePropertyDelegate( this );
+  QVariant r;
+  if( p )
+  {
+    switch( p->m_Type )
+    {
+    case E_VART_INTEGER:
+      r = QVariant( as_integer( *p ) );
+      break;
+    case E_VART_FLOAT:
+      r = QVariant( as_float( *p ) );
+      break;
+    case E_VART_STRING:
+      r = QVariant( as_string( *p )->m_Parsed );
+      break;
+    case E_VART_BOOL:
+      r = QVariant( as_bool( *p ) );
+      break;
+    case E_VART_HASH:
+      r = QVariant( as_integer( *p ) );
+      break;
+    }
+  }
+  return r;
+}
 
-  m_Model.setColumnCount( 3 );
-  setItemDelegateForColumn( 2, m_Delegate );
+QWidget* CreateEnumEditor( Parameter* o, Parameter* p, Parameter* d )
+{
+  QComboBox* cb = new QComboBox;
+  Parameter* e = find_child_by_hash( o, hashlittle( "e" ) );
+  unsigned int label_hash = hashlittle( "label" );
+  unsigned int value_hash = hashlittle( "value" );
+
+  QVariant current_value_variant( ParameterValueAsVariant(p) );
+  if( !current_value_variant.isValid() )
+    current_value_variant = QVariant( 0 );
+
+  int index = 0;
+
+  while( e )
+  {
+    Parameter* label = find_child_by_hash( e, label_hash );
+    Parameter* value = find_child_by_hash( e, value_hash );
+
+    if( !label || !safe_to_convert( label, E_VART_STRING ) )
+      continue;
+
+    QVariant value_variant( ParameterValueAsVariant(value) );
+    if( !value_variant.isValid() )
+      value_variant = QVariant( cb->count() );
+
+    cb->addItem( as_string( *label )->m_Parsed, value_variant );
+
+    if( value_variant == current_value_variant )
+      index = cb->count() - 1;
+
+    e = e->m_Next;
+  }
+
+  cb->setCurrentIndex( index );
+
+  return cb;
+}
+
+QWidget* CreateIntSpinboxEditor( Parameter* o, Parameter* p, Parameter* d )
+{
+  QSpinBox* sb = new QSpinBox;
+  sb->setRange( INT_MIN, INT_MAX );
+  if( p && safe_to_convert( p, E_VART_INTEGER ) )
+    sb->setValue( as_integer( *p ) );
+
+  Parameter* min = find_child_by_hash( o, hashlittle( "min" ) );
+  Parameter* max = find_child_by_hash( o, hashlittle( "max" ) );
+  Parameter* step = find_child_by_hash( o, hashlittle( "step" ) );
+
+  if( min && safe_to_convert( min, E_VART_INTEGER ) )
+    sb->setMinimum( as_integer( *min ) );
+  if( max && safe_to_convert( max, E_VART_INTEGER ) )
+    sb->setMaximum( as_integer( *max ) );
+  if( step && safe_to_convert( step, E_VART_INTEGER ) )
+    sb->setSingleStep( as_integer( *step ) );
+  return sb;
+}
+
+QWidget* CreateFloatSpinboxEditor( Parameter* o, Parameter* p, Parameter* d )
+{
+  QDoubleSpinBox* sb = new QDoubleSpinBox;
+  sb->setRange( -FLT_MAX, FLT_MAX );
+  sb->setDecimals( 4 );
+  if( p && safe_to_convert( p, E_VART_FLOAT ) )
+    sb->setValue( as_float( *p ) );
+
+  Parameter* min = find_child_by_hash( o, hashlittle( "min" ) );
+  Parameter* max = find_child_by_hash( o, hashlittle( "max" ) );
+  Parameter* step = find_child_by_hash( o, hashlittle( "step" ) );
+
+  if( min && safe_to_convert( min, E_VART_FLOAT ) )
+    sb->setMinimum( as_float( *min ) );
+  if( max && safe_to_convert( max, E_VART_FLOAT ) )
+    sb->setMaximum( as_float( *max ) );
+  if( step && safe_to_convert( step, E_VART_FLOAT ) )
+    sb->setSingleStep( as_float( *step ) );
+
+  return sb;
+}
+
+NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n, QWidget* parent )
+  : QTableWidget( parent )
+  , m_HasBuggs( false )
+  , m_Context( ctx )
+  , m_Node( n )
+{
+  setWordWrap( false );
+  setColumnCount( 3 );
+
   verticalHeader()->setVisible( false );
 
   QStringList headers;
-  headers.push_back( tr( "Param" ) );
+  headers.push_back( tr( "Name" ) );
   headers.push_back( tr( "Type" ) );
   headers.push_back( tr( "Value" ) );
-  m_Model.setHorizontalHeaderLabels( headers );
+  setHorizontalHeaderLabels( headers );
 
-  Parameter* params = get_parameters( m_Node );
-  Parameter* declar = get_declarations( m_Node );
+  Parameter* dec = get_declarations( m_Node );
+  Parameter* par = get_parameters( m_Node );
+  Parameter* opt = get_options( m_Node );
+  opt = find_by_hash( opt, hashlittle( "cts" ) );
+  opt = find_child_by_hash( opt, hashlittle( "params" ) );
 
-  if( params && declar )
-    setupPropertyEditorForParamaters( params, declar );
+  setupProperties( opt, par, dec );
 
-  resizeRowsToContents();
   setSelectionMode( QAbstractItemView::NoSelection );
-
-  QHeaderView* hw = horizontalHeader();
-  hw->setMinimumSectionSize( 65 );
-  hw->setResizeMode( QHeaderView::ResizeToContents );
-  hw->setStretchLastSection( true );
-  hw->setHighlightSections( false );
-  hw->setClickable( false );
-
-  connect(
-  &m_Model, SIGNAL( itemChanged( QStandardItem* ) ), this,
-    SLOT( updateNodeParameterData( QStandardItem* ) )
-  );
-
+  setAlternatingRowColors( true );
 }
 
 NodePropertyEditor::~NodePropertyEditor()
 {
-  setModel( 0x0 );
-  delete m_Delegate;
-  m_Delegate = 0x0;
 }
 
 bool NodePropertyEditor::hasBuggs() const
@@ -74,205 +176,102 @@ bool NodePropertyEditor::hasBuggs() const
   return m_HasBuggs;
 }
 
-void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
+void NodePropertyEditor::setupProperties(
+    Parameter* options,
+    Parameter* params,
+    Parameter* declarations
+  )
 {
-  int hash = item->data( Qt::UserRole + 0 ).toInt();
-  int type = item->data( Qt::UserRole + 1 ).toInt();
-  bool bugged = item->data( Qt::UserRole + 3 ).toBool();
-  int row = item->data( Qt::UserRole + 4 ).toInt();
+  clearContents();
 
-  Parameter* p = find_by_hash( get_parameters( m_Node ), hash );
-  Parameter* d = find_by_hash( get_declarations( m_Node ), hash );
+  QIcon* good_icon = IconCache::get(":/nodes/succeed.svg");
+  QIcon* bug_icon = IconCache::get(":/icons/bug.svg");
 
-  if( !d )
-    return;
-
-  if( !p )
-  {
-    p = clone( m_Context, d );
-    append_to_end( get_parameters( m_Node ), p );
-    p->m_ValueSet = true;
-    if( d->m_Type == E_VART_HASH )
-      p->m_Type = E_VART_STRING;
-  }
-
-  if( bugged )
-  {
-    QIcon* icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
-    m_Model.item( row, 0 )->setIcon( *icon );
-    item->setData( false, Qt::UserRole + 3 );
-  }
-
-  bool changed = false;
-
-  switch( type )
-  {
-  case E_VART_BOOL:
-    {
-      bool t = p->m_Data.m_Bool;
-      p->m_Data.m_Bool = item->checkState() == Qt::Checked ? true : false;
-      if( t != p->m_Data.m_Bool )
-        changed = true;
-    }
-    break;
-  case E_VART_INTEGER:
-    {
-      int t = p->m_Data.m_Integer;
-      p->m_Data.m_Integer = item->data( Qt::UserRole + 2 ).toInt();
-      if( t != p->m_Data.m_Integer )
-        changed = true;
-    }
-    break;
-  case E_VART_FLOAT:
-    {
-      float t = p->m_Data.m_Float;
-      p->m_Data.m_Float = item->data( Qt::UserRole + 2 ).toFloat();
-      if( t != p->m_Data.m_Float )
-        changed = true;
-    }
-    break;
-  case E_VART_HASH:
-  case E_VART_STRING:
-    {
-      const char* t = p->m_Data.m_String.m_Raw;
-      p->m_Data.m_String.m_Parsed = register_string( m_Context,
-        item->text().toAscii().constData() );
-      p->m_Data.m_String.m_Raw = p->m_Data.m_String.m_Parsed;
-      if( t != p->m_Data.m_String.m_Raw )
-        changed = true;
-    }
-    break;
-  }
-
-  if( changed )
-  {
-    m_HasBuggs = false;
-    int c = m_Model.rowCount();
-    for( int i = 0; i < c; ++i )
-    {
-      if( !m_Model.item( i, 2 )->data( Qt::UserRole + 3 ).toBool() )
-        continue;
-      m_HasBuggs = true;
-      break;
-    }
-
-    emit nodeParametersChanged();
-  }
-}
-
-void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
-  Parameter* dec )
-{
-  QIcon* bug_icon = IconCache::get( g_IconNames[ICON_BUG] );
-  QIcon* good_icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
-  m_HasBuggs = false;
-  Parameter* it = dec;
+  Parameter* it = declarations;
+  setRowCount( count_elements( it ) );
+  int row = 0;
   while( it )
   {
-    Parameter* v = find_by_hash( set, it->m_Id.m_Hash );
-    bool param_bugged = false;
+    QTableWidgetItem* name_item = new QTableWidgetItem;
+    QTableWidgetItem* type_item = new QTableWidgetItem;
 
-    if( !v )
-      param_bugged = true;
+    name_item->setText( it->m_Id.m_Text );
+    name_item->setIcon( *bug_icon );
+    name_item->setFlags( Qt::ItemIsEnabled );
 
-    QStandardItem* l = new QStandardItem( it->m_Id.m_Text );
-    QStandardItem* tl = new QStandardItem;
-    QStandardItem* e = new QStandardItem;
+    type_item->setText( get_type_name( it ) );
+    type_item->setFlags( Qt::ItemIsEnabled );
 
-    l->setFlags( Qt::NoItemFlags );
-    tl->setFlags( Qt::NoItemFlags );
-    e->setFlags( Qt::NoItemFlags );
+    setItem( row, 0, name_item );
+    setItem( row, 1, type_item );
 
-    e->setData( it->m_Id.m_Hash, Qt::UserRole + 0 );
-    e->setData( it->m_Type, Qt::UserRole + 1 );
-    e->setData( false, Qt::UserRole + 3 );
+    Parameter* p_opts = find_child_by_hash( options, it->m_Id.m_Hash );
+    Parameter* p = find_by_hash( params, it->m_Id.m_Hash );
 
-    switch( it->m_Type )
-    {
-    case E_VART_BOOL:
-      {
-        tl->setText( tr( "bool" ) );
-        e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsUserCheckable );
-        if( v && as_bool( *v ) )
-          e->setCheckState( Qt::Checked );
-        else
-          e->setCheckState( Qt::Unchecked );
-      }
-      break;
-    case E_VART_FLOAT:
-      {
-        tl->setText( tr( "float" ) );
-        if( v )
-        {
-          e->setText( QString( "%1" ).arg( as_float( *v ) ) );
-          e->setData( as_float( *v ), Qt::UserRole + 2 );
-        }
-        e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
-      }
-      break;
-    case E_VART_INTEGER:
-      {
-        tl->setText( tr( "integer" ) );
-        if( v )
-        {
-          e->setText( QString( "%1" ).arg( as_integer( *v ) ) );
-          e->setData( as_integer( *v ), Qt::UserRole + 2 );
-        }
-        e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
-      }
-      break;
-    case E_VART_HASH:
-      tl->setText( tr( "hash" ) );
-      if( v )
-      {
-        if( v->m_Type == E_VART_STRING )
-          e->setText( as_string( *v )->m_Raw );
-        else if( v->m_Type == E_VART_INTEGER || v->m_Type == E_VART_HASH )
-        {
-          v->m_Type = E_VART_STRING;
-          v->m_Data.m_String.m_Parsed = register_string( m_Context, "" );
-          v->m_Data.m_String.m_Raw = register_string( m_Context, "" );
-        }
-      }
-      e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
-      break;
-    case E_VART_STRING:
-      {
-        tl->setText( tr( "string" ) );
-        if( v )
-          e->setText( as_string( *v )->m_Raw );
-        e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
-      }
-      break;
-    case E_VART_UNDEFINED:
-    case E_MAX_VARIABLE_TYPE:
-      // Warning Killers
-      param_bugged = true;
-      tl->setText( tr( "I have no clue." ) );
-      break;
-    }
+    QWidget* edit = createEditor( p_opts, p, it );
 
-    int row = m_Model.rowCount();
-    e->setData( row, Qt::UserRole + 4 );
-    l->setFlags( Qt::ItemIsEnabled );
-    tl->setFlags( Qt::ItemIsEnabled );
+    setCellWidget( row, 2, edit );
 
-    m_Model.setRowCount( row + 1 );
-    m_Model.setItem( row, 0, l );
-    m_Model.setItem( row, 1, tl );
-    m_Model.setItem( row, 2, e );
-
-    if( bug_icon && param_bugged )
-    {
-      l->setIcon( *bug_icon );
-      e->setData( true, Qt::UserRole + 3 );
-    }
-    else
-      l->setIcon( *good_icon );
-
-    if( param_bugged )
-      m_HasBuggs = true;
-
+    ++row;
     it = it->m_Next;
   }
+
+  resizeRowsToContents();
+
+  QHeaderView* hw = horizontalHeader();
+  hw->setMinimumSectionSize( 85 );
+  hw->setResizeMode( QHeaderView::ResizeToContents );
+  hw->setStretchLastSection( true );
+  hw->setHighlightSections( false );
+  hw->setClickable( false );
+}
+
+QWidget* NodePropertyEditor::createEditor(
+  Parameter* options,
+  Parameter* parameter,
+  Parameter* declaration
+)
+{
+  QWidget* r = 0x0;
+
+  if( options && options->m_Type == E_VART_LIST && options->m_Data.m_List != 0x0 )
+  {
+    const unsigned int edit_types[] = {
+      hashlittle( "enum" ),
+      hashlittle( "int32_spinbox"),
+      hashlittle( "float_spinbox" )
+    };
+
+    EditorFactoryFunction edit_funcs[] = {
+      &CreateEnumEditor,
+      &CreateIntSpinboxEditor,
+      &CreateFloatSpinboxEditor
+    };
+
+    const int edit_type_count = sizeof( edit_types ) / sizeof( unsigned int );
+
+    Parameter* edit_type = options->m_Data.m_List;
+    while( edit_type && !r )
+    {
+      for( int i = 0; i < edit_type_count; ++i )
+      {
+        if( edit_type->m_Id.m_Hash != edit_types[i] )
+          continue;
+
+        r = edit_funcs[i]( edit_type, parameter, declaration );
+        break;
+      }
+      edit_type = edit_type->m_Next;
+    }
+  }
+  else
+  {
+
+  }
+
+  return r;
+}
+
+void NodePropertyEditor::validateParameters()
+{
 }

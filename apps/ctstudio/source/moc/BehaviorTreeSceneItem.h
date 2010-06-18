@@ -55,6 +55,7 @@ public:
     return false;
   }
 
+  void dropArrows();
   void removeArrow( NodeToNodeArrow* arrow );
   void removeArrows();
   void addArrow( NodeToNodeArrow* arrow );
@@ -76,14 +77,15 @@ public:
   virtual void dragBegin();
   virtual void dragEnd();
   virtual void dragFail();
+  virtual void symbolChanged( unsigned int hash_id );
 
   void paint( QPainter*, const QStyleOptionGraphicsItem*, QWidget* );
-
 
 signals:
 
   void itemDragged();
   void itemSelected( QWidget* );
+  void itemSymbolChanged( unsigned int hash_id );
   void modified( bool geometry_changed );
   void itemDeleted();
 
