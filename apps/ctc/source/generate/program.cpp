@@ -12,7 +12,6 @@
 #include "program.h"
 #include "nodes.h"
 #include "endian.h"
-#include "inst_text.h"
 
 #include <btree/btree_func.h>
 #include <other/lookup3.h>
@@ -169,7 +168,8 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
 
 int StringFromAction( Program* p, NodeAction action )
 {
-  return p->m_D.PushString( g_CBActionNames[action] );
+  //return p->m_D.PushString( g_CBActionNames[action] );
+  return -1;
 }
 
 int StringFromNode( Program* p, Node* n )
