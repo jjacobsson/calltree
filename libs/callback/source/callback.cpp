@@ -131,16 +131,22 @@ start_label:
   case idiv:
     ctx->r[i->a1] = ctx->r[i->a2] / ctx->r[i->a3];
     break;
-  case iinc:
+  case iaddi:
     ctx->r[i->a1] += (((type)(i->a2))<<8) + ((type)(i->a3));
     break;
-  case idec:
+  case isubi:
     ctx->r[i->a1] -= (((type)(i->a2))<<8) + ((type)(i->a3));
     break;
-  case iload:
+  case imuli:
+    ctx->r[i->a1] *= (((type)(i->a2))<<8) + ((type)(i->a3));
+    break;
+  case idivi:
+    ctx->r[i->a1] /= (((type)(i->a2))<<8) + ((type)(i->a3));
+    break;
+  case ild:
     ctx->r[i->a1] = ((type*)(ctx->r[i->a2]))[i->a3];
     break;
-  case istore:
+  case ist:
     ((type*)(ctx->r[i->a1]))[i->a2] = ctx->r[i->a3];
     break;
   case ipush:
@@ -151,10 +157,10 @@ start_label:
     ctx->r[esp] -= sizeof(type);
     ctx->r[i->a1] = *(type*)ctx->r[esp];
     break;
-  case ishftl:
+  case ishli:
     ctx->r[i->a1] = ctx->r[i->a2] << i->a3;
     break;
-  case ishftr:
+  case ishri:
     ctx->r[i->a1] = ctx->r[i->a2] >> i->a3;
     break;
   case iand:
@@ -166,10 +172,10 @@ start_label:
   case ixor:
     ctx->r[i->a1] = ctx->r[i->a2] ^ ctx->r[i->a3];
     break;
-  case isetl:
+  case islszi:
     ctx->r[i->a1] = (((type)i->a2)<<8)|(type)i->a3;
     break;
-  case iseth:
+  case ishszi:
     ctx->r[i->a1] = (((type)i->a2)<<24)|(((type)i->a3)<<16);
     break;
   case iandl:

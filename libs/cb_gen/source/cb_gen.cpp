@@ -94,7 +94,7 @@ void generate( Function* f )
   load_with_offset( f->m_I, r_br_exit, ejt, jt_exi );
 
   add( f, imov, r_ms, ems, 0 );
-  add( f, iinc, ems, 0x00, 0x04 );
+  add( f, iaddi, ems, 0x00, 0x04 );
 
   //Load r_br_comp with ACT_CONSTRUCT
   set_registry( f->m_I, r_br_comp, ACT_CONSTRUCT );

@@ -94,27 +94,27 @@ void load_with_offset( InstList& il, uchar to, uchar from, uint index )
   uint bo = index * suint;
   if( bo <= 0xff )
   {
-    add( il, iload, to, from, (uchar)index );
+    add( il, ild, to, from, (uchar)index );
   }
   else if( bo <= 0xffff )
   {
-    add( il, isetl, to, (uchar)((bo&0x0000ff00)>>8), (uchar)((bo&0x000000ff)) );
+    add( il, islszi, to, (uchar)((bo&0x0000ff00)>>8), (uchar)((bo&0x000000ff)) );
     add( il, iadd,  to, to, from );
-    add( il, iload, to, to, 0 );
+    add( il, ild, to, to, 0 );
   }
   else if( bo <= (0xffff + (suint*0xff)) )
   {
     uint in = bo - (0xff * suint);
-    add( il, isetl, to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
+    add( il, islszi, to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
     add( il, iadd,  to, to, from );
-    add( il, iload, to, to, 0xff );
+    add( il, ild, to, to, 0xff );
   }
   else
   {
-    add( il, iseth, to, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
+    add( il, ishszi, to, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
     add( il, iorl,  to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
     add( il, iadd,  to, to, from );
-    add( il, iload, to, to, 0 );
+    add( il, ild, to, to, 0 );
   }
 }
 
@@ -124,30 +124,30 @@ void store_with_offset( InstList& il, uchar to, uint index, uchar from )
   uint bo = index * suint;
   if( index <= 0xff )
   {
-    add( il, istore, to, (uchar)index, from );
+    add( il, ist, to, (uchar)index, from );
   }
   else if( bo <= 0xffff )
   {
-    add( il, iinc,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
-    add( il, istore, to, 0, from );
-    add( il, idec,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
+    add( il, iaddi,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
+    add( il, ist, to, 0, from );
+    add( il, isubi,   to, (uchar)((bo&0x0000ff00)>>8), (uchar)(bo&0x000000ff) );
   }
   else if( bo <= (0xffff + (suint*0xff)) )
   {
     uint in = bo - (0xff * suint);
-    add( il, iinc,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
-    add( il, istore, to, 0xff, from );
-    add( il, idec,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
+    add( il, iaddi,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
+    add( il, ist, to, 0xff, from );
+    add( il, isubi,   to, (uchar)((in&0x0000ff00)>>8), (uchar)(in&0x000000ff) );
   }
   else
   {
     add( il, ipush,  to,   0, 0 );
     add( il, ipush,  from, 0, 0 );
-    add( il, iseth,  from, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
+    add( il, ishszi,  from, (uchar)((bo&0xff000000)>>24), (uchar)((bo&0x00ff0000)>>16) );
     add( il, iorl,   from, (uchar)((bo&0x0000ff00)>>8),  (uchar)(bo&0x000000ff) );
     add( il, iadd,   to, to, from );
     add( il, ipop,   from, 0, 0 );
-    add( il, istore, to, 0, from );
+    add( il, ist, to, 0, from );
     add( il, ipop,   to, 0, 0 );
   }
 }
@@ -156,11 +156,11 @@ void set_registry( InstList& il, uchar reg, uint value )
 {
   if( value <= 0xffff )
   {
-    add( il, isetl, reg, (uchar)((value&0x0000ff00)>>8), (uchar)(value&0x000000ff) );
+    add( il, islszi, reg, (uchar)((value&0x0000ff00)>>8), (uchar)(value&0x000000ff) );
   }
   else
   {
-    add( il, iseth, reg, (uchar)((value&0xff000000)>>24), (uchar)((value&0x00ff0000)>>16) );
+    add( il, ishszi, reg, (uchar)((value&0xff000000)>>24), (uchar)((value&0x00ff0000)>>16) );
     add( il, iorl,  reg, (uchar)((value&0x0000ff00)>>8), (uchar)(value&0x000000ff) );
   }
 }
@@ -172,7 +172,7 @@ void dressed_call( InstList& il, uchar reg, uint func_id, uint mem_offset )
     //Push ems to the stack
     add( il, ipush, ems, 0, 0 );
     //Increment ems by mem_offset
-    add( il, iinc, ems, (uchar)((mem_offset&0x0000ff00)>>8), (uchar)(mem_offset&0x000000ff) );
+    add( il, iaddi, ems, (uchar)((mem_offset&0x0000ff00)>>8), (uchar)(mem_offset&0x000000ff) );
   }
   else
   {

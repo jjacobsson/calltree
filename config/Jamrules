@@ -691,7 +691,7 @@ rule InvokeApplication
 		MkDir $(_path) ;
 		Archive $(_applib) : $(_alib_objects) ;
 		Link  $(_appfile)  :  $(_applib) $(_objects) ;
-		
+
 		Depends $(_applib)  : $(_path) ;
 		Depends $(_applib)  : $(_alib_objects) ;
 		Depends lib         : $(_applib) ;
@@ -701,21 +701,21 @@ rule InvokeApplication
 		Depends $(_appfile) : $(_objects) ;
 		Depends $(_appname) : $(_appfile) ;
 		Depends exe         : $(_appname) ;
-		
+
 		Clean clean : $(_appfile) ;
 		Clean clean : $(_applib) ;
 	}
 	else
 	{
-	    # Actions
-		MkDir $(_appfile:P) ;
-		Link  $(_appfile) : $(_objects) ;
-	
-	    Depends $(_appfile) : $(_appfile:P) ;
-		Depends $(_appfile) : $(_objects) ;
-		Depends $(_appname) : $(_appfile) ;
-		Depends exe	        : $(_appname) ;
-		Clean   clean       : $(_appfile) ;
+    # Actions
+	MkDir $(_appfile:P) ;
+	Link  $(_appfile) : $(_objects) ;
+
+    Depends $(_appfile) : $(_appfile:P) ;
+	Depends $(_appfile) : $(_objects) ;
+	Depends $(_appname) : $(_appfile) ;
+	Depends exe	        : $(_appname) ;
+	Clean   clean       : $(_appfile) ;
 	}
 
 	if $(NT)

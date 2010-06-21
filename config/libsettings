@@ -8,7 +8,7 @@ if $(QTPATH)
 	
 	local _includes = ; 
 	_includes += include ;
-	_includes += mkspecs$(SLASH)default ;
+	_includes += [ FDirName mkspecs default ] ;
 	
 	qt_ext_include_search_paths = $(QTPATH)$(SLASH)$(_includes) ;
 	
@@ -21,7 +21,7 @@ if $(QTPATH)
 	qt_ext_defines += QT_THREAD_SUPPORT ;
 	qt_ext_defines += QT_NEEDS_DOMAIN ;
 
-	qt_ext_link_search_paths = $(QTPATH)$(SLASH)lib ;
+	qt_ext_link_search_paths = [ FDirName $(QTPATH) lib ] ;
 	if $(NT)
 	{
 		if $(CONFIGURATION) = debug
@@ -38,8 +38,8 @@ if $(QTPATH)
 		qt_ext_library_files = QtGui QtCore QtSvg ;
 	}
 
-	TOOL_QT_MOC = $(QTPATH)$(SLASH)bin$(SLASH)moc$(SUFEXE) ;
-	TOOL_QT_UIC = $(QTPATH)$(SLASH)bin$(SLASH)uic$(SUFEXE) ;
-	TOOL_QT_RCC = $(QTPATH)$(SLASH)bin$(SLASH)rcc$(SUFEXE) ;
+	TOOL_QT_MOC = [ FDirName $(QTPATH) bin moc$(SUFEXE) ] ;
+	TOOL_QT_UIC = [ FDirName $(QTPATH) bin uic$(SUFEXE) ] ;
+	TOOL_QT_RCC = [ FDirName $(QTPATH) bin rcc$(SUFEXE) ] ;
 
 }
