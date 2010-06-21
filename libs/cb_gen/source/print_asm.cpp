@@ -20,76 +20,77 @@ using namespace cb;
 
 const char* const g_InstNames[cb::inst_count] =
 {
-  "nop",
-  "call",
-  "ret",
-  "ccall",
-  "dcall",
-  "br",
-  "bre",
-  "brne",
-  "mov",
-  "add",
-  "sub",
-  "mul",
-  "div",
-  "addi",
-  "subi",
-  "muli",
-  "divi",
-  "load",
-  "store",
-  "push",
-  "pop",
-  "shftl",
-  "shftr",
-  "and",
-  "or",
-  "xor",
-  "setl",
-  "seth",
-  "andl",
-  "andh",
-  "orl",
-  "orh",
-  "xorl",
-  "xorh",
-  "exit",
+  "nop",          /* 0 No-Op */
+  "call",         /* 1 */
+  "ret",          /* 2 */
+  "ccall",        /* 3 */
+  "dcall",        /* 4 */
+  "br",           /* 5 */
+  "bre",          /* 6 */
+  "brne",         /* 7 */
+  "mov",          /* 8 */
+  "add",          /* 9 */
+  "sub",          /* 10 */
+  "mul",          /* 11 */
+  "div",          /* 12 */
+  "addi",         /* 13 */
+  "subi",         /* 14 */
+  "muli",         /* 15 */
+  "divi",         /* 16 */
+  "ld",           /* 17 */
+  "st",           /* 18 */
+  "push",         /* 19 */
+  "pop",          /* 20 */
+  "shli",         /* 21 */
+  "shri",         /* 22 */
+  "and",          /* 23 */
+  "or",           /* 24 */
+  "xor",          /* 25 */
+  "slszi",        /* 26 */
+  "shszi",        /* 27 */
+  "andl",         /* 28 */
+  "andh",         /* 29 */
+  "orl",          /* 30 */
+  "orh",          /* 31 */
+  "xorl",         /* 32 */
+  "xorh",         /* 33 */
+  "exit"          /* 34 */
 };
 
 const char* const g_RegNames[cb::reg_count] =
 {
-  "r0",
-  "r1",
-  "r2",
-  "r3",
-  "r4",
-  "r5",
-  "r6",
-  "r7",
-  "r8",
-  "r9",
-  "r10",
-  "r11",
-  "r12",
-  "r13",
-  "r14",
-  "r15",
-  "r16",
-  "r17",
-  "r18",
-  "r19",
-  "r20",
-  "rr",
-  "fc",
-  "ic",
-  "ip",
-  "sp",
-  "fs",
-  "ds",
-  "ms",
-  "ft",
-  "jt"
+  "r0",   /* 00 General purpose */
+  "r1",   /* 01 General purpose */
+  "r2",   /* 02 General purpose */
+  "r3",   /* 03 General purpose */
+  "r4",   /* 04 General purpose */
+  "r5",   /* 05 General purpose */
+  "r6",   /* 06 General purpose */
+  "r7",   /* 07 General purpose */
+  "r8",   /* 08 General purpose */
+  "r9",   /* 09 General purpose */
+  "r10",  /* 10 General purpose */
+  "r11",  /* 11 General purpose */
+  "r12",  /* 12 General purpose */
+  "r13",  /* 13 General purpose */
+  "r14",  /* 14 General purpose */
+  "r15",  /* 15 General purpose */
+  "r16",  /* 16 General purpose */
+  "r17",  /* 17 General purpose */
+  "r18",  /* 18 General purpose */
+  "r19",  /* 19 General purpose */
+  "r20",  /* 20 General purpose */
+  "r21",  /* 21 General purpose */
+  "rr",   /* 22 return value */
+  "fc",   /* 23 Frame counter */
+  "ic",   /* 24 Instruction counter */
+  "ip",   /* 25 Instruction pointer */
+  "sp",   /* 26 Stack pointer */
+  "fs",   /* 27 Call stack pointer */
+  "ds",   /* 28 Data section */
+  "ms",   /* 29 Memory section */
+  "ft",   /* 30 Function Lookup Table */
+  "jt",   /* 31 Jump target lookup table */
 };
 
 int print_inst( char* buff, cb::Instruction inst, uint line )

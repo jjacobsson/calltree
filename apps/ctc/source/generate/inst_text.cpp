@@ -23,35 +23,39 @@ const char * const g_NodeReturnsNames[cb::MAXIMUM_NODE_RETURN_COUNT] =
 
 const char * const g_InstructionNames[cb::inst_count] =
 {
-  "nop",          /* No-Op */
-  "call",         /* push ip+1 to sp and set ip to toc[a1] */
-  "ret",          /* pop sp to ip */
-  "ccall",        /* */
-  "dcall",        /* */
-  "jmp",          /* */
-  "jme",          /* */
-  "jne",          /* */
-  "mov",          /* */
-  "add",          /* */
-  "sub",          /* */
-  "mul",          /* */
-  "div",          /* */
-  "load",         /* */
-  "store",        /* */
-  "push",         /* */
-  "pop",          /* */
-  "shftl",        /* */
-  "shftr",        /* */
-  "and",          /* */
-  "or",           /* */
-  "xor",          /* */
-  "setl",         /* */
-  "seth",         /* */
-  "andl",         /* */
-  "andh",         /* */
-  "orl",          /* */
-  "orh",          /* */
-  "xorl",         /* */
-  "xorh",         /* */
-  "exit"          /* */
+  "nop",          /* 0 No-Op */
+  "call",         /* 1 */
+  "ret",          /* 2 */
+  "ccall",        /* 3 */
+  "dcall",        /* 4 */
+  "br",           /* 5 */
+  "bre",          /* 6 */
+  "brne",         /* 7 */
+  "mov",          /* 8 */
+  "add",          /* 9 */
+  "sub",          /* 10 */
+  "mul",          /* 11 */
+  "div",          /* 12 */
+  "addi",         /* 13 */
+  "subi",         /* 14 */
+  "muli",         /* 15 */
+  "divi",         /* 16 */
+  "ld",           /* 17 */
+  "st",           /* 18 */
+  "push",         /* 19 */
+  "pop",          /* 20 */
+  "shli",         /* 21 */
+  "shri",         /* 22 */
+  "and",          /* 23 */
+  "or",           /* 24 */
+  "xor",          /* 25 */
+  "slszi",        /* 26 */
+  "shszi",        /* 27 */
+  "andl",         /* 28 */
+  "andh",         /* 29 */
+  "orl",          /* 30 */
+  "orh",          /* 31 */
+  "xorl",         /* 32 */
+  "xorh",         /* 33 */
+  "exit"          /* 34 */
 };
