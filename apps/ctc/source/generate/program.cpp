@@ -92,8 +92,8 @@ void CodeSection::Print( FILE* outFile, Program* p ) const
       s = btl->m_Next->m_FirstInst;
     else
       s = Count();
-
-    fprintf( outFile, "\n%s\n", btl->m_Tree->m_Id.m_Text );
+    int mem =  memory_need_btree( btl->m_Tree );
+    fprintf( outFile, "\n%s (mem: %d 0x%04x)\n", btl->m_Tree->m_Id.m_Text, mem, mem );
     fprintf( outFile, "%-8s%-8s%-20s%-9s%-9s%-9s\n", "Global", "Func",
       "Instruction", "A1", "A2", "A3" );
 
