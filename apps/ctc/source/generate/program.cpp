@@ -26,7 +26,7 @@ using namespace cb;
 
 void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
 {
-
+/*
   char func[16], glob[16], a1[16], a2[16], a3[16];
 
   sprintf( func, "0x%04x", f );
@@ -38,7 +38,6 @@ void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
 
   switch( inst.m_I )
   {
-/*
   case INST_JABC_R_EQUA_C:
     fprintf( outFile, "%-9s%-9s%-9s", a1, g_NodeReturnsNames[inst.m_A2], a3 );
     break;
@@ -48,11 +47,11 @@ void print_instruction( FILE* outFile, const Instruction& inst, int g, int f )
   case INST__STORE_C_IN_R:
     fprintf( outFile, "%-9s%-9s%-9s", g_NodeReturnsNames[inst.m_A1], a2, a3 );
     break;
-*/
   default:
     fprintf( outFile, "%-9s%-9s%-9s", a1, a2, a3 );
     break;
   }
+*/
 }
 
 CodeSection::CodeSection()
@@ -122,25 +121,27 @@ int CodeSection::Count() const
 
 void CodeSection::Push( TIn inst, TIn A1, TIn A2, TIn A3 )
 {
+  /*
   Instruction i;
   i.m_I = SafeConvert( inst );
   i.m_A1 = SafeConvert( A1 );
   i.m_A2 = SafeConvert( A2 );
   i.m_A3 = SafeConvert( A3 );
   m_Inst.push_back( i );
+  */
 }
 
 void CodeSection::SetA1( int i, TIn A1 )
 {
-  m_Inst[i].m_A1 = SafeConvert( A1 );
+  //m_Inst[i].m_A1 = SafeConvert( A1 );
 }
 void CodeSection::SetA2( int i, TIn A2 )
 {
-  m_Inst[i].m_A2 = SafeConvert( A2 );
+  //m_Inst[i].m_A2 = SafeConvert( A2 );
 }
 void CodeSection::SetA3( int i, TIn A3 )
 {
-  m_Inst[i].m_A3 = SafeConvert( A3 );
+  //m_Inst[i].m_A3 = SafeConvert( A3 );
 }
 
 bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
@@ -155,10 +156,10 @@ bool CodeSection::Save( FILE* outFile, bool swapEndian ) const
   {
     for( size_t i = 0; i < s; ++i )
     {
-      EndianSwap( t[i].m_I );
-      EndianSwap( t[i].m_A1 );
-      EndianSwap( t[i].m_A2 );
-      EndianSwap( t[i].m_A3 );
+//      EndianSwap( t[i].m_I );
+//      EndianSwap( t[i].m_A1 );
+//      EndianSwap( t[i].m_A2 );
+//      EndianSwap( t[i].m_A3 );
     }
   }
   size_t write = sizeof(Instruction) * s;
@@ -482,15 +483,15 @@ int print_program( FILE* outFile, Program* p )
 int save_program( FILE* outFile, bool swapEndian, Program* p )
 {
   ProgramHeader h;
-  h.m_IC = p->m_I.Count();
-  h.m_DS = p->m_D.Size();
-  h.m_BS = p->m_Memory;
+//  h.m_IC = p->m_I.Count();
+//  h.m_DS = p->m_D.Size();
+//  h.m_BS = p->m_Memory;
 
   if( swapEndian )
   {
-    EndianSwap( h.m_IC );
-    EndianSwap( h.m_DS );
-    EndianSwap( h.m_BS );
+//    EndianSwap( h.m_IC );
+//    EndianSwap( h.m_DS );
+//    EndianSwap( h.m_BS );
   }
   size_t write = sizeof(ProgramHeader);
   size_t written = fwrite( &h, 1, write, outFile );
@@ -528,7 +529,7 @@ int setup( BehaviorTreeContext ctx, Program* p )
   p->m_I.Setup( p );
 
   p->m_Memory = 0;
-  p->m_Memory += sizeof(BssHeader);
+//  p->m_Memory += sizeof(BssHeader);
   p->m_Memory += sizeof(CallFrame);
   p->m_Memory += memory_need_btree( btl->m_Tree );
 

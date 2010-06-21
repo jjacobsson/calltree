@@ -244,7 +244,7 @@ int main( int argc, char** argv )
           }
           else
           {
-          cb_gen::print_asm( g_asmFile, &p );
+          cb_gen::print_asm( &asm_file_print, &p );
           fclose( g_asmFile );
         }
       }
