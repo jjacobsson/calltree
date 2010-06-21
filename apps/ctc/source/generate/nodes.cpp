@@ -1706,7 +1706,7 @@ int gen_exe_decorator( Node* n, Program* p )
   int fid = t ? as_integer( *t ) : d->m_Id.m_Hash;
 
   // Enter Debug scope
-  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, STANDARD_NODE_EXECUTE_DBGLVL );
+  p->m_I.PushDebugScope( p, n, ACT_EXECUTE, DECORATOR_EXECUTE_DBGLVL );
 
   int err;
   int jump_out = -1;
