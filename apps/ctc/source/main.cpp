@@ -147,7 +147,7 @@ int main( int argc, char** argv )
     pi.m_File = fopen( pi.m_Name, "r" );
     if( !pi.m_File )
     {
-      printf( "%s(0): error : unable to open input file \"%s\" for reading.\n",
+      printf( "%s(0): error: unable to open input file \"%s\" for reading.\n",
         g_inputFileName, pi.m_Name );
       returnCode = -1;
     }
@@ -172,7 +172,7 @@ int main( int argc, char** argv )
       if( !pi.m_File )
       {
         printf(
-          "%s(%d): error : unable to open include file \"%s\" for reading.\n",
+          "%s(%d): error: unable to open include file \"%s\" for reading.\n",
           include->m_Parent, include->m_LineNo, pi.m_Name );
         returnCode = -1;
         break;
@@ -205,12 +205,16 @@ int main( int argc, char** argv )
       FILE* header = fopen( g_outputHeaderName, "w" );
       if( !header )
       {
-        printf( "error: Unable to open output file %s for writing.\n", g_outputHeaderName );
+        printf( "%s(0): error: Unable to open output file %s for writing.\n",
+          g_inputFileName, g_outputHeaderName );
         returnCode = -1;
       }
       else
       {
         returnCode = print_header( header, g_inputFileName, btc );
+        if( returnCode != 0 )
+          printf( "%s(0): error: unspecified error when writing header %s.\n",
+            g_inputFileName, g_outputHeaderName );
         fclose( header );
       }
     }
@@ -229,8 +233,13 @@ int main( int argc, char** argv )
       {
         returnCode = generate( &p );
         if( returnCode != 0 )
-          printf( "%s(0): error: Internal compiler error.\n", g_inputFileName );
+          printf( "%s(0): error: Internal compiler error in generate.\n", g_inputFileName );
       }
+      else
+      {
+        printf( "%s(0): error: Internal compiler error in setup.\n", g_inputFileName );
+      }
+
       teardown( &p );
 
       if( returnCode == 0 )
@@ -238,8 +247,8 @@ int main( int argc, char** argv )
         g_outputFile = fopen( g_outputFileName, "wb" );
         if( !g_outputFile )
         {
-          printf( "error: Unable to open output file %s for writing.\n",
-            g_outputFileName );
+          printf( "%s(0): error: Unable to open output file %s for writing.\n",
+            g_inputFileName, g_outputFileName );
           returnCode = -2;
         }
 
@@ -247,7 +256,8 @@ int main( int argc, char** argv )
           returnCode = save_program( g_outputFile, g_swapEndian, &p );
         if( returnCode != 0 )
         {
-          printf( "error: Failed to write output file %s.\n", g_outputFileName );
+          printf( "%s(0): error: Failed to write output file %s.\n",
+            g_inputFileName, g_outputFileName );
           returnCode = -5;
         }
       }
@@ -275,8 +285,8 @@ int main( int argc, char** argv )
         FILE* asmFile = fopen( g_asmFileName, "w" );
         if( !asmFile )
         {
-          printf( "warning: Unable to open assembly file %s for writing.\n",
-            g_asmFileName );
+          printf( "%s(0): warning: Unable to open assembly file %s for writing.\n",
+            g_inputFileName, g_asmFileName );
         }
         else
         {
@@ -285,11 +295,7 @@ int main( int argc, char** argv )
         }
       }
     }
-
     destroy( btc );
-    if( g_allocs - g_frees != 0 )
-      printf( "Allocs: %d\nFrees:  %d\nDelta:  %d\n", g_allocs, g_frees,
-        g_allocs - g_frees );
   }
 
   if( g_asmFileNameMemory )
@@ -384,12 +390,12 @@ void parser_error( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d) : error : %s\n", pi->m_Name, get_line_no( pc ),
+    printf( "%s(%d): error: %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
   {
-    printf( "%s: error : %s\n", g_inputFileName, msg );
+    printf( "%s(0): error: %s\n", g_inputFileName, msg );
   }
 }
 
@@ -398,12 +404,12 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d): warning : %s\n", pi->m_Name, get_line_no( pc ),
+    printf( "%s(%d): warning: %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
   {
-    printf( "%s: warning : %s\n", g_inputFileName, msg );
+    printf( "%s(0): warning: %s\n", g_inputFileName, msg );
   }
 }
 

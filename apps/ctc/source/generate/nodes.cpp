@@ -74,6 +74,8 @@ int setup_variable_registry(
     Program* p
   );
 
+void print_badalignment_warning( NamedSymbol* ns );
+
 int setup_gen( Node* n, Program* p, int mo )
 {
   int r = -1;
@@ -1546,6 +1548,16 @@ int gen_setup_decorator( Node* n, Program* p, int mo )
 
   Parameter* t = find_by_hash( d->m_Options, hashlittle( "bss" ) );
   int bss_need = t ? as_integer( *t ) : 0;
+
+  if( (bss_need % 4) != 0 )
+  {
+    NamedSymbol tns;
+    tns.m_Type = E_ST_DECORATOR;
+    tns.m_Symbol.m_Decorator = d;
+    print_badalignment_warning( &tns );
+    bss_need += (4 - (bss_need % 4));
+  }
+
   t = find_by_hash( d->m_Options, hashlittle( "modify" ) );
   if( t && as_bool( *t ) )
     bss_need += sizeof( int );
@@ -1802,6 +1814,13 @@ int memory_need_decorator( Node* n )
 
   Parameter* t = find_by_hash( d->m_Options, hashlittle( "bss" ) );
   int bss = t ? as_integer( *t ) : 0;
+
+  if( (bss % 4) != 0 )
+  {
+    // Explicitly DO NOT print the warning here.
+    bss += (4 - (bss % 4));
+  }
+
   t = find_by_hash( d->m_Options, hashlittle( "modify" ) );
   if( t && as_bool( *t ) )
     bss += 4;
@@ -1855,10 +1874,20 @@ int gen_setup_action( Node* n, Program* p, int mo )
   //Alloc bss-space for the callback function if it needs it.
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "bss" ) );
   int bss = t ? as_integer( *t ) : 0;
+
+  if( (bss % 4) != 0 )
+  {
+    NamedSymbol tns;
+    tns.m_Type = E_ST_ACTION;
+    tns.m_Symbol.m_Action = a;
+    print_badalignment_warning( &tns );
+    bss += (4 - (bss % 4));
+  }
+
   if( bss > 0 )
   {
     nd->m_bssPos  = mo; mo += bss;
-    nd->m_usesBss = true;
+    nd->m_usesBss   = true;
   }
 
   {
@@ -2025,6 +2054,12 @@ int memory_need_action( Node* n )
   Parameter* t = find_by_hash( a->m_Options, hashlittle( "bss" ) );
   int bss = t ? as_integer( *t ) : 0;
 
+  if( (bss % 4) != 0 )
+  {
+    // Explicitly DO NOT print the warning here.
+    bss += (4 - (bss % 4));
+  }
+
   NamedSymbol tns;
   tns.m_Type = E_ST_ACTION;
   tns.m_Symbol.m_Action = a;
@@ -2038,6 +2073,47 @@ int memory_need_action( Node* n )
   if( bnv < 0 )
     return bnv;
   return bss + bnv;
+}
+
+/*
+ *
+ * Warning printing functions
+ *
+ */
+
+void print_badalignment_warning( NamedSymbol* ns )
+{
+  const char* tstr = 0x0;
+  const char* nstr = 0x0;
+  Locator* loc = 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_ACTION:
+    tstr = "action";
+    nstr = ns->m_Symbol.m_Action->m_Id.m_Text;
+    loc = &ns->m_Symbol.m_Action->m_Locator;
+    break;
+  case E_ST_DECORATOR:
+    tstr = "decorator";
+    nstr = ns->m_Symbol.m_Decorator->m_Id.m_Text;
+    loc = &ns->m_Symbol.m_Decorator->m_Locator;
+    break;
+  case E_ST_TREE:
+    tstr = "tree";
+    nstr = ns->m_Symbol.m_Tree->m_Id.m_Text;
+    loc = &ns->m_Symbol.m_Tree->m_Locator;
+    break;
+  case E_ST_UNKOWN:
+    loc = 0x0;
+    break;
+  }
+
+  printf( "%s(%d): warning: bss size for %s \"%s\" is not 4-bytes aligned, auto-padding.\n",
+    loc->m_Buffer,
+    loc->m_LineNo,
+    tstr,
+    nstr
+  );
 }
 
 /*
