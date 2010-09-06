@@ -103,42 +103,20 @@ void init()
 
 QIcon* get( NamedSymbol* ns )
 {
-  Parameter* opts = 0x0;
-  Locator l;
-  int gt = E_GRIST_UNKOWN;
-  switch( ns->m_Type )
-  {
-  case E_ST_UNKOWN:
-    /* Warning Killer */
-    break;
-  case E_ST_TREE:
-    gt = E_GRIST_TREE;
-    break;
-  case E_ST_ACTION:
-    opts = ns->m_Symbol.m_Action->m_Options;
-    l = ns->m_Symbol.m_Action->m_Locator;
-    gt = E_GRIST_ACTION;
-    break;
-  case E_ST_DECORATOR:
-    opts = ns->m_Symbol.m_Decorator->m_Options;
-    l = ns->m_Symbol.m_Decorator->m_Locator;
-    gt = E_GRIST_DECORATOR;
-    break;
-  case E_MAX_SYMBOL_TYPES:
-    /* Warning Killer */
-    break;
-  }
+  Parameter* opts = get_options( ns );
+  Locator* l = get_locator( ns );
+  int gt = get_grist_type( ns );
 
-  if( opts )
-    opts = find_by_hash( opts, hashlittle( "cts_icon" ) );
-  if( opts && !safe_to_convert( *opts, E_VART_STRING ) )
+  opts = find_by_hash( opts, hashlittle( "cts" ) );
+  opts = find_child_by_hash( opts, hashlittle( "icon" ) );
+  if( opts && !safe_to_convert( opts, E_VART_STRING ) )
     opts = 0x0;
 
   QIcon* icon = 0x0;
 
   if( opts )
   {
-    QFileInfo fi( l.m_Buffer );
+    QFileInfo fi( l->m_Buffer );
     QDir parent_dir( fi.absoluteDir() );
     QString qstr = parent_dir.absoluteFilePath( QString( as_string( *opts )->m_Raw ) );
     std::string stdstr( qstr.toStdString() );

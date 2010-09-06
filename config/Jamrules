@@ -144,7 +144,13 @@ rule RecursiveDirList
 	return [ RecursiveDir $(_dir) : $(2) ] ;
 }
 
-if $(QT_PATH)
+rule DirList
+{
+	local _dir = [ FDirName $(1) ] ;
+	return [ GLOB $(_dir) : $(2) ] ;
+}
+
+if $(QTPATH)
 {
 	actions mocFile
 	{
@@ -182,8 +188,11 @@ else
 
 rule mocHeader
 {
-	local _moc_output = $(1:P)$(SLASH)$(MOCPREFIX)$(1:B).cpp ;
+	local _moc_output = [ FDirName build moc $(1:P) $(MOCPREFIX)$(1:B).cpp ] ;
+	local _moc_path = $(_moc_output:P) ;
 	
+	MkDir $(_moc_path) ;
+	Depends $(_moc_output) : $(_moc_path) ;
 	mocFile $(_moc_output) : $(1) ;
 	Depends $(_moc_output) : $(1) ;
 	
@@ -244,13 +253,6 @@ rule qrcFile
 	Depends qrc : $(_output) ;
 	Clean clean : $(_output) ;
 	return $(_output) ;
-}
-
-rule ConvertSvgToPNG
-{
-	Depends $(1) : $(2) ;
-	Depends $(1) : $(BUILD_BIN_DIR)svg_to_png$(SUFEXE) ;
-	Clean clean : $(1) ;
 }
 
 rule AddFilesToTag
@@ -345,7 +347,6 @@ rule GetSearchPaths
 	}
 }
 
-
 rule SetLinkLibraries
 {
 	if $($(1)_library_files)
@@ -380,7 +381,7 @@ rule SetObjectFiles
 		local _path			= $(_object:P) ;
 		$(1)_object_files	+= $(_object) ;
 		
-		Includes $(_i) : config$(SLASH)Jamrules ;
+		# Includes $(_i) : config$(SLASH)Jamrules ;
 
 		Depends $(_object) : $(_path) ;
         Depends $(_object) : $(_i) ;
@@ -401,6 +402,34 @@ rule SetObjectFiles
 	Clean clean : $($(1)_object_files) ;
 }
 
+rule CreateObjectFiles
+{
+	local _objects = ;
+	local _i = ;
+	for _i in $(1)
+	{
+		local _object  = $(BUILD_OBJ_DIR)$(_i:S=$(SUFOBJ)) ;
+		local _path    = $(_object:P) ;
+		_objects      += $(_object) ;
+		
+		# Includes $(_i) : config$(SLASH)Jamrules ;
+
+		Depends $(_object) : $(_path) ;
+        Depends $(_object) : $(_i) ;
+		Compile $(_object) : $(_i) ;
+		MkDir $(_path) ;
+	}
+
+	for _i in $($(2)_dependant_of)
+	{
+		Includes $(1) : [ GetIncludeHeaders $(_i) ] ;	
+	}	
+
+	Clean clean : $(_objects) ;
+	return $(_objects) ;
+}
+
+
 rule SetSourceFiles
 {
 	if $($(1)_source_files)
@@ -411,6 +440,11 @@ rule SetSourceFiles
 	{
 		$(1)_source_files = $(2) ;
 	}
+}
+
+rule GetSourceFiles
+{
+	return $($(1)_source_files) ;
 }
 
 rule SetExtraCompileFlags
@@ -471,6 +505,52 @@ rule SetVariablesOnObjects
 	{
 		CCFLAGS on $(_objects) = $(CCFLAGS) ;
 		CCFLAGS on $(_objects) += $($(1)_extra_compile_flags) ;
+	}
+	
+    return $(_objects) ;
+}
+
+rule SetVariablesOnObjects2
+{
+	local _objects = $(1) ;
+	local _int_dep = $($(2)_dependant_of) ;
+	local _ext_dep = $($(2)_ext_dependant_of) ;
+	
+	#echo $(2) OBJECTS: $(_objects) ;
+	#echo $(2) INTERNAL: $(_int_dep) ;
+	#echo $(2) EXTERNAL: $(_ext_dep) ;
+	
+	local _i = ;
+	for _i in $(_int_dep)
+	{
+		if $($(_i)_include_search_paths)
+		{
+			CCHDRS on $(_objects) += [ GetSearchPaths $(_i) ] ;	
+		}
+	}	
+
+	for _i in $(_ext_dep)
+	{
+		if $($(_i)_ext_include_search_paths)
+		{
+			CCHDRS on $(_objects) += [ FIncludes $($(_i)_ext_include_search_paths) ] ;
+		}
+		if $($(_i)_ext_defines)
+		{
+			CCDEFS on $(_objects) += [ FDefines $($(_i)_ext_defines) ] ;
+		}
+	}
+
+	if $($(2)_include_search_paths)
+	{
+		CCHDRS on $(_objects) += [ GetSearchPaths $(_libname) ] ;
+	}	
+	CCDEFS on $(_objects) += [ FDefines $(DEFINES_COMMON) ] ;
+	
+	if $($(2)_extra_compile_flags)
+	{
+		CCFLAGS on $(_objects) = $(CCFLAGS) ;
+		CCFLAGS on $(_objects) += $($(2)_extra_compile_flags) ;
 	}
 	
     return $(_objects) ;
@@ -589,21 +669,54 @@ rule InvokeApplication
 	
 	include [ GLOB [ FDirName $(2) ] : app.jam ] ;
 
-	SetObjectFiles $(_appname) ;
-
-	local _objects = [ SetVariablesOnObjects $(_appname) ] ;
-
+	# SetObjectFiles $(_appname) ;
+	local _sources = [ GetSourceFiles $(_appname) ] ;
+	local _objects = [ CreateObjectFiles $(_sources) : $(_appname) ] ;
+	_objects = [ SetVariablesOnObjects2 $(_objects) : $(_appname) ] ; 
+	
     SetNeededLibraries $(_appname) : $(_appfile) : $(_appname) ;    
 
-    # Actions
-	MkDir $(_appfile:P) ;
-	Link  $(_appfile) : $(_objects) ;
+	local _alib_sources = [ GetSourceFiles $(_appname)_alib ] ;
 
-    Depends $(_appfile) : $(_appfile:P) ;
-	Depends $(_appfile) : $(_objects) ;
-	Depends $(_appname) : $(_appfile) ;
-	Depends exe	        : $(_appname) ;
-	Clean   clean       : $(_appfile) ;
+	local _path = $(_appfile:P) ;
+
+	if $(_alib_sources)
+	{
+		local _alib_objects = [ CreateObjectFiles $(_alib_sources) : $(_appname) ] ;
+		_alib_objects = [ SetVariablesOnObjects2 $(_alib_objects) : $(_appname) ] ; 
+		
+		local _applib = $(BUILD_BIN_DIR)$(PRELIB)$(1)_alib$(SUFLIB) ;
+		
+		# Actions
+		MkDir $(_path) ;
+		Archive $(_applib) : $(_alib_objects) ;
+		Link  $(_appfile)  :  $(_applib) $(_objects) ;
+		
+		Depends $(_applib)  : $(_path) ;
+		Depends $(_applib)  : $(_alib_objects) ;
+		Depends lib         : $(_applib) ;
+
+		Depends $(_appfile) : $(_path) ;
+		Depends $(_appfile) : $(_applib) ;
+		Depends $(_appfile) : $(_objects) ;
+		Depends $(_appname) : $(_appfile) ;
+		Depends exe         : $(_appname) ;
+		
+		Clean clean : $(_appfile) ;
+		Clean clean : $(_applib) ;
+	}
+	else
+	{
+	    # Actions
+		MkDir $(_appfile:P) ;
+		Link  $(_appfile) : $(_objects) ;
+	
+	    Depends $(_appfile) : $(_appfile:P) ;
+		Depends $(_appfile) : $(_objects) ;
+		Depends $(_appname) : $(_appfile) ;
+		Depends exe	        : $(_appname) ;
+		Clean   clean       : $(_appfile) ;
+	}
 
 	if $(NT)
 	{
@@ -626,7 +739,7 @@ rule InvokeLibs
 		local _lib_file = [ GLOB $(_subdir) : lib.jam ] ;
 		if $(_lib_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_lib_file) ;		
+			# Includes config$(SLASH)Jamrules : $(_lib_file) ;		
 			_libname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			_confirmed += $(_libname) ;
 			Depends $(1) : $(_libname) ;
@@ -650,7 +763,7 @@ rule InvokeApps
 		local _app_file = [ GLOB $(_subdir) : app.jam ] ;
 		if $(_app_file) 
 		{
-			Includes config$(SLASH)Jamrules : $(_app_file) ;
+			# Includes config$(SLASH)Jamrules : $(_app_file) ;
 			local _appname =  [ StripCommon [ FWords $(_subdir) : $(SLASH) ] : $(1) ] ;
 			Depends $(1) : $(_appname) ;
 			InvokeApplication $(_appname) : $(_subdir) ;

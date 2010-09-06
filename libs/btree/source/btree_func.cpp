@@ -21,6 +21,7 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "deftree" ),
   hashlittle( "defact" ),
   hashlittle( "defdec" ),
+  hashlittle( "deftype" ),
   hashlittle( "tree" ),
   hashlittle( "sequence" ),
   hashlittle( "selector" ),
@@ -40,6 +41,16 @@ const hash_t g_keyword_hash_values[] = {
   hashlittle( "true" ),
   hashlittle( "false" ),
   hashlittle( "null" )
+};
+
+const char* g_parameter_type_names[E_MAX_VARIABLE_TYPE] = {
+  "undefined",
+  "int32",
+  "float",
+  "string",
+  "bool",
+  "hash",
+  "list"
 };
 
 bool is_btree_keyword( const char* str )
@@ -85,6 +96,7 @@ void init( Parameter* v )
   v->m_Data.m_String.m_Raw = 0x0;
   v->m_Next = 0x0;
   v->m_ValueSet = false;
+  v->m_Declared = false;
   init( &v->m_Id );
   init( &v->m_Locator );
 }
@@ -126,6 +138,13 @@ Parameter* find_by_hash( Parameter* s, hash_t hash )
   return 0x0;
 }
 
+Parameter* find_child_by_hash( Parameter* s, hash_t hash )
+{
+  if( s && s->m_Type == E_VART_LIST )
+    return find_by_hash( s->m_Data.m_List, hash );
+  return 0x0;
+}
+
 int count_occourances_of_hash_in_list( Parameter* s, hash_t hash )
 {
   int r = 0;
@@ -149,9 +168,12 @@ bool id_hashes_are_unique_in_list( Parameter* s )
   return true;
 }
 
-bool safe_to_convert( const Parameter& v, int to_type )
+bool safe_to_convert( const Parameter* v, int to_type )
 {
-  switch( v.m_Type )
+  if( !v )
+    return false;
+
+  switch( v->m_Type )
   {
   case E_VART_INTEGER:
     if( to_type == E_VART_INTEGER || to_type == E_VART_FLOAT || to_type
@@ -378,10 +400,20 @@ void free_list( BehaviorTreeContext ctx, Parameter* s )
   while( s )
   {
     Parameter* n = s->m_Next;
+    if( s->m_Type == E_VART_LIST )
+      free_list( ctx, s->m_Data.m_List );
     free_object( ctx, s );
     s = n;
   }
 }
+
+const char* get_type_name( Parameter* p )
+{
+  if( !p )
+    return g_parameter_type_names[0];
+  return g_parameter_type_names[p->m_Type];
+}
+
 
 /*
  * BehaviorTree Functions
@@ -391,6 +423,7 @@ void init( BehaviorTree* t )
 {
   init( &t->m_Id );
   init( &t->m_Locator );
+  t->m_Declarations = 0x0;
   t->m_Root = 0x0;
   t->m_UserData = 0x0;
   t->m_Declared = false;
@@ -714,12 +747,44 @@ Parameter* get_parameters( Node* n )
     r = n->m_Grist.m_Action.m_Parameters;
     break;
   case E_GRIST_TREE:
+    r = n->m_Grist.m_Tree.m_Parameters;
+    break;
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:
     break;
   }
   return r;
 }
+
+void set_parameters( Node* n, Parameter* p )
+{
+  if( !n )
+    return;
+  switch( n->m_Grist.m_Type )
+  {
+  case E_GRIST_SEQUENCE:
+  case E_GRIST_SELECTOR:
+  case E_GRIST_PARALLEL:
+  case E_GRIST_DYN_SELECTOR:
+  case E_GRIST_SUCCEED:
+  case E_GRIST_FAIL:
+  case E_GRIST_WORK:
+    break;
+  case E_GRIST_DECORATOR:
+    n->m_Grist.m_Decorator.m_Parameters = p;
+    break;
+  case E_GRIST_ACTION:
+    n->m_Grist.m_Action.m_Parameters = p;
+    break;
+  case E_GRIST_TREE:
+    n->m_Grist.m_Tree.m_Parameters = p;
+    break;
+  case E_GRIST_UNKOWN:
+  case E_MAX_GRIST_TYPES:
+    break;
+  }
+}
+
 
 Parameter* get_declarations( Node* n )
 {
@@ -745,6 +810,9 @@ Parameter* get_declarations( Node* n )
       r = n->m_Grist.m_Action.m_Action->m_Declarations;
     break;
   case E_GRIST_TREE:
+    if( n->m_Grist.m_Tree.m_Tree )
+      r = n->m_Grist.m_Tree.m_Tree->m_Declarations;
+    break;
   case E_GRIST_UNKOWN:
   case E_MAX_GRIST_TYPES:
     break;
@@ -783,6 +851,80 @@ Parameter* get_options( Node* n )
   return r;
 }
 
+Parameter* get_options( NamedSymbol* ns  )
+{
+  if( !ns )
+    return 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    /* Warning Killer */
+    break;
+  case E_ST_ACTION:
+    return ns->m_Symbol.m_Action->m_Options;
+    break;
+  case E_ST_DECORATOR:
+    return ns->m_Symbol.m_Decorator->m_Options;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return 0x0;
+}
+
+Locator* get_locator( NamedSymbol* ns  )
+{
+  if( !ns )
+    return 0x0;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    /* Warning Killer */
+    break;
+  case E_ST_ACTION:
+    return &ns->m_Symbol.m_Action->m_Locator;
+    break;
+  case E_ST_DECORATOR:
+    return &ns->m_Symbol.m_Decorator->m_Locator;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return 0x0;
+}
+
+NodeGristType get_grist_type( NamedSymbol* ns )
+{
+  if( !ns )
+    return E_GRIST_UNKOWN;
+  switch( ns->m_Type )
+  {
+  case E_ST_UNKOWN:
+    /* Warning Killer */
+    break;
+  case E_ST_TREE:
+    return E_GRIST_TREE;
+    break;
+  case E_ST_ACTION:
+    return E_GRIST_ACTION;
+    break;
+  case E_ST_DECORATOR:
+    return E_GRIST_DECORATOR;
+    break;
+  case E_MAX_SYMBOL_TYPES:
+    /* Warning Killer */
+    break;
+  }
+  return E_GRIST_UNKOWN;
+}
 
 BehaviorTree* find_parent_tree( const NodeParent& p )
 {
@@ -835,8 +977,31 @@ bool contains_reference_to_tree( Node* n, BehaviorTree* tree )
   return false;
 }
 
+void remove_declaration( BehaviorTreeContext ctx, BehaviorTree* tree, hash_t id )
+{
+  Parameter* p = 0x0;
+  Parameter* s = tree->m_Declarations;
+  Parameter* n = 0x0;
+  while( s )
+  {
+    n = s->m_Next;
+    if( s->m_Id.m_Hash == id )
+    {
+      if( p )
+        p->m_Next = n;
+      else
+        tree->m_Declarations = n;
 
-
+      free_object( ctx, s );
+      s = n;
+    }
+    else
+    {
+      p = s;
+      s = n;
+    }
+  }
+}
 
 /*
  * Node Grist functions

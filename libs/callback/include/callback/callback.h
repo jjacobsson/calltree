@@ -51,7 +51,12 @@ enum InstructionSet
   INST_STORE_PB_IN_R, /* Set R (m_A1) to pointer to B (m_A2)                      */
   INST__INC_BSSVALUE, /* Set *m_A1 += m_A2                                        */
   INST__DEC_BSSVALUE, /* Set *m_A1 -= m_A2                                        */
-  INST_LOAD_REGISTRY, /* Set register m_A1 to the joined value of M_A2 & m_A3     */
+  INST__SET_REGISTRY, /* Set register m_A1 to the joined value of M_A2 & m_A3     */
+  INST_LOAD_REGISTRY, /* Set register m_A1 to data address of the joined value of M_A2 & m_A3 */
+
+  INST_SCRIPT_C, /* */
+  INST_SCRIPT_R, /* */
+
   INST_______SUSPEND, /* Halt execution                                           */
   MAXIMUM_INSTRUCTION_COUNT
 };
@@ -81,18 +86,26 @@ struct BssHeader
   unsigned int m_R[5]; // Program registers
 };
 
+struct CallFrame
+{
+  char* m_Bss;
+  int   m_IP;
+};
+
 struct CallbackProgram;
 
 enum DebugFlagBits
 {
-  E_NODE_ACTION   = 0,      // 4 bits
-  E_STANDARD_NODE = 1 << 4, // 1 bit
-  E_ENTER_SCOPE   = 1 << 5, // 1 bit
-  E_EXIT_SCOPE    = 1 << 6, // 1 bit
+  E_NODE_ACTION    = 0,      // 4 bits
+  E_STANDARD_NODE  = 1 << 4, // 1 bit
+  E_COMPOSITE_NODE = 1 << 5, // 1 bit
+  E_ENTER_SCOPE    = 1 << 6, // 1 bit
+  E_EXIT_SCOPE     = 1 << 7  // 1 bit
 };
 
 bool act_flag_set( unsigned int, unsigned int );
 bool std_flag_set( unsigned int );
+bool com_flag_set( unsigned int );
 bool exi_flag_set( unsigned int );
 bool ent_flag_set( unsigned int );
 
@@ -102,6 +115,7 @@ struct DebugInformation
   const char* m_Name;
   unsigned int m_NodeId;
   unsigned int m_Flags;
+  unsigned int m_LineNo;
 };
 
 typedef unsigned int (*CallbackHandler)( unsigned int id, unsigned int action, void* bss,

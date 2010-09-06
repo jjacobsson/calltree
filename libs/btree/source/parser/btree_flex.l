@@ -75,6 +75,7 @@ options         { return T_OPTIONS; }
 deftree         { return T_DEFTREE; }
 defact          { return T_DEFACT; }
 defdec          { return T_DEFDEC; }
+deftype         { return T_DEFTYPE; }
 tree            { return T_TREE; }
 sequence        { return T_SEQUENCE; }
 selector        { return T_SELECTOR; }

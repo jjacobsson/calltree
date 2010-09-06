@@ -15,7 +15,10 @@
 #include <callback/instructions.h>
 #include <callback/callback.h>
 #include <btree/btree_data.h>
+
 #include <vector>
+
+#include <stdio.h>
 
 struct Program;
 
@@ -27,11 +30,11 @@ public:
 
     typedef unsigned int TIn;
 
-    void    SetGenerateDebugInfo( bool onoff );
+    void    SetGenerateDebugInfo( int debug_level );
 
     void    Setup( Program* p );
 
-    void    Print( FILE* outFile ) const;
+    void    Print( FILE* outFile, Program* p ) const;
 
     int     Count() const;
     void    Push( TIn inst, TIn A1, TIn A2, TIn A3 );
@@ -42,8 +45,8 @@ public:
 
     bool    Save( FILE* outFile, bool swapEndian ) const;
 
-    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action );
-    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action );
+    void    PushDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
+    void    PopDebugScope( Program* p, Node* n, callback::NodeAction action, int dbg_lvl );
 
 private:
 
@@ -51,28 +54,7 @@ private:
 
     typedef std::vector<callback::Instruction> Instructions;
     Instructions m_Inst;
-    int          m_BssStart;
-    bool         m_DebugInfo;
-};
-
-class BSSSection
-{
-public:
-
-    BSSSection();
-
-    void Print( FILE* outFile );
-    int Push( int size, int alignment = 4 );
-
-    int Size() const { return m_Max; }
-
-    void PushScope();
-    void PopScope();
-
-private:
-    int m_Max;
-    int m_Current;
-    std::vector<int> m_ScopeStack;
+    int          m_DebugLevel;
 };
 
 class DataSection
@@ -139,22 +121,25 @@ private:
     StringTable  m_String;
 };
 
-struct Program
+struct BehaviorTreeList
 {
-	int m_bss_Header;
-	int m_bss_Destruct;
-	int m_bss_Return;
-	CodeSection m_I;
-	BSSSection	m_B;
-	DataSection m_D;
+  BehaviorTreeList* m_Next;
+  BehaviorTree*     m_Tree;
+  int               m_FirstInst;
 };
 
+struct Program
+{
+	CodeSection  m_I;
+	DataSection  m_D;
+	unsigned int m_Memory;
+	BehaviorTreeContext m_Context;
+	BehaviorTreeList* m_First;
+};
 
-int setup_before_generate( Node* n, Program* p );
-
-int teardown_after_generate( Node* n, Program* p );
-
-int generate_program( Node* root, Program* p );
+int setup( BehaviorTreeContext ctx, Program* p );
+int teardown( Program* p );
+int generate( Program* p );
 
 int print_program( FILE* outfile, Program* p );
 

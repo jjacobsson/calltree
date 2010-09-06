@@ -12,46 +12,23 @@
 #include "BehaviorTreeTree.h"
 #include "../standard_resources.h"
 #include <btree/btree.h>
-#include <other/lookup3.h>
+
 
 #include <QtCore/QRegExp>
+#include <QtCore/QMargins>
 
 #include <QtSvg/QGraphicsSvgItem>
 #include <QtGui/QFont>
 #include <QtGui/QFormLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
-#include <QtGui/QRegExpValidator>
 #include <QtGui/QTableWidget>
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
 
-class PreventDuplicateSymbols : public QRegExpValidator
-{
-public:
-  PreventDuplicateSymbols( BehaviorTreeContext ctx, QObject* parent )
-    : QRegExpValidator(  QRegExp( "([a-zA-Z_])([a-zA-Z0-9_])*"), parent )
-    , m_Context( ctx )
-  {}
+#include "TreePropertyEditor.h"
 
-  QValidator::State validate ( QString & input, int & pos ) const
-  {
-    QValidator::State s = QRegExpValidator::validate( input, pos );
-    if( s == QValidator::Invalid )
-      return s;
-    hash_t hash = hashlittle( input.toAscii().constData() );
-    NamedSymbol* ns = find_symbol( m_Context, hash );
-    if( ns )
-      return QValidator::Intermediate;
-
-    if( is_btree_keyword( input.toAscii().constData() ) )
-      return QValidator::Intermediate;
-
-    return s;
-  }
-private:
-  BehaviorTreeContext m_Context;
-};
+#include "../PreventDuplicateSymbolsValidator.h"
 
 BehaviorTreeTree::BehaviorTreeTree( BehaviorTreeContext ctx, BehaviorTree* tree )
   : BehaviorTreeSceneItem( ctx )
@@ -139,6 +116,11 @@ void BehaviorTreeTree::updateName()
   signalModified( true );
 }
 
+void BehaviorTreeTree::propertyChanged()
+{
+  emit itemSymbolChanged( m_Tree->m_Id.m_Hash );
+}
+
 void BehaviorTreeTree::setupLabel( const char* str )
 {
   if( !str )
@@ -175,13 +157,32 @@ void BehaviorTreeTree::setupLabel( const char* str )
 void BehaviorTreeTree::setupPropertyEditor()
 {
   m_PropertyWidget = new QWidget;
-  QFormLayout* form = new QFormLayout( m_PropertyWidget );
+  QVBoxLayout *box = new QVBoxLayout;
+  m_PropertyWidget->setLayout( box );
+  box->setContentsMargins( 0, 0, 0, 0 );
 
-  QLineEdit* edit = new QLineEdit( m_Tree->m_Id.m_Text );
-  edit->setValidator( new PreventDuplicateSymbols( m_Context, edit ) );
-  connect( edit, SIGNAL( returnPressed() ), this, SLOT( updateName() ) );
+  {
+    QFormLayout* form = new QFormLayout;
+    QLineEdit* edit = new QLineEdit( m_Tree->m_Id.m_Text );
+    edit->setValidator( new PreventDuplicateSymbols( m_Context, edit ) );
+    connect( edit, SIGNAL( returnPressed() ), this, SLOT( updateName() ) );
+    form->addRow( new QLabel( tr( "Name" ) ), edit );
 
-  form->addRow( new QLabel( tr( "Name" ) ), edit );
+    QMargins margins = form->contentsMargins();
+    margins.setTop( margins.top() + 3 );
+    margins.setLeft( margins.left() + 3 );
+    margins.setRight( margins.right() + 3 );
+    form->setContentsMargins( margins );
+
+    box->addLayout( form );
+  }
+
+  {
+//    TreePropertyEditor* tpe = new TreePropertyEditor( m_Context, m_Tree, m_PropertyWidget );
+//    box->addWidget( tpe );
+//    connect( tpe, SIGNAL( changed() ), this, SLOT( propertyChanged() ) );
+  }
 
 }
+
 

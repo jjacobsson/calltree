@@ -28,12 +28,21 @@ Q_OBJECT
 
 public:
 
+  enum UserDataIndex
+  {
+    E_HASH = Qt::UserRole,
+    E_TYPE,
+    E_DATA,
+    E_ROW
+  };
+
   NodePropertyEditor( BehaviorTreeContext, Node*, QWidget* parent = 0x0 );
   ~NodePropertyEditor();
 
   bool hasBuggs() const;
 
 signals:
+
   void nodeParametersChanged();
 
 private slots:
@@ -43,16 +52,17 @@ private slots:
 protected:
 
   void setupPropertyEditorForParamaters( Parameter*, Parameter* );
+  void validateParameters();
 
 private:
 
   bool m_HasBuggs;
+  bool m_HasWarnings;
   BehaviorTreeContext m_Context;
   Node* m_Node;
 
   NodePropertyDelegate* m_Delegate;
   QStandardItemModel m_Model;
-
 };
 
 #endif /* NODEPROPERTYEDITOR_H_INCLUDED */

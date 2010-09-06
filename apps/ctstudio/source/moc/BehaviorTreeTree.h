@@ -58,6 +58,7 @@ signals:
 private slots:
 
   void updateName();
+  void propertyChanged();
 
 protected:
 

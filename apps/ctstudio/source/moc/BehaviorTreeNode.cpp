@@ -21,6 +21,7 @@
 #include <btree/btree.h>
 
 #include <QtSvg/QGraphicsSvgItem>
+#include <QtGui/QVBoxLayout>
 
 #include <string.h>
 
@@ -84,11 +85,6 @@ QRectF BehaviorTreeNode::boundingRect() const
   if( m_Label )
     rect |= m_Label->boundingRect().translated( m_Label->pos() );
   return rect;
-}
-
-QPointF BehaviorTreeNode::iconPosition() const
-{
-  return m_Graphics->pos();
 }
 
 QRectF BehaviorTreeNode::layoutBoundingRect() const
@@ -199,6 +195,16 @@ void BehaviorTreeNode::dragFail()
   delete m_DraggingArrow;
   m_DraggingArrow = 0x0;
   BehaviorTreeSceneItem::dragFail();
+}
+
+void BehaviorTreeNode::symbolChanged( unsigned int hash_id )
+{
+  if( m_Node->m_Grist.m_Type == E_GRIST_TREE &&
+      m_Node->m_Grist.m_Tree.m_Tree->m_Id.m_Hash == hash_id )
+  {
+    delete m_PropertyWidget;
+    setupPropertyEditor();
+  }
 }
 
 void BehaviorTreeNode::paramChanged()

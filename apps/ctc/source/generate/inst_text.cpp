@@ -31,37 +31,40 @@ const char * const g_NodeReturnsNames[MAXIMUM_NODE_RETURN_COUNT] =
 
 const char * const g_InstructionNames[MAXIMUM_INSTRUCTION_COUNT] =
 {
-    "INST_CALL_DEBUG_FN",           /* Makes a debugger call                                    */
-    "INST_CALL_CONS_FUN",           /* Make construciton callback, R0, R1 and R2 used           */
-    "INST_CALL_EXEC_FUN",           /* Make execution callback, R0, R1 and R2 used              */
-    "INST_CALL_DEST_FUN",           /* Make destruction callback, R0, R1 and R2 used            */
-    "INST_CALL_PRUN_FUN",           /* Make prune callback, R0, R1 and R2 used                  */
-    "INST_CALL_MODI_FUN",           /* Make modify callback, R0, R1 and R2 used                 */
-    "INST_JABC_R_EQUA_C",           /* Set IP to m_A1 when RE == m_A2                           */
-    "INST_JABC_R_DIFF_C",           /* Set IP to m_A1 when RE != m_A2                           */
-    "INST_JABC_C_EQUA_B",           /* Set IP to m_A1 when m_A2 == *m_A3                        */
-    "INST_JABC_C_DIFF_B",           /* Set IP to m_A1 when m_A2 != *m_A3                        */
-    "INST_JABB_C_EQUA_B",           /* Set IP to *m_A1 when m_A2 == *m_A3                       */
-    "INST_JABB_C_DIFF_B",           /* Set IP to *m_A1 when m_A2 != *m_A3                       */
-    "INST_JABB_B_EQUA_B",           /* Set IP to *m_A1 when *m_A2 == *m_A3                      */
-    "INST_JABB_B_DIFF_B",           /* Set IP to *m_A1 when *m_A2 != *m_A3                      */
-    "INST_JABC_CONSTANT",           /* Set IP to m_A1                                           */
-    "INST_JREC_CONSTANT",           /* Set IP to +m_A1                                          */
-    "INST_JABB_BSSVALUE",           /* Set IP to *m_A1                                          */
-    "INST_JREB_BSSVALUE",           /* Set IP to +*m_A1                                         */
-    "INST_JABC_S_C_IN_B",           /* Set IP to m_A1 and *m_A2 to m_A3                         */
-    "INST_JREC_S_C_IN_B",           /* Set IP to +m_A1 and *m_A2 to m_A3                        */
-    "INST_JABB_S_C_IN_B",           /* Set IP to *m_A1 and *m_A2 to m_A3                        */
-    "INST_JREB_S_C_IN_B",           /* Set IP to +*m_A1 and *m_A2 to m_A3                       */
-    "INST__STORE_R_IN_B",           /* Set *m_A1 to RE                                          */
-    "INST__STORE_B_IN_R",           /* Set RE to *m_A1                                          */
-    "INST__STORE_C_IN_B",           /* Set *m_A1 to m_A2                                        */
-    "INST__STORE_B_IN_B",           /* Set *m_A1 to *m_A2                                       */
-    "INST__STORE_C_IN_R",           /* Set RE to m_A1                                           */
-    "INST_STORE_PD_IN_B",           /* Set B (m_A1) to pointer to D (m_A2)                      */
-    "INST_STORE_PB_IN_R",           /* Set R (m_A1) to pointer to B (m_A2)                      */
-    "INST__INC_BSSVALUE",           /* Set *m_A1 += m_A2                                        */
-    "INST__DEC_BSSVALUE",           /* Set *m_A1 -= m_A2                                        */
-    "INST_LOAD_REGISTRY",           /* Set registry m_A1 to the joined value of M_A2 & m_A3     */
-    "INST_______SUSPEND"            /* Halt execution                                           */
+    "INST_CALL_DEBUG_FN",
+    "INST_CALL_CONS_FUN",
+    "INST_CALL_EXEC_FUN",
+    "INST_CALL_DEST_FUN",
+    "INST_CALL_PRUN_FUN",
+    "INST_CALL_MODI_FUN",
+    "INST_JABC_R_EQUA_C",
+    "INST_JABC_R_DIFF_C",
+    "INST_JABC_C_EQUA_B",
+    "INST_JABC_C_DIFF_B",
+    "INST_JABB_C_EQUA_B",
+    "INST_JABB_C_DIFF_B",
+    "INST_JABB_B_EQUA_B",
+    "INST_JABB_B_DIFF_B",
+    "INST_JABC_CONSTANT",
+    "INST_JREC_CONSTANT",
+    "INST_JABB_BSSVALUE",
+    "INST_JREB_BSSVALUE",
+    "INST_JABC_S_C_IN_B",
+    "INST_JREC_S_C_IN_B",
+    "INST_JABB_S_C_IN_B",
+    "INST_JREB_S_C_IN_B",
+    "INST__STORE_R_IN_B",
+    "INST__STORE_B_IN_R",
+    "INST__STORE_C_IN_B",
+    "INST__STORE_B_IN_B",
+    "INST__STORE_C_IN_R",
+    "INST_STORE_PD_IN_B",
+    "INST_STORE_PB_IN_R",
+    "INST__INC_BSSVALUE",
+    "INST__DEC_BSSVALUE",
+    "INST__SET_REGISTRY",
+    "INST_LOAD_REGISTRY",
+    "INST_SCRIPT_C",
+    "INST_SCRIPT_R",
+    "INST_______SUSPEND"
 };

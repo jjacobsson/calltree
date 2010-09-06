@@ -42,8 +42,10 @@ NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n,
   Parameter* params = get_parameters( m_Node );
   Parameter* declar = get_declarations( m_Node );
 
-  if( params && declar )
+  if( declar )
     setupPropertyEditorForParamaters( params, declar );
+
+  validateParameters();
 
   resizeRowsToContents();
   setSelectionMode( QAbstractItemView::NoSelection );
@@ -56,7 +58,7 @@ NodePropertyEditor::NodePropertyEditor( BehaviorTreeContext ctx, Node* n,
   hw->setClickable( false );
 
   connect(
-  &m_Model, SIGNAL( itemChanged( QStandardItem* ) ), this,
+    &m_Model, SIGNAL( itemChanged( QStandardItem* ) ), this,
     SLOT( updateNodeParameterData( QStandardItem* ) )
   );
 
@@ -76,10 +78,11 @@ bool NodePropertyEditor::hasBuggs() const
 
 void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
 {
-  int hash = item->data( Qt::UserRole + 0 ).toInt();
-  int type = item->data( Qt::UserRole + 1 ).toInt();
-  bool bugged = item->data( Qt::UserRole + 3 ).toBool();
-  int row = item->data( Qt::UserRole + 4 ).toInt();
+
+  int hash = item->data( E_HASH ).toInt();
+  int type = item->data( E_TYPE ).toInt();
+  int row = item->data( E_ROW ).toInt();
+  bool new_param = false;
 
   Parameter* p = find_by_hash( get_parameters( m_Node ), hash );
   Parameter* d = find_by_hash( get_declarations( m_Node ), hash );
@@ -87,20 +90,29 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
   if( !d )
     return;
 
-  if( !p )
+  if( p )
   {
+    if( !safe_to_convert( p, d->m_Type ) )
+    {
+      p->m_Type = d->m_Type;
+      memset( &p->m_Data, 0, sizeof( ParameterData ) );
+      if( d->m_Type == E_VART_HASH )
+        p->m_Type = E_VART_STRING;
+    }
+  }
+  else
+  {
+    new_param = true;
     p = clone( m_Context, d );
-    append_to_end( get_parameters( m_Node ), p );
+
+    if( get_parameters(m_Node) )
+      append_to_end( get_parameters( m_Node ), p );
+    else
+      set_parameters( m_Node, p );
+
     p->m_ValueSet = true;
     if( d->m_Type == E_VART_HASH )
       p->m_Type = E_VART_STRING;
-  }
-
-  if( bugged )
-  {
-    QIcon* icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
-    m_Model.item( row, 0 )->setIcon( *icon );
-    item->setData( false, Qt::UserRole + 3 );
   }
 
   bool changed = false;
@@ -118,7 +130,7 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
   case E_VART_INTEGER:
     {
       int t = p->m_Data.m_Integer;
-      p->m_Data.m_Integer = item->data( Qt::UserRole + 2 ).toInt();
+      p->m_Data.m_Integer = item->data( E_DATA ).toInt();
       if( t != p->m_Data.m_Integer )
         changed = true;
     }
@@ -126,7 +138,7 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
   case E_VART_FLOAT:
     {
       float t = p->m_Data.m_Float;
-      p->m_Data.m_Float = item->data( Qt::UserRole + 2 ).toFloat();
+      p->m_Data.m_Float = item->data( E_DATA ).toFloat();
       if( t != p->m_Data.m_Float )
         changed = true;
     }
@@ -144,18 +156,9 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
     break;
   }
 
-  if( changed )
+  if( changed || new_param )
   {
-    m_HasBuggs = false;
-    int c = m_Model.rowCount();
-    for( int i = 0; i < c; ++i )
-    {
-      if( !m_Model.item( i, 2 )->data( Qt::UserRole + 3 ).toBool() )
-        continue;
-      m_HasBuggs = true;
-      break;
-    }
-
+    validateParameters();
     emit nodeParametersChanged();
   }
 }
@@ -163,17 +166,10 @@ void NodePropertyEditor::updateNodeParameterData( QStandardItem* item )
 void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
   Parameter* dec )
 {
-  QIcon* bug_icon = IconCache::get( g_IconNames[ICON_BUG] );
-  QIcon* good_icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
-  m_HasBuggs = false;
   Parameter* it = dec;
   while( it )
   {
     Parameter* v = find_by_hash( set, it->m_Id.m_Hash );
-    bool param_bugged = false;
-
-    if( !v )
-      param_bugged = true;
 
     QStandardItem* l = new QStandardItem( it->m_Id.m_Text );
     QStandardItem* tl = new QStandardItem;
@@ -183,9 +179,10 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     tl->setFlags( Qt::NoItemFlags );
     e->setFlags( Qt::NoItemFlags );
 
-    e->setData( it->m_Id.m_Hash, Qt::UserRole + 0 );
-    e->setData( it->m_Type, Qt::UserRole + 1 );
-    e->setData( false, Qt::UserRole + 3 );
+    e->setData( it->m_Id.m_Hash, E_HASH );
+    e->setData( it->m_Type, E_TYPE );
+
+    bool conv_safe = safe_to_convert( v, it->m_Type );
 
     switch( it->m_Type )
     {
@@ -193,7 +190,7 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
       {
         tl->setText( tr( "bool" ) );
         e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsUserCheckable );
-        if( v && as_bool( *v ) )
+        if( v && conv_safe && as_bool( *v ) )
           e->setCheckState( Qt::Checked );
         else
           e->setCheckState( Qt::Unchecked );
@@ -202,10 +199,10 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_FLOAT:
       {
         tl->setText( tr( "float" ) );
-        if( v )
+        if( v && conv_safe )
         {
           e->setText( QString( "%1" ).arg( as_float( *v ) ) );
-          e->setData( as_float( *v ), Qt::UserRole + 2 );
+          e->setData( as_float( *v ), E_DATA );
         }
         e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
       }
@@ -213,17 +210,17 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_INTEGER:
       {
         tl->setText( tr( "integer" ) );
-        if( v )
+        if( v && conv_safe )
         {
           e->setText( QString( "%1" ).arg( as_integer( *v ) ) );
-          e->setData( as_integer( *v ), Qt::UserRole + 2 );
+          e->setData( as_integer( *v ), E_DATA );
         }
         e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
       }
       break;
     case E_VART_HASH:
       tl->setText( tr( "hash" ) );
-      if( v )
+      if( v && conv_safe )
       {
         if( v->m_Type == E_VART_STRING )
           e->setText( as_string( *v )->m_Raw );
@@ -239,7 +236,7 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_STRING:
       {
         tl->setText( tr( "string" ) );
-        if( v )
+        if( v && conv_safe )
           e->setText( as_string( *v )->m_Raw );
         e->setFlags( Qt::ItemIsEnabled | Qt::ItemIsEditable );
       }
@@ -247,13 +244,12 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     case E_VART_UNDEFINED:
     case E_MAX_VARIABLE_TYPE:
       // Warning Killers
-      param_bugged = true;
       tl->setText( tr( "I have no clue." ) );
       break;
     }
 
     int row = m_Model.rowCount();
-    e->setData( row, Qt::UserRole + 4 );
+    e->setData( row, E_ROW );
     l->setFlags( Qt::ItemIsEnabled );
     tl->setFlags( Qt::ItemIsEnabled );
 
@@ -262,17 +258,39 @@ void NodePropertyEditor::setupPropertyEditorForParamaters( Parameter* set,
     m_Model.setItem( row, 1, tl );
     m_Model.setItem( row, 2, e );
 
-    if( bug_icon && param_bugged )
+    it = it->m_Next;
+  }
+}
+
+void NodePropertyEditor::validateParameters()
+{
+  QIcon* bug_icon  = IconCache::get( g_IconNames[ICON_BUG] );
+  QIcon* good_icon = IconCache::get( g_IconNames[ICON_SUCCESS] );
+  QIcon* warn_icon = IconCache::get( g_IconNames[ICON_WARNING] );
+
+  Parameter* params = get_parameters( m_Node );
+  Parameter* declar = get_declarations( m_Node );
+  Parameter* it = declar;
+
+  m_HasBuggs = false;
+  m_HasWarnings = false;
+
+  int row = 0;
+
+  while( it )
+  {
+    QStandardItem* label = m_Model.item( row, 0 );
+    Parameter* p = find_by_hash( params, it->m_Id.m_Hash );
+    if( !p || !safe_to_convert( p, it->m_Type ) )
     {
-      l->setIcon( *bug_icon );
-      e->setData( true, Qt::UserRole + 3 );
+      label->setIcon( *bug_icon );
+      m_HasBuggs = true;
     }
     else
-      l->setIcon( *good_icon );
-
-    if( param_bugged )
-      m_HasBuggs = true;
-
+    {
+      label->setIcon( *good_icon );
+    }
     it = it->m_Next;
+    ++row;
   }
 }

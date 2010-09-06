@@ -66,13 +66,16 @@ public:
   }
 
 signals:
+;
   void modified();
   void updatedSymbols( BehaviorTreeContext );
   void itemSelected( QWidget* );
 
 public slots:
+;
   void layout();
   void itemModified( bool geometry_changed );
+  void itemSymbolChanged( unsigned int hash_id );
   void deleteSelected();
   void nodeSelected( QWidget* );
   void updateClone();
@@ -110,6 +113,8 @@ protected:
   void setupDecoratorNode( Node*, const XNodeData& );
   void setupActionNode( Node*, const XNodeData& );
   void setupTreeNode( Node*, const XNodeData& );
+
+  void clearGraphics();
 
   BehaviorTreeContext m_TreeContext;
   BehaviorTreeContext m_FullContext;
