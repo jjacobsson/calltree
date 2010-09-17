@@ -25,7 +25,12 @@ BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
   QListWidget( parent )
 {
   setDragEnabled( true );
-  setViewMode( QListView::ListMode );
+  //setViewMode( QListView::ListMode );
+  setFlow( QListView::TopToBottom );
+  setMovement( QListView::Static );
+  setResizeMode( QListView::Adjust );
+  setWrapping( true );
+  //setUniformItemSizes( true );
   setIconSize( QSize( 16, 16 ) );
   setSpacing( 2 );
   setAcceptDrops( false );
