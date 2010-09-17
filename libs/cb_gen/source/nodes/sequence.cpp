@@ -14,6 +14,7 @@
 
 #include "../gen_utility.h"
 #include "../gen_btree.h"
+#include "../gen_switch.h"
 #include <cb_gen/cb_gen.h>
 
 using namespace cb;
@@ -61,6 +62,5 @@ void gen_sequence_des( Function* f, Node* n, uint prio )
 {
 
 }
-
 
 }

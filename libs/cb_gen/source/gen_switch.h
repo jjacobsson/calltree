@@ -12,9 +12,9 @@
 #ifndef CB_GEN_GEN_SWITCH_H_INCLUDED
 #define CB_GEN_GEN_SWITCH_H_INCLUDED
 
-namespace cb_gen {
-
 struct Node;
+
+namespace cb_gen {
 
 typedef int (*Func_MemoryNeeds)( Node* );
 typedef int (*Func_Setup)( Node* );
