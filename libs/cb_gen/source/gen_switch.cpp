@@ -10,23 +10,38 @@
  *******************************************************************************/
 
 #include "gen_switch.h"
-
 #include <btree/btree_data.h>
-
-#include "nodes/sequence.h"
 
 namespace cb_gen {
 
-  NodeTypeFunctions g_NodeTypeFunctions[E_MAX_GRIST_TYPES] =
+  int memory_needs( Node* n )
   {
-    {
-      &sequence_memory_needed,
-      0x0,
-      0x0,
-      0x0,
-      0x0,
-      0x0
-    }
-  };
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].memory_needs( n );
+  }
+
+  int setup( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].setup( n );
+  }
+
+  int teardown( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].teardown( n );
+  }
+
+  int gen_con( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].gen_con( n );
+  }
+
+  int gen_exe( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].gen_exe( n );
+  }
+
+  int gen_des( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].gen_des( n );
+  }
 
 }

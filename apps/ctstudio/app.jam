@@ -9,7 +9,7 @@ if $(QTPATH)
 	local _ui_headers    = [ uiFiles [ RecursiveDirList $(_apppath) ui : *.ui ] ] ;
 	local _moc_sources   = [ mocHeaders $(_moc_headers) ] ;
 	local _qrc_svgs      = [ RecursiveDirList $(_apppath) resources : *.svg ] ;
-	local _qrc_file		 = [ FDirName $(_apppath) resources cts_resources.qrc ] ;
+	local _qrc_file      = [ FDirName $(_apppath) resources cts_resources.qrc ] ;
 	local _qrc_sources   = [ qrcFile $(_qrc_file) : $(_qrc_svgs) ] ;
 
 	local _main_cpp         = [ FDirName $(_apppath) source main.cpp ] ;
