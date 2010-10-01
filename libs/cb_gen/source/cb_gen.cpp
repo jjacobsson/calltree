@@ -12,6 +12,7 @@
 #include <cb_gen/cb_gen.h>
 #include "gen_utility.h"
 #include "gen_btree.h"
+#include "node_generation_data.h"
 
 #include <other/lookup3.h>
 
@@ -83,12 +84,15 @@ void generate( Function* f )
 
   f->m_I.reserve( 1024 );
 
+  NodeGenerationNeeds needs;
+  init( needs );
+
   uchar r_arg0    = er0;
-  uchar r_br_comp = alloc_register( f, 0 );
-  uchar r_br_node = alloc_register( f, 0 );
-  uchar r_br_exit = alloc_register( f, 0 );
-  uchar r_rr_comp = alloc_register( f, 0 );
-  uchar r_ms      = alloc_register( f, 0 );
+  uchar r_br_comp = allocate_register( needs );
+  uchar r_br_node = allocate_register( needs );
+  uchar r_br_exit = allocate_register( needs );
+  uchar r_rr_comp = allocate_register( needs );
+  uchar r_ms      = allocate_register( needs );
 
   //Load r_br_exit with the exit function jump target
   load_with_offset( f->m_I, r_br_exit, ejt, jt_exi );
@@ -191,12 +195,6 @@ void generate( Function* f )
 
   //Set the offset for the "exit" jump
   set_offset( f->m_P, jt_exi, f->m_I.size() );
-  //Free all registers
-  free_register( f, r_ms );
-  free_register( f, r_rr_comp );
-  free_register( f, r_br_exit );
-  free_register( f, r_br_node );
-  free_register( f, r_br_comp );
   //Restore the ms register
   add( f, imov, ems, r_ms, 0 );
   //Return
