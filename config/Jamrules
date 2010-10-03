@@ -689,8 +689,8 @@ rule InvokeApplication
 		
 		# Actions
 		MkDir $(_path) ;
-		Archive $(_applib) : $(_alib_objects) ;
-		Link  $(_appfile)  :  $(_applib) $(_objects) ;
+		Archive $(_applib)  : $(_alib_objects) ;
+		Link    $(_appfile) : $(_objects) $(_applib) ;
 
 		Depends $(_applib)  : $(_path) ;
 		Depends $(_applib)  : $(_alib_objects) ;
