@@ -10,6 +10,7 @@
  *******************************************************************************/
 
 #include "gen_btree.h"
+#include "gen_switch.h"
 
 namespace cb_gen {
 
@@ -73,7 +74,13 @@ void create_functions( BehaviorTreeContext ctx, Program* p )
   if( ns->m_Type != E_ST_TREE )
     return;
 
-  create_functions( ns->m_Symbol.m_Tree, p );
+  Node n;
+  init( &n );
+  n.m_Grist.m_Type = E_GRIST_TREE;
+  n.m_Grist.m_Tree.m_Tree = ns->m_Symbol.m_Tree;
+  setup( &n );
+
+//  create_functions( ns->m_Symbol.m_Tree, p );
 }
 
 void gen_node_con( Function* f, Node* n, uint prio )

@@ -671,10 +671,16 @@ rule InvokeApplication
 
 	# SetObjectFiles $(_appname) ;
 	local _sources = [ GetSourceFiles $(_appname) ] ;
+
+  if ! $(_sources)
+  {
+    return ;
+  }       
+
 	local _objects = [ CreateObjectFiles $(_sources) : $(_appname) ] ;
 	_objects = [ SetVariablesOnObjects2 $(_objects) : $(_appname) ] ; 
 	
-    SetNeededLibraries $(_appname) : $(_appfile) : $(_appname) ;    
+  SetNeededLibraries $(_appname) : $(_appfile) : $(_appname) ;    
 
 	local _alib_sources = [ GetSourceFiles $(_appname)_alib ] ;
 
@@ -708,14 +714,14 @@ rule InvokeApplication
 	else
 	{
     # Actions
-	MkDir $(_appfile:P) ;
-	Link  $(_appfile) : $(_objects) ;
+    MkDir $(_appfile:P) ;
+    Link  $(_appfile) : $(_objects) ;
 
     Depends $(_appfile) : $(_appfile:P) ;
-	Depends $(_appfile) : $(_objects) ;
-	Depends $(_appname) : $(_appfile) ;
-	Depends exe	        : $(_appname) ;
-	Clean   clean       : $(_appfile) ;
+    Depends $(_appfile) : $(_objects) ;
+	  Depends $(_appname) : $(_appfile) ;
+    Depends exe	        : $(_appname) ;
+	  Clean   clean       : $(_appfile) ;
 	}
 
 	if $(NT)
@@ -729,7 +735,7 @@ rule InvokeApplication
 
 rule InvokeLibs
 {
-    NotFile $(1) ;
+  NotFile $(1) ;
 	local _subdirs = [ ListDir $(1) ] ;
 	local _subdir = ;
 	local _confirmed = ;

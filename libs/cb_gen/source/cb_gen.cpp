@@ -232,64 +232,64 @@ void count_memory( Program* p )
 void generate( BehaviorTreeContext ctx, Program* p )
 {
   create_functions( ctx, p );
-  generate_functions( p );
-  count_memory( p );
+//   generate_functions( p );
+//   count_memory( p );
 
-  //"Main Entry Function" function index
-  uint mef = find_function( p, "main" );
-  //Set the memory need's for this program
-  p->m_Memory = p->m_F[mef].m_F->m_Memory + 4;
-  //"Jump To Execute" jump target
-  uint jte = jump_target( p, 0x0 );
-  //"Jump To EXit" jump target
-  uint jtex = jump_target( p, 0x0 );
+//   //"Main Entry Function" function index
+//   uint mef = find_function( p, "main" );
+//   //Set the memory need's for this program
+//   p->m_Memory = p->m_F[mef].m_F->m_Memory + 4;
+//   //"Jump To Execute" jump target
+//   uint jte = jump_target( p, 0x0 );
+//   //"Jump To EXit" jump target
+//   uint jtex = jump_target( p, 0x0 );
 
-  //Set r0 to ACT_CONSTRUCT
-  set_registry( p->m_I, er0, ACT_CONSTRUCT );
-  //Load the current tree state from memory into r1
-  load_with_offset( p->m_I, er1, ems, 0 );
-  //Setup the jump target in er2
-  load_with_offset( p->m_I, er2, ejt, jte );
-  //Jump past call if already constructed
-  add( p, ibrne, er2, er1, er0 );
-  //Call the "main" tree's function
-  dressed_call( p->m_I, er20, mef, 4 );
+//   //Set r0 to ACT_CONSTRUCT
+//   set_registry( p->m_I, er0, ACT_CONSTRUCT );
+//   //Load the current tree state from memory into r1
+//   load_with_offset( p->m_I, er1, ems, 0 );
+//   //Setup the jump target in er2
+//   load_with_offset( p->m_I, er2, ejt, jte );
+//   //Jump past call if already constructed
+//   add( p, ibrne, er2, er1, er0 );
+//   //Call the "main" tree's function
+//   dressed_call( p->m_I, er20, mef, 4 );
 
-  //Set the jte offset
-  set_offset( p, jte, p->m_I.size() );
+//   //Set the jte offset
+//   set_offset( p, jte, p->m_I.size() );
 
-  //Set er0 to ACT_EXECUTE
-  set_registry( p->m_I, er0, ACT_EXECUTE );
-  //Store er0 (ACT_EXECUTE) in the state memory
-  store_with_offset( p->m_I, er0, 0, ems );
+//   //Set er0 to ACT_EXECUTE
+//   set_registry( p->m_I, er0, ACT_EXECUTE );
+//   //Store er0 (ACT_EXECUTE) in the state memory
+//   store_with_offset( p->m_I, er0, 0, ems );
 
-  //Call the "main" tree's function
-  dressed_call( p->m_I, er20, mef, 4 );
+//   //Call the "main" tree's function
+//   dressed_call( p->m_I, er20, mef, 4 );
 
-  //Setup the jump target in er0
-  load_with_offset( p->m_I, er0, ejt, jtex );
-  //Setup er1 with the return value we want to check
-  set_registry( p->m_I, er1, E_NODE_WORKING );
-  //Jump past destruction if the tree is "non-finished"
-  add( p, ibre, er0, er1, err );
+//   //Setup the jump target in er0
+//   load_with_offset( p->m_I, er0, ejt, jtex );
+//   //Setup er1 with the return value we want to check
+//   set_registry( p->m_I, er1, E_NODE_WORKING );
+//   //Jump past destruction if the tree is "non-finished"
+//   add( p, ibre, er0, er1, err );
 
-  //Setup er0 to tell the tree to destruct
-  set_registry( p->m_I, er0, ACT_DESTRUCT );
-  //Call the "main" tree's function
-  dressed_call( p->m_I, er20, mef, 4 );
+//   //Setup er0 to tell the tree to destruct
+//   set_registry( p->m_I, er0, ACT_DESTRUCT );
+//   //Call the "main" tree's function
+//   dressed_call( p->m_I, er20, mef, 4 );
 
-  //Setup er0 to ACT_CONSTRUCT
-  set_registry( p->m_I, er0, ACT_CONSTRUCT );
-  //Store er0 in state memory
-  store_with_offset( p->m_I, er0, 0, ems );
+//   //Setup er0 to ACT_CONSTRUCT
+//   set_registry( p->m_I, er0, ACT_CONSTRUCT );
+//   //Store er0 in state memory
+//   store_with_offset( p->m_I, er0, 0, ems );
 
-  //Set the jtex offset
-  set_offset( p, jtex, p->m_I.size() );
+//   //Set the jtex offset
+//   set_offset( p, jtex, p->m_I.size() );
 
-  //Exit
-  add( p, iexit, 0, 0, 0 );
+//   //Exit
+//   add( p, iexit, 0, 0, 0 );
 
-  translate_jump_labels( p );
+//  translate_jump_labels( p );
 }
 
 uint find_function( Program* p, const char* name )

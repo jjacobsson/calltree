@@ -14,6 +14,7 @@
 
 #include "../gen_utility.h"
 #include "../gen_btree.h"
+#include "../gen_switch.h"
 #include <cb_gen/cb_gen.h>
 
 using namespace cb;
@@ -36,6 +37,18 @@ int sequence_memory_needed( Node* n )
     c = c->m_Next;
   }
   return mem + max;
+}
+
+int sequence_setup( Node* n )
+{
+  Node* c = get_first_child( n );
+  while( c )
+  {
+    if( int r = setup( c ) )
+      return r;
+    c = c->m_Next;
+  }
+  return 0;
 }
 
 void gen_sequence_con( Function* f, Node* n, uint prio )
@@ -61,6 +74,5 @@ void gen_sequence_des( Function* f, Node* n, uint prio )
 {
 
 }
-
 
 }
