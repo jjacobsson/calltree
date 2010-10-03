@@ -16,12 +16,15 @@ struct Node;
 
 namespace cb_gen {
 
+struct NodeGenerationNeeds;
+
 typedef int (*Func_MemoryNeeds)( Node* );
 typedef int (*Func_Setup)( Node* );
 typedef int (*Func_Teardown)( Node* );
 typedef int (*Func_GenConstruction)( Node* );
 typedef int (*Func_GenExecution)( Node* );
 typedef int (*Func_GenDestruction)( Node* );
+typedef NodeGenerationNeeds* (*Func_GetNeeds)( Node* );
 
 struct NodeTypeFunctions
 {
@@ -31,6 +34,7 @@ struct NodeTypeFunctions
   Func_GenConstruction gen_con;
   Func_GenExecution    gen_exe;
   Func_GenDestruction  gen_des;
+  Func_GetNeeds        get_needs;
 };
 
 extern NodeTypeFunctions g_NodeTypeFunctions[];
@@ -41,7 +45,7 @@ int teardown( Node* );
 int gen_con( Node* );
 int gen_exe( Node* );
 int gen_des( Node* );
-
+NodeGenerationNeeds* get_needs( Node* n );
 }
 
 #endif /* CB_GEN_GEN_SWITCH_H_INCLUDED */

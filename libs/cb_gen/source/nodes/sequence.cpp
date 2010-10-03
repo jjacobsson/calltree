@@ -17,6 +17,8 @@
 #include "../gen_switch.h"
 #include <cb_gen/cb_gen.h>
 
+#include "../node_generation_data.h"
+
 using namespace cb;
 
 namespace cb_gen {
@@ -41,13 +43,25 @@ int sequence_memory_needed( Node* n )
 
 int sequence_setup( Node* n )
 {
+  NodeGenerationNeeds* ngn = new NodeGenerationNeeds;
+  init( *ngn );
+  n->m_UserData = ngn;
+
   Node* c = get_first_child( n );
   while( c )
   {
     if( int r = setup( c ) )
       return r;
+    accumulate_register_use_counters( *ngn, *get_needs( c ) );
     c = c->m_Next;
   }
+
+  for( uint i = 0; i < cb::gen_reg_count; ++i )
+  {
+    if( ngn->m_RegUseCounters[i] > 0 )
+      printf( "Reg %d allocated\n", i );
+  }
+
   return 0;
 }
 

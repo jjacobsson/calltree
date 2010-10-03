@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-09-17 Joacim Jacobsson.
+ * Copyright (c) 2010-10-04 Joacim Jacobsson.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,15 +9,18 @@
  *    Joacim Jacobsson - first implementation
  *******************************************************************************/
 
-#ifndef CB_GEN_NODES_SEQUENCE_H_INCLUDED
-#define CB_GEN_NODES_SEQUENCE_H_INCLUDED
+#ifndef CB_GEN_NODES_ACTION_H_INCLUDED
+#define CB_GEN_NODES_ACTION_H_INCLUDED
 
 struct Node;
 
 namespace cb_gen {
 
-  int sequence_setup( Node* n );
-  int sequence_memory_needed( Node* n );
+struct NodeGenerationNeeds;
+
+  int action_setup( Node* n );
+  int action_teardown( Node* n );
+  NodeGenerationNeeds* action_get_needs( Node* n );
 
 }
 

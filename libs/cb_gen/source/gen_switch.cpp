@@ -11,6 +11,7 @@
 
 #include "gen_switch.h"
 #include <btree/btree_data.h>
+#include <stdio.h>
 
 namespace cb_gen {
 
@@ -42,6 +43,11 @@ namespace cb_gen {
   int gen_des( Node* n )
   {
     return g_NodeTypeFunctions[n->m_Grist.m_Type].gen_des( n );
+  }
+
+  NodeGenerationNeeds* get_needs( Node* n )
+  {
+    return g_NodeTypeFunctions[n->m_Grist.m_Type].get_needs( n );
   }
 
 }

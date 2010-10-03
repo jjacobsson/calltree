@@ -13,14 +13,31 @@
 
 namespace cb_gen {
 
-void action_setup( Node* n )
+int action_setup( Node* n )
 {
-
+  NodeGenerationNeeds* ngn = new NodeGenerationNeeds;
+  init( *ngn );
+  uint reg = allocate_register( *ngn );
+  n->m_UserData = ngn;
+  return 0;
 }
 
-void action_gen_construct( Function* f, Node* n )
+int action_teardown( Node*n )
 {
+  NodeGenerationNeeds* ngn = (NodeGenerationNeeds*)n->m_UserData;
+  delete ngn;
+  n->m_UserData = 0x0;
+  return 0;
+}
 
+int action_gen_construct( Function* f, Node* n )
+{
+  return -1;
+}
+
+NodeGenerationNeeds* action_get_needs( Node* n )
+{
+  return (NodeGenerationNeeds*)n->m_UserData;
 }
 
 }
