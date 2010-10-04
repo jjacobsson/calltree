@@ -43,7 +43,7 @@ Parameter* find_last( Parameter* v );
 
 void append_to_end( Parameter* start, Parameter* v );
 
-int count_elements( Parameter* start );
+unsigned int count_elements( Parameter* start );
 
 Parameter* find_by_hash( Parameter* start, hash_t hash );
 

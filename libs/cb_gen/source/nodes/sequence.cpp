@@ -56,12 +56,6 @@ int sequence_setup( Node* n )
     c = c->m_Next;
   }
 
-  for( uint i = 0; i < cb::gen_reg_count; ++i )
-  {
-    if( ngn->m_RegUseCounters[i] > 0 )
-      printf( "Reg %d allocated\n", i );
-  }
-
   return 0;
 }
 

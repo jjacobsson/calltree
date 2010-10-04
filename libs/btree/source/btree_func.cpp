@@ -116,9 +116,9 @@ void append_to_end( Parameter* s, Parameter* v )
     s->m_Next = v;
 }
 
-int count_elements( Parameter* s )
+unsigned int count_elements( Parameter* s )
 {
-  int r = 0;
+  unsigned int r = 0;
   while( s )
   {
     ++r;

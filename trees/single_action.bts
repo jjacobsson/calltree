@@ -1,0 +1,25 @@
+
+; Options
+
+
+; Includes
+
+(include "cbrun.bth")
+
+
+; Types
+
+
+; Actions
+
+
+; Decorators
+
+
+; Trees
+
+(deftree main null (
+  (action 'act_print ((str "text")))
+ )
+)
+
