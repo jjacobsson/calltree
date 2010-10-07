@@ -21,21 +21,25 @@
 #include <QtGui/QDrag>
 #include <QtGui/QPixmap>
 
-BehaviorTreeList::BehaviorTreeList( QWidget *parent ) :
-  QListWidget( parent )
+BehaviorTreeList::BehaviorTreeList( QWidget *parent )
+  : QListWidget( parent )
+  , m_Mode( E_MULTI_COLUMN )
 {
   setDragEnabled( true );
-  //setViewMode( QListView::ListMode );
-  setFlow( QListView::TopToBottom );
-  setMovement( QListView::Static );
-  setResizeMode( QListView::Adjust );
-  setWrapping( true );
-  //setUniformItemSizes( true );
+  setSingleColumn();
   setIconSize( QSize( 16, 16 ) );
   setSpacing( 2 );
   setAcceptDrops( false );
   setDropIndicatorShown( false );
   setupStandardNodes();
+}
+
+void BehaviorTreeList::setMode( int mode )
+{
+  if( mode == E_SINGLE_COLUMN )
+    setSingleColumn();
+  else if( mode == E_MULTI_COLUMN )
+    setMultiColumn();
 }
 
 void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
@@ -104,6 +108,30 @@ void BehaviorTreeList::loadSymbols( BehaviorTreeContext ctx )
   }
 
   sortItems();
+}
+
+void BehaviorTreeList::setSingleColumn()
+{
+  if( m_Mode == E_SINGLE_COLUMN )
+    return;
+  m_Mode = E_SINGLE_COLUMN;
+  setViewMode( QListView::ListMode );
+  setFlow( QListView::TopToBottom );
+  setMovement( QListView::Static );
+  setResizeMode( QListView::Adjust );
+  setWrapping( false );
+}
+
+void BehaviorTreeList::setMultiColumn()
+{
+  if( m_Mode == E_MULTI_COLUMN )
+    return;
+  m_Mode = E_MULTI_COLUMN;
+  setViewMode( QListView::ListMode );
+  setFlow( QListView::TopToBottom );
+  setMovement( QListView::Static );
+  setResizeMode( QListView::Adjust );
+  setWrapping( true );
 }
 
 void BehaviorTreeList::startDrag( Qt::DropActions /*supportedActions*/ )

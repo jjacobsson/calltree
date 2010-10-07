@@ -21,15 +21,30 @@ class BehaviorTreeList : public QListWidget
    Q_OBJECT
 
 public:
+
+   enum Mode
+   {
+     E_SINGLE_COLUMN,
+     E_MULTI_COLUMN
+   };
+
    BehaviorTreeList(QWidget *parent = 0);
+
+   int mode() const { return m_Mode; }
+   void setMode( int mode );
 
 public slots:
    void loadSymbols( BehaviorTreeContext );
+
+   void setSingleColumn();
+   void setMultiColumn();
 
 protected:
    void startDrag(Qt::DropActions supportedActions);
 
    void setupStandardNodes();
+
+   int m_Mode;
 };
 
 #endif

@@ -334,6 +334,26 @@ struct BehaviorTreeNodeData
 
 int gen_setup_btree( BehaviorTree* t, Program* p, int mo )
 {
+  if( !t->m_Declared )
+  {
+    printf( "%s(%d): error: tree \"%s\" has not been declared.\n",
+      t->m_Locator.m_Buffer,
+      t->m_Locator.m_LineNo,
+      t->m_Id.m_Text
+    );
+    return -1;
+  }
+
+  if( t->m_Root == 0x0 )
+  {
+    printf( "%s(%d): error: tree \"%s\" does not have a root node.\n",
+      t->m_Locator.m_Buffer,
+      t->m_Locator.m_LineNo,
+      t->m_Id.m_Text
+    );
+    return -1;
+  }
+
   BehaviorTreeNodeData* nd = new BehaviorTreeNodeData;
 
   //Alloc storage area for "destroy" command.
@@ -1415,6 +1435,16 @@ struct TreeNodeData
 
 int gen_setup_tree( Node* n, Program* p, int mo )
 {
+  if( !n->m_Grist.m_Tree.m_Tree->m_Declared )
+  {
+    printf( "%s(%d): error: tree \"%s\" has not been declared.\n",
+      n->m_Locator.m_Buffer,
+      n->m_Locator.m_LineNo,
+      n->m_Grist.m_Tree.m_Tree->m_Id.m_Text
+    );
+    return -1;
+  }
+
   //Alloc space needed for code generation
   TreeNodeData* nd = new TreeNodeData;
 
@@ -1528,6 +1558,16 @@ struct DecoratorNodeData
 
 int gen_setup_decorator( Node* n, Program* p, int mo )
 {
+  if( !n->m_Grist.m_Decorator.m_Decorator->m_Declared )
+  {
+    printf( "%s(%d): error: decorator \"%s\" has not been declared.\n",
+      n->m_Locator.m_Buffer,
+      n->m_Locator.m_LineNo,
+      n->m_Grist.m_Decorator.m_Decorator->m_Id.m_Text
+    );
+    return -1;
+  }
+
   Node* c = get_first_child( n );
   if( !c )
     return 0;
@@ -1861,6 +1901,16 @@ struct ActionNodeData
 
 int gen_setup_action( Node* n, Program* p, int mo )
 {
+  if( !n->m_Grist.m_Action.m_Action->m_Declared )
+  {
+    printf( "%s(%d): error: action \"%s\" has not been declared.\n",
+      n->m_Locator.m_Buffer,
+      n->m_Locator.m_LineNo,
+      n->m_Grist.m_Action.m_Action->m_Id.m_Text
+    );
+    return -1;
+  }
+
   //Alloc space needed for code generation
   ActionNodeData* nd = new ActionNodeData;
   //Set the bss pointer to zero.
@@ -1887,7 +1937,7 @@ int gen_setup_action( Node* n, Program* p, int mo )
   if( bss > 0 )
   {
     nd->m_bssPos  = mo; mo += bss;
-    nd->m_usesBss   = true;
+    nd->m_usesBss = true;
   }
 
   {
@@ -2153,7 +2203,7 @@ void print_missing_param_error( Node* n, Parameter* d, NamedSymbol* ns )
     break;
   }
 
-  printf( "%s(%d) : error : parameter \"%s\" for %s \"%s\" is missing.\n",
+  printf( "%s(%d): error: parameter \"%s\" for %s \"%s\" is missing.\n",
     use_buff,
     use_line,
     d->m_Id.m_Text,
@@ -2163,7 +2213,7 @@ void print_missing_param_error( Node* n, Parameter* d, NamedSymbol* ns )
 
   if( ns_loc )
   {
-    printf( "%s(%d) : error : see declaration for parameter \"%s\" for %s \"%s\".\n",
+    printf( "%s(%d): error: see declaration for parameter \"%s\" for %s \"%s\".\n",
       ns_loc->m_Buffer,
       ns_loc->m_LineNo,
       d->m_Id.m_Text,
@@ -2202,7 +2252,7 @@ void print_unable_to_convert_param_error( Node* n, Parameter* v, Parameter* d, N
   case E_MAX_VARIABLE_TYPE: break;
   }
 
-  printf( "%s(%d) : error : parameter \"%s\" can't be converted from type %s to %s.\n",
+  printf( "%s(%d): error: parameter \"%s\" can't be converted from type %s to %s.\n",
     use_buff,
     use_line,
     d->m_Id.m_Text,

@@ -16,5 +16,7 @@
 	<file>nodes/leaf.svg</file>
 	<file>icons/bug.svg</file>
 	<file>icons/warning.svg</file>
+	<file>icons/application_view_columns.png</file>
+	<file>icons/application_view_list.png</file>
 </qresource>
  </RCC>
