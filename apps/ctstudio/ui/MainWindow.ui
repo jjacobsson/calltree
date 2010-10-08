@@ -57,13 +57,13 @@
     </property>
     <addaction name="m_ActionAboutQt"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="m_MenuEdit">
     <property name="title">
      <string>&amp;Edit</string>
     </property>
     <addaction name="m_ActionDelete"/>
    </widget>
-   <widget class="QMenu" name="menuNodes">
+   <widget class="QMenu" name="m_MenuNodes">
     <property name="title">
      <string>Nodes</string>
     </property>
@@ -71,8 +71,8 @@
     <addaction name="m_ActionMultiColumn"/>
    </widget>
    <addaction name="m_MenuFile"/>
-   <addaction name="menuEdit"/>
-   <addaction name="menuNodes"/>
+   <addaction name="m_MenuEdit"/>
+   <addaction name="m_MenuNodes"/>
    <addaction name="m_MenuHelp"/>
   </widget>
   <widget class="QDockWidget" name="m_NodesDock">
@@ -106,8 +106,20 @@
    <widget class="QWidget" name="dockWidgetContents2"/>
   </widget>
   <widget class="QToolBar" name="m_ToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -115,10 +127,19 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="m_ActionOpen"/>
+   <addaction name="m_ActionNew"/>
+   <addaction name="m_ActionReload"/>
+   <addaction name="m_ActionSave"/>
+   <addaction name="separator"/>
    <addaction name="m_ActionSingleColumn"/>
    <addaction name="m_ActionMultiColumn"/>
   </widget>
   <action name="m_ActionOpen">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/page.png</normaloff>:/icons/page.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Open</string>
    </property>
@@ -126,7 +147,7 @@
     <string>Ctrl+O</string>
    </property>
    <property name="iconVisibleInMenu">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </action>
   <action name="m_ActionAboutQt">
@@ -138,6 +159,10 @@
    </property>
   </action>
   <action name="m_ActionSave">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/page_save.png</normaloff>:/icons/page_save.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
@@ -146,14 +171,25 @@
    </property>
   </action>
   <action name="m_ActionSaveAs">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/page_save_as.png</normaloff>:/icons/page_save_as.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save As</string>
+   </property>
+   <property name="toolTip">
+    <string>Save As...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="m_ActionDelete">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/bullet_delete.png</normaloff>:/icons/bullet_delete.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Delete</string>
    </property>
@@ -162,6 +198,10 @@
    </property>
   </action>
   <action name="m_ActionNew">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/page_add.png</normaloff>:/icons/page_add.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;New</string>
    </property>
@@ -173,6 +213,10 @@
    </property>
   </action>
   <action name="m_ActionReload">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/page_refresh.png</normaloff>:/icons/page_refresh.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Reload</string>
    </property>
@@ -181,6 +225,10 @@
    </property>
   </action>
   <action name="m_ActionSingleColumn">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/application_view_list.png</normaloff>:/icons/application_view_list.png</iconset>
+   </property>
    <property name="text">
     <string>S&amp;ingle Column</string>
    </property>
@@ -189,6 +237,10 @@
    </property>
   </action>
   <action name="m_ActionMultiColumn">
+   <property name="icon">
+    <iconset resource="../resources/cts_resources.qrc">
+     <normaloff>:/icons/application_view_columns.png</normaloff>:/icons/application_view_columns.png</iconset>
+   </property>
    <property name="text">
     <string>M&amp;ultiple Columns</string>
    </property>
@@ -197,6 +249,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/cts_resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

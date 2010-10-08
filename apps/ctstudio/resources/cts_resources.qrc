@@ -1,22 +1,28 @@
- <!DOCTYPE RCC>
- <RCC version="1.0">
- <qresource>
- 	<file>nodes/unknown.svg</file>
-	<file>nodes/sequence.svg</file>
-	<file>nodes/selector.svg</file>
-	<file>nodes/parallel.svg</file>
-	<file>nodes/dyn_selector.svg</file>
-	<file>nodes/succeed.svg</file>
-	<file>nodes/fail.svg</file>
-	<file>nodes/work.svg</file>
-	<file>nodes/decorator.svg</file>
-	<file>nodes/action.svg</file>     
-	<file>nodes/tree.svg</file>
-	<file>nodes/include.svg</file>
-	<file>nodes/leaf.svg</file>
-	<file>icons/bug.svg</file>
-	<file>icons/warning.svg</file>
-	<file>icons/application_view_columns.png</file>
-	<file>icons/application_view_list.png</file>
-</qresource>
- </RCC>
+<RCC>
+  <qresource>
+    <file>icons/page_save_as.png</file>
+    <file>icons/bullet_delete.png</file>
+    <file>icons/page_add.png</file>
+    <file>icons/page.png</file>
+    <file>nodes/unknown.svg</file>
+    <file>nodes/sequence.svg</file>
+    <file>nodes/selector.svg</file>
+    <file>nodes/parallel.svg</file>
+    <file>nodes/dyn_selector.svg</file>
+    <file>nodes/succeed.svg</file>
+    <file>nodes/fail.svg</file>
+    <file>nodes/work.svg</file>
+    <file>nodes/decorator.svg</file>
+    <file>nodes/action.svg</file>
+    <file>nodes/tree.svg</file>
+    <file>nodes/include.svg</file>
+    <file>nodes/leaf.svg</file>
+    <file>icons/bug.svg</file>
+    <file>icons/warning.svg</file>
+    <file>icons/application_view_columns.png</file>
+    <file>icons/page_white.png</file>
+    <file>icons/page_refresh.png</file>
+    <file>icons/page_save.png</file>
+    <file>icons/application_view_list.png</file>
+  </qresource>
+</RCC>

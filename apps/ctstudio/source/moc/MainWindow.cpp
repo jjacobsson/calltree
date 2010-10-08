@@ -51,9 +51,6 @@ MainWindow::MainWindow() :
   connect( m_ActionDelete, SIGNAL( triggered() ), m_BTreeScene, SLOT( deleteSelected() ) );
   connect( m_ActionSingleColumn, SIGNAL( triggered() ), m_List, SLOT( setSingleColumn() ) );
   connect( m_ActionMultiColumn, SIGNAL( triggered() ), m_List, SLOT( setMultiColumn() ) );
-
-  m_ActionSingleColumn->setIcon( QIcon( ":/icons/application_view_list.png" ) );
-  m_ActionMultiColumn->setIcon( QIcon( ":/icons/application_view_columns.png" ) );
 }
 
 void MainWindow::newFile()
@@ -212,7 +209,6 @@ void MainWindow::readSettings()
   m_List->setMode( settings.value( "nodelist_mode").toInt() );
   settings.endGroup();
   updateRecentFileActions();
-
 }
 
 void MainWindow::writeSettings()
