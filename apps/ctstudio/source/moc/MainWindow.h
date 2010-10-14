@@ -46,6 +46,7 @@ private slots:
   void openRecentFile();
   void treeModified();
   void setPropertyWidget( QWidget* );
+  void displayAboutDialog();
 
 private:
 

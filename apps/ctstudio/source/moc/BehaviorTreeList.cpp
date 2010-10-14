@@ -115,10 +115,6 @@ void BehaviorTreeList::setSingleColumn()
   if( m_Mode == E_SINGLE_COLUMN )
     return;
   m_Mode = E_SINGLE_COLUMN;
-  setViewMode( QListView::ListMode );
-  setFlow( QListView::TopToBottom );
-  setMovement( QListView::Static );
-  setResizeMode( QListView::Adjust );
   setWrapping( false );
 }
 
@@ -127,10 +123,6 @@ void BehaviorTreeList::setMultiColumn()
   if( m_Mode == E_MULTI_COLUMN )
     return;
   m_Mode = E_MULTI_COLUMN;
-  setViewMode( QListView::ListMode );
-  setFlow( QListView::TopToBottom );
-  setMovement( QListView::Static );
-  setResizeMode( QListView::Adjust );
   setWrapping( true );
 }
 

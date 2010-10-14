@@ -22,3 +22,6 @@ mingw & msys for Bison & Flex.
 Anyone who wants to get their hands dirty with the code all I can say is: 
 
 get your hands dirty.
+
+Recently some icons from "FAMFAMFAM":http://www.famfamfam.com/lab/icons/silk/ have snuck in. 
+Because they are awesome.

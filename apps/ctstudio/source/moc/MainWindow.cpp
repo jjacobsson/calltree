@@ -51,6 +51,7 @@ MainWindow::MainWindow() :
   connect( m_ActionDelete, SIGNAL( triggered() ), m_BTreeScene, SLOT( deleteSelected() ) );
   connect( m_ActionSingleColumn, SIGNAL( triggered() ), m_List, SLOT( setSingleColumn() ) );
   connect( m_ActionMultiColumn, SIGNAL( triggered() ), m_List, SLOT( setMultiColumn() ) );
+  connect( m_About, SIGNAL( triggered() ), this, SLOT( displayAboutDialog() ) );
 }
 
 void MainWindow::newFile()
@@ -130,6 +131,24 @@ void MainWindow::treeModified()
 void MainWindow::setPropertyWidget( QWidget* property_widget )
 {
   m_PropertiesDock->setWidget( property_widget );
+}
+
+void MainWindow::displayAboutDialog()
+{
+  QMessageBox msgBox;
+  QPushButton* okBtn = msgBox.addButton( tr("Ok I guess..."), QMessageBox::ActionRole );
+  msgBox.setWindowTitle( tr("About Calltree Studio") );
+  QString about_message;
+  about_message += tr("This is Calltree Studio version \"really low number with a Greek letter on the end\".<br>");
+  about_message += tr("It is an application for editing <a href=\"http://aigamedev.com\">behavior trees</a>.<br>");
+  about_message += tr("The source code for this application lives <a href=\"http://github.com/jjacobsson/calltree\">here</a>.<br>" );
+  about_message += "<br>";
+  about_message += tr("It uses <a href=\"http://qt.nokia.com/\">Qt</a>.<br>");
+  about_message += tr("And some of the <a href=\"http://www.famfamfam.com/lab/icons/silk/\">Silk icons from FAMFAMFAM</a>.<br>" );
+  about_message += "<br>";
+  about_message += "<h3>Here there be dragons.</h3>";
+  msgBox.setText( about_message );
+  msgBox.exec();
 }
 
 void MainWindow::setupStatusBar()
@@ -246,7 +265,7 @@ bool MainWindow::saveFile( const QString& fileName )
     QMessageBox::warning( this, tr( "Calltree Studio" ), tr(
       "Save failed. Please make sure that:\n"
         " - You have enough free disk-space.\n"
-        " - That the file you are saving to isen't write-protected.\n" ),
+        " - That the file you are saving to isn't write-protected.\n" ),
       QMessageBox::Ok | QMessageBox::Default, QMessageBox::NoButton,
       QMessageBox::NoButton );
 

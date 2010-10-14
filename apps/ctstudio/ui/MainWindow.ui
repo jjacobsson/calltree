@@ -56,6 +56,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="m_ActionAboutQt"/>
+    <addaction name="m_About"/>
    </widget>
    <widget class="QMenu" name="m_MenuEdit">
     <property name="title">
@@ -127,10 +128,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="m_ActionOpen"/>
    <addaction name="m_ActionNew"/>
+   <addaction name="m_ActionOpen"/>
    <addaction name="m_ActionReload"/>
    <addaction name="m_ActionSave"/>
+   <addaction name="m_ActionSaveAs"/>
    <addaction name="separator"/>
    <addaction name="m_ActionSingleColumn"/>
    <addaction name="m_ActionMultiColumn"/>
@@ -246,6 +248,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="m_About">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

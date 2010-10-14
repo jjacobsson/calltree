@@ -86,7 +86,7 @@ int main( int argc, char** argv )
         g_swapEndian = false;
       else
       {
-        fprintf( stdout, "error: unknown argument for option -e: %s\n",
+        fprintf( stderr, "error: unknown argument for option -e: %s\n",
           ctx.optarg );
         return -1;
       }
@@ -126,7 +126,15 @@ int main( int argc, char** argv )
   if( !g_inputFileName )
   {
     returnCode = -1;
-    printf( "error: No input file given.\n" );
+    fprintf( stderr, "error: No input file given.\n" );
+  }
+
+  // Convert all \ to / in the input file name, in order to
+  // aid the include path translation
+  for( char* p = g_inputFileName; p && *p; ++p )
+  {
+    if( *p == '\\' )
+      *p = '/';
   }
 
   if( returnCode == 0 )
@@ -147,7 +155,7 @@ int main( int argc, char** argv )
     pi.m_File = fopen( pi.m_Name, "r" );
     if( !pi.m_File )
     {
-      printf( "%s(0): error: unable to open input file \"%s\" for reading.\n",
+      fprintf( stderr, "%s(0): error: unable to open input file \"%s\" for reading.\n",
         g_inputFileName, pi.m_Name );
       returnCode = -1;
     }
@@ -171,8 +179,7 @@ int main( int argc, char** argv )
       pi.m_File = fopen( pi.m_Name, "r" );
       if( !pi.m_File )
       {
-        printf(
-          "%s(%d): error: unable to open include file \"%s\" for reading.\n",
+        fprintf( stderr, "%s(%d): error: unable to open include file \"%s\" for reading.\n",
           include->m_Parent, include->m_LineNo, pi.m_Name );
         returnCode = -1;
         break;
@@ -196,7 +203,7 @@ int main( int argc, char** argv )
     include = get_first_include( btc );
     while( returnCode == 0 && include && g_printIncludes )
     {
-      fprintf( stdout, "%s\n", include->m_Name );
+      printf( "%s\n", include->m_Name );
       include = include->m_Next;
     }
 
@@ -205,7 +212,7 @@ int main( int argc, char** argv )
       FILE* header = fopen( g_outputHeaderName, "w" );
       if( !header )
       {
-        printf( "%s(0): error: Unable to open output file %s for writing.\n",
+        fprintf( stderr, "%s(0): error: Unable to open output file %s for writing.\n",
           g_inputFileName, g_outputHeaderName );
         returnCode = -1;
       }
@@ -213,7 +220,7 @@ int main( int argc, char** argv )
       {
         returnCode = print_header( header, g_inputFileName, btc );
         if( returnCode != 0 )
-          printf( "%s(0): error: unspecified error when writing header %s.\n",
+          fprintf( stderr, "%s(0): error: unspecified error when writing header %s.\n",
             g_inputFileName, g_outputHeaderName );
         fclose( header );
       }
@@ -233,11 +240,11 @@ int main( int argc, char** argv )
       {
         returnCode = generate( &p );
         if( returnCode != 0 )
-          printf( "%s(0): error: Internal compiler error in generate.\n", g_inputFileName );
+          fprintf( stderr, "%s(0): error: Internal compiler error in generate.\n", g_inputFileName );
       }
       else
       {
-        printf( "%s(0): error: Internal compiler error in setup.\n", g_inputFileName );
+        fprintf( stderr, "%s(0): error: Internal compiler error in setup.\n", g_inputFileName );
       }
 
       teardown( &p );
@@ -247,7 +254,7 @@ int main( int argc, char** argv )
         g_outputFile = fopen( g_outputFileName, "wb" );
         if( !g_outputFile )
         {
-          printf( "%s(0): error: Unable to open output file %s for writing.\n",
+          fprintf( stderr, "%s(0): error: Unable to open output file %s for writing.\n",
             g_inputFileName, g_outputFileName );
           returnCode = -2;
         }
@@ -256,7 +263,7 @@ int main( int argc, char** argv )
           returnCode = save_program( g_outputFile, g_swapEndian, &p );
         if( returnCode != 0 )
         {
-          printf( "%s(0): error: Failed to write output file %s.\n",
+          fprintf( stderr, "%s(0): error: Failed to write output file %s.\n",
             g_inputFileName, g_outputFileName );
           returnCode = -5;
         }
@@ -285,8 +292,9 @@ int main( int argc, char** argv )
         FILE* asmFile = fopen( g_asmFileName, "w" );
         if( !asmFile )
         {
-          printf( "%s(0): warning: Unable to open assembly file %s for writing.\n",
+          fprintf( stderr, "%s(0): error: Unable to open assembly file %s for writing.\n",
             g_inputFileName, g_asmFileName );
+          returnCode = -1;
         }
         else
         {
@@ -390,12 +398,12 @@ void parser_error( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d): error: %s\n", pi->m_Name, get_line_no( pc ),
+    fprintf( stderr, "%s(%d): error: %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
   {
-    printf( "%s(0): error: %s\n", g_inputFileName, msg );
+    fprintf( stderr, "%s(0): error: %s\n", g_inputFileName, msg );
   }
 }
 
@@ -404,12 +412,12 @@ void parser_warning( ParserContext pc, const char* msg )
   ParsingInfo* pi = (ParsingInfo*)get_extra( pc );
   if( pi )
   {
-    printf( "%s(%d): warning: %s\n", pi->m_Name, get_line_no( pc ),
+    fprintf( stderr, "%s(%d): warning: %s\n", pi->m_Name, get_line_no( pc ),
       msg );
   }
   else
   {
-    printf( "%s(0): warning: %s\n", g_inputFileName, msg );
+    fprintf( stderr, "%s(0): warning: %s\n", g_inputFileName, msg );
   }
 }
 
@@ -442,17 +450,11 @@ const char* parser_translate_include( ParserContext pc, const char* include )
 
   if( pi->m_Name )
   {
-    char backslash = '\\';
-    char frontslash = '/';
-
     int s = 0, last = -1;
-    const char* p = pi->m_Name;
-    while( p && *p )
+    for( const char* p = pi->m_Name; p && *p; ++p, ++s )
     {
-      if( *p == backslash || *p == frontslash )
+      if( *p == '/' )
         last = s;
-      ++p;
-      ++s;
     }
     if( last != -1 )
       append( &sb, pi->m_Name, last + 1 );
